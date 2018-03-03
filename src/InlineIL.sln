@@ -5,32 +5,41 @@ VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL", "InlineIL\InlineIL.csproj", "{B9A87D8F-3780-423B-80C8-E8D55F78D834}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InlineIL.Fody", "InlineIL.Fody\InlineIL.Fody.csproj", "{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Fody", "InlineIL.Fody\InlineIL.Fody.csproj", "{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InlineIL.Tests", "InlineIL.Tests\InlineIL.Tests.csproj", "{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Tests", "InlineIL.Tests\InlineIL.Tests.csproj", "{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InlineIL.Tests.AssemblyToProcess", "InlineIL.Tests.AssemblyToProcess\InlineIL.Tests.AssemblyToProcess.csproj", "{275EFB9F-0413-4759-BFFE-A8957B6A9E13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Tests.AssemblyToProcess", "InlineIL.Tests.AssemblyToProcess\InlineIL.Tests.AssemblyToProcess.csproj", "{275EFB9F-0413-4759-BFFE-A8957B6A9E13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DebugWithReleaseTests|Any CPU = DebugWithReleaseTests|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B9A87D8F-3780-423B-80C8-E8D55F78D834}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B9A87D8F-3780-423B-80C8-E8D55F78D834}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9A87D8F-3780-423B-80C8-E8D55F78D834}.DebugWithReleaseTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9A87D8F-3780-423B-80C8-E8D55F78D834}.DebugWithReleaseTests|Any CPU.Build.0 = Debug|Any CPU
 		{B9A87D8F-3780-423B-80C8-E8D55F78D834}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9A87D8F-3780-423B-80C8-E8D55F78D834}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}.DebugWithReleaseTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}.DebugWithReleaseTests|Any CPU.Build.0 = Debug|Any CPU
 		{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}.DebugWithReleaseTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}.DebugWithReleaseTests|Any CPU.Build.0 = Debug|Any CPU
 		{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75D3D243-2B7E-41D0-89F9-683E9A52E5AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{275EFB9F-0413-4759-BFFE-A8957B6A9E13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{275EFB9F-0413-4759-BFFE-A8957B6A9E13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{275EFB9F-0413-4759-BFFE-A8957B6A9E13}.DebugWithReleaseTests|Any CPU.ActiveCfg = Release|Any CPU
+		{275EFB9F-0413-4759-BFFE-A8957B6A9E13}.DebugWithReleaseTests|Any CPU.Build.0 = Release|Any CPU
 		{275EFB9F-0413-4759-BFFE-A8957B6A9E13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{275EFB9F-0413-4759-BFFE-A8957B6A9E13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

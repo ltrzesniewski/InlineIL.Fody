@@ -1,5 +1,4 @@
-﻿using System;
-using Fody;
+﻿using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -19,29 +18,33 @@ namespace InlineIL.Fody
 
         public void Process()
         {
-            for (var i = 0; i < Instructions.Count; ++i)
+            for (var instructionIndex = 0; instructionIndex < Instructions.Count;)
             {
-                var instruction = Instructions[i];
+                var instruction = Instructions[instructionIndex];
 
                 if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
                 {
                     switch (calledMethod.Name)
                     {
                         case KnownNames.Short.Op:
-                            ProcessOpNoArg(i);
+                            ProcessOpNoArg(instructionIndex);
                             break;
 
                         case KnownNames.Short.PushMethod:
-                            ProcessPushMethod(i);
+                            ProcessPushMethod(instructionIndex);
                             break;
 
                         case KnownNames.Short.UnreachableMethod:
-                            ProcessUnreachable(i);
+                            ProcessUnreachable(instructionIndex);
                             break;
 
                         default:
                             throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
                     }
+                }
+                else
+                {
+                    ++instructionIndex;
                 }
             }
         }
@@ -69,7 +72,7 @@ namespace InlineIL.Fody
             var throwInstruction = Instructions[instructionIndex];
 
             if (throwInstruction.OpCode != OpCodes.Throw)
-                throw new WeavingException("The Unreachable method should only be used like this: throw IL.Unreachable();");
+                throw new WeavingException("The Unreachable method should be used like this: throw IL.Unreachable();");
 
             Instructions.RemoveAt(instructionIndex);
             RemoveNops(instructionIndex);
