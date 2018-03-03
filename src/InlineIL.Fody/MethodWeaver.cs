@@ -6,27 +6,20 @@ namespace InlineIL.Fody
 {
     internal class MethodWeaver
     {
-        private readonly KnownReferences _refs;
-
-        public MethodWeaver(KnownReferences refs)
-        {
-            _refs = refs;
-        }
-
         public void ProcessMethod(MethodDefinition method)
         {
             if (NeedsProcessing(method))
-                new MethodContext(method, _refs).Process();
+                new MethodContext(method).Process();
         }
 
-        private bool NeedsProcessing(MethodDefinition method)
+        private static bool NeedsProcessing(MethodDefinition method)
         {
             return method.Body
                          .Instructions
                          .Where(i => i.OpCode == OpCodes.Call)
                          .Select(i => i.Operand)
                          .OfType<MethodReference>()
-                         .Any(m => m.DeclaringType.FullName == _refs.IlType.FullName);
+                         .Any(m => m.DeclaringType.FullName == MemberNames.IlType);
         }
     }
 }

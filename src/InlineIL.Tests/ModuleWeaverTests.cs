@@ -30,11 +30,19 @@ namespace InlineIL.Tests
         [Fact]
         public void should_process_assembly()
         {
-            var method = _processedAsembly.Modules.Single().GetType("InlineIL.Tests.AssemblyToProcess.BasicClass").Methods.Single(m => m.Name == "Nop");
+            var method = _processedAsembly.Modules.Single().GetType("BasicClass").Methods.Single(m => m.Name == "Nop");
 
             var instructionCount = method.Body.Instructions.Count;
             Assert.Equal(OpCodes.Ret, method.Body.Instructions.Last().OpCode);
             Assert.All(method.Body.Instructions.Select(i => i.OpCode).Take(instructionCount - 1), op => Assert.Equal(OpCodes.Nop, op));
+        }
+
+        [Fact]
+        public void should_push_arbitrary_value()
+        {
+            var result = (int)_testResult.GetInstance("BasicClass").MultiplyBy3(42);
+
+            Assert.Equal(42 * 3, result);
         }
     }
 }

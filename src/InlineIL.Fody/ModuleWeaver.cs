@@ -6,7 +6,6 @@ namespace InlineIL.Fody
 {
     public class ModuleWeaver : BaseModuleWeaver
     {
-        private KnownReferences _refs;
         private MethodWeaver _methodWeaver;
 
         public override bool ShouldCleanReference => true;
@@ -18,8 +17,7 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
-            _refs = new KnownReferences(FindType);
-            _methodWeaver = new MethodWeaver(_refs);
+            _methodWeaver = new MethodWeaver();
 
             foreach (var method in ModuleDefinition.Assembly.Modules.SelectMany(m => m.Types).SelectMany(t => t.Methods))
             {
