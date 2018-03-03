@@ -14,16 +14,16 @@ namespace InlineIL
         public static void Push<T>(T value)
             => Throw();
 
+        public static void Push<T>(ref T value)
+            => Throw();
+
         public static Exception Unreachable()
-            => Throw<Exception>();
-
-        private static void Throw()
-            => throw new InvalidOperationException("This function is meant to be replaced at compile time by InlineIL.Fody.");
-
-        private static TReturn Throw<TReturn>()
         {
             Throw();
             return default;
         }
+
+        private static void Throw()
+            => throw new InvalidOperationException("This function is meant to be replaced at compile time by InlineIL.Fody.");
     }
 }

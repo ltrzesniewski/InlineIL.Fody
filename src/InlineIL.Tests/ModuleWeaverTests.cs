@@ -38,11 +38,19 @@ namespace InlineIL.Tests
         }
 
         [Fact]
-        public void should_push_arbitrary_value()
+        public void should_push_value()
         {
             var result = (int)_testResult.GetInstance("BasicClass").MultiplyBy3(42);
 
             Assert.Equal(42 * 3, result);
+        }
+
+        [Fact]
+        public void should_push_value_by_ref()
+        {
+            var a = 42;
+            _testResult.GetInstance("BasicClass").AddAssign(ref a, 8);
+            Assert.Equal(50, a);
         }
     }
 }

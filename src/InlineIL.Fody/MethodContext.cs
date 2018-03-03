@@ -24,19 +24,22 @@ namespace InlineIL.Fody
 
                 if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
                 {
-                    switch (calledMethod.FullName)
+                    switch (calledMethod.Name)
                     {
-                        case var name when name == MemberNames.OpNoArgMethod:
+                        case KnownNames.Short.Op:
                             ProcessOpNoArg(i);
                             break;
 
-                        case var _ when calledMethod.IsGenericInstance && calledMethod.GetElementMethod().FullName == MemberNames.PushMethod:
-                            ProcessPush(i);
+                        case KnownNames.Short.PushMethod:
+                            ProcessPushMethod(i);
                             break;
 
-                        case var name when name == MemberNames.UnreachableMethod:
+                        case KnownNames.Short.UnreachableMethod:
                             ProcessUnreachable(i);
                             break;
+
+                        default:
+                            throw new InvalidOperationException($"Unsupported method: {calledMethod.FullName}");
                     }
                 }
             }
@@ -54,7 +57,7 @@ namespace InlineIL.Fody
             Instructions.Insert(firstIndex, Instruction.Create(opCode));
         }
 
-        private void ProcessPush(int instructionIndex)
+        private void ProcessPushMethod(int instructionIndex)
         {
             Instructions.RemoveAt(instructionIndex);
         }

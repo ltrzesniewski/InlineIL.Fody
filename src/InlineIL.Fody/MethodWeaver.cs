@@ -19,7 +19,8 @@ namespace InlineIL.Fody
                          .Where(i => i.OpCode == OpCodes.Call)
                          .Select(i => i.Operand)
                          .OfType<MethodReference>()
-                         .Any(m => m.DeclaringType.FullName == MemberNames.IlType);
+                         .Any(m => m.DeclaringType.Name == KnownNames.Short.IlType
+                                   && m.DeclaringType.FullName == KnownNames.Full.IlType);
         }
     }
 }
