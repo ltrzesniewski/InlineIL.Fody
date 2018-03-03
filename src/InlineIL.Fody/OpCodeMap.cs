@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -35,22 +35,24 @@ namespace InlineIL.Fody
         public static OpCode FromReflectionEmit(System.Reflection.Emit.OpCode opCode)
         {
             if (!_byValue.TryGetValue(opCode.Value, out var result))
-                throw new InvalidOperationException($"Unsupported opcode: {opCode.Name}");
+                throw new WeavingException($"Unsupported opcode: {opCode.Name}");
 
             return result;
         }
 
         public static OpCode FromLdsfld(Instruction ldsfld)
         {
+            var argType = typeof(System.Reflection.Emit.OpCodes);
+
             if (ldsfld.OpCode != OpCodes.Ldsfld)
-                throw new InvalidOperationException($"Expected ldsfld instruction, but got {ldsfld.OpCode} instead");
+                throw new WeavingException($"IL.Op should be given a parameter directly from the {argType.Name} type (expected ldsfld instruction, but got {ldsfld.OpCode} instead)");
 
             var field = (FieldReference)ldsfld.Operand;
-            if (field.DeclaringType.FullName != "System.Reflection.Emit.OpCodes")
-                throw new InvalidOperationException("Expected an argument from System.Reflection.Emit.OpCodes");
+            if (field.DeclaringType.FullName != argType.FullName)
+                throw new WeavingException($"IL.Op expects an argument directly from the {argType.FullName} type");
 
             if (!_byReflectionEmitFieldName.TryGetValue(field.Name, out var result))
-                throw new InvalidOperationException($"Unsupported opcode: {field.Name}");
+                throw new WeavingException($"Unsupported opcode: {field.Name}");
 
             return result;
         }

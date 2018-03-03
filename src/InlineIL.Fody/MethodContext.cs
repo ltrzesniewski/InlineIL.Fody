@@ -1,4 +1,5 @@
 ﻿using System;
+using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -39,7 +40,7 @@ namespace InlineIL.Fody
                             break;
 
                         default:
-                            throw new InvalidOperationException($"Unsupported method: {calledMethod.FullName}");
+                            throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
                     }
                 }
             }
@@ -68,7 +69,7 @@ namespace InlineIL.Fody
             var throwInstruction = Instructions[instructionIndex];
 
             if (throwInstruction.OpCode != OpCodes.Throw)
-                throw new InvalidOperationException("The Unreachable method should only be used like this: throw IL.Unreachable();");
+                throw new WeavingException("The Unreachable method should only be used like this: throw IL.Unreachable();");
 
             Instructions.RemoveAt(instructionIndex);
             RemoveNops(instructionIndex);
