@@ -6,6 +6,11 @@
     <DisableFody>true</DisableFody>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="2.4.4" />
     <PackageReference Include="xunit" Version="2.3.1" />
