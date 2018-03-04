@@ -1,5 +1,6 @@
 ﻿using System;
 using Fody;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace InlineIL.Fody
@@ -11,6 +12,18 @@ namespace InlineIL.Fody
             try
             {
                 return Instruction.Create(opCode);
+            }
+            catch (ArgumentException)
+            {
+                throw ExceptionInvalidOperand(opCode);
+            }
+        }
+
+        public static Instruction Create(OpCode opCode, TypeReference typeRef)
+        {
+            try
+            {
+                return Instruction.Create(opCode, typeRef);
             }
             catch (ArgumentException)
             {

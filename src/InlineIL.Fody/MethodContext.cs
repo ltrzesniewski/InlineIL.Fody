@@ -23,6 +23,9 @@ namespace InlineIL.Fody
             _il = _method.Body.GetILProcessor();
         }
 
+        public static bool IsIlType(TypeReference type)
+            => type.Name == KnownNames.Short.IlType && type.FullName == KnownNames.Full.IlType;
+
         public void Process()
         {
             _method.Body.SimplifyMacros();
@@ -33,7 +36,7 @@ namespace InlineIL.Fody
             {
                 var nextInstruction = instruction.Next;
 
-                if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
+                if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod && IsIlType(calledMethod.DeclaringType))
                 {
                     switch (calledMethod.Name)
                     {
@@ -78,6 +81,13 @@ namespace InlineIL.Fody
             {
                 var operandValue = ConsumeArgConst(args[1]);
                 _il.Replace(instruction, InstructionHelper.CreateConst(_il, opCode, operandValue));
+                return;
+            }
+
+            if (operandType.FullName == "System.Type")
+            {
+                var typeRef = ConsumeArgType(args[1]);
+                _il.Replace(instruction, InstructionHelper.Create(opCode, typeRef));
                 return;
             }
 
@@ -138,6 +148,21 @@ namespace InlineIL.Fody
             }
 
             throw new WeavingException($"Invalid operand, expected a constant, but was {instruction.Operand ?? "null"}");
+        }
+
+        private TypeReference ConsumeArgType(Instruction instruction)
+        {
+            if (instruction.OpCode != OpCodes.Call || !(instruction.Operand is MethodReference method) || method.FullName != "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)")
+                throw new WeavingException("Invalid operand, expected System.Type");
+
+            var ldToken = instruction.GetArgumentPushInstructions().Single();
+            if (ldToken.OpCode != OpCodes.Ldtoken)
+                throw new WeavingException("Invalid operand, expected ldtoken");
+
+            _il.Remove(ldToken);
+            _il.Remove(instruction);
+
+            return (TypeReference)ldToken.Operand;
         }
     }
 }

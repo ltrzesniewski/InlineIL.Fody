@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+[SuppressMessage("ReSharper", "UnusedTypeParameter")]
 public class BasicClass
 {
     public int MultiplyBy3(int value)
@@ -65,6 +67,13 @@ public class BasicClass
     public int ReturnArg(int value)
     {
         IL.Op(OpCodes.Ldarg, 1);
+        IL.Op(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
+    public RuntimeTypeHandle ReturnTypeHandle<T>()
+    {
+        IL.Op(OpCodes.Ldtoken, typeof(T));
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }

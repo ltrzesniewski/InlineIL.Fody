@@ -1,4 +1,5 @@
-﻿using Fody;
+﻿using System;
+using Fody;
 using InlineIL.Fody;
 using Xunit;
 
@@ -65,6 +66,13 @@ namespace InlineIL.Tests
         {
             var result = (int)_testResult.GetInstance("BasicClass").ReturnArg(42);
             Assert.Equal(42, result);
+        }
+
+        [Fact]
+        public void should_handle_type_arg()
+        {
+            var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").ReturnTypeHandle<Guid>();
+            Assert.Equal(typeof(Guid).TypeHandle, result);
         }
     }
 }

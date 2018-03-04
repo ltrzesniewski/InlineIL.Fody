@@ -36,13 +36,13 @@ namespace InlineIL.Fody
 
         private static bool NeedsProcessing(MethodDefinition method)
         {
-            return method.Body
-                         .Instructions
-                         .Where(i => i.OpCode == OpCodes.Call)
-                         .Select(i => i.Operand)
-                         .OfType<MethodReference>()
-                         .Any(m => m.DeclaringType.Name == KnownNames.Short.IlType
-                                   && m.DeclaringType.FullName == KnownNames.Full.IlType);
+            return method.HasBody
+                   && method.Body
+                            .Instructions
+                            .Where(i => i.OpCode == OpCodes.Call)
+                            .Select(i => i.Operand)
+                            .OfType<MethodReference>()
+                            .Any(m => MethodContext.IsIlType(m.DeclaringType));
         }
     }
 }
