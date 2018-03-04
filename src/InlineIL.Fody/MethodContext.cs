@@ -1,4 +1,5 @@
-﻿using Fody;
+﻿using System.Linq;
+using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
@@ -8,83 +9,78 @@ namespace InlineIL.Fody
     internal class MethodContext
     {
         private readonly MethodDefinition _method;
+        private readonly ILProcessor _il;
 
         private Collection<Instruction> Instructions => _method.Body.Instructions;
 
         public MethodContext(MethodDefinition method)
         {
             _method = method;
+            _il = _method.Body.GetILProcessor();
         }
 
         public void Process()
         {
-            for (var instructionIndex = 0; instructionIndex < Instructions.Count;)
+            var instruction = Instructions.FirstOrDefault();
+
+            while (instruction != null)
             {
-                var instruction = Instructions[instructionIndex];
+                var nextInstruction = instruction.Next;
 
                 if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
                 {
                     switch (calledMethod.Name)
                     {
                         case KnownNames.Short.Op:
-                            ProcessOpNoArg(instructionIndex);
+                            ProcessOpNoArg(instruction);
                             break;
 
                         case KnownNames.Short.PushMethod:
-                            ProcessPushMethod(instructionIndex);
+                            ProcessPushMethod(instruction);
                             break;
 
                         case KnownNames.Short.UnreachableMethod:
-                            ProcessUnreachable(instructionIndex);
+                            ProcessUnreachable(instruction);
                             break;
 
                         default:
                             throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
                     }
                 }
-                else
-                {
-                    ++instructionIndex;
-                }
+
+                instruction = nextInstruction;
             }
         }
 
-        private void ProcessOpNoArg(int instructionIndex)
+        private void ProcessOpNoArg(Instruction instruction)
         {
-            var instruction = Instructions[instructionIndex];
+            var args = instruction.GetArgumentPushInstructions();
+            var opCode = ConsumeArgOpCode(args[0]);
 
-            var opCode = OpCodeMap.FromLdsfld(instruction.Previous);
-
-            var firstIndex = instructionIndex - 1;
-            Instructions.RemoveAt(firstIndex);
-            Instructions.RemoveAt(firstIndex);
-            Instructions.Insert(firstIndex, Instruction.Create(opCode));
+            _il.Replace(instruction, InstructionHelper.Create(opCode));
         }
 
-        private void ProcessPushMethod(int instructionIndex)
+        private void ProcessPushMethod(Instruction instruction)
         {
-            Instructions.RemoveAt(instructionIndex);
+            _il.Remove(instruction);
         }
 
-        private void ProcessUnreachable(int instructionIndex)
+        private void ProcessUnreachable(Instruction instruction)
         {
-            Instructions.RemoveAt(instructionIndex);
-            var throwInstruction = Instructions[instructionIndex];
-
+            var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction.OpCode != OpCodes.Throw)
                 throw new WeavingException("The Unreachable method should be used like this: throw IL.Unreachable();");
 
-            Instructions.RemoveAt(instructionIndex);
-            RemoveNops(instructionIndex);
+            _il.Remove(instruction);
+            Instructions.RemoveNopsAround(throwInstruction);
+            _il.Remove(throwInstruction);
         }
 
-        private void RemoveNops(int instructionIndex)
+        private OpCode ConsumeArgOpCode(Instruction instruction)
         {
-            while (instructionIndex < Instructions.Count && Instructions[instructionIndex].OpCode == OpCodes.Nop)
-                Instructions.RemoveAt(instructionIndex);
-
-            while (--instructionIndex > 0 && Instructions[instructionIndex].OpCode == OpCodes.Nop)
-                Instructions.RemoveAt(instructionIndex);
+            var opCode = OpCodeMap.FromLdsfld(instruction);
+            _il.Remove(instruction);
+            return opCode;
         }
     }
 }

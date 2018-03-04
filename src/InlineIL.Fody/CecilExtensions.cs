@@ -2,11 +2,35 @@
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Collections.Generic;
 
 namespace InlineIL.Fody
 {
     internal static class CecilExtensions
     {
+        public static Instruction NextSkipNops(this Instruction instruction)
+        {
+            instruction = instruction.Next;
+
+            while (instruction != null && instruction.OpCode == OpCodes.Nop)
+                instruction = instruction.Next;
+
+            return instruction;
+        }
+
+        public static void RemoveNopsAround(this Collection<Instruction> instructions, Instruction instruction)
+        {
+            var instructionIndex = instructions.IndexOf(instruction);
+            if (instructionIndex < 0)
+                return;
+
+            while (instructionIndex < instructions.Count && instructions[instructionIndex].OpCode == OpCodes.Nop)
+                instructions.RemoveAt(instructionIndex);
+
+            while (--instructionIndex > 0 && instructions[instructionIndex].OpCode == OpCodes.Nop)
+                instructions.RemoveAt(instructionIndex);
+        }
+
         public static Instruction[] GetArgumentPushInstructions(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call)
