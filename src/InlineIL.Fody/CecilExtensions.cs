@@ -2,12 +2,21 @@
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
 
 namespace InlineIL.Fody
 {
     internal static class CecilExtensions
     {
+        public static Instruction PrevSkipNops(this Instruction instruction)
+        {
+            instruction = instruction.Previous;
+
+            while (instruction != null && instruction.OpCode == OpCodes.Nop)
+                instruction = instruction.Previous;
+
+            return instruction;
+        }
+
         public static Instruction NextSkipNops(this Instruction instruction)
         {
             instruction = instruction.Next;
@@ -18,8 +27,9 @@ namespace InlineIL.Fody
             return instruction;
         }
 
-        public static void RemoveNopsAround(this Collection<Instruction> instructions, Instruction instruction)
+        public static void RemoveNopsAround(this ILProcessor il, Instruction instruction)
         {
+            var instructions = il.Body.Instructions;
             var instructionIndex = instructions.IndexOf(instruction);
             if (instructionIndex < 0)
                 return;
@@ -72,6 +82,9 @@ namespace InlineIL.Fody
                 stackToConsume += popCount;
                 currentInstruction = currentInstruction.Previous;
             }
+
+            if (result == null)
+                throw new WeavingException("Could not locate call argument");
 
             return result;
         }

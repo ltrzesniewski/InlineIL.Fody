@@ -1,40 +1,19 @@
-﻿using System;
-using System.Linq;
-using Fody;
+﻿using Fody;
 using InlineIL.Fody;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
 using Xunit;
 
 #pragma warning disable 618
 
 namespace InlineIL.Tests
 {
-    public class ModuleWeaverTests : IDisposable
+    public class ModuleWeaverTests
     {
         private static readonly TestResult _testResult;
-        private static readonly AssemblyDefinition _processedAsembly;
 
         static ModuleWeaverTests()
         {
             var weavingTask = new ModuleWeaver();
             _testResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll");
-            _processedAsembly = AssemblyDefinition.ReadAssembly(_testResult.AssemblyPath);
-        }
-
-        public void Dispose()
-        {
-            _processedAsembly.Dispose();
-        }
-
-        [Fact]
-        public void should_process_assembly()
-        {
-            var method = _processedAsembly.Modules.Single().GetType("BasicClass").Methods.Single(m => m.Name == "Nop");
-
-            var instructionCount = method.Body.Instructions.Count;
-            Assert.Equal(OpCodes.Ret, method.Body.Instructions.Last().OpCode);
-            Assert.All(method.Body.Instructions.Select(i => i.OpCode).Take(instructionCount - 1), op => Assert.Equal(OpCodes.Nop, op));
         }
 
         [Fact]
@@ -51,6 +30,41 @@ namespace InlineIL.Tests
             var a = 42;
             _testResult.GetInstance("BasicClass").AddAssign(ref a, 8);
             Assert.Equal(50, a);
+        }
+
+        [Fact]
+        public void should_handle_const_operand_int()
+        {
+            var result = (int)_testResult.GetInstance("BasicClass").TwoPlusTwo();
+            Assert.Equal(4, result);
+        }
+
+        [Fact]
+        public void should_handle_const_operand_float()
+        {
+            var result = (int)_testResult.GetInstance("BasicClass").TwoPlusTwoFloat();
+            Assert.Equal(4.0, result);
+        }
+
+        [Fact]
+        public void should_handle_const_operand_byte()
+        {
+            var result = (int)_testResult.GetInstance("BasicClass").TwoPlusTwoByte();
+            Assert.Equal(4, result);
+        }
+
+        [Fact]
+        public void should_handle_const_operand_string()
+        {
+            var result = (string)_testResult.GetInstance("BasicClass").SayHi();
+            Assert.Equal("Hello!", result);
+        }
+
+        [Fact]
+        public void should_handle_const_operand_on_arg()
+        {
+            var result = (int)_testResult.GetInstance("BasicClass").ReturnArg(42);
+            Assert.Equal(42, result);
         }
     }
 }

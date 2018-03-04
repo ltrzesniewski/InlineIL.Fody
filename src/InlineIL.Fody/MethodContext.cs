@@ -1,26 +1,32 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 using Mono.Collections.Generic;
 
 namespace InlineIL.Fody
 {
     internal class MethodContext
     {
+        private readonly ModuleDefinition _module;
         private readonly MethodDefinition _method;
         private readonly ILProcessor _il;
 
         private Collection<Instruction> Instructions => _method.Body.Instructions;
 
-        public MethodContext(MethodDefinition method)
+        public MethodContext(ModuleDefinition module, MethodDefinition method)
         {
+            _module = module;
             _method = method;
             _il = _method.Body.GetILProcessor();
         }
 
         public void Process()
         {
+            _method.Body.SimplifyMacros();
+
             var instruction = Instructions.FirstOrDefault();
 
             while (instruction != null)
@@ -32,7 +38,7 @@ namespace InlineIL.Fody
                     switch (calledMethod.Name)
                     {
                         case KnownNames.Short.Op:
-                            ProcessOpNoArg(instruction);
+                            ProcessOpMethod(instruction);
                             break;
 
                         case KnownNames.Short.PushMethod:
@@ -40,7 +46,7 @@ namespace InlineIL.Fody
                             break;
 
                         case KnownNames.Short.UnreachableMethod:
-                            ProcessUnreachable(instruction);
+                            ProcessUnreachableMethod(instruction);
                             break;
 
                         default:
@@ -50,14 +56,32 @@ namespace InlineIL.Fody
 
                 instruction = nextInstruction;
             }
+
+            _method.Body.OptimizeMacros();
         }
 
-        private void ProcessOpNoArg(Instruction instruction)
+        private void ProcessOpMethod(Instruction instruction)
         {
+            var methodParams = ((MethodReference)instruction.Operand).Parameters;
+
             var args = instruction.GetArgumentPushInstructions();
             var opCode = ConsumeArgOpCode(args[0]);
 
-            _il.Replace(instruction, InstructionHelper.Create(opCode));
+            if (methodParams.Count == 1)
+            {
+                _il.Replace(instruction, InstructionHelper.Create(opCode));
+                return;
+            }
+
+            var operandType = methodParams[1].ParameterType;
+            if (operandType.IsPrimitive || operandType.FullName == _module.TypeSystem.String.FullName)
+            {
+                var operandValue = ConsumeArgConst(args[1]);
+                _il.Replace(instruction, InstructionHelper.CreateConst(_il, opCode, operandValue));
+                return;
+            }
+
+            throw new InvalidOperationException("Unsupported IL.Op overload");
         }
 
         private void ProcessPushMethod(Instruction instruction)
@@ -65,22 +89,55 @@ namespace InlineIL.Fody
             _il.Remove(instruction);
         }
 
-        private void ProcessUnreachable(Instruction instruction)
+        private void ProcessUnreachableMethod(Instruction instruction)
         {
             var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction.OpCode != OpCodes.Throw)
                 throw new WeavingException("The Unreachable method should be used like this: throw IL.Unreachable();");
 
             _il.Remove(instruction);
-            Instructions.RemoveNopsAround(throwInstruction);
+            _il.RemoveNopsAround(throwInstruction);
             _il.Remove(throwInstruction);
         }
 
         private OpCode ConsumeArgOpCode(Instruction instruction)
         {
-            var opCode = OpCodeMap.FromLdsfld(instruction);
             _il.Remove(instruction);
-            return opCode;
+            return OpCodeMap.FromLdsfld(instruction);
+        }
+
+        private object ConsumeArgConst(Instruction instruction)
+        {
+            switch (instruction.OpCode.OperandType)
+            {
+                case OperandType.InlineI:
+                case OperandType.InlineI8:
+                case OperandType.InlineR:
+                case OperandType.ShortInlineI:
+                case OperandType.ShortInlineR:
+                case OperandType.InlineString:
+                    _il.Remove(instruction);
+                    return instruction.Operand;
+            }
+
+            switch (instruction.OpCode.Code)
+            {
+                case Code.Conv_I1:
+                case Code.Conv_I2:
+                case Code.Conv_I4:
+                case Code.Conv_I8:
+                case Code.Conv_U1:
+                case Code.Conv_U2:
+                case Code.Conv_U4:
+                case Code.Conv_U8:
+                case Code.Conv_R4:
+                case Code.Conv_R8:
+                    var value = ConsumeArgConst(instruction.PrevSkipNops());
+                    _il.Remove(instruction);
+                    return value;
+            }
+
+            throw new WeavingException($"Invalid operand, expected a constant, but was {instruction.Operand ?? "null"}");
         }
     }
 }

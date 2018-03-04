@@ -8,21 +8,28 @@ namespace InlineIL.Fody
 {
     internal class MethodWeaver
     {
+        private readonly ModuleDefinition _module;
+
+        public MethodWeaver(ModuleDefinition module)
+        {
+            _module = module;
+        }
+
         public void ProcessMethod(MethodDefinition method)
         {
             if (NeedsProcessing(method))
             {
                 try
                 {
-                    new MethodContext(method).Process();
+                    new MethodContext(_module, method).Process();
                 }
                 catch (WeavingException ex)
                 {
-                    throw new WeavingException($"Error processing method {method.FullName} in type {method.DeclaringType.FullName}: {ex.Message}");
+                    throw new WeavingException($"Error processing method {method.FullName}: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    throw new InvalidOperationException($"Unexpected error occured while processing method {method.FullName} in type {method.DeclaringType.FullName}: {ex.Message}", ex);
+                    throw new InvalidOperationException($"Unexpected error occured while processing method {method.FullName}: {ex.Message}", ex);
                 }
             }
         }

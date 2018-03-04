@@ -17,7 +17,7 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
-            _methodWeaver = new MethodWeaver();
+            _methodWeaver = new MethodWeaver(ModuleDefinition);
 
             foreach (var method in ModuleDefinition.Assembly.Modules.SelectMany(m => m.Types).SelectMany(t => t.Methods))
             {

@@ -11,6 +11,18 @@ namespace InlineIL
         public static void Op(OpCode opCode)
             => Throw();
 
+        public static void Op(OpCode opCode, string arg)
+            => Throw();
+
+        public static void Op(OpCode opCode, int arg)
+            => Throw();
+
+        public static void Op(OpCode opCode, long arg)
+            => Throw();
+
+        public static void Op(OpCode opCode, double arg)
+            => Throw();
+
         public static void Push<T>(T value)
             => Throw();
 
