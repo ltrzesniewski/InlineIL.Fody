@@ -67,8 +67,7 @@ public class BasicClass
     public int ReturnArg(int value)
     {
         IL.Op(OpCodes.Ldarg, 1);
-        IL.Op(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<int>();
     }
 
     public RuntimeTypeHandle ReturnTypeHandle<T>()

@@ -79,6 +79,10 @@ namespace InlineIL.Fody
                             ProcessUnreachableMethod(instruction);
                             break;
 
+                        case KnownNames.Short.ReturnMethod:
+                            ProcessReturnMethod(instruction);
+                            break;
+
                         default:
                             throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
                     }
@@ -137,11 +141,43 @@ namespace InlineIL.Fody
         {
             var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction.OpCode != OpCodes.Throw)
-                throw new WeavingException("The Unreachable method should be used like this: throw IL.Unreachable();");
+                throw new WeavingException("The Unreachable method should be used along with the throw keyword: throw IL.Unreachable();");
 
             _il.Remove(instruction);
             _il.RemoveNopsAround(throwInstruction);
             _il.Remove(throwInstruction);
+        }
+
+        private void ProcessReturnMethod(Instruction instruction)
+        {
+            var nextInstruction = instruction.NextSkipNops();
+
+            switch (nextInstruction.OpCode.Code)
+            {
+                case Code.Ret:
+                    break;
+
+                case Code.Stloc: // Debug builds
+                {
+                    var localIndex = ((VariableReference)nextInstruction.Operand).Index;
+                    var branchInstruction = nextInstruction.NextSkipNops();
+                    if (branchInstruction?.OpCode == OpCodes.Br && branchInstruction.Operand is Instruction branchTarget)
+                    {
+                        if (branchTarget.OpCode == OpCodes.Nop)
+                            branchTarget = branchTarget.NextSkipNops();
+
+                        if (branchTarget.OpCode == OpCodes.Ldloc && ((VariableReference)branchTarget.Operand).Index == localIndex)
+                            break;
+                    }
+
+                    goto default;
+                }
+
+                default:
+                    throw new WeavingException("The Return method should be used along the return keyword: return IL.Return<T>();");
+            }
+
+            _il.Remove(instruction);
         }
 
         private OpCode ConsumeArgOpCode(Instruction instruction)

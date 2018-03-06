@@ -36,10 +36,10 @@ namespace InlineIL
             => Throw();
 
         public static Exception Unreachable()
-        {
-            Throw();
-            return default;
-        }
+            => throw Throw();
+
+        public static T Return<T>()
+            => throw Throw();
 
         internal static Exception Throw()
             => throw new InvalidOperationException("This function is meant to be replaced at compile time by InlineIL.Fody.");
