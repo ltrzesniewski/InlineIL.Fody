@@ -7,6 +7,23 @@ namespace InlineIL.Fody
 {
     internal static class CecilExtensions
     {
+        public static TypeDefinition ResolveRequiredType(this TypeReference typeRef)
+        {
+            try
+            {
+                var typeDef = typeRef.Resolve();
+
+                if (typeDef == null)
+                    throw new WeavingException($"Could not resolve type {typeRef.FullName}");
+
+                return typeDef;
+            }
+            catch (Exception ex)
+            {
+                throw new WeavingException($"Could not resolve type {typeRef.FullName}: {ex.Message}");
+            }
+        }
+
         public static Instruction PrevSkipNops(this Instruction instruction)
         {
             instruction = instruction.Previous;

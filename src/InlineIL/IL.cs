@@ -26,6 +26,9 @@ namespace InlineIL
         public static void Op(OpCode opCode, TypeReference arg)
             => Throw();
 
+        public static void Op(OpCode opCode, MethodReference arg)
+            => Throw();
+
         public static void Push<T>(T value)
             => Throw();
 

@@ -78,6 +78,14 @@ public class BasicClass
         throw IL.Unreachable();
     }
 
+    public Type ReturnType<T>()
+    {
+        IL.Op(OpCodes.Ldtoken, typeof(T));
+        IL.Op(OpCodes.Call, new MethodReference(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        IL.Op(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
     [SuppressMessage("ReSharper", "RedundantCast")]
     public RuntimeTypeHandle[] LoadTypeDifferentWays()
     {

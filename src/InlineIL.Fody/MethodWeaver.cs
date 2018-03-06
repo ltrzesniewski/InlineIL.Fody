@@ -118,6 +118,13 @@ namespace InlineIL.Fody
                 return;
             }
 
+            if (operandType.FullName == KnownNames.Full.MethodReferenceType)
+            {
+                var methodRef = ConsumeArgMethodRef(args[1]);
+                _il.Replace(instruction, InstructionHelper.Create(opCode, methodRef));
+                return;
+            }
+
             throw new InvalidOperationException("Unsupported IL.Op overload");
         }
 
@@ -252,6 +259,38 @@ namespace InlineIL.Fody
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
                     return innerTypeRef.MakeArrayType();
+                }
+            }
+
+            throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");
+        }
+
+        private MethodReference ConsumeArgMethodRef(Instruction instruction)
+        {
+            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                throw new WeavingException("Invalid opcode, expected a call");
+
+            switch (method.FullName)
+            {
+                case "System.Void InlineIL.MethodReference::.ctor(InlineIL.TypeReference,System.String)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();
+                    var methodName = ConsumeArgString(args[1]);
+
+                    var methods = typeDef.Methods.Where(m => m.Name == methodName).ToList();
+                    switch (methods.Count)
+                    {
+                        case 0:
+                            throw new WeavingException($"Method {methodName} not found in type {typeDef.FullName}");
+
+                        case 1:
+                            _il.Remove(instruction);
+                            return _module.ImportReference(methods.Single());
+
+                        default:
+                            throw new WeavingException($"Ambiguous method {methodName} in type {typeDef.FullName}");
+                    }
                 }
             }
 

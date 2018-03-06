@@ -15,6 +15,7 @@
         {
             public const string IlType = "InlineIL.IL";
             public const string TypeReferenceType = "InlineIL.TypeReference";
+            public const string MethodReferenceType = "InlineIL.MethodReference";
         }
     }
 }
