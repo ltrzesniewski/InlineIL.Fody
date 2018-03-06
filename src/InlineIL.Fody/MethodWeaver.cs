@@ -232,7 +232,10 @@ namespace InlineIL.Fody
                     if (assembly == null)
                         throw new WeavingException($"Could not resolve assembly {assemblyName}");
 
-                    var typeReference = assembly.Modules.Select(m => m.GetType(typeName, true)).FirstOrDefault();
+                    var typeReference = assembly.Modules
+                                                .Select(module => module.GetType(module.GetType(typeName, true).FullName)) // module.GetType(typeName, true) will return a type reference even if the type doesn't exist
+                                                .FirstOrDefault(t => t != null);
+
                     if (typeReference == null)
                         throw new WeavingException($"Could not find type {typeName} in assembly {assemblyName}");
 
