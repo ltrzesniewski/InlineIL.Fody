@@ -109,5 +109,12 @@ namespace InlineIL.Tests
             var result = (Type)_testResult.GetInstance("BasicClass").ReturnType<Guid>();
             Assert.Equal(typeof(Guid), result);
         }
+
+        [Fact]
+        public void should_handle_nested_types()
+        {
+            var result = (Type)_testResult.GetInstance("BasicClass").ReturnNestedType();
+            Assert.Equal("BasicClass+NestedType", result.FullName);
+        }
     }
 }

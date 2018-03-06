@@ -129,4 +129,16 @@ public class BasicClass
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
+
+    public Type ReturnNestedType()
+    {
+        IL.Op(OpCodes.Ldtoken, new TypeReference("InlineIL.Tests.AssemblyToProcess", "BasicClass+NestedType"));
+        IL.Op(OpCodes.Call, new MethodReference(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        IL.Op(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
+    public class NestedType
+    {
+    }
 }
