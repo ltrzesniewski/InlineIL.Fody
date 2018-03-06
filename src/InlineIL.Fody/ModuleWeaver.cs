@@ -6,8 +6,6 @@ namespace InlineIL.Fody
 {
     public class ModuleWeaver : BaseModuleWeaver
     {
-        private MethodWeaver _methodWeaver;
-
         public override bool ShouldCleanReference => true;
 
         public override IEnumerable<string> GetAssembliesForScanning()
@@ -17,11 +15,12 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
-            _methodWeaver = new MethodWeaver(ModuleDefinition);
-
             foreach (var method in ModuleDefinition.Assembly.Modules.SelectMany(m => m.Types).SelectMany(t => t.Methods))
             {
-                _methodWeaver.ProcessMethod(method);
+                if (!MethodWeaver.NeedsProcessing(method))
+                    continue;
+
+                new MethodWeaver(ModuleDefinition, method).Process();
             }
         }
     }
