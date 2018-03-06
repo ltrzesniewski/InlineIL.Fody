@@ -100,4 +100,11 @@ public class BasicClass
 
         return result;
     }
+
+    public RuntimeTypeHandle LoadPointerType()
+    {
+        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)).ToPointer().ToPointer());
+        IL.Op(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
 }

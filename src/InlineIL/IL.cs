@@ -38,7 +38,7 @@ namespace InlineIL
             return default;
         }
 
-        internal static void Throw()
+        internal static Exception Throw()
             => throw new InvalidOperationException("This function is meant to be replaced at compile time by InlineIL.Fody.");
     }
 }

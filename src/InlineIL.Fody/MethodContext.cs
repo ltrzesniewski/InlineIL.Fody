@@ -161,7 +161,7 @@ namespace InlineIL.Fody
 
         private TypeReference ConsumeArgTypeRef(Instruction instruction)
         {
-            if ((instruction.OpCode != OpCodes.Call && instruction.OpCode != OpCodes.Newobj) || !(instruction.Operand is MethodReference method))
+            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
                 throw new WeavingException("Invalid opcode, expected a call");
 
             switch (method.FullName)
@@ -204,6 +204,13 @@ namespace InlineIL.Fody
 
                     _il.Remove(instruction);
                     return _module.ImportReference(typeReference);
+                }
+
+                case "InlineIL.TypeReference InlineIL.TypeReference::ToPointer()":
+                {
+                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    _il.Remove(instruction);
+                    return innerTypeRef.MakePointerType();
                 }
             }
 

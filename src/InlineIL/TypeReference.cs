@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace InlineIL
 {
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
     public sealed class TypeReference
     {
         public TypeReference(Type type)
@@ -14,5 +15,8 @@ namespace InlineIL
 
         public static implicit operator TypeReference(Type type)
             => new TypeReference(type);
+
+        public TypeReference ToPointer()
+            => throw IL.Throw();
     }
 }

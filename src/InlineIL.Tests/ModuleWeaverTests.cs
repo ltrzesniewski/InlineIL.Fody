@@ -81,5 +81,12 @@ namespace InlineIL.Tests
             var result = (RuntimeTypeHandle[])_testResult.GetInstance("BasicClass").LoadTypeDifferentWays();
             Assert.All(result, handle => Assert.Equal(handle, result[0]));
         }
+
+        [Fact]
+        public void should_handle_pointer_types()
+        {
+            var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").LoadPointerType();
+            Assert.Equal(typeof(int**), Type.GetTypeFromHandle(result));
+        }
     }
 }
