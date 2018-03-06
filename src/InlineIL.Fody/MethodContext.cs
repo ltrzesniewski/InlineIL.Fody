@@ -212,9 +212,16 @@ namespace InlineIL.Fody
                     _il.Remove(instruction);
                     return innerTypeRef.MakePointerType();
                 }
+
+                case "InlineIL.TypeReference InlineIL.TypeReference::ToReference()":
+                {
+                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    _il.Remove(instruction);
+                    return innerTypeRef.MakeByReferenceType();
+                }
             }
 
-            throw new WeavingException("Invalid operand, expected a type reference");
+            throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");
         }
     }
 }

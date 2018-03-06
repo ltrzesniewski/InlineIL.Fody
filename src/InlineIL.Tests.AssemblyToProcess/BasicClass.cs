@@ -107,4 +107,11 @@ public class BasicClass
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
+
+    public RuntimeTypeHandle LoadReferenceType()
+    {
+        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)).ToReference());
+        IL.Op(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
 }

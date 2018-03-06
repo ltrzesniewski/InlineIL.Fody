@@ -88,5 +88,12 @@ namespace InlineIL.Tests
             var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").LoadPointerType();
             Assert.Equal(typeof(int**), Type.GetTypeFromHandle(result));
         }
+
+        [Fact]
+        public void should_handle_reference_types()
+        {
+            var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").LoadReferenceType();
+            Assert.Equal(typeof(int).MakeByRefType(), Type.GetTypeFromHandle(result));
+        }
     }
 }

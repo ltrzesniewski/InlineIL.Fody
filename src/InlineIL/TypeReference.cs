@@ -18,5 +18,8 @@ namespace InlineIL
 
         public TypeReference ToPointer()
             => throw IL.Throw();
+
+        public TypeReference ToReference()
+            => throw IL.Throw();
     }
 }
