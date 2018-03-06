@@ -114,4 +114,11 @@ public class BasicClass
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
+
+    public RuntimeTypeHandle LoadArrayType()
+    {
+        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)).ToArray().ToArray());
+        IL.Op(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
 }

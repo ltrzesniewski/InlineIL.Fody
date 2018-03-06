@@ -219,6 +219,13 @@ namespace InlineIL.Fody
                     _il.Remove(instruction);
                     return innerTypeRef.MakeByReferenceType();
                 }
+
+                case "InlineIL.TypeReference InlineIL.TypeReference::ToArray()":
+                {
+                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    _il.Remove(instruction);
+                    return innerTypeRef.MakeArrayType();
+                }
             }
 
             throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");

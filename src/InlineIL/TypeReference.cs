@@ -21,5 +21,8 @@ namespace InlineIL
 
         public TypeReference ToReference()
             => throw IL.Throw();
+
+        public TypeReference ToArray()
+            => throw IL.Throw();
     }
 }

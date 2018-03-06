@@ -95,5 +95,12 @@ namespace InlineIL.Tests
             var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").LoadReferenceType();
             Assert.Equal(typeof(int).MakeByRefType(), Type.GetTypeFromHandle(result));
         }
+
+        [Fact]
+        public void should_handle_array_types()
+        {
+            var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").LoadArrayType();
+            Assert.Equal(typeof(int[][]), Type.GetTypeFromHandle(result));
+        }
     }
 }
