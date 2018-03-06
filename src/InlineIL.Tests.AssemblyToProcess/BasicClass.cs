@@ -77,4 +77,27 @@ public class BasicClass
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
+
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    public RuntimeTypeHandle[] LoadTypeDifferentWays()
+    {
+        var result = new RuntimeTypeHandle[3];
+
+        IL.Push(result);
+        IL.Op(OpCodes.Ldc_I4_0);
+        IL.Op(OpCodes.Ldtoken, typeof(int));
+        IL.Op(OpCodes.Stelem, typeof(RuntimeTypeHandle));
+
+        IL.Push(result);
+        IL.Op(OpCodes.Ldc_I4_1);
+        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)));
+        IL.Op(OpCodes.Stelem, new TypeReference(typeof(RuntimeTypeHandle)));
+
+        IL.Push(result);
+        IL.Op(OpCodes.Ldc_I4_2);
+        IL.Op(OpCodes.Ldtoken, new TypeReference("mscorlib", "System.Int32"));
+        IL.Op(OpCodes.Stelem, new TypeReference("mscorlib", "System.RuntimeTypeHandle"));
+
+        return result;
+    }
 }

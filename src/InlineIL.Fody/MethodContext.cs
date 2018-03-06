@@ -40,7 +40,7 @@ namespace InlineIL.Fody
                 {
                     switch (calledMethod.Name)
                     {
-                        case KnownNames.Short.Op:
+                        case KnownNames.Short.OpMethod:
                             ProcessOpMethod(instruction);
                             break;
 
@@ -84,9 +84,9 @@ namespace InlineIL.Fody
                 return;
             }
 
-            if (operandType.FullName == "System.Type")
+            if (operandType.FullName == KnownNames.Full.TypeReferenceType)
             {
-                var typeRef = ConsumeArgType(args[1]);
+                var typeRef = ConsumeArgTypeRef(args[1]);
                 _il.Replace(instruction, InstructionHelper.Create(opCode, typeRef));
                 return;
             }
@@ -114,6 +114,15 @@ namespace InlineIL.Fody
         {
             _il.Remove(instruction);
             return OpCodeMap.FromLdsfld(instruction);
+        }
+
+        private string ConsumeArgString(Instruction instruction)
+        {
+            if (instruction.OpCode != OpCodes.Ldstr)
+                throw new WeavingException($"Invalid instruction, expected a constant string, but was {instruction}");
+
+            _il.Remove(instruction);
+            return (string)instruction.Operand;
         }
 
         private object ConsumeArgConst(Instruction instruction)
@@ -147,22 +156,58 @@ namespace InlineIL.Fody
                     return value;
             }
 
-            throw new WeavingException($"Invalid operand, expected a constant, but was {instruction.Operand ?? "null"}");
+            throw new WeavingException($"Invalid instruction, expected a constant, but was {instruction}");
         }
 
-        private TypeReference ConsumeArgType(Instruction instruction)
+        private TypeReference ConsumeArgTypeRef(Instruction instruction)
         {
-            if (instruction.OpCode != OpCodes.Call || !(instruction.Operand is MethodReference method) || method.FullName != "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)")
-                throw new WeavingException("Invalid operand, expected System.Type");
+            if ((instruction.OpCode != OpCodes.Call && instruction.OpCode != OpCodes.Newobj) || !(instruction.Operand is MethodReference method))
+                throw new WeavingException("Invalid opcode, expected a call");
 
-            var ldToken = instruction.GetArgumentPushInstructions().Single();
-            if (ldToken.OpCode != OpCodes.Ldtoken)
-                throw new WeavingException("Invalid operand, expected ldtoken");
+            switch (method.FullName)
+            {
+                case "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)":
+                {
+                    var ldToken = instruction.GetArgumentPushInstructions().Single();
+                    if (ldToken.OpCode != OpCodes.Ldtoken)
+                        throw new WeavingException("Invalid operand, expected ldtoken");
 
-            _il.Remove(ldToken);
-            _il.Remove(instruction);
+                    _il.Remove(ldToken);
+                    _il.Remove(instruction);
+                    return (TypeReference)ldToken.Operand;
+                }
 
-            return (TypeReference)ldToken.Operand;
+                case "InlineIL.TypeReference InlineIL.TypeReference::op_Implicit(System.Type)":
+                case "System.Void InlineIL.TypeReference::.ctor(System.Type)":
+                {
+                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    _il.Remove(instruction);
+                    return innerTypeRef;
+                }
+
+                case "System.Void InlineIL.TypeReference::.ctor(System.String,System.String)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var assemblyName = ConsumeArgString(args[0]);
+                    var typeName = ConsumeArgString(args[1]);
+
+                    var assembly = assemblyName == _module.Assembly.Name.Name
+                        ? _module.Assembly
+                        : _module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
+
+                    if (assembly == null)
+                        throw new WeavingException($"Could not resolve assembly {assemblyName}");
+
+                    var typeReference = assembly.Modules.Select(m => m.GetType(typeName, true)).FirstOrDefault();
+                    if (typeReference == null)
+                        throw new WeavingException($"Could not find type {typeName} in assembly {assemblyName}");
+
+                    _il.Remove(instruction);
+                    return _module.ImportReference(typeReference);
+                }
+            }
+
+            throw new WeavingException("Invalid operand, expected a type reference");
         }
     }
 }

@@ -74,5 +74,12 @@ namespace InlineIL.Tests
             var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").ReturnTypeHandle<Guid>();
             Assert.Equal(typeof(Guid).TypeHandle, result);
         }
+
+        [Fact]
+        public void should_handle_type_arg_different_ways()
+        {
+            var result = (RuntimeTypeHandle[])_testResult.GetInstance("BasicClass").LoadTypeDifferentWays();
+            Assert.All(result, handle => Assert.Equal(handle, result[0]));
+        }
     }
 }

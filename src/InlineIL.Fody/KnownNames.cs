@@ -6,7 +6,7 @@
         {
             public const string IlType = "IL";
 
-            public const string Op = "Op";
+            public const string OpMethod = "Op";
             public const string PushMethod = "Push";
             public const string UnreachableMethod = "Unreachable";
         }
@@ -14,6 +14,7 @@
         public static class Full
         {
             public const string IlType = "InlineIL.IL";
+            public const string TypeReferenceType = "InlineIL.TypeReference";
         }
     }
 }

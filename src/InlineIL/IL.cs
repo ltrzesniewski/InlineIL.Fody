@@ -23,7 +23,7 @@ namespace InlineIL
         public static void Op(OpCode opCode, double arg)
             => Throw();
 
-        public static void Op(OpCode opCode, Type arg)
+        public static void Op(OpCode opCode, TypeReference arg)
             => Throw();
 
         public static void Push<T>(T value)
@@ -38,7 +38,7 @@ namespace InlineIL
             return default;
         }
 
-        private static void Throw()
+        internal static void Throw()
             => throw new InvalidOperationException("This function is meant to be replaced at compile time by InlineIL.Fody.");
     }
 }
