@@ -5,24 +5,24 @@ namespace InlineIL
 {
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-    public sealed class TypeReference
+    public sealed class TypeRef
     {
-        public TypeReference(Type type)
+        public TypeRef(Type type)
             => IL.Throw();
 
-        public TypeReference(string assemblyName, string typeName)
+        public TypeRef(string assemblyName, string typeName)
             => IL.Throw();
 
-        public static implicit operator TypeReference(Type type)
-            => new TypeReference(type);
+        public static implicit operator TypeRef(Type type)
+            => new TypeRef(type);
 
-        public TypeReference ToPointer()
+        public TypeRef ToPointer()
             => throw IL.Throw();
 
-        public TypeReference ToReference()
+        public TypeRef ToReference()
             => throw IL.Throw();
 
-        public TypeReference ToArray()
+        public TypeRef ToArray()
             => throw IL.Throw();
     }
 }

@@ -11,8 +11,8 @@ namespace InlineIL.Tests
     {
         private readonly AssemblyDefinition _assembly;
         private readonly ILProcessor _il;
-        private readonly Mono.Cecil.MethodReference _methodPop3Push0;
-        private readonly Mono.Cecil.MethodReference _methodPop2Push1;
+        private readonly MethodReference _methodPop3Push0;
+        private readonly MethodReference _methodPop2Push1;
 
         public CecilExtensionsTests()
         {
@@ -21,12 +21,12 @@ namespace InlineIL.Tests
             var method = new MethodDefinition("Test", MethodAttributes.Public | MethodAttributes.Static, _assembly.MainModule.TypeSystem.Void);
             _il = method.Body.GetILProcessor();
 
-            _methodPop3Push0 = new Mono.Cecil.MethodReference("Test", _assembly.MainModule.TypeSystem.Void);
+            _methodPop3Push0 = new MethodReference("Test", _assembly.MainModule.TypeSystem.Void);
             _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
             _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
             _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
 
-            _methodPop2Push1 = new Mono.Cecil.MethodReference("Test", _assembly.MainModule.TypeSystem.Int32);
+            _methodPop2Push1 = new MethodReference("Test", _assembly.MainModule.TypeSystem.Int32);
             _methodPop2Push1.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
             _methodPop2Push1.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
         }

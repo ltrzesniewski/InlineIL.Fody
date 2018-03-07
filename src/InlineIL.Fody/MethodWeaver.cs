@@ -115,14 +115,14 @@ namespace InlineIL.Fody
                 return;
             }
 
-            if (operandType.FullName == KnownNames.Full.TypeReferenceType)
+            if (operandType.FullName == KnownNames.Full.TypeRefType)
             {
                 var typeRef = ConsumeArgTypeRef(args[1]);
                 _il.Replace(instruction, InstructionHelper.Create(opCode, typeRef));
                 return;
             }
 
-            if (operandType.FullName == KnownNames.Full.MethodReferenceType)
+            if (operandType.FullName == KnownNames.Full.MethodRefType)
             {
                 var methodRef = ConsumeArgMethodRef(args[1]);
                 _il.Replace(instruction, InstructionHelper.Create(opCode, methodRef));
@@ -247,15 +247,15 @@ namespace InlineIL.Fody
                     return (TypeReference)ldToken.Operand;
                 }
 
-                case "InlineIL.TypeReference InlineIL.TypeReference::op_Implicit(System.Type)":
-                case "System.Void InlineIL.TypeReference::.ctor(System.Type)":
+                case "InlineIL.TypeRef InlineIL.TypeRef::op_Implicit(System.Type)":
+                case "System.Void InlineIL.TypeRef::.ctor(System.Type)":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
                     return innerTypeRef;
                 }
 
-                case "System.Void InlineIL.TypeReference::.ctor(System.String,System.String)":
+                case "System.Void InlineIL.TypeRef::.ctor(System.String,System.String)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var assemblyName = ConsumeArgString(args[0]);
@@ -285,21 +285,21 @@ namespace InlineIL.Fody
                     return _module.ImportReference(typeReference);
                 }
 
-                case "InlineIL.TypeReference InlineIL.TypeReference::ToPointer()":
+                case "InlineIL.TypeRef InlineIL.TypeRef::ToPointer()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
                     return innerTypeRef.MakePointerType();
                 }
 
-                case "InlineIL.TypeReference InlineIL.TypeReference::ToReference()":
+                case "InlineIL.TypeRef InlineIL.TypeRef::ToReference()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
                     return innerTypeRef.MakeByReferenceType();
                 }
 
-                case "InlineIL.TypeReference InlineIL.TypeReference::ToArray()":
+                case "InlineIL.TypeRef InlineIL.TypeRef::ToArray()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
@@ -317,7 +317,7 @@ namespace InlineIL.Fody
 
             switch (method.FullName)
             {
-                case "System.Void InlineIL.MethodReference::.ctor(InlineIL.TypeReference,System.String)":
+                case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();

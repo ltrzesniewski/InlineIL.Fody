@@ -80,7 +80,7 @@ public class BasicClass
     public Type ReturnType<T>()
     {
         IL.Op(OpCodes.Ldtoken, typeof(T));
-        IL.Op(OpCodes.Call, new MethodReference(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        IL.Op(OpCodes.Call, new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
@@ -97,42 +97,42 @@ public class BasicClass
 
         IL.Push(result);
         IL.Op(OpCodes.Ldc_I4_1);
-        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)));
-        IL.Op(OpCodes.Stelem, new TypeReference(typeof(RuntimeTypeHandle)));
+        IL.Op(OpCodes.Ldtoken, new TypeRef(typeof(int)));
+        IL.Op(OpCodes.Stelem, new TypeRef(typeof(RuntimeTypeHandle)));
 
         IL.Push(result);
         IL.Op(OpCodes.Ldc_I4_2);
-        IL.Op(OpCodes.Ldtoken, new TypeReference("mscorlib", "System.Int32"));
-        IL.Op(OpCodes.Stelem, new TypeReference("mscorlib", "System.RuntimeTypeHandle"));
+        IL.Op(OpCodes.Ldtoken, new TypeRef("mscorlib", "System.Int32"));
+        IL.Op(OpCodes.Stelem, new TypeRef("mscorlib", "System.RuntimeTypeHandle"));
 
         return result;
     }
 
     public RuntimeTypeHandle LoadPointerType()
     {
-        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)).ToPointer().ToPointer());
+        IL.Op(OpCodes.Ldtoken, new TypeRef(typeof(int)).ToPointer().ToPointer());
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
     public RuntimeTypeHandle LoadReferenceType()
     {
-        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)).ToReference());
+        IL.Op(OpCodes.Ldtoken, new TypeRef(typeof(int)).ToReference());
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
     public RuntimeTypeHandle LoadArrayType()
     {
-        IL.Op(OpCodes.Ldtoken, new TypeReference(typeof(int)).ToArray().ToArray());
+        IL.Op(OpCodes.Ldtoken, new TypeRef(typeof(int)).ToArray().ToArray());
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
     public Type ReturnNestedType()
     {
-        IL.Op(OpCodes.Ldtoken, new TypeReference("InlineIL.Tests.AssemblyToProcess", "BasicClass+NestedType"));
-        IL.Op(OpCodes.Call, new MethodReference(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        IL.Op(OpCodes.Ldtoken, new TypeRef("InlineIL.Tests.AssemblyToProcess", "BasicClass+NestedType"));
+        IL.Op(OpCodes.Call, new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
         IL.Op(OpCodes.Ret);
         throw IL.Unreachable();
     }

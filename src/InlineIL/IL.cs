@@ -23,10 +23,10 @@ namespace InlineIL
         public static void Op(OpCode opCode, double arg)
             => Throw();
 
-        public static void Op(OpCode opCode, TypeReference arg)
+        public static void Op(OpCode opCode, TypeRef arg)
             => Throw();
 
-        public static void Op(OpCode opCode, MethodReference arg)
+        public static void Op(OpCode opCode, MethodRef arg)
             => Throw();
 
         public static void Push<T>(T value)

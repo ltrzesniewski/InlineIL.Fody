@@ -15,8 +15,8 @@
         public static class Full
         {
             public const string IlType = "InlineIL.IL";
-            public const string TypeReferenceType = "InlineIL.TypeReference";
-            public const string MethodReferenceType = "InlineIL.MethodReference";
+            public const string TypeRefType = "InlineIL.TypeRef";
+            public const string MethodRefType = "InlineIL.MethodRef";
         }
     }
 }
