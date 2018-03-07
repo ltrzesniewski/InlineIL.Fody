@@ -189,7 +189,7 @@ namespace InlineIL.Fody
         private string ConsumeArgString(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Ldstr)
-                throw new WeavingException($"Invalid instruction, expected a constant string, but was {instruction}");
+                throw new WeavingException($"Unexpected instruction, expected a constant string, but was {instruction}");
 
             _il.Remove(instruction);
             return (string)instruction.Operand;
@@ -226,13 +226,13 @@ namespace InlineIL.Fody
                     return value;
             }
 
-            throw new WeavingException($"Invalid instruction, expected a constant, but was {instruction}");
+            throw new WeavingException($"Unexpected instruction, expected a constant, but was {instruction}");
         }
 
         private TypeReference ConsumeArgTypeRef(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
-                throw new WeavingException("Invalid opcode, expected a call");
+                throw new WeavingException($"Unexpected instruction, expected a call, but was {instruction}");
 
             switch (method.FullName)
             {
@@ -240,7 +240,7 @@ namespace InlineIL.Fody
                 {
                     var ldToken = instruction.GetArgumentPushInstructions().Single();
                     if (ldToken.OpCode != OpCodes.Ldtoken)
-                        throw new WeavingException("Invalid operand, expected ldtoken");
+                        throw new WeavingException($"Unexpected instruction, expected ldtoken, but was {ldToken}");
 
                     _il.Remove(ldToken);
                     _il.Remove(instruction);
@@ -313,7 +313,7 @@ namespace InlineIL.Fody
         private MethodReference ConsumeArgMethodRef(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
-                throw new WeavingException("Invalid opcode, expected a call");
+                throw new WeavingException($"Unexpected instruction, expected a call, but was {instruction}");
 
             switch (method.FullName)
             {
@@ -337,9 +337,94 @@ namespace InlineIL.Fody
                             throw new WeavingException($"Ambiguous method {methodName} in type {typeDef.FullName}");
                     }
                 }
+
+                case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();
+                    var methodName = ConsumeArgString(args[1]);
+                    var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
+
+                    var methods = typeDef.Methods
+                                         .Where(m => m.Name == methodName
+                                                     && m.Parameters.Count == paramTypes.Length
+                                                     && m.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(paramTypes.Select(p => p.FullName)))
+                                         .ToList();
+
+                    switch (methods.Count)
+                    {
+                        case 0:
+                            throw new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
+
+                        case 1:
+                            _il.Remove(instruction);
+                            return _module.ImportReference(methods.Single());
+
+                        default:
+                            // This should never happen
+                            throw new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
+                    }
+                }
             }
 
             throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");
+        }
+
+        private T[] ConsumeArgArray<T>(Instruction instruction, Func<Instruction, T> consumeItem)
+        {
+            if (instruction.OpCode == OpCodes.Call)
+            {
+                if (!(instruction.Operand is MethodReference method) || method.GetElementMethod().FullName != "!!0[] System.Array::Empty()")
+                    throw new WeavingException($"Unexpected instruction, expected newarr or call to Array.Empty, but was {instruction}");
+
+                _il.Remove(instruction);
+                return Array.Empty<T>();
+            }
+
+            if (instruction.OpCode != OpCodes.Newarr)
+                throw new WeavingException($"Unexpected instruction, expected newarr or call to Array.Empty, but was {instruction}");
+
+            var newarrInstruction = instruction;
+
+            var countInstruction = newarrInstruction.PrevSkipNops();
+            if (countInstruction.OpCode != OpCodes.Ldc_I4)
+                throw new WeavingException($"Unexpected instruction, expected ldc.i4, but was {countInstruction}");
+
+            var count = (int)countInstruction.Operand;
+            var args = new T[count];
+
+            var currentDupInstruction = newarrInstruction.NextSkipNops();
+
+            for (var index = 0; index < count; ++index)
+            {
+                var dupInstruction = currentDupInstruction;
+                if (dupInstruction.OpCode != OpCodes.Dup)
+                    throw new WeavingException($"Unexpected instruction, expected dup, but was {dupInstruction}");
+
+                var indexInstruction = dupInstruction.NextSkipNops();
+                if (indexInstruction.OpCode != OpCodes.Ldc_I4)
+                    throw new WeavingException($"Unexpected instruction, expected ldc.i4, but was {indexInstruction}");
+
+                if ((int)indexInstruction.Operand != index)
+                    throw new WeavingException($"Unexpected instruction, expected ldc.i4 with value of {index}, but was {indexInstruction}");
+
+                var stelemInstruction = dupInstruction.GetValueConsumingInstruction();
+                if (!stelemInstruction.OpCode.IsStelem())
+                    throw new WeavingException($"Unexpected instruction, expected stelem, but was {stelemInstruction}");
+
+                args[index] = consumeItem(stelemInstruction.PrevSkipNops());
+
+                currentDupInstruction = stelemInstruction.NextSkipNops();
+
+                _il.Remove(dupInstruction);
+                _il.Remove(indexInstruction);
+                _il.Remove(stelemInstruction);
+            }
+
+            _il.Remove(countInstruction);
+            _il.Remove(newarrInstruction);
+
+            return args;
         }
     }
 }

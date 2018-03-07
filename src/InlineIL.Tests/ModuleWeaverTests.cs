@@ -14,7 +14,7 @@ namespace InlineIL.Tests
         static ModuleWeaverTests()
         {
             var weavingTask = new ModuleWeaver();
-            _testResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll");
+            _testResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll", runPeVerify: false);
         }
 
         [Fact]
@@ -115,6 +115,13 @@ namespace InlineIL.Tests
         {
             var result = (Type)_testResult.GetInstance("BasicClass").ReturnNestedType();
             Assert.Equal("BasicClass+NestedType", result.FullName);
+        }
+
+        [Fact]
+        public void should_resolve_overloads()
+        {
+            var result = (int[])_testResult.GetInstance("BasicClass").ResolveOverloads();
+            Assert.Equal(new[] { 10, 10, 20, 30, 40, 50, 60 }, result);
         }
     }
 }

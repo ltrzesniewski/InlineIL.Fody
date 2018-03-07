@@ -26,7 +26,7 @@ namespace InlineIL.Fody
 
         public static Instruction PrevSkipNops(this Instruction instruction)
         {
-            instruction = instruction.Previous;
+            instruction = instruction?.Previous;
 
             while (instruction != null && instruction.OpCode == OpCodes.Nop)
                 instruction = instruction.Previous;
@@ -36,7 +36,7 @@ namespace InlineIL.Fody
 
         public static Instruction NextSkipNops(this Instruction instruction)
         {
-            instruction = instruction.Next;
+            instruction = instruction?.Next;
 
             while (instruction != null && instruction.OpCode == OpCodes.Nop)
                 instruction = instruction.Next;
@@ -58,6 +58,25 @@ namespace InlineIL.Fody
                 instructions.RemoveAt(instructionIndex);
         }
 
+        public static Instruction GetValueConsumingInstruction(this Instruction instruction)
+        {
+            var stackSize = 0;
+
+            while (true)
+            {
+                stackSize += GetPushCount(instruction);
+
+                instruction = instruction.Next;
+                if (instruction == null)
+                    throw new WeavingException("Unexpected end of method");
+
+                stackSize -= GetPopCount(instruction);
+
+                if (stackSize <= 0)
+                    return instruction;
+            }
+        }
+
         public static Instruction[] GetArgumentPushInstructions(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call)
@@ -73,12 +92,12 @@ namespace InlineIL.Fody
             var currentInstruction = instruction.Previous;
 
             for (var paramIndex = result.Length - 1; paramIndex >= 0; --paramIndex)
-                result[paramIndex] = ScanPush(ref currentInstruction);
+                result[paramIndex] = BackwardScanPush(ref currentInstruction);
 
             return result;
         }
 
-        private static Instruction ScanPush(ref Instruction currentInstruction)
+        private static Instruction BackwardScanPush(ref Instruction currentInstruction)
         {
             Instruction result = null;
             var stackToConsume = 1;
@@ -189,6 +208,26 @@ namespace InlineIL.Fody
 
                 default:
                     throw new WeavingException("Could not locate method argument value");
+            }
+        }
+
+        public static bool IsStelem(this OpCode opCode)
+        {
+            switch (opCode.Code)
+            {
+                case Code.Stelem_Any:
+                case Code.Stelem_I:
+                case Code.Stelem_I1:
+                case Code.Stelem_I2:
+                case Code.Stelem_I4:
+                case Code.Stelem_I8:
+                case Code.Stelem_R4:
+                case Code.Stelem_R8:
+                case Code.Stelem_Ref:
+                    return true;
+
+                default:
+                    return false;
             }
         }
     }
