@@ -7,14 +7,14 @@ using Xunit;
 
 namespace InlineIL.Tests
 {
-    public class ModuleWeaverTests
+    public class VerifiableModuleWeaverTests
     {
         private static readonly TestResult _testResult;
 
-        static ModuleWeaverTests()
+        static VerifiableModuleWeaverTests()
         {
             var weavingTask = new ModuleWeaver();
-            _testResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll", runPeVerify: false);
+            _testResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll");
         }
 
         [Fact]
