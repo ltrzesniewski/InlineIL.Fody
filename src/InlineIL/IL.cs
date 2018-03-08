@@ -32,6 +32,9 @@ namespace InlineIL
         public static void Op(OpCode opCode, LabelRef arg)
             => Throw();
 
+        public static void Op(OpCode opCode, params LabelRef[] args)
+            => Throw();
+
         public static void Label(string labelName)
             => Throw();
 

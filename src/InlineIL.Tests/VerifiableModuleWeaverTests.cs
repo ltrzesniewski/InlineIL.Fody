@@ -133,5 +133,21 @@ namespace InlineIL.Tests
             result = (int)_testResult.GetInstance("BasicClass").Branch(true);
             Assert.Equal(1, result);
         }
+
+        [Fact]
+        public void should_handle_switch()
+        {
+            var result = (int)_testResult.GetInstance("BasicClass").JumpTable(0);
+            Assert.Equal(1, result);
+
+            result = (int)_testResult.GetInstance("BasicClass").JumpTable(1);
+            Assert.Equal(2, result);
+
+            result = (int)_testResult.GetInstance("BasicClass").JumpTable(2);
+            Assert.Equal(3, result);
+
+            result = (int)_testResult.GetInstance("BasicClass").JumpTable(3);
+            Assert.Equal(42, result);
+        }
     }
 }

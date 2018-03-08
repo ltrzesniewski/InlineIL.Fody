@@ -198,6 +198,18 @@ namespace InlineIL.Fody
                     _il.Replace(instruction, resultInstruction);
                     return;
                 }
+
+                case KnownNames.Full.LabelRefType + "[]":
+                {
+                    var labelInfos = ConsumeArgArray(args[1], ConsumeArgLabelRef).Select(GetOrCreateLabelInfo).ToList();
+                    var resultInstruction = InstructionHelper.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
+
+                    foreach (var info in labelInfos)
+                        info.References.Add(resultInstruction);
+
+                    _il.Replace(instruction, resultInstruction);
+                    return;
+                }
             }
 
             throw new InvalidOperationException($"Unsupported IL.Op overload: {method.FullName}");

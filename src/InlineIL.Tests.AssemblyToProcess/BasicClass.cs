@@ -204,6 +204,29 @@ public class BasicClass
         return IL.Return<int>();
     }
 
+    public int JumpTable(uint value)
+    {
+        IL.Push(value);
+        IL.Op(OpCodes.Switch, new LabelRef("one"), new LabelRef("two"), new LabelRef("three"));
+
+        IL.Push(42);
+        IL.Op(OpCodes.Br, new LabelRef("end"));
+
+        IL.Label("one");
+        IL.Push(1);
+        IL.Op(OpCodes.Br, new LabelRef("end"));
+
+        IL.Label("two");
+        IL.Push(2);
+        IL.Op(OpCodes.Br, new LabelRef("end"));
+
+        IL.Label("three");
+        IL.Push(3);
+
+        IL.Label("end");
+        return IL.Return<int>();
+    }
+
     private static int OverloadedMethod() => 10;
     private static int OverloadedMethod(int a) => 20;
     private static int OverloadedMethod(ref int a) => 30;
