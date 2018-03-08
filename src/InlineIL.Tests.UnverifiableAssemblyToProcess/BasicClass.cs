@@ -33,7 +33,7 @@ public unsafe class BasicClass
         IL.Emit(OpCodes.Ldc_I4_3);
         IL.Emit(OpCodes.Ldc_I4_0);
         IL.Emit(OpCodes.Conv_U);
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), new TypeRef(typeof(int*)).ToPointer()));
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), new TypeRef(typeof(int*)).MakePointerType()));
         IL.Emit(OpCodes.Stelem_I4);
 
         IL.Push(result);
@@ -48,7 +48,7 @@ public unsafe class BasicClass
         IL.Push(result);
         IL.Emit(OpCodes.Ldc_I4_0);
         IL.Emit(OpCodes.Ldelema, typeof(int));
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), typeof(double), new TypeRef(typeof(int)).ToReference()));
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), typeof(double), new TypeRef(typeof(int)).MakeByRefType()));
         IL.Emit(OpCodes.Stelem_I4);
 
         IL.Push(result);

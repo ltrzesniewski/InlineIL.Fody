@@ -390,21 +390,21 @@ namespace InlineIL.Fody
                     return _module.ImportReference(typeReference);
                 }
 
-                case "InlineIL.TypeRef InlineIL.TypeRef::ToPointer()":
+                case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
                     return innerTypeRef.MakePointerType();
                 }
 
-                case "InlineIL.TypeRef InlineIL.TypeRef::ToReference()":
+                case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
                     return innerTypeRef.MakeByReferenceType();
                 }
 
-                case "InlineIL.TypeRef InlineIL.TypeRef::ToArray()":
+                case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);

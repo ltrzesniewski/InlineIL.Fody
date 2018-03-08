@@ -111,21 +111,21 @@ public class BasicClass
 
     public RuntimeTypeHandle LoadPointerType()
     {
-        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).ToPointer().ToPointer());
+        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakePointerType().MakePointerType());
         IL.Emit(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
     public RuntimeTypeHandle LoadReferenceType()
     {
-        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).ToReference());
+        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakeByRefType());
         IL.Emit(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
     public RuntimeTypeHandle LoadArrayType()
     {
-        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).ToArray().ToArray());
+        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakeArrayType().MakeArrayType());
         IL.Emit(OpCodes.Ret);
         throw IL.Unreachable();
     }
@@ -163,7 +163,7 @@ public class BasicClass
         IL.Push(result);
         IL.Emit(OpCodes.Ldc_I4_0);
         IL.Emit(OpCodes.Ldelema, typeof(int));
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), new TypeRef(typeof(int)).ToReference()));
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), new TypeRef(typeof(int)).MakeByRefType()));
         IL.Emit(OpCodes.Stelem_I4);
 
         IL.Push(result);
@@ -178,7 +178,7 @@ public class BasicClass
         IL.Push(result);
         IL.Emit(OpCodes.Ldc_I4_0);
         IL.Emit(OpCodes.Ldelema, typeof(int));
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), typeof(double), new TypeRef(typeof(int)).ToReference()));
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(BasicClass), nameof(OverloadedMethod), typeof(double), new TypeRef(typeof(int)).MakeByRefType()));
         IL.Emit(OpCodes.Stelem_I4);
 
         IL.Push(result);

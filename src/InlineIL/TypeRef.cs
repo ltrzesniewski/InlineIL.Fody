@@ -16,13 +16,13 @@ namespace InlineIL
         public static implicit operator TypeRef(Type type)
             => new TypeRef(type);
 
-        public TypeRef ToPointer()
+        public TypeRef MakePointerType()
             => throw IL.Throw();
 
-        public TypeRef ToReference()
+        public TypeRef MakeByRefType()
             => throw IL.Throw();
 
-        public TypeRef ToArray()
+        public TypeRef MakeArrayType()
             => throw IL.Throw();
     }
 }
