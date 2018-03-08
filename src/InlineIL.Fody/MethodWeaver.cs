@@ -431,6 +431,15 @@ namespace InlineIL.Fody
                     _il.Remove(instruction);
                     return innerTypeRef.MakeArrayType(rank);
                 }
+
+                case "InlineIL.TypeRef InlineIL.TypeRef::MakeGenericType(InlineIL.TypeRef[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var innerTypeRef = _module.ImportReference(ConsumeArgTypeRef(args[0]).ResolveRequiredType());
+                    var typeArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                    _il.Remove(instruction);
+                    return innerTypeRef.MakeGenericInstanceType(typeArgs);
+                }
             }
 
             throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");

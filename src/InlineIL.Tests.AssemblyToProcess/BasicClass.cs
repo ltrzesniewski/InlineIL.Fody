@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
@@ -133,6 +134,13 @@ public class BasicClass
     public RuntimeTypeHandle LoadArrayTypeWithRank()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakeArrayType(3).MakeArrayType(1));
+        IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
+    public RuntimeTypeHandle LoadGenericType()
+    {
+        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(Dictionary<,>)).MakeGenericType(typeof(int), typeof(string)));
         IL.Emit(OpCodes.Ret);
         throw IL.Unreachable();
     }

@@ -28,5 +28,8 @@ namespace InlineIL
 
         public TypeRef MakeArrayType(int rank)
             => throw IL.Throw();
+
+        public TypeRef MakeGenericType(params TypeRef[] typeArguments)
+            => throw IL.Throw();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Fody;
 using InlineIL.Fody;
 using Xunit;
@@ -108,6 +109,13 @@ namespace InlineIL.Tests
         {
             var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").LoadArrayTypeWithRank();
             Assert.Equal(typeof(int[][,,]), Type.GetTypeFromHandle(result));
+        }
+
+        [Fact]
+        public void should_handle_generic_types()
+        {
+            var result = (RuntimeTypeHandle)_testResult.GetInstance("BasicClass").LoadGenericType();
+            Assert.Equal(typeof(Dictionary<int, string>), Type.GetTypeFromHandle(result));
         }
 
         [Fact]
