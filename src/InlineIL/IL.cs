@@ -29,6 +29,12 @@ namespace InlineIL
         public static void Op(OpCode opCode, MethodRef arg)
             => Throw();
 
+        public static void Op(OpCode opCode, LabelRef arg)
+            => Throw();
+
+        public static void Label(string labelName)
+            => Throw();
+
         public static void Push<T>(T value)
             => Throw();
 

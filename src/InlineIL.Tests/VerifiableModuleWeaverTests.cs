@@ -123,5 +123,15 @@ namespace InlineIL.Tests
             var result = (int[])_testResult.GetInstance("BasicClass").ResolveOverloads();
             Assert.Equal(new[] { 10, 10, 20, 30, 40, 50, 60 }, result);
         }
+
+        [Fact]
+        public void should_handle_labels()
+        {
+            var result = (int)_testResult.GetInstance("BasicClass").Branch(false);
+            Assert.Equal(42, result);
+
+            result = (int)_testResult.GetInstance("BasicClass").Branch(true);
+            Assert.Equal(1, result);
+        }
     }
 }

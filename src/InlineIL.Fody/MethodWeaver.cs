@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Fody;
 using Mono.Cecil;
@@ -13,6 +14,7 @@ namespace InlineIL.Fody
         private readonly ModuleDefinition _module;
         private readonly MethodDefinition _method;
         private readonly ILProcessor _il;
+        private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
 
         private Collection<Instruction> Instructions => _method.Body.Instructions;
 
@@ -57,6 +59,14 @@ namespace InlineIL.Fody
         {
             _method.Body.SimplifyMacros();
 
+            ProcessMethodCalls();
+            ProcessLabels();
+
+            _method.Body.OptimizeMacros();
+        }
+
+        private void ProcessMethodCalls()
+        {
             var instruction = Instructions.FirstOrDefault();
 
             while (instruction != null)
@@ -83,6 +93,10 @@ namespace InlineIL.Fody
                             ProcessReturnMethod(instruction);
                             break;
 
+                        case KnownNames.Short.LabelMethod:
+                            ProcessLabelMethod(instruction);
+                            break;
+
                         default:
                             throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
                     }
@@ -90,13 +104,57 @@ namespace InlineIL.Fody
 
                 instruction = nextInstruction;
             }
+        }
 
-            _method.Body.OptimizeMacros();
+        private void ProcessLabels()
+        {
+            foreach (var (name, info) in _labels)
+            {
+                if (!info.IsDefined)
+                    throw new WeavingException($"Undefined label: {name}");
+
+                var actualTarget = info.PlaceholderTarget.Next;
+                _il.Remove(info.PlaceholderTarget);
+
+                foreach (var labelRef in info.References)
+                {
+                    switch (labelRef.OpCode.OperandType)
+                    {
+                        case OperandType.InlineBrTarget:
+                        case OperandType.ShortInlineBrTarget:
+                        {
+                            if (labelRef.Operand != info.PlaceholderTarget)
+                                throw new WeavingException($"Unexpected branch target: {labelRef}");
+
+                            labelRef.Operand = actualTarget;
+                            break;
+                        }
+
+                        case OperandType.InlineSwitch:
+                        {
+                            var targets = (Instruction[])labelRef.Operand;
+                            for (var i = 0; i < targets.Length; ++i)
+                            {
+                                if (targets[i] == info.PlaceholderTarget)
+                                    targets[i] = actualTarget;
+                            }
+
+                            break;
+                        }
+
+                        default:
+                            throw new WeavingException($"Invalid branch instruction: {labelRef}");
+                    }
+                }
+            }
+
+            _labels.Clear();
         }
 
         private void ProcessOpMethod(Instruction instruction)
         {
-            var methodParams = ((MethodReference)instruction.Operand).Parameters;
+            var method = (MethodReference)instruction.Operand;
+            var methodParams = method.Parameters;
 
             var args = instruction.GetArgumentPushInstructions();
             var opCode = ConsumeArgOpCode(args[0]);
@@ -115,21 +173,34 @@ namespace InlineIL.Fody
                 return;
             }
 
-            if (operandType.FullName == KnownNames.Full.TypeRefType)
+            switch (operandType.FullName)
             {
-                var typeRef = ConsumeArgTypeRef(args[1]);
-                _il.Replace(instruction, InstructionHelper.Create(opCode, typeRef));
-                return;
+                case KnownNames.Full.TypeRefType:
+                {
+                    var typeRef = ConsumeArgTypeRef(args[1]);
+                    _il.Replace(instruction, InstructionHelper.Create(opCode, typeRef));
+                    return;
+                }
+
+                case KnownNames.Full.MethodRefType:
+                {
+                    var methodRef = ConsumeArgMethodRef(args[1]);
+                    _il.Replace(instruction, InstructionHelper.Create(opCode, methodRef));
+                    return;
+                }
+
+                case KnownNames.Full.LabelRefType:
+                {
+                    var labelName = ConsumeArgLabelRef(args[1]);
+                    var labelInfo = GetOrCreateLabelInfo(labelName);
+                    var resultInstruction = InstructionHelper.Create(opCode, labelInfo.PlaceholderTarget);
+                    labelInfo.References.Add(resultInstruction);
+                    _il.Replace(instruction, resultInstruction);
+                    return;
+                }
             }
 
-            if (operandType.FullName == KnownNames.Full.MethodRefType)
-            {
-                var methodRef = ConsumeArgMethodRef(args[1]);
-                _il.Replace(instruction, InstructionHelper.Create(opCode, methodRef));
-                return;
-            }
-
-            throw new InvalidOperationException("Unsupported IL.Op overload");
+            throw new InvalidOperationException($"Unsupported IL.Op overload: {method.FullName}");
         }
 
         private void ProcessPushMethod(Instruction instruction)
@@ -178,6 +249,28 @@ namespace InlineIL.Fody
             }
 
             _il.Remove(instruction);
+        }
+
+        private void ProcessLabelMethod(Instruction instruction)
+        {
+            var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
+            var labelInfo = GetOrCreateLabelInfo(labelName);
+
+            if (labelInfo.IsDefined)
+                throw new WeavingException($"Label {labelName} is already defined");
+
+            _il.Replace(instruction, labelInfo.PlaceholderTarget);
+        }
+
+        private LabelInfo GetOrCreateLabelInfo(string labelName)
+        {
+            if (!_labels.TryGetValue(labelName, out var labelInfo))
+            {
+                labelInfo = new LabelInfo();
+                _labels.Add(labelName, labelInfo);
+            }
+
+            return labelInfo;
         }
 
         private OpCode ConsumeArgOpCode(Instruction instruction)
@@ -425,6 +518,25 @@ namespace InlineIL.Fody
             _il.Remove(newarrInstruction);
 
             return args;
+        }
+
+        private string ConsumeArgLabelRef(Instruction instruction)
+        {
+            if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LabelRef::.ctor(System.String)")
+                throw new WeavingException($"Unexpected instruction, expected newobj LabelRef, but was {instruction}");
+
+            var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
+            _il.Remove(instruction);
+
+            return labelName;
+        }
+
+        private class LabelInfo
+        {
+            public Instruction PlaceholderTarget { get; } = Instruction.Create(OpCodes.Nop);
+            public ICollection<Instruction> References { get; } = new List<Instruction>();
+
+            public bool IsDefined => PlaceholderTarget.Next != null;
         }
     }
 }

@@ -192,6 +192,18 @@ public class BasicClass
         return IL.Return<int[]>();
     }
 
+    public int Branch(bool returnOne)
+    {
+        IL.Push(returnOne);
+        IL.Op(OpCodes.Brtrue, new LabelRef("one"));
+        IL.Push(42);
+        IL.Op(OpCodes.Br, new LabelRef("end"));
+        IL.Label("one");
+        IL.Push(1);
+        IL.Label("end");
+        return IL.Return<int>();
+    }
+
     private static int OverloadedMethod() => 10;
     private static int OverloadedMethod(int a) => 20;
     private static int OverloadedMethod(ref int a) => 30;

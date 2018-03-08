@@ -43,6 +43,18 @@ namespace InlineIL.Fody
             }
         }
 
+        public static Instruction Create(OpCode opCode, Instruction instruction)
+        {
+            try
+            {
+                return Instruction.Create(opCode, instruction);
+            }
+            catch (ArgumentException)
+            {
+                throw ExceptionInvalidOperand(opCode);
+            }
+        }
+
         public static Instruction CreateConst(ILProcessor il, OpCode opCode, object operand)
         {
             try
