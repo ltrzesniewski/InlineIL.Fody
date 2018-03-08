@@ -130,6 +130,13 @@ public class BasicClass
         throw IL.Unreachable();
     }
 
+    public RuntimeTypeHandle LoadArrayTypeWithRank()
+    {
+        IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakeArrayType(3).MakeArrayType(1));
+        IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
     public Type ReturnNestedType()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef("InlineIL.Tests.AssemblyToProcess", "BasicClass+NestedType"));

@@ -300,6 +300,15 @@ namespace InlineIL.Fody
             return (string)instruction.Operand;
         }
 
+        private int ConsumeArgInt32(Instruction instruction)
+        {
+            var value = ConsumeArgConst(instruction);
+            if (value is int intValue)
+                return intValue;
+
+            throw new WeavingException($"Unexpected instruction, expected a constant int, but was {instruction}");
+        }
+
         private object ConsumeArgConst(Instruction instruction)
         {
             switch (instruction.OpCode.OperandType)
@@ -409,6 +418,18 @@ namespace InlineIL.Fody
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
                     return innerTypeRef.MakeArrayType();
+                }
+
+                case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType(System.Int32)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var innerTypeRef = ConsumeArgTypeRef(args[0]);
+                    var rank = ConsumeArgInt32(args[1]);
+                    if (rank < 1 || rank > 32)
+                        throw new WeavingException($"Invalid array rank: {rank}, must be between 1 and 32");
+
+                    _il.Remove(instruction);
+                    return innerTypeRef.MakeArrayType(rank);
                 }
             }
 

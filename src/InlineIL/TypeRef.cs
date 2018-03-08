@@ -5,6 +5,7 @@ namespace InlineIL
 {
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public sealed class TypeRef
     {
         public TypeRef(Type type)
@@ -23,6 +24,9 @@ namespace InlineIL
             => throw IL.Throw();
 
         public TypeRef MakeArrayType()
+            => throw IL.Throw();
+
+        public TypeRef MakeArrayType(int rank)
             => throw IL.Throw();
     }
 }
