@@ -8,31 +8,31 @@ namespace InlineIL
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public static class IL
     {
-        public static void Op(OpCode opCode)
+        public static void Emit(OpCode opCode)
             => Throw();
 
-        public static void Op(OpCode opCode, string arg)
+        public static void Emit(OpCode opCode, string arg)
             => Throw();
 
-        public static void Op(OpCode opCode, int arg)
+        public static void Emit(OpCode opCode, int arg)
             => Throw();
 
-        public static void Op(OpCode opCode, long arg)
+        public static void Emit(OpCode opCode, long arg)
             => Throw();
 
-        public static void Op(OpCode opCode, double arg)
+        public static void Emit(OpCode opCode, double arg)
             => Throw();
 
-        public static void Op(OpCode opCode, TypeRef arg)
+        public static void Emit(OpCode opCode, TypeRef arg)
             => Throw();
 
-        public static void Op(OpCode opCode, MethodRef arg)
+        public static void Emit(OpCode opCode, MethodRef arg)
             => Throw();
 
-        public static void Op(OpCode opCode, LabelRef arg)
+        public static void Emit(OpCode opCode, LabelRef arg)
             => Throw();
 
-        public static void Op(OpCode opCode, params LabelRef[] args)
+        public static void Emit(OpCode opCode, params LabelRef[] args)
             => Throw();
 
         public static void Label(string labelName)

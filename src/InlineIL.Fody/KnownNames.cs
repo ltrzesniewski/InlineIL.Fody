@@ -6,7 +6,7 @@
         {
             public const string IlType = "IL";
 
-            public const string OpMethod = "Op";
+            public const string EmitMethod = "Emit";
             public const string PushMethod = "Push";
             public const string UnreachableMethod = "Unreachable";
             public const string ReturnMethod = "Return";

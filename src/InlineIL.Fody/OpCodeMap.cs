@@ -45,11 +45,11 @@ namespace InlineIL.Fody
             var argType = typeof(System.Reflection.Emit.OpCodes);
 
             if (ldsfld.OpCode != OpCodes.Ldsfld)
-                throw new WeavingException($"IL.Op should be given a parameter directly from the {argType.Name} type (expected ldsfld instruction, but got {ldsfld.OpCode} instead)");
+                throw new WeavingException($"IL.Emit should be given a parameter directly from the {argType.Name} type (expected ldsfld instruction, but got {ldsfld.OpCode} instead)");
 
             var field = (FieldReference)ldsfld.Operand;
             if (field.DeclaringType.FullName != argType.FullName)
-                throw new WeavingException($"IL.Op expects an argument directly from the {argType.FullName} type");
+                throw new WeavingException($"IL.Emit expects an argument directly from the {argType.FullName} type");
 
             if (!_byReflectionEmitFieldName.TryGetValue(field.Name, out var result))
                 throw new WeavingException($"Unsupported opcode: {field.Name}");

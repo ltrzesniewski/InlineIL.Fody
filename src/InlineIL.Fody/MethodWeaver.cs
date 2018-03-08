@@ -77,8 +77,8 @@ namespace InlineIL.Fody
                 {
                     switch (calledMethod.Name)
                     {
-                        case KnownNames.Short.OpMethod:
-                            ProcessOpMethod(instruction);
+                        case KnownNames.Short.EmitMethod:
+                            ProcessEmitMethod(instruction);
                             break;
 
                         case KnownNames.Short.PushMethod:
@@ -151,7 +151,7 @@ namespace InlineIL.Fody
             _labels.Clear();
         }
 
-        private void ProcessOpMethod(Instruction instruction)
+        private void ProcessEmitMethod(Instruction instruction)
         {
             var method = (MethodReference)instruction.Operand;
             var methodParams = method.Parameters;
@@ -212,7 +212,7 @@ namespace InlineIL.Fody
                 }
             }
 
-            throw new InvalidOperationException($"Unsupported IL.Op overload: {method.FullName}");
+            throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
         }
 
         private void ProcessPushMethod(Instruction instruction)

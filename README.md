@@ -14,8 +14,8 @@ public void AddAssign(ref int a, int b)
     IL.Push(ref a);
     IL.Push(a);
     IL.Push(b);
-    IL.Op(OpCodes.Add);
-    IL.Op(OpCodes.Stind_I4);
+    IL.Emit(OpCodes.Add);
+    IL.Emit(OpCodes.Stind_I4);
 }
 ```
 
