@@ -15,6 +15,7 @@ namespace InlineIL.Fody
         private readonly MethodDefinition _method;
         private readonly ILProcessor _il;
         private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
+        private readonly Dictionary<string, VariableDefinition> _locals = new Dictionary<string, VariableDefinition>();
 
         private Collection<Instruction> Instructions => _method.Body.Instructions;
 
@@ -95,6 +96,10 @@ namespace InlineIL.Fody
 
                         case KnownNames.Short.MarkLabelMethod:
                             ProcessMarkLabelMethod(instruction);
+                            break;
+
+                        case KnownNames.Short.DeclareLocalMethod:
+                            ProcessDeclareLocalMethod(instruction);
                             break;
 
                         default:
@@ -216,6 +221,13 @@ namespace InlineIL.Fody
                     _il.Replace(instruction, resultInstruction);
                     return;
                 }
+
+                case KnownNames.Full.LocalRefType:
+                {
+                    var variableDef = ConsumeArgLocalRef(args[1]);
+                    _il.Replace(instruction, InstructionHelper.Create(opCode, variableDef));
+                    return;
+                }
             }
 
             throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
@@ -280,6 +292,23 @@ namespace InlineIL.Fody
             _il.Replace(instruction, labelInfo.PlaceholderTarget);
         }
 
+        private void ProcessDeclareLocalMethod(Instruction instruction)
+        {
+            var args = instruction.GetArgumentPushInstructions();
+            var localName = ConsumeArgString(args[0]);
+            var localType = ConsumeArgTypeRef(args[1]);
+            var pinned = args.Length == 3 && ConsumeArgBool(args[2]);
+
+            if (_locals.ContainsKey(localName))
+                throw new WeavingException($"Local {localName} is already defined");
+
+            var variableDef = new VariableDefinition(pinned ? localType.MakePinnedType() : localType);
+            _il.Body.Variables.Add(variableDef);
+            _locals.Add(localName, variableDef);
+
+            _il.Remove(instruction);
+        }
+
         private OpCode ConsumeArgOpCode(Instruction instruction)
         {
             _il.Remove(instruction);
@@ -303,6 +332,9 @@ namespace InlineIL.Fody
 
             throw new WeavingException($"Unexpected instruction, expected a constant int, but was {instruction}");
         }
+
+        private bool ConsumeArgBool(Instruction instruction)
+            => ConsumeArgInt32(instruction) != 0;
 
         private object ConsumeArgConst(Instruction instruction)
         {
@@ -597,6 +629,21 @@ namespace InlineIL.Fody
             _il.Remove(instruction);
 
             return _labels.GetOrAddNew(labelName);
+        }
+
+        private VariableDefinition ConsumeArgLocalRef(Instruction instruction)
+        {
+            if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LocalRef::.ctor(System.String)")
+                throw new WeavingException($"Unexpected instruction, expected newobj LocalRef, but was {instruction}");
+
+            var localName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
+
+            if (!_locals.TryGetValue(localName, out var variableDef))
+                throw new WeavingException($"Local {localName} is not defined");
+
+            _il.Remove(instruction);
+
+            return variableDef;
         }
 
         private class LabelInfo

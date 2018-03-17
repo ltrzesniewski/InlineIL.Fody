@@ -35,7 +35,16 @@ namespace InlineIL
         public static void Emit(OpCode opCode, LabelRef arg)
             => Throw();
 
+        public static void Emit(OpCode opCode, LocalRef arg)
+            => Throw();
+
         public static void Emit(OpCode opCode, params LabelRef[] args)
+            => Throw();
+
+        public static void DeclareLocal(string name, TypeRef type)
+            => Throw();
+
+        public static void DeclareLocal(string name, TypeRef type, bool pinned)
             => Throw();
 
         public static void MarkLabel(string labelName)
