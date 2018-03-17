@@ -29,6 +29,9 @@ namespace InlineIL
         public static void Emit(OpCode opCode, MethodRef arg)
             => Throw();
 
+        public static void Emit(OpCode opCode, FieldRef arg)
+            => Throw();
+
         public static void Emit(OpCode opCode, LabelRef arg)
             => Throw();
 

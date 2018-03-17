@@ -18,6 +18,7 @@
             public const string IlType = "InlineIL.IL";
             public const string TypeRefType = "InlineIL.TypeRef";
             public const string MethodRefType = "InlineIL.MethodRef";
+            public const string FieldRefType = "InlineIL.FieldRef";
             public const string LabelRefType = "InlineIL.LabelRef";
         }
     }

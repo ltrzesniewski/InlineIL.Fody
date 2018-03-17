@@ -189,6 +189,13 @@ namespace InlineIL.Fody
                     return;
                 }
 
+                case KnownNames.Full.FieldRefType:
+                {
+                    var fieldRef = ConsumeArgFieldRef(args[1]);
+                    _il.Replace(instruction, InstructionHelper.Create(opCode, fieldRef));
+                    return;
+                }
+
                 case KnownNames.Full.LabelRefType:
                 {
                     var labelName = ConsumeArgLabelRef(args[1]);
@@ -508,6 +515,32 @@ namespace InlineIL.Fody
             }
 
             throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");
+        }
+
+        private FieldReference ConsumeArgFieldRef(Instruction instruction)
+        {
+            if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)")
+                throw new WeavingException($"Unexpected instruction, expected newobj FieldRef, but was {instruction}");
+
+            var args = instruction.GetArgumentPushInstructions();
+            var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();
+            var fieldName = ConsumeArgString(args[1]);
+
+            var fields = typeDef.Fields.Where(f => f.Name == fieldName).ToList();
+
+            switch (fields.Count)
+            {
+                case 0:
+                    throw new WeavingException($"Field {fieldName} not found in type {typeDef.FullName}");
+
+                case 1:
+                    _il.Remove(instruction);
+                    return fields.Single();
+
+                default:
+                    // This should never happen
+                    throw new WeavingException($"Ambiguous field {fieldName} in type {typeDef.FullName}");
+            }
         }
 
         private T[] ConsumeArgArray<T>(Instruction instruction, Func<Instruction, T> consumeItem)
