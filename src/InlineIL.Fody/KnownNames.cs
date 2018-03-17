@@ -10,7 +10,7 @@
             public const string PushMethod = "Push";
             public const string UnreachableMethod = "Unreachable";
             public const string ReturnMethod = "Return";
-            public const string LabelMethod = "Label";
+            public const string MarkLabelMethod = "MarkLabel";
         }
 
         public static class Full

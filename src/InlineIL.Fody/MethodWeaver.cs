@@ -93,8 +93,8 @@ namespace InlineIL.Fody
                             ProcessReturnMethod(instruction);
                             break;
 
-                        case KnownNames.Short.LabelMethod:
-                            ProcessLabelMethod(instruction);
+                        case KnownNames.Short.MarkLabelMethod:
+                            ProcessMarkLabelMethod(instruction);
                             break;
 
                         default:
@@ -263,7 +263,7 @@ namespace InlineIL.Fody
             _il.Remove(instruction);
         }
 
-        private void ProcessLabelMethod(Instruction instruction)
+        private void ProcessMarkLabelMethod(Instruction instruction)
         {
             var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
             var labelInfo = GetOrCreateLabelInfo(labelName);

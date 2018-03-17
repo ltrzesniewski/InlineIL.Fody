@@ -213,9 +213,9 @@ public class BasicClass
         IL.Emit(OpCodes.Brtrue, new LabelRef("one"));
         IL.Push(42);
         IL.Emit(OpCodes.Br, new LabelRef("end"));
-        IL.Label("one");
+        IL.MarkLabel("one");
         IL.Push(1);
-        IL.Label("end");
+        IL.MarkLabel("end");
         return IL.Return<int>();
     }
 
@@ -227,18 +227,18 @@ public class BasicClass
         IL.Push(42);
         IL.Emit(OpCodes.Br, new LabelRef("end"));
 
-        IL.Label("one");
+        IL.MarkLabel("one");
         IL.Push(1);
         IL.Emit(OpCodes.Br, new LabelRef("end"));
 
-        IL.Label("two");
+        IL.MarkLabel("two");
         IL.Push(2);
         IL.Emit(OpCodes.Br, new LabelRef("end"));
 
-        IL.Label("three");
+        IL.MarkLabel("three");
         IL.Push(3);
 
-        IL.Label("end");
+        IL.MarkLabel("end");
         return IL.Return<int>();
     }
 

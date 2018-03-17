@@ -35,7 +35,7 @@ namespace InlineIL
         public static void Emit(OpCode opCode, params LabelRef[] args)
             => Throw();
 
-        public static void Label(string labelName)
+        public static void MarkLabel(string labelName)
             => Throw();
 
         public static void Push<T>(T value)
