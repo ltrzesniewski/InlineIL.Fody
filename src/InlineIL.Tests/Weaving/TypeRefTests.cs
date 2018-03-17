@@ -27,37 +27,72 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_handle_pointer_types()
+        public void should_handle_pointer_types_using_TypeRef()
         {
-            var result = (RuntimeTypeHandle)GetInstance().LoadPointerType();
+            var result = (RuntimeTypeHandle)GetInstance().LoadPointerTypeUsingTypeRef();
             Type.GetTypeFromHandle(result).ShouldEqual(typeof(int**));
         }
 
         [Fact]
-        public void should_handle_reference_types()
+        public void should_handle_pointer_types_usingType()
         {
-            var result = (RuntimeTypeHandle)GetInstance().LoadReferenceType();
+            var result = (RuntimeTypeHandle)GetInstance().LoadPointerTypeUsingType();
+            Type.GetTypeFromHandle(result).ShouldEqual(typeof(int**));
+        }
+
+        [Fact]
+        public void should_handle_reference_types_using_TypeRef()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().LoadReferenceTypeUsingTypeRef();
             Type.GetTypeFromHandle(result).ShouldEqual(typeof(int).MakeByRefType());
         }
 
         [Fact]
-        public void should_handle_array_types()
+        public void should_handle_reference_types_using_Type()
         {
-            var result = (RuntimeTypeHandle)GetInstance().LoadArrayType();
+            var result = (RuntimeTypeHandle)GetInstance().LoadReferenceTypeUsingType();
+            Type.GetTypeFromHandle(result).ShouldEqual(typeof(int).MakeByRefType());
+        }
+
+        [Fact]
+        public void should_handle_array_types_using_TypeRef()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeUsingTypeRef();
             Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][]));
         }
 
         [Fact]
-        public void should_handle_array_types_with_rank()
+        public void should_handle_array_types_using_Type()
         {
-            var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeWithRank();
+            var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeUsingType();
+            Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][]));
+        }
+
+        [Fact]
+        public void should_handle_array_types_with_rank_using_TypeRef()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeWithRankUsingTypeRef();
             Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][,,]));
         }
 
         [Fact]
-        public void should_handle_generic_types()
+        public void should_handle_array_types_with_rank_using_Type()
         {
-            var result = (RuntimeTypeHandle)GetInstance().LoadGenericType();
+            var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeWithRankUsingType();
+            Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][,,]));
+        }
+
+        [Fact]
+        public void should_handle_generic_types_using_TypeRef()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().LoadGenericTypeUsingTypeRef();
+            Type.GetTypeFromHandle(result).ShouldEqual(typeof(Dictionary<int, string>));
+        }
+
+        [Fact]
+        public void should_handle_generic_types_using_Type()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().LoadGenericTypeUsingType();
             Type.GetTypeFromHandle(result).ShouldEqual(typeof(Dictionary<int, string>));
         }
 

@@ -400,6 +400,7 @@ namespace InlineIL.Fody
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
+                case "System.Type System.Type::MakePointerType()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
@@ -407,6 +408,7 @@ namespace InlineIL.Fody
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
+                case "System.Type System.Type::MakeByRefType()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
@@ -414,6 +416,7 @@ namespace InlineIL.Fody
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
+                case "System.Type System.Type::MakeArrayType()":
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
@@ -421,6 +424,7 @@ namespace InlineIL.Fody
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType(System.Int32)":
+                case "System.Type System.Type::MakeArrayType(System.Int32)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var innerTypeRef = ConsumeArgTypeRef(args[0]);
@@ -433,6 +437,7 @@ namespace InlineIL.Fody
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeGenericType(InlineIL.TypeRef[])":
+                case "System.Type System.Type::MakeGenericType(System.Type[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var innerTypeRef = _module.ImportReference(ConsumeArgTypeRef(args[0]).ResolveRequiredType());

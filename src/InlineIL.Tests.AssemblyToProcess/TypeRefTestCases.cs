@@ -10,8 +10,7 @@ public class TypeRefTestCases
     public RuntimeTypeHandle ReturnTypeHandle<T>()
     {
         IL.Emit(OpCodes.Ldtoken, typeof(T));
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<RuntimeTypeHandle>();
     }
 
     [SuppressMessage("ReSharper", "RedundantCast")]
@@ -37,47 +36,71 @@ public class TypeRefTestCases
         return result;
     }
 
-    public RuntimeTypeHandle LoadPointerType()
+    public RuntimeTypeHandle LoadPointerTypeUsingTypeRef()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakePointerType().MakePointerType());
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<RuntimeTypeHandle>();
     }
 
-    public RuntimeTypeHandle LoadReferenceType()
+    public RuntimeTypeHandle LoadPointerTypeUsingType()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(int).MakePointerType().MakePointerType());
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle LoadReferenceTypeUsingTypeRef()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakeByRefType());
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<RuntimeTypeHandle>();
     }
 
-    public RuntimeTypeHandle LoadArrayType()
+    public RuntimeTypeHandle LoadReferenceTypeUsingType()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(int).MakeByRefType());
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle LoadArrayTypeUsingTypeRef()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakeArrayType().MakeArrayType());
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<RuntimeTypeHandle>();
     }
 
-    public RuntimeTypeHandle LoadArrayTypeWithRank()
+    public RuntimeTypeHandle LoadArrayTypeUsingType()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(int).MakeArrayType().MakeArrayType());
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle LoadArrayTypeWithRankUsingTypeRef()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(int)).MakeArrayType(3).MakeArrayType(1));
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<RuntimeTypeHandle>();
     }
 
-    public RuntimeTypeHandle LoadGenericType()
+    public RuntimeTypeHandle LoadArrayTypeWithRankUsingType()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(int).MakeArrayType(3).MakeArrayType(1));
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle LoadGenericTypeUsingTypeRef()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef(typeof(Dictionary<,>)).MakeGenericType(typeof(int), typeof(string)));
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle LoadGenericTypeUsingType()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(Dictionary<,>).MakeGenericType(typeof(int), typeof(string)));
+        return IL.Return<RuntimeTypeHandle>();
     }
 
     public Type ReturnNestedType()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef("InlineIL.Tests.AssemblyToProcess", nameof(TypeRefTestCases) + "+" + nameof(NestedType)));
         IL.Emit(OpCodes.Call, new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        return IL.Return<Type>();
     }
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
