@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using InlineIL.Fody;
+using InlineIL.Tests.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Xunit;
@@ -57,7 +58,7 @@ namespace InlineIL.Tests
             var callInstruction = _il.Body.Instructions.Last();
 
             var result = callInstruction.GetArgumentPushInstructions();
-            Assert.Equal(new[] { p0, p1, p2 }, result);
+            result.ShouldEqual(new[] { p0, p1, p2 });
         }
 
         [Fact]
@@ -84,7 +85,7 @@ namespace InlineIL.Tests
             var callInstruction = _il.Body.Instructions.Last();
 
             var result = callInstruction.GetArgumentPushInstructions();
-            Assert.Equal(new[] { p0, p1, p2 }, result);
+            result.ShouldEqual(new[] { p0, p1, p2 });
         }
 
         [Fact]
@@ -113,7 +114,7 @@ namespace InlineIL.Tests
             var callInstruction = _il.Body.Instructions.Last();
 
             var result = callInstruction.GetArgumentPushInstructions();
-            Assert.Equal(new[] { p0, p1, p2 }, result);
+            result.ShouldEqual(new[] { p0, p1, p2 });
         }
     }
 }

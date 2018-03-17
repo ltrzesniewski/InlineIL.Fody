@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using InlineIL.Fody;
+using InlineIL.Tests.Support;
 using Mono.Cecil.Cil;
 using Xunit;
 using Xunit.Abstractions;
@@ -46,10 +47,10 @@ namespace InlineIL.Tests
         [Fact]
         public void should_map_opcodes()
         {
-            Assert.Equal(OpCodes.Nop, OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Nop));
-            Assert.Equal(OpCodes.Dup, OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Dup));
-            Assert.Equal(OpCodes.Leave, OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Leave));
-            Assert.Equal(OpCodes.Sizeof, OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Sizeof));
+            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Nop).ShouldEqual(OpCodes.Nop);
+            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Dup).ShouldEqual(OpCodes.Dup);
+            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Leave).ShouldEqual(OpCodes.Leave);
+            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Sizeof).ShouldEqual(OpCodes.Sizeof);
         }
     }
 }
