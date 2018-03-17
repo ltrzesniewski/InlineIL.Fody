@@ -198,8 +198,7 @@ namespace InlineIL.Fody
 
                 case KnownNames.Full.LabelRefType:
                 {
-                    var labelName = ConsumeArgLabelRef(args[1]);
-                    var labelInfo = GetOrCreateLabelInfo(labelName);
+                    var labelInfo = ConsumeArgLabelRef(args[1]);
                     var resultInstruction = InstructionHelper.Create(opCode, labelInfo.PlaceholderTarget);
                     labelInfo.References.Add(resultInstruction);
                     _il.Replace(instruction, resultInstruction);
@@ -208,7 +207,7 @@ namespace InlineIL.Fody
 
                 case KnownNames.Full.LabelRefType + "[]":
                 {
-                    var labelInfos = ConsumeArgArray(args[1], ConsumeArgLabelRef).Select(GetOrCreateLabelInfo).ToList();
+                    var labelInfos = ConsumeArgArray(args[1], ConsumeArgLabelRef).ToList();
                     var resultInstruction = InstructionHelper.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
 
                     foreach (var info in labelInfos)
@@ -273,23 +272,12 @@ namespace InlineIL.Fody
         private void ProcessMarkLabelMethod(Instruction instruction)
         {
             var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
-            var labelInfo = GetOrCreateLabelInfo(labelName);
+            var labelInfo = _labels.GetOrAddNew(labelName);
 
             if (labelInfo.IsDefined)
                 throw new WeavingException($"Label {labelName} is already defined");
 
             _il.Replace(instruction, labelInfo.PlaceholderTarget);
-        }
-
-        private LabelInfo GetOrCreateLabelInfo(string labelName)
-        {
-            if (!_labels.TryGetValue(labelName, out var labelInfo))
-            {
-                labelInfo = new LabelInfo();
-                _labels.Add(labelName, labelInfo);
-            }
-
-            return labelInfo;
         }
 
         private OpCode ConsumeArgOpCode(Instruction instruction)
@@ -600,7 +588,7 @@ namespace InlineIL.Fody
             return args;
         }
 
-        private string ConsumeArgLabelRef(Instruction instruction)
+        private LabelInfo ConsumeArgLabelRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LabelRef::.ctor(System.String)")
                 throw new WeavingException($"Unexpected instruction, expected newobj LabelRef, but was {instruction}");
@@ -608,7 +596,7 @@ namespace InlineIL.Fody
             var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
             _il.Remove(instruction);
 
-            return labelName;
+            return _labels.GetOrAddNew(labelName);
         }
 
         private class LabelInfo
