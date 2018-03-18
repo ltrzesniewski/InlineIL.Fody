@@ -5,10 +5,12 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class BasicTests
+    public class BasicTests : ClassTestsBase
     {
-        private static dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance("BasicTestCases");
+        public BasicTests()
+            : base("BasicTestCases")
+        {
+        }
 
         [Fact]
         public void should_push_value()
@@ -59,6 +61,18 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (int)GetInstance().ReturnArg(42);
             result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_report_unvalid_use_of_Unreachable()
+        {
+            ShouldHaveError("InvalidUnreachable");
+        }
+
+        [Fact]
+        public void should_report_unvalid_use_of_Return()
+        {
+            ShouldHaveError("InvalidReturn");
         }
     }
 }

@@ -80,7 +80,7 @@ namespace InlineIL.Fody
         public static Instruction[] GetArgumentPushInstructions(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call)
-                throw new WeavingException("Expected a call instruction");
+                throw new InstructionWeavingException(instruction, "Expected a call instruction");
 
             var method = (IMethodSignature)instruction.Operand;
             var argCount = GetArgCount(instruction.OpCode, method);
@@ -99,6 +99,7 @@ namespace InlineIL.Fody
 
         private static Instruction BackwardScanPush(ref Instruction currentInstruction)
         {
+            var startInstruction = currentInstruction;
             Instruction result = null;
             var stackToConsume = 1;
 
@@ -113,14 +114,14 @@ namespace InlineIL.Fody
                     result = currentInstruction;
 
                 if (stackToConsume < 0)
-                    throw new WeavingException("Unexpected stack behavior");
+                    throw new InstructionWeavingException(startInstruction, "Unexpected stack behavior");
 
                 stackToConsume += popCount;
                 currentInstruction = currentInstruction.Previous;
             }
 
             if (result == null)
-                throw new WeavingException("Could not locate call argument");
+                throw new InstructionWeavingException(startInstruction, "Could not locate call argument");
 
             return result;
         }
@@ -175,7 +176,7 @@ namespace InlineIL.Fody
                     return 3;
 
                 default:
-                    throw new WeavingException("Could not locate method argument value");
+                    throw new InstructionWeavingException(instruction, "Could not locate method argument value");
             }
         }
 
@@ -207,7 +208,7 @@ namespace InlineIL.Fody
                     return 2;
 
                 default:
-                    throw new WeavingException("Could not locate method argument value");
+                    throw new InstructionWeavingException(instruction, "Could not locate method argument value");
             }
         }
 

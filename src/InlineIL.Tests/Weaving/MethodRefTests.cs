@@ -4,13 +4,12 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class MethodRefTests
+    public class MethodRefTests : ClassTestsBase
     {
-        private static dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance("MethodRefTestCases");
-
-        private static dynamic GetUnverifiableInstance()
-            => UnverifiableAssemblyToProcessFixture.TestResult.GetInstance("MethodRefTestCases");
+        public MethodRefTests()
+            : base("MethodRefTestCases")
+        {
+        }
 
         [Fact]
         public void should_handle_method_call()
@@ -31,6 +30,26 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (int[])GetUnverifiableInstance().ResolveOverloads();
             result.ShouldEqual(new[] { 10, 10, 20, 30, 40, 50, 60 });
+        }
+
+        [Fact]
+        public void should_report_null_method()
+        {
+            ShouldHaveError("NullMethod").ShouldContain("ldnull");
+            ShouldHaveError("NullMethodRef").ShouldContain("ldnull");
+        }
+
+        [Fact]
+        public void should_report_unknown_mehtod()
+        {
+            ShouldHaveError("UnknownMethodWithoutParams").ShouldContain("Method Nope not found");
+            ShouldHaveError("UnknownMethodWithParams").ShouldContain("Method Nope(System.Int32) not found");
+        }
+
+        [Fact]
+        public void should_report_ambiguous_mehtod()
+        {
+            ShouldHaveError("AmbiguousMethod").ShouldContain("Ambiguous method");
         }
     }
 }

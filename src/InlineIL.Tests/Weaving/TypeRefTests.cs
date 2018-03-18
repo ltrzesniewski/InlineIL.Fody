@@ -7,15 +7,12 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class TypeRefTests
+    public class TypeRefTests : ClassTestsBase
     {
-        private const string ClassName = "TypeRefTestCases";
-
-        private static dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance(ClassName);
-
-        private static string ShouldHaveError(string methodName)
-            => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName);
+        public TypeRefTests()
+            : base("TypeRefTestCases")
+        {
+        }
 
         [Fact]
         public void should_handle_type_arg()
@@ -109,9 +106,28 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_throw_on_null_type()
+        public void should_report_null_type()
         {
             ShouldHaveError("LoadNullType").ShouldContain("ldnull");
+            ShouldHaveError("LoadNullTypeRef").ShouldContain("ldnull");
+        }
+
+        [Fact]
+        public void should_report_unresolvable_assembly()
+        {
+            ShouldHaveError("InvalidAssembly").ShouldContain("Could not resolve assembly");
+        }
+
+        [Fact]
+        public void should_report_unknown_type()
+        {
+            ShouldHaveError("InvalidType").ShouldContain("Could not find type");
+        }
+
+        [Fact]
+        public void should_report_invalid_array_rank()
+        {
+            ShouldHaveError("InvalidArrayRank").ShouldContain("Invalid array rank");
         }
     }
 }

@@ -8,6 +8,25 @@ public class TypeRefTestCases
     public void LoadNullType()
     {
         IL.Emit(OpCodes.Ldtoken, new TypeRef(null));
-        IL.Emit(OpCodes.Pop);
+    }
+
+    public void LoadNullTypeRef()
+    {
+        IL.Emit(OpCodes.Ldtoken, (TypeRef)null);
+    }
+
+    public void InvalidAssembly()
+    {
+        IL.Emit(OpCodes.Ldtoken, new TypeRef("AssemblyThatDonestExist", "TypeThatDoesntExist"));
+    }
+
+    public void InvalidType()
+    {
+        IL.Emit(OpCodes.Ldtoken, new TypeRef("System", "TypeThatDoesntExist"));
+    }
+
+    public void InvalidArrayRank()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(int).MakeArrayType(-1));
     }
 }

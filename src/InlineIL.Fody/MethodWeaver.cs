@@ -47,11 +47,17 @@ namespace InlineIL.Fody
             }
             catch (InstructionWeavingException ex)
             {
-                throw new SequencePointWeavingException(_sequencePoints.LastOrDefault(sp => sp.Offset <= ex.Instruction.Offset), ex.Message);
+                var message = ex.Message.Contains(_method.FullName)
+                    ? ex.Message
+                    : ex.Instruction != null
+                        ? $"Error in {_method.FullName} at instruction {ex.Instruction}: {ex.Message}"
+                        : $"Error in {_method.FullName}: {ex.Message}";
+
+                throw new SequencePointWeavingException(_sequencePoints.LastOrDefault(sp => sp.Offset <= ex.Instruction?.Offset), message);
             }
             catch (WeavingException ex)
             {
-                throw new WeavingException($"Error processing method {_method.FullName}: {ex.Message}");
+                throw new WeavingException($"Error in {_method.FullName}: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -111,7 +117,7 @@ namespace InlineIL.Fody
                                 break;
 
                             default:
-                                throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
+                                throw new InstructionWeavingException(instruction, $"Unsupported method: {calledMethod.FullName}");
                         }
                     }
                     catch (InstructionWeavingException)
@@ -120,11 +126,11 @@ namespace InlineIL.Fody
                     }
                     catch (WeavingException ex)
                     {
-                        throw new InstructionWeavingException(_method, instruction, $"Error processing method {_method.FullName} at instruction {instruction}: {ex.Message}");
+                        throw new InstructionWeavingException(instruction, $"Error in {_method.FullName} at instruction {instruction}: {ex.Message}");
                     }
                     catch (Exception ex)
                     {
-                        throw new InstructionWeavingException(_method, instruction, $"Unexpected error occured while processing method {_method.FullName} at instruction {instruction}: {ex}");
+                        throw new InstructionWeavingException(instruction, $"Unexpected error occured while processing method {_method.FullName} at instruction {instruction}: {ex}");
                     }
                 }
 
@@ -137,7 +143,7 @@ namespace InlineIL.Fody
             foreach (var (name, info) in _labels)
             {
                 if (!info.IsDefined)
-                    throw new WeavingException($"Undefined label: {name}");
+                    throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: {name}");
 
                 var actualTarget = info.PlaceholderTarget.Next;
                 _il.Remove(info.PlaceholderTarget);
@@ -150,7 +156,7 @@ namespace InlineIL.Fody
                         case OperandType.ShortInlineBrTarget:
                         {
                             if (labelRef.Operand != info.PlaceholderTarget)
-                                throw new WeavingException($"Unexpected branch target: {labelRef}");
+                                throw new InstructionWeavingException(labelRef, "Unexpected branch target");
 
                             labelRef.Operand = actualTarget;
                             break;
@@ -169,7 +175,7 @@ namespace InlineIL.Fody
                         }
 
                         default:
-                            throw new WeavingException($"Invalid branch instruction: {labelRef}");
+                            throw new InstructionWeavingException(labelRef, "Invalid branch instruction");
                     }
                 }
             }
@@ -263,7 +269,7 @@ namespace InlineIL.Fody
         {
             var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction.OpCode != OpCodes.Throw)
-                throw new WeavingException("The Unreachable method should be used along with the throw keyword: throw IL.Unreachable();");
+                throw new InstructionWeavingException(instruction, "The Unreachable method should be used along with the throw keyword: throw IL.Unreachable();");
 
             _il.Remove(instruction);
             _il.RemoveNopsAround(throwInstruction);
@@ -296,7 +302,7 @@ namespace InlineIL.Fody
                 }
 
                 default:
-                    throw new WeavingException("The Return method should be used along the return keyword: return IL.Return<T>();");
+                    throw new InstructionWeavingException(instruction, "The Return method should be used along the return keyword: return IL.Return<T>();");
             }
 
             _il.Remove(instruction);
@@ -308,7 +314,7 @@ namespace InlineIL.Fody
             var labelInfo = _labels.GetOrAddNew(labelName);
 
             if (labelInfo.IsDefined)
-                throw new WeavingException($"Label {labelName} is already defined");
+                throw new InstructionWeavingException(instruction, $"Label {labelName} is already defined");
 
             _il.Replace(instruction, labelInfo.PlaceholderTarget);
         }
@@ -321,7 +327,7 @@ namespace InlineIL.Fody
             var pinned = args.Length == 3 && ConsumeArgBool(args[2]);
 
             if (_locals.ContainsKey(localName))
-                throw new WeavingException($"Local {localName} is already defined");
+                throw new InstructionWeavingException(instruction, $"Local {localName} is already defined");
 
             var variableDef = new VariableDefinition(pinned ? localType.MakePinnedType() : localType);
             _il.Body.Variables.Add(variableDef);
@@ -428,7 +434,7 @@ namespace InlineIL.Fody
                         : _module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
 
                     if (assembly == null)
-                        throw new WeavingException($"Could not resolve assembly {assemblyName}");
+                        throw new InstructionWeavingException(instruction, $"Could not resolve assembly {assemblyName}");
 
                     var typeReference = assembly.Modules
                                                 .Select(module =>
@@ -441,7 +447,7 @@ namespace InlineIL.Fody
                                                 .FirstOrDefault(t => t != null);
 
                     if (typeReference == null)
-                        throw new WeavingException($"Could not find type {typeName} in assembly {assemblyName}");
+                        throw new InstructionWeavingException(instruction, $"Could not find type {typeName} in assembly {assemblyName}");
 
                     _il.Remove(instruction);
                     return _module.ImportReference(typeReference);
@@ -478,7 +484,7 @@ namespace InlineIL.Fody
                     var innerTypeRef = ConsumeArgTypeRef(args[0]);
                     var rank = ConsumeArgInt32(args[1]);
                     if (rank < 1)
-                        throw new WeavingException($"Invalid array rank: {rank}, must be at least 1");
+                        throw new InstructionWeavingException(args[1], $"Invalid array rank: {rank}, must be at least 1");
 
                     _il.Remove(instruction);
                     return innerTypeRef.MakeArrayType(rank);
@@ -515,14 +521,14 @@ namespace InlineIL.Fody
                     switch (methods.Count)
                     {
                         case 0:
-                            throw new WeavingException($"Method {methodName} not found in type {typeDef.FullName}");
+                            throw new InstructionWeavingException(instruction, $"Method {methodName} not found in type {typeDef.FullName}");
 
                         case 1:
                             _il.Remove(instruction);
                             return _module.ImportReference(methods.Single());
 
                         default:
-                            throw new WeavingException($"Ambiguous method {methodName} in type {typeDef.FullName}");
+                            throw new InstructionWeavingException(instruction, $"Ambiguous method {methodName} in type {typeDef.FullName}");
                     }
                 }
 
@@ -542,7 +548,7 @@ namespace InlineIL.Fody
                     switch (methods.Count)
                     {
                         case 0:
-                            throw new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
+                            throw new InstructionWeavingException(instruction, $"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
 
                         case 1:
                             _il.Remove(instruction);
@@ -550,7 +556,7 @@ namespace InlineIL.Fody
 
                         default:
                             // This should never happen
-                            throw new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
+                            throw new InstructionWeavingException(instruction, $"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
                     }
                 }
             }
@@ -572,7 +578,7 @@ namespace InlineIL.Fody
             switch (fields.Count)
             {
                 case 0:
-                    throw new WeavingException($"Field {fieldName} not found in type {typeDef.FullName}");
+                    throw new InstructionWeavingException(instruction, $"Field {fieldName} not found in type {typeDef.FullName}");
 
                 case 1:
                     _il.Remove(instruction);
@@ -580,7 +586,7 @@ namespace InlineIL.Fody
 
                 default:
                     // This should never happen
-                    throw new WeavingException($"Ambiguous field {fieldName} in type {typeDef.FullName}");
+                    throw new InstructionWeavingException(instruction, $"Ambiguous field {fieldName} in type {typeDef.FullName}");
             }
         }
 
@@ -660,7 +666,7 @@ namespace InlineIL.Fody
             var localName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
 
             if (!_locals.TryGetValue(localName, out var variableDef))
-                throw new WeavingException($"Local {localName} is not defined");
+                throw new InstructionWeavingException(instruction, $"Local {localName} is not defined");
 
             _il.Remove(instruction);
 
@@ -671,7 +677,7 @@ namespace InlineIL.Fody
             => UnexpectedInstruction(instruction, expectedOpcode.Name);
 
         private InstructionWeavingException UnexpectedInstruction(Instruction instruction, string expected)
-            => new InstructionWeavingException(_method, instruction, $"Error in {_method.FullName}: Unexpected instruction, expected {expected} but was: {instruction}");
+            => new InstructionWeavingException(instruction, $"Error in {_method.FullName}: Unexpected instruction, expected {expected} but was: {instruction}");
 
         private class LabelInfo
         {

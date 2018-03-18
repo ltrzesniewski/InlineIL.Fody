@@ -6,13 +6,11 @@ namespace InlineIL.Fody
 {
     internal class InstructionWeavingException : WeavingException
     {
-        public MethodDefinition Method { get; }
         public Instruction Instruction { get; }
 
-        public InstructionWeavingException(MethodDefinition method, Instruction instruction, string message)
+        public InstructionWeavingException(Instruction instruction, string message)
             : base(message)
         {
-            Method = method;
             Instruction = instruction;
         }
     }

@@ -3,10 +3,12 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class FieldRefTests
+    public class FieldRefTests : ClassTestsBase
     {
-        private static dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance("FieldRefTestCases");
+        public FieldRefTests()
+            : base("FieldRefTestCases")
+        {
+        }
 
         [Fact]
         public void should_handle_field_references()
@@ -15,6 +17,19 @@ namespace InlineIL.Tests.Weaving
             instance.IntField = 42;
             var result = (int)instance.ReturnIntField();
             result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_report_null_field()
+        {
+            ShouldHaveError("NullField").ShouldContain("ldnull");
+            ShouldHaveError("NullFieldRef").ShouldContain("ldnull");
+        }
+
+        [Fact]
+        public void should_report_unknown_field()
+        {
+            ShouldHaveError("UnknownField").ShouldContain("Field Nope not found");
         }
     }
 }

@@ -3,10 +3,12 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class LabelRefTests
+    public class LabelRefTests : ClassTestsBase
     {
-        private static dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance("LabelRefTestCases");
+        public LabelRefTests()
+            : base("LabelRefTestCases")
+        {
+        }
 
         [Fact]
         public void should_handle_labels()
@@ -32,6 +34,31 @@ namespace InlineIL.Tests.Weaving
 
             result = (int)GetInstance().JumpTable(3);
             result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_report_null_label_reference()
+        {
+            ShouldHaveError("NullLabelName").ShouldContain("ldnull");
+            ShouldHaveError("NullLabelRef").ShouldContain("ldnull");
+        }
+
+        [Fact]
+        public void should_report_null_label_definition()
+        {
+            ShouldHaveError("NullLabel").ShouldContain("ldnull");
+        }
+
+        [Fact]
+        public void should_report_undefined_label()
+        {
+            ShouldHaveError("UndefinedLabel").ShouldContain("Undefined label");
+        }
+
+        [Fact]
+        public void should_report_redefined_label()
+        {
+            ShouldHaveError("RedefinedLabel").ShouldContain("already defined");
         }
     }
 }

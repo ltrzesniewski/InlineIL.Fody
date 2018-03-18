@@ -3,13 +3,12 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class LocalRefTests
+    public class LocalRefTests : ClassTestsBase
     {
-        private static dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance("LocalRefTestCases");
-
-        private static dynamic GetUnverifiableInstance()
-            => UnverifiableAssemblyToProcessFixture.TestResult.GetInstance("LocalRefTestCases");
+        public LocalRefTests()
+            : base("LocalRefTestCases")
+        {
+        }
 
         [Fact]
         public void should_handle_local_variables()
@@ -26,6 +25,31 @@ namespace InlineIL.Tests.Weaving
             var instance = GetUnverifiableInstance();
             var result = (int)instance.UsePinnedLocalVariables(buf, 2);
             result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_report_undefined_local()
+        {
+            ShouldHaveError("UndefinedLocal").ShouldContain("is not defined");
+        }
+
+        [Fact]
+        public void should_report_redefined_local()
+        {
+            ShouldHaveError("RedefinedLocal").ShouldContain("already defined");
+        }
+
+        [Fact]
+        public void should_report_null_local_definition()
+        {
+            ShouldHaveError("NullLocal").ShouldContain("ldnull");
+        }
+
+        [Fact]
+        public void should_report_null_local_reference()
+        {
+            ShouldHaveError("NullLocalRefName").ShouldContain("ldnull");
+            ShouldHaveError("NullLocalRef").ShouldContain("ldnull");
         }
     }
 }
