@@ -575,6 +575,45 @@ namespace InlineIL.Fody
                             throw new InstructionWeavingException(instruction, $"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
                     }
                 }
+
+                case "InlineIL.MethodRef InlineIL.MethodRef::WithOptionalParameters(InlineIL.TypeRef[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var baseMethod = ConsumeArgMethodRef(args[0]);
+                    var optionalParamTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+
+                    if (baseMethod.CallingConvention != MethodCallingConvention.VarArg)
+                        throw new InstructionWeavingException(instruction, $"Not a vararg method: {baseMethod.FullName}");
+
+                    if (baseMethod.Parameters.Any(p => p.ParameterType.IsSentinel))
+                        throw new InstructionWeavingException(instruction, "Optional parameters for vararg call have already been supplied");
+
+                    if (optionalParamTypes.Length == 0)
+                        throw new InstructionWeavingException(instruction, "No optional parameter type supplied for vararg method call");
+
+                    var methodRef = new MethodReference(baseMethod.Name, baseMethod.ReturnType, baseMethod.DeclaringType)
+                    {
+                        CallingConvention = MethodCallingConvention.VarArg,
+                        HasThis = baseMethod.HasThis,
+                        ExplicitThis = baseMethod.ExplicitThis,
+                        MethodReturnType = baseMethod.MethodReturnType
+                    };
+
+                    foreach (var param in baseMethod.Parameters)
+                        methodRef.Parameters.Add(param);
+
+                    for (var i = 0; i < optionalParamTypes.Length; ++i)
+                    {
+                        var paramType = optionalParamTypes[i];
+                        if (i == 0)
+                            paramType = paramType.MakeSentinelType();
+
+                        methodRef.Parameters.Add(new ParameterDefinition(paramType));
+                    }
+
+                    _il.Remove(instruction);
+                    return _module.ImportReference(methodRef);
+                }
             }
 
             throw UnexpectedInstruction(instruction, "a method reference");

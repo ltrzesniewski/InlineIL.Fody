@@ -3,6 +3,8 @@
 namespace InlineIL
 {
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
     public sealed class MethodRef
     {
         public MethodRef(TypeRef type, string methodName)
@@ -10,5 +12,8 @@ namespace InlineIL
 
         public MethodRef(TypeRef type, string methodName, params TypeRef[] parameterTypes)
             => IL.Throw();
+
+        public MethodRef WithOptionalParameters(params TypeRef[] optionalParameterTypes)
+            => throw IL.Throw();
     }
 }

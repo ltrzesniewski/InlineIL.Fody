@@ -37,6 +37,21 @@ public class MethodRefTestCases
         GC.KeepAlive(new MethodRef(typeof(int), "foo"));
     }
 
+    public void NotAVarArgMethod()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(NotAVarArgMethod)).WithOptionalParameters(typeof(int)));
+    }
+
+    public void VarArgParamsAlreadySupplied()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters(typeof(int)).WithOptionalParameters(typeof(int)));
+    }
+
+    public void EmptyVarArgParams()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters());
+    }
+
     private static void Foo()
     {
     }
@@ -44,4 +59,6 @@ public class MethodRefTestCases
     private static void Foo(int i)
     {
     }
+
+    private static int[] VarArgMethod(int count, __arglist) => null;
 }

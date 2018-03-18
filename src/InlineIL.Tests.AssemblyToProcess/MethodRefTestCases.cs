@@ -70,10 +70,31 @@ public class MethodRefTestCases
         return IL.Return<int[]>();
     }
 
+    public int[] CallVarArgMethod()
+    {
+        IL.Push(5);
+        IL.Push(1);
+        IL.Push(2);
+        IL.Push(3);
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters(typeof(int), typeof(int), typeof(int)));
+        return IL.Return<int[]>();
+    }
+
     private static int OverloadedMethod() => 10;
     private static int OverloadedMethod(int a) => 20;
     private static int OverloadedMethod(ref int a) => 30;
     private static int OverloadedMethod(int[] a) => 40;
     private static int OverloadedMethod(double a, ref int b) => 50;
     private static int OverloadedMethod(double a, int b) => 60;
+
+    private static int[] VarArgMethod(int count, __arglist)
+    {
+        var it = new ArgIterator(__arglist);
+        var result = new int[count];
+
+        for (var i = 0; i < count; ++i)
+            result[i] = it.GetRemainingCount() > 0 ? __refvalue(it.GetNextArg(), int) : 0;
+
+        return result;
+    }
 }

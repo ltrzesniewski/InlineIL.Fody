@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Fody;
+using Mono.Cecil.Cil;
 
 namespace InlineIL.Fody
 {
@@ -26,12 +27,12 @@ namespace InlineIL.Fody
                 }
                 catch (SequencePointWeavingException ex)
                 {
-                    LogErrorPoint(ex.Message, ex.SequencePoint);
+                    AddError(ex.Message, ex.SequencePoint);
                     hasErrors = true;
                 }
                 catch (WeavingException ex)
                 {
-                    LogError(ex.Message);
+                    AddError(ex.Message, null);
                     hasErrors = true;
                 }
             }
@@ -39,5 +40,8 @@ namespace InlineIL.Fody
             if (hasErrors)
                 throw new WeavingException("Weaving failed - see logged errors");
         }
+
+        protected virtual void AddError(string message, SequencePoint sequencePoint)
+            => LogErrorPoint(message, sequencePoint);
     }
 }

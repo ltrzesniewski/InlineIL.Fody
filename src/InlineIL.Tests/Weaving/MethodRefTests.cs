@@ -57,5 +57,30 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("UnusedInstance");
         }
+
+        [Fact]
+        public void should_call_vararg_method()
+        {
+            var result = (int[])GetInstance().CallVarArgMethod();
+            result.ShouldEqual(new[] { 1, 2, 3, 0, 0 });
+        }
+
+        [Fact]
+        public void should_report_vararg_usage_on_normal_method()
+        {
+            ShouldHaveError("NotAVarArgMethod").ShouldContain("Not a vararg method");
+        }
+
+        [Fact]
+        public void should_report_vararg_params_supplied_multiple_times()
+        {
+            ShouldHaveError("VarArgParamsAlreadySupplied").ShouldContain("have already been supplied");
+        }
+
+        [Fact]
+        public void should_report_empty_vararg_params()
+        {
+            ShouldHaveError("EmptyVarArgParams").ShouldContain("No optional parameter type supplied");
+        }
     }
 }
