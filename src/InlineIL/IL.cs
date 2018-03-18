@@ -41,6 +41,9 @@ namespace InlineIL
         public static void Emit(OpCode opCode, params LabelRef[] args)
             => Throw();
 
+        public static void Emit(OpCode opCode, StandAloneMethodSig arg)
+            => Throw();
+
         public static void DeclareLocal(string name, TypeRef type)
             => Throw();
 

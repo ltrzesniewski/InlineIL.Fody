@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -303,6 +305,13 @@ namespace InlineIL.Fody
                 {
                     var variableDef = ConsumeArgLocalRef(args[1]);
                     _il.Replace(instruction, InstructionHelper.Create(opCode, variableDef));
+                    return;
+                }
+
+                case KnownNames.Full.StandAloneMethodSigType:
+                {
+                    var callSite = ConsumeArgCallSite(args[1]);
+                    _il.Replace(instruction, InstructionHelper.Create(opCode, callSite));
                     return;
                 }
             }
@@ -783,8 +792,8 @@ namespace InlineIL.Fody
                 throw UnexpectedInstruction(instruction, "newobj LabelRef");
 
             var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
-            _il.Remove(instruction);
 
+            _il.Remove(instruction);
             return _labels.GetOrAddNew(labelName);
         }
 
@@ -799,8 +808,86 @@ namespace InlineIL.Fody
                 throw new InstructionWeavingException(instruction, $"Local {localName} is not defined");
 
             _il.Remove(instruction);
-
             return variableDef;
+        }
+
+        private CallSite ConsumeArgCallSite(Instruction instruction)
+        {
+            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                throw UnexpectedInstruction(instruction, "a method call");
+
+            switch (method.FullName)
+            {
+                case "System.Void InlineIL.StandAloneMethodSig::.ctor(System.Reflection.CallingConventions,InlineIL.TypeRef,InlineIL.TypeRef[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var callingConvention = (CallingConventions)ConsumeArgInt32(args[0]);
+                    var returnType = ConsumeArgTypeRef(args[1]);
+                    var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
+
+                    var callSite = new CallSite(returnType)
+                    {
+                        CallingConvention = (callingConvention & CallingConventions.VarArgs) == 0
+                            ? MethodCallingConvention.Default
+                            : MethodCallingConvention.VarArg,
+                        HasThis = (callingConvention & CallingConventions.HasThis) != 0,
+                        ExplicitThis = (callingConvention & CallingConventions.ExplicitThis) != 0
+                    };
+
+                    callSite.Parameters.AddRange(paramTypes.Select(t => new ParameterDefinition(t)));
+
+                    _il.Remove(instruction);
+                    return callSite;
+                }
+
+                case "InlineIL.StandAloneMethodSig InlineIL.StandAloneMethodSig::WithOptionalParameters(InlineIL.TypeRef[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var callSite = ConsumeArgCallSite(args[0]);
+                    var optionalParamTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+
+                    if (callSite.CallingConvention != MethodCallingConvention.VarArg)
+                        throw new InstructionWeavingException(instruction, "Not a vararg calling convention");
+
+                    if (callSite.Parameters.Any(p => p.ParameterType.IsSentinel))
+                        throw new InstructionWeavingException(instruction, "Optional parameters for vararg call site have already been supplied");
+
+                    if (optionalParamTypes.Length == 0)
+                        throw new InstructionWeavingException(instruction, "No optional parameter type supplied for vararg call site");
+
+                    for (var i = 0; i < optionalParamTypes.Length; ++i)
+                    {
+                        var paramType = optionalParamTypes[i];
+                        if (i == 0)
+                            paramType = paramType.MakeSentinelType();
+
+                        callSite.Parameters.Add(new ParameterDefinition(paramType));
+                    }
+
+                    _il.Remove(instruction);
+                    return callSite;
+                }
+
+                case "System.Void InlineIL.StandAloneMethodSig::.ctor(System.Runtime.InteropServices.CallingConvention,InlineIL.TypeRef,InlineIL.TypeRef[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var callingConvention = (CallingConvention)ConsumeArgInt32(args[0]);
+                    var returnType = ConsumeArgTypeRef(args[1]);
+                    var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
+
+                    var callSite = new CallSite(returnType)
+                    {
+                        CallingConvention = callingConvention.ToMethodCallingConvention()
+                    };
+
+                    callSite.Parameters.AddRange(paramTypes.Select(t => new ParameterDefinition(t)));
+
+                    _il.Remove(instruction);
+                    return callSite;
+                }
+            }
+
+            throw UnexpectedInstruction(instruction, "a stand-alone method signature");
         }
 
         private InstructionWeavingException UnexpectedInstruction(Instruction instruction, OpCode expectedOpcode)

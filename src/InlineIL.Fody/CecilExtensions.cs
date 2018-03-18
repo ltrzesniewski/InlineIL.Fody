@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -229,6 +230,28 @@ namespace InlineIL.Fody
 
                 default:
                     return false;
+            }
+        }
+
+        public static MethodCallingConvention ToMethodCallingConvention(this CallingConvention callingConvention)
+        {
+            switch (callingConvention)
+            {
+                case CallingConvention.Cdecl:
+                    return MethodCallingConvention.C;
+
+                case CallingConvention.StdCall:
+                case CallingConvention.Winapi:
+                    return MethodCallingConvention.StdCall;
+
+                case CallingConvention.FastCall:
+                    return MethodCallingConvention.FastCall;
+
+                case CallingConvention.ThisCall:
+                    return MethodCallingConvention.ThisCall;
+
+                default:
+                    throw new WeavingException("Invalid calling convention");
             }
         }
     }

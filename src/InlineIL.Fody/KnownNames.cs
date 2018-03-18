@@ -22,6 +22,7 @@ namespace InlineIL.Fody
             public const string FieldRefType = "InlineIL.FieldRef";
             public const string LabelRefType = "InlineIL.LabelRef";
             public const string LocalRefType = "InlineIL.LocalRef";
+            public const string StandAloneMethodSigType = "InlineIL.StandAloneMethodSig";
 
             public static readonly HashSet<string> AllTypes = new HashSet<string>
             {
@@ -30,7 +31,8 @@ namespace InlineIL.Fody
                 MethodRefType,
                 FieldRefType,
                 LabelRefType,
-                LocalRefType
+                LocalRefType,
+                StandAloneMethodSigType
             };
         }
     }
