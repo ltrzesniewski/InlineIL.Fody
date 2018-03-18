@@ -19,4 +19,12 @@ public class BasicTestCases
     {
         GC.KeepAlive(typeof(IL));
     }
+
+    public void InvalidPushUsage()
+    {
+        var guid = Guid.NewGuid();
+
+        IL.Push(42);
+        IL.Push(guid);
+    }
 }

@@ -80,5 +80,11 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("UnusedInstance");
         }
+
+        [Fact]
+        public void should_report_invalid_push_usage()
+        {
+            ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
+        }
     }
 }

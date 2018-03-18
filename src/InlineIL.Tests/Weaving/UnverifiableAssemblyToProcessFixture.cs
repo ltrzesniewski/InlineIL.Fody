@@ -1,5 +1,4 @@
 ﻿using Fody;
-using InlineIL.Fody;
 
 #pragma warning disable 618
 
@@ -11,7 +10,7 @@ namespace InlineIL.Tests.Weaving
 
         static UnverifiableAssemblyToProcessFixture()
         {
-            var weavingTask = new ModuleWeaver();
+            var weavingTask = new AssemblyToProcessFixture.GuardedWeaver();
             TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.UnverifiableAssemblyToProcess.dll", false);
         }
     }

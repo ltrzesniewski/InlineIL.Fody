@@ -78,11 +78,45 @@ namespace InlineIL.Fody
         {
             _method.Body.SimplifyMacros();
 
+            ValidateBeforeProcessing();
             ProcessMethodCalls();
             ProcessLabels();
-            ValidateMethod();
+            ValidateAfterProcessing();
 
             _method.Body.OptimizeMacros();
+        }
+
+        private void ValidateBeforeProcessing()
+        {
+            foreach (var instruction in Instructions)
+            {
+                if (instruction.OpCode == OpCodes.Call
+                    && instruction.Operand is MethodReference calledMethod
+                    && calledMethod.DeclaringType.FullName == KnownNames.Full.IlType)
+                {
+                    try
+                    {
+                        switch (calledMethod.Name)
+                        {
+                            case KnownNames.Short.PushMethod:
+                                ValidatePushMethod(instruction);
+                                break;
+                        }
+                    }
+                    catch (InstructionWeavingException)
+                    {
+                        throw;
+                    }
+                    catch (WeavingException ex)
+                    {
+                        throw new InstructionWeavingException(instruction, $"Error in {_method.FullName} at instruction {instruction}: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InstructionWeavingException(instruction, $"Unexpected error occured while processing method {_method.FullName} at instruction {instruction}: {ex}");
+                    }
+                }
+            }
         }
 
         private void ProcessMethodCalls()
@@ -192,7 +226,7 @@ namespace InlineIL.Fody
             _labels.Clear();
         }
 
-        private void ValidateMethod()
+        private void ValidateAfterProcessing()
         {
             var libReferencingInstruction = GetLibReferencingInstruction(_method);
             if (libReferencingInstruction != null)
@@ -274,6 +308,15 @@ namespace InlineIL.Fody
             }
 
             throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
+        }
+
+        private static void ValidatePushMethod(Instruction instruction)
+        {
+            var args = instruction.GetArgumentPushInstructions();
+            var prevInstruction = instruction.PrevSkipNops();
+
+            if (args[0] != prevInstruction)
+                throw new InstructionWeavingException(instruction, "IL.Push cannot be used in this context, as the instruction which supplies its argument does not immediately precede the call");
         }
 
         private void ProcessPushMethod(Instruction instruction)

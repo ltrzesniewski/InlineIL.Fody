@@ -56,6 +56,9 @@ namespace InlineIL
         public static void Push<T>(ref T value)
             => Throw();
 
+        public static unsafe void Push(void* value)
+            => Throw();
+
         public static Exception Unreachable()
             => throw Throw();
 

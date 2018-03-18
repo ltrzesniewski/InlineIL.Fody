@@ -19,7 +19,7 @@ namespace InlineIL.Tests.Weaving
             TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll");
         }
 
-        private class GuardedWeaver : ModuleWeaver
+        internal class GuardedWeaver : ModuleWeaver
         {
             private readonly List<string> _errors = new List<string>();
 
