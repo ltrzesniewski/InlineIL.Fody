@@ -13,6 +13,9 @@ namespace InlineIL
         public MethodRef(TypeRef type, string methodName, params TypeRef[] parameterTypes)
             => IL.Throw();
 
+        public MethodRef MakeGenericMethod(params TypeRef[] genericParameterTypes)
+            => throw IL.Throw();
+
         public MethodRef WithOptionalParameters(params TypeRef[] optionalParameterTypes)
             => throw IL.Throw();
     }

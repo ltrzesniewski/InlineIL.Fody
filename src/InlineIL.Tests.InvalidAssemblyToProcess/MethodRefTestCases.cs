@@ -37,6 +37,21 @@ public class MethodRefTestCases
         GC.KeepAlive(new MethodRef(typeof(int), "foo"));
     }
 
+    public void NotAGenericMethod()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(NotAGenericMethod)).MakeGenericMethod(typeof(int)));
+    }
+
+    public void NoGenericArgsProvided()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod)).MakeGenericMethod());
+    }
+
+    public void TooManyGenericArgsProvided()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod)).MakeGenericMethod(typeof(int), typeof(string)));
+    }
+
     public void NotAVarArgMethod()
     {
         IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(NotAVarArgMethod)).WithOptionalParameters(typeof(int)));
@@ -59,6 +74,8 @@ public class MethodRefTestCases
     private static void Foo(int i)
     {
     }
+
+    private static T GenericMethod<T>(T value) => value;
 
     private static int[] VarArgMethod(int count, __arglist) => null;
 }

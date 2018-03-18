@@ -576,6 +576,28 @@ namespace InlineIL.Fody
                     }
                 }
 
+                case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var genericMethod = ConsumeArgMethodRef(args[0]);
+                    var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+
+                    if (!genericMethod.HasGenericParameters)
+                        throw new InstructionWeavingException(instruction, $"Not a generic method: {genericMethod.FullName}");
+
+                    if (genericArgs.Length == 0)
+                        throw new InstructionWeavingException(instruction, "No generic arguments supplied");
+
+                    if (genericMethod.GenericParameters.Count != genericArgs.Length)
+                        throw new InstructionWeavingException(instruction, $"Incorrect number of generic arguments supplied for method {genericMethod.FullName} - expected {genericMethod.GenericParameters.Count}, but got {genericArgs.Length}");
+
+                    var genericInstance = new GenericInstanceMethod(genericMethod);
+                    genericInstance.GenericArguments.AddRange(genericArgs);
+
+                    _il.Remove(instruction);
+                    return genericInstance;
+                }
+
                 case "InlineIL.MethodRef InlineIL.MethodRef::WithOptionalParameters(InlineIL.TypeRef[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();

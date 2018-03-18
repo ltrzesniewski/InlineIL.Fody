@@ -59,6 +59,31 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_generic_method()
+        {
+            var result = (int)GetInstance().CallGenericMethod();
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_report_generic_args_on_normal_method()
+        {
+            ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
+        }
+
+        [Fact]
+        public void should_report_empty_generic_args()
+        {
+            ShouldHaveError("NoGenericArgsProvided").ShouldContain("No generic arguments supplied");
+        }
+
+        [Fact]
+        public void should_report_invalid_generic_args_count()
+        {
+            ShouldHaveError("TooManyGenericArgsProvided").ShouldContain("Incorrect number of generic arguments");
+        }
+
+        [Fact]
         public void should_call_vararg_method()
         {
             var result = (int[])GetInstance().CallVarArgMethod();

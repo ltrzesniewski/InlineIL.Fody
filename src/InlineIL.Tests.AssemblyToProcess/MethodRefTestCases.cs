@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
 
-
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
 public class MethodRefTestCases
@@ -70,6 +69,13 @@ public class MethodRefTestCases
         return IL.Return<int[]>();
     }
 
+    public int CallGenericMethod()
+    {
+        IL.Push(42);
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod)).MakeGenericMethod(typeof(int)));
+        return IL.Return<int>();
+    }
+
     public int[] CallVarArgMethod()
     {
         IL.Push(5);
@@ -86,6 +92,8 @@ public class MethodRefTestCases
     private static int OverloadedMethod(int[] a) => 40;
     private static int OverloadedMethod(double a, ref int b) => 50;
     private static int OverloadedMethod(double a, int b) => 60;
+
+    private static T GenericMethod<T>(T value) => value;
 
     private static int[] VarArgMethod(int count, __arglist)
     {
