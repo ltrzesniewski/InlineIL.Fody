@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Tests.Unverifiable
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestAssemblies", "TestAssemblies", "{97C79009-9BDF-4796-882A-6703071B864F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InlineIL.Tests.InvalidAssemblyToProcess", "InlineIL.Tests.InvalidAssemblyToProcess\InlineIL.Tests.InvalidAssemblyToProcess.csproj", "{46E1DDB1-F117-4395-B72F-DD50FA2B2579}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,12 @@ Global
 		{B796B2CF-5296-4D53-9BF3-156B49AA3AB1}.DebugWithReleaseTests|Any CPU.Build.0 = Release|Any CPU
 		{B796B2CF-5296-4D53-9BF3-156B49AA3AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B796B2CF-5296-4D53-9BF3-156B49AA3AB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46E1DDB1-F117-4395-B72F-DD50FA2B2579}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46E1DDB1-F117-4395-B72F-DD50FA2B2579}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46E1DDB1-F117-4395-B72F-DD50FA2B2579}.DebugWithReleaseTests|Any CPU.ActiveCfg = Release|Any CPU
+		{46E1DDB1-F117-4395-B72F-DD50FA2B2579}.DebugWithReleaseTests|Any CPU.Build.0 = Release|Any CPU
+		{46E1DDB1-F117-4395-B72F-DD50FA2B2579}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46E1DDB1-F117-4395-B72F-DD50FA2B2579}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +67,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{275EFB9F-0413-4759-BFFE-A8957B6A9E13} = {97C79009-9BDF-4796-882A-6703071B864F}
 		{B796B2CF-5296-4D53-9BF3-156B49AA3AB1} = {97C79009-9BDF-4796-882A-6703071B864F}
+		{46E1DDB1-F117-4395-B72F-DD50FA2B2579} = {97C79009-9BDF-4796-882A-6703071B864F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {025B8425-B5B7-4756-875C-E015456B7F4A}

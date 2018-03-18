@@ -9,8 +9,13 @@ namespace InlineIL.Tests.Weaving
 {
     public class TypeRefTests
     {
+        private const string ClassName = "TypeRefTestCases";
+
         private static dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance("TypeRefTestCases");
+            => AssemblyToProcessFixture.TestResult.GetInstance(ClassName);
+
+        private static string ShouldHaveError(string methodName)
+            => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName);
 
         [Fact]
         public void should_handle_type_arg()
@@ -101,6 +106,12 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (Type)GetInstance().ReturnNestedType();
             result.FullName.ShouldEqual("TypeRefTestCases+NestedType");
+        }
+
+        [Fact]
+        public void should_throw_on_null_type()
+        {
+            ShouldHaveError("LoadNullType").ShouldContain("ldnull");
         }
     }
 }

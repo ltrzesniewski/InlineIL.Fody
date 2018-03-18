@@ -14,6 +14,7 @@ namespace InlineIL.Fody
         private readonly ModuleDefinition _module;
         private readonly MethodDefinition _method;
         private readonly ILProcessor _il;
+        private readonly List<SequencePoint> _sequencePoints;
         private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
         private readonly Dictionary<string, VariableDefinition> _locals = new Dictionary<string, VariableDefinition>();
 
@@ -24,6 +25,7 @@ namespace InlineIL.Fody
             _module = module;
             _method = method;
             _il = _method.Body.GetILProcessor();
+            _sequencePoints = _method.DebugInformation.SequencePoints.ToList();
         }
 
         public static bool NeedsProcessing(MethodDefinition method)
@@ -42,6 +44,10 @@ namespace InlineIL.Fody
             try
             {
                 ProcessImpl();
+            }
+            catch (InstructionWeavingException ex)
+            {
+                throw new SequencePointWeavingException(_sequencePoints.LastOrDefault(sp => sp.Offset <= ex.Instruction.Offset), ex.Message);
             }
             catch (WeavingException ex)
             {
@@ -76,34 +82,49 @@ namespace InlineIL.Fody
 
                 if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod && IsIlType(calledMethod.DeclaringType))
                 {
-                    switch (calledMethod.Name)
+                    try
                     {
-                        case KnownNames.Short.EmitMethod:
-                            ProcessEmitMethod(instruction);
-                            break;
+                        switch (calledMethod.Name)
+                        {
+                            case KnownNames.Short.EmitMethod:
+                                ProcessEmitMethod(instruction);
+                                break;
 
-                        case KnownNames.Short.PushMethod:
-                            ProcessPushMethod(instruction);
-                            break;
+                            case KnownNames.Short.PushMethod:
+                                ProcessPushMethod(instruction);
+                                break;
 
-                        case KnownNames.Short.UnreachableMethod:
-                            ProcessUnreachableMethod(instruction);
-                            break;
+                            case KnownNames.Short.UnreachableMethod:
+                                ProcessUnreachableMethod(instruction);
+                                break;
 
-                        case KnownNames.Short.ReturnMethod:
-                            ProcessReturnMethod(instruction);
-                            break;
+                            case KnownNames.Short.ReturnMethod:
+                                ProcessReturnMethod(instruction);
+                                break;
 
-                        case KnownNames.Short.MarkLabelMethod:
-                            ProcessMarkLabelMethod(instruction);
-                            break;
+                            case KnownNames.Short.MarkLabelMethod:
+                                ProcessMarkLabelMethod(instruction);
+                                break;
 
-                        case KnownNames.Short.DeclareLocalMethod:
-                            ProcessDeclareLocalMethod(instruction);
-                            break;
+                            case KnownNames.Short.DeclareLocalMethod:
+                                ProcessDeclareLocalMethod(instruction);
+                                break;
 
-                        default:
-                            throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
+                            default:
+                                throw new WeavingException($"Unsupported method: {calledMethod.FullName}");
+                        }
+                    }
+                    catch (InstructionWeavingException)
+                    {
+                        throw;
+                    }
+                    catch (WeavingException ex)
+                    {
+                        throw new InstructionWeavingException(_method, instruction, $"Error processing method {_method.FullName} at instruction {instruction}: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InstructionWeavingException(_method, instruction, $"Unexpected error occured while processing method {_method.FullName} at instruction {instruction}: {ex}");
                     }
                 }
 
@@ -318,7 +339,7 @@ namespace InlineIL.Fody
         private string ConsumeArgString(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Ldstr)
-                throw new WeavingException($"Unexpected instruction, expected a constant string, but was {instruction}");
+                throw UnexpectedInstruction(instruction, OpCodes.Ldstr);
 
             _il.Remove(instruction);
             return (string)instruction.Operand;
@@ -330,7 +351,7 @@ namespace InlineIL.Fody
             if (value is int intValue)
                 return intValue;
 
-            throw new WeavingException($"Unexpected instruction, expected a constant int, but was {instruction}");
+            throw UnexpectedInstruction(instruction, OpCodes.Ldc_I4);
         }
 
         private bool ConsumeArgBool(Instruction instruction)
@@ -367,13 +388,13 @@ namespace InlineIL.Fody
                     return value;
             }
 
-            throw new WeavingException($"Unexpected instruction, expected a constant, but was {instruction}");
+            throw UnexpectedInstruction(instruction, "a constant");
         }
 
         private TypeReference ConsumeArgTypeRef(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
-                throw new WeavingException($"Unexpected instruction, expected a call, but was {instruction}");
+                throw UnexpectedInstruction(instruction, "a method call");
 
             switch (method.FullName)
             {
@@ -381,7 +402,7 @@ namespace InlineIL.Fody
                 {
                     var ldToken = instruction.GetArgumentPushInstructions().Single();
                     if (ldToken.OpCode != OpCodes.Ldtoken)
-                        throw new WeavingException($"Unexpected instruction, expected ldtoken, but was {ldToken}");
+                        throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
                     _il.Remove(ldToken);
                     _il.Remove(instruction);
@@ -456,8 +477,8 @@ namespace InlineIL.Fody
                     var args = instruction.GetArgumentPushInstructions();
                     var innerTypeRef = ConsumeArgTypeRef(args[0]);
                     var rank = ConsumeArgInt32(args[1]);
-                    if (rank < 1 || rank > 32)
-                        throw new WeavingException($"Invalid array rank: {rank}, must be between 1 and 32");
+                    if (rank < 1)
+                        throw new WeavingException($"Invalid array rank: {rank}, must be at least 1");
 
                     _il.Remove(instruction);
                     return innerTypeRef.MakeArrayType(rank);
@@ -474,13 +495,13 @@ namespace InlineIL.Fody
                 }
             }
 
-            throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");
+            throw UnexpectedInstruction(instruction, "a type reference");
         }
 
         private MethodReference ConsumeArgMethodRef(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
-                throw new WeavingException($"Unexpected instruction, expected a call, but was {instruction}");
+                throw UnexpectedInstruction(instruction, "a method call");
 
             switch (method.FullName)
             {
@@ -534,13 +555,13 @@ namespace InlineIL.Fody
                 }
             }
 
-            throw new WeavingException($"Invalid operand, expected a type reference at {instruction}");
+            throw UnexpectedInstruction(instruction, "a method reference");
         }
 
         private FieldReference ConsumeArgFieldRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)")
-                throw new WeavingException($"Unexpected instruction, expected newobj FieldRef, but was {instruction}");
+                throw UnexpectedInstruction(instruction, "newobj FieldRef");
 
             var args = instruction.GetArgumentPushInstructions();
             var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();
@@ -568,20 +589,20 @@ namespace InlineIL.Fody
             if (instruction.OpCode == OpCodes.Call)
             {
                 if (!(instruction.Operand is MethodReference method) || method.GetElementMethod().FullName != "!!0[] System.Array::Empty()")
-                    throw new WeavingException($"Unexpected instruction, expected newarr or call to Array.Empty, but was {instruction}");
+                    throw UnexpectedInstruction(instruction, "newarr or call to Array.Empty");
 
                 _il.Remove(instruction);
                 return Array.Empty<T>();
             }
 
             if (instruction.OpCode != OpCodes.Newarr)
-                throw new WeavingException($"Unexpected instruction, expected newarr or call to Array.Empty, but was {instruction}");
+                throw UnexpectedInstruction(instruction, "newarr or call to Array.Empty");
 
             var newarrInstruction = instruction;
 
             var countInstruction = newarrInstruction.PrevSkipNops();
             if (countInstruction.OpCode != OpCodes.Ldc_I4)
-                throw new WeavingException($"Unexpected instruction, expected ldc.i4, but was {countInstruction}");
+                throw UnexpectedInstruction(countInstruction, OpCodes.Ldc_I4);
 
             var count = (int)countInstruction.Operand;
             var args = new T[count];
@@ -592,18 +613,18 @@ namespace InlineIL.Fody
             {
                 var dupInstruction = currentDupInstruction;
                 if (dupInstruction.OpCode != OpCodes.Dup)
-                    throw new WeavingException($"Unexpected instruction, expected dup, but was {dupInstruction}");
+                    throw UnexpectedInstruction(dupInstruction, OpCodes.Dup);
 
                 var indexInstruction = dupInstruction.NextSkipNops();
                 if (indexInstruction.OpCode != OpCodes.Ldc_I4)
-                    throw new WeavingException($"Unexpected instruction, expected ldc.i4, but was {indexInstruction}");
+                    throw UnexpectedInstruction(indexInstruction, OpCodes.Ldc_I4);
 
                 if ((int)indexInstruction.Operand != index)
-                    throw new WeavingException($"Unexpected instruction, expected ldc.i4 with value of {index}, but was {indexInstruction}");
+                    throw UnexpectedInstruction(indexInstruction, $"ldc.i4 with value of {index}");
 
                 var stelemInstruction = dupInstruction.GetValueConsumingInstruction();
                 if (!stelemInstruction.OpCode.IsStelem())
-                    throw new WeavingException($"Unexpected instruction, expected stelem, but was {stelemInstruction}");
+                    throw UnexpectedInstruction(stelemInstruction, "stelem");
 
                 args[index] = consumeItem(stelemInstruction.PrevSkipNops());
 
@@ -623,7 +644,7 @@ namespace InlineIL.Fody
         private LabelInfo ConsumeArgLabelRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LabelRef::.ctor(System.String)")
-                throw new WeavingException($"Unexpected instruction, expected newobj LabelRef, but was {instruction}");
+                throw UnexpectedInstruction(instruction, "newobj LabelRef");
 
             var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
             _il.Remove(instruction);
@@ -634,7 +655,7 @@ namespace InlineIL.Fody
         private VariableDefinition ConsumeArgLocalRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LocalRef::.ctor(System.String)")
-                throw new WeavingException($"Unexpected instruction, expected newobj LocalRef, but was {instruction}");
+                throw UnexpectedInstruction(instruction, "newobj LocalRef");
 
             var localName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
 
@@ -645,6 +666,12 @@ namespace InlineIL.Fody
 
             return variableDef;
         }
+
+        private InstructionWeavingException UnexpectedInstruction(Instruction instruction, OpCode expectedOpcode)
+            => UnexpectedInstruction(instruction, expectedOpcode.Name);
+
+        private InstructionWeavingException UnexpectedInstruction(Instruction instruction, string expected)
+            => new InstructionWeavingException(_method, instruction, $"Error in {_method.FullName}: Unexpected instruction, expected {expected} but was: {instruction}");
 
         private class LabelInfo
         {
