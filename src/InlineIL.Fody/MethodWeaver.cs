@@ -29,14 +29,23 @@ namespace InlineIL.Fody
         }
 
         public static bool NeedsProcessing(MethodDefinition method)
+            => GetLibReferencingInstruction(method) != null;
+
+        private static Instruction GetLibReferencingInstruction(MethodDefinition method)
         {
-            return method.HasBody
-                   && method.Body
-                            .Instructions
-                            .Where(i => i.OpCode == OpCodes.Call)
-                            .Select(i => i.Operand)
-                            .OfType<MethodReference>()
-                            .Any(m => IsIlType(m.DeclaringType));
+            if (!method.HasBody)
+                return null;
+
+            return method.Body
+                         .Instructions
+                         .FirstOrDefault(
+                             i => i.OpCode.FlowControl == FlowControl.Call
+                                  && i.Operand is MethodReference opMethod
+                                  && KnownNames.Full.AllTypes.Contains(opMethod.DeclaringType.FullName)
+                                  ||
+                                  i.Operand is TypeReference typeRef
+                                  && KnownNames.Full.AllTypes.Contains(typeRef.FullName)
+                         );
         }
 
         public void Process()
@@ -65,15 +74,13 @@ namespace InlineIL.Fody
             }
         }
 
-        private static bool IsIlType(TypeReference type)
-            => type.Name == KnownNames.Short.IlType && type.FullName == KnownNames.Full.IlType;
-
         private void ProcessImpl()
         {
             _method.Body.SimplifyMacros();
 
             ProcessMethodCalls();
             ProcessLabels();
+            ValidateMethod();
 
             _method.Body.OptimizeMacros();
         }
@@ -86,7 +93,9 @@ namespace InlineIL.Fody
             {
                 var nextInstruction = instruction.Next;
 
-                if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod && IsIlType(calledMethod.DeclaringType))
+                if (instruction.OpCode == OpCodes.Call
+                    && instruction.Operand is MethodReference calledMethod
+                    && calledMethod.DeclaringType.FullName == KnownNames.Full.IlType)
                 {
                     try
                     {
@@ -181,6 +190,13 @@ namespace InlineIL.Fody
             }
 
             _labels.Clear();
+        }
+
+        private void ValidateMethod()
+        {
+            var libReferencingInstruction = GetLibReferencingInstruction(_method);
+            if (libReferencingInstruction != null)
+                throw new InstructionWeavingException(libReferencingInstruction, "Unconsumed reference to InlineIL");
         }
 
         private void ProcessEmitMethod(Instruction instruction)

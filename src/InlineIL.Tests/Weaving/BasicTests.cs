@@ -74,5 +74,11 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("InvalidReturn");
         }
+
+        [Fact]
+        public void should_report_unconsumed_reference()
+        {
+            ShouldHaveError("UnusedInstance");
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
 
@@ -29,5 +30,10 @@ public class LabelRefTestCases
     {
         IL.MarkLabel("foo");
         IL.MarkLabel("foo");
+    }
+
+    public void UnusedInstance()
+    {
+        GC.KeepAlive(new LabelRef("foo"));
     }
 }

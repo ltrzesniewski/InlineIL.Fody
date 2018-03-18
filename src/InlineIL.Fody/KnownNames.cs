@@ -1,11 +1,11 @@
-﻿namespace InlineIL.Fody
+﻿using System.Collections.Generic;
+
+namespace InlineIL.Fody
 {
     internal static class KnownNames
     {
         public static class Short
         {
-            public const string IlType = "IL";
-
             public const string EmitMethod = "Emit";
             public const string PushMethod = "Push";
             public const string UnreachableMethod = "Unreachable";
@@ -22,6 +22,16 @@
             public const string FieldRefType = "InlineIL.FieldRef";
             public const string LabelRefType = "InlineIL.LabelRef";
             public const string LocalRefType = "InlineIL.LocalRef";
+
+            public static readonly HashSet<string> AllTypes = new HashSet<string>
+            {
+                IlType,
+                TypeRefType,
+                MethodRefType,
+                FieldRefType,
+                LabelRefType,
+                LocalRefType
+            };
         }
     }
 }

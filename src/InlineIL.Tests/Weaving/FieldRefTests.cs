@@ -31,5 +31,11 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("UnknownField").ShouldContain("Field Nope not found");
         }
+
+        [Fact]
+        public void should_report_unconsumed_reference()
+        {
+            ShouldHaveError("UnusedInstance");
+        }
     }
 }

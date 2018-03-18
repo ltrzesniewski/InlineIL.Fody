@@ -51,5 +51,11 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("AmbiguousMethod").ShouldContain("Ambiguous method");
         }
+
+        [Fact]
+        public void should_report_unconsumed_reference()
+        {
+            ShouldHaveError("UnusedInstance");
+        }
     }
 }

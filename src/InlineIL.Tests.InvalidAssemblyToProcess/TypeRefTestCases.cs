@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
 
@@ -28,5 +29,10 @@ public class TypeRefTestCases
     public void InvalidArrayRank()
     {
         IL.Emit(OpCodes.Ldtoken, typeof(int).MakeArrayType(-1));
+    }
+
+    public void UnusedInstance()
+    {
+        GC.KeepAlive(new TypeRef(typeof(int)));
     }
 }

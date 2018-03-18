@@ -129,5 +129,11 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("InvalidArrayRank").ShouldContain("Invalid array rank");
         }
+
+        [Fact]
+        public void should_report_unconsumed_reference()
+        {
+            ShouldHaveError("UnusedInstance");
+        }
     }
 }

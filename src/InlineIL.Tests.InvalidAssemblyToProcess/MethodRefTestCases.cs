@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
 
@@ -29,6 +30,11 @@ public class MethodRefTestCases
     public void NullMethodRef()
     {
         IL.Emit(OpCodes.Call, (MethodRef)null);
+    }
+
+    public void UnusedInstance()
+    {
+        GC.KeepAlive(new MethodRef(typeof(int), "foo"));
     }
 
     private static void Foo()

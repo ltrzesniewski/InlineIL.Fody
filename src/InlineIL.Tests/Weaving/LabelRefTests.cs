@@ -60,5 +60,11 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("RedefinedLabel").ShouldContain("already defined");
         }
+
+        [Fact]
+        public void should_report_unconsumed_reference()
+        {
+            ShouldHaveError("UnusedInstance");
+        }
     }
 }
