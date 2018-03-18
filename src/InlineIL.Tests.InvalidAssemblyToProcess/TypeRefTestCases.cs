@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
@@ -34,5 +35,20 @@ public class TypeRefTestCases
     public void UnusedInstance()
     {
         GC.KeepAlive(new TypeRef(typeof(int)));
+    }
+
+    public void NotAGenericType()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(string).MakeGenericType(typeof(int)));
+    }
+
+    public void NoGenericTypeArgs()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(Dictionary<,>).MakeGenericType());
+    }
+
+    public void InvalidGenericArgsCount()
+    {
+        IL.Emit(OpCodes.Ldtoken, typeof(Dictionary<,>).MakeGenericType(typeof(int), typeof(double), typeof(string)));
     }
 }

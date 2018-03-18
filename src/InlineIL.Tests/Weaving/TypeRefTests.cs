@@ -135,5 +135,23 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("UnusedInstance");
         }
+
+        [Fact]
+        public void should_report_generic_args_on_normal_type()
+        {
+            ShouldHaveError("NotAGenericType").ShouldContain("Not a generic type");
+        }
+
+        [Fact]
+        public void should_report_empty_generic_args()
+        {
+            ShouldHaveError("NoGenericTypeArgs").ShouldContain("No generic arguments supplied");
+        }
+
+        [Fact]
+        public void should_report_invalid_generic_args_count()
+        {
+            ShouldHaveError("InvalidGenericArgsCount").ShouldContain("Incorrect number of generic arguments");
+        }
     }
 }

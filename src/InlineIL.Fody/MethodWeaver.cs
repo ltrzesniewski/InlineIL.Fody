@@ -510,10 +510,20 @@ namespace InlineIL.Fody
                 case "System.Type System.Type::MakeGenericType(System.Type[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var innerTypeRef = _module.ImportReference(ConsumeArgTypeRef(args[0]).ResolveRequiredType());
-                    var typeArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                    var genericType = _module.ImportReference(ConsumeArgTypeRef(args[0]).ResolveRequiredType());
+                    var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+
+                    if (!genericType.HasGenericParameters)
+                        throw new InstructionWeavingException(instruction, $"Not a generic type: {genericType.FullName}");
+
+                    if (genericArgs.Length == 0)
+                        throw new InstructionWeavingException(instruction, "No generic arguments supplied");
+
+                    if (genericType.GenericParameters.Count != genericArgs.Length)
+                        throw new InstructionWeavingException(instruction, $"Incorrect number of generic arguments supplied for type {genericType.FullName} - expected {genericType.GenericParameters.Count}, but got {genericArgs.Length}");
+
                     _il.Remove(instruction);
-                    return innerTypeRef.MakeGenericInstanceType(typeArgs);
+                    return genericType.MakeGenericInstanceType(genericArgs);
                 }
             }
 
