@@ -201,12 +201,9 @@ namespace InlineIL.Fody
             if (libReferencingInstruction != null)
                 throw new InstructionWeavingException(libReferencingInstruction, "Unconsumed reference to InlineIL");
 
-            var allInstructions = Instructions.ToHashSet();
-            foreach (var handler in _method.Body.ExceptionHandlers)
-            {
-                if (!allInstructions.IsSupersetOf(handler.GetInstructions()))
-                    throw new WeavingException("Invalid exception handler delimiting instructions after weaving");
-            }
+            var invalidRefs = _il.GetAllReferencedInstructions().Except(Instructions).ToList();
+            if (invalidRefs.Any())
+                throw new WeavingException($"Found invalid references to instructions:{Environment.NewLine}{string.Join(Environment.NewLine, invalidRefs)}");
         }
 
         private void ProcessEmitMethod(Instruction instruction)

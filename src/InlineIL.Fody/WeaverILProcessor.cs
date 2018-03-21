@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -9,28 +10,12 @@ namespace InlineIL.Fody
     internal class WeaverILProcessor
     {
         private readonly ILProcessor _il;
-        private readonly HashSet<Instruction> _referencedInstructions = new HashSet<Instruction>();
+        private readonly HashSet<Instruction> _referencedInstructions;
 
         public WeaverILProcessor(MethodDefinition method)
         {
             _il = method.Body.GetILProcessor();
-
-            foreach (var handler in method.Body.ExceptionHandlers)
-                _referencedInstructions.UnionWith(handler.GetInstructions());
-
-            foreach (var instruction in method.Body.Instructions)
-            {
-                switch (instruction.Operand)
-                {
-                    case Instruction target:
-                        _referencedInstructions.Add(target);
-                        break;
-
-                    case Instruction[] targets:
-                        _referencedInstructions.UnionWith(targets);
-                        break;
-                }
-            }
+            _referencedInstructions = GetAllReferencedInstructions();
         }
 
         public void Remove(Instruction instruction)
@@ -44,6 +29,30 @@ namespace InlineIL.Fody
         {
             _il.Replace(oldInstruction, newInstruction);
             UpdateReferences(oldInstruction, newInstruction);
+        }
+
+        public HashSet<Instruction> GetAllReferencedInstructions()
+        {
+            var refs = new HashSet<Instruction>();
+
+            foreach (var handler in _il.Body.ExceptionHandlers)
+                refs.UnionWith(handler.GetInstructions());
+
+            foreach (var instruction in _il.Body.Instructions)
+            {
+                switch (instruction.Operand)
+                {
+                    case Instruction target:
+                        refs.Add(target);
+                        break;
+
+                    case Instruction[] targets:
+                        refs.UnionWith(targets.Where(t => t != null));
+                        break;
+                }
+            }
+
+            return refs;
         }
 
         private void UpdateReferences(Instruction oldInstruction, Instruction newInstruction)
