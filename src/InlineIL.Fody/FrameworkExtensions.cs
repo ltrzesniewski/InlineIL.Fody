@@ -27,5 +27,8 @@ namespace InlineIL.Fody
             foreach (var item in items)
                 collection.Add(item);
         }
+
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> items)
+            => new HashSet<T>(items);
     }
 }

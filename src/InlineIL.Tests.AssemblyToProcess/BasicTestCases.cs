@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
 
@@ -65,6 +66,45 @@ public class BasicTestCases
     public int ReturnArg(int value)
     {
         IL.Emit(OpCodes.Ldarg, 1);
+        return IL.Return<int>();
+    }
+
+    public int HandleExceptionBlocks()
+    {
+        IL.Emit(OpCodes.Ldc_I4, 1);
+        IL.Emit(OpCodes.Ldc_I4, 2);
+        IL.Emit(OpCodes.Add);
+        IL.Emit(OpCodes.Pop);
+
+        try
+        {
+            IL.Emit(OpCodes.Ldc_I4, 3);
+            IL.Emit(OpCodes.Ldc_I4, 4);
+            IL.Emit(OpCodes.Add);
+            IL.Push(new InvalidOperationException("foo"));
+            IL.Emit(OpCodes.Throw);
+            throw IL.Unreachable();
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("foo"))
+        {
+            IL.Push(ex);
+            IL.Emit(OpCodes.Pop);
+            IL.Emit(OpCodes.Ldc_I4, 5);
+            IL.Emit(OpCodes.Ldc_I4, 6);
+            IL.Emit(OpCodes.Add);
+            IL.Emit(OpCodes.Pop);
+        }
+        finally
+        {
+            IL.Emit(OpCodes.Ldc_I4, 7);
+            IL.Emit(OpCodes.Ldc_I4, 8);
+            IL.Emit(OpCodes.Add);
+            IL.Emit(OpCodes.Pop);
+        }
+
+        IL.Emit(OpCodes.Ldc_I4, 9);
+        IL.Emit(OpCodes.Ldc_I4, 10);
+        IL.Emit(OpCodes.Add);
         return IL.Return<int>();
     }
 }

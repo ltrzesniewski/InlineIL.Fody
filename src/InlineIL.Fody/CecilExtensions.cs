@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Fody;
 using Mono.Cecil;
@@ -35,29 +36,16 @@ namespace InlineIL.Fody
             return instruction;
         }
 
-        public static Instruction NextSkipNops(this Instruction instruction)
+        public static Instruction SkipNops(this Instruction instruction)
         {
-            instruction = instruction?.Next;
-
             while (instruction != null && instruction.OpCode == OpCodes.Nop)
                 instruction = instruction.Next;
 
             return instruction;
         }
 
-        public static void RemoveNopsAround(this ILProcessor il, Instruction instruction)
-        {
-            var instructions = il.Body.Instructions;
-            var instructionIndex = instructions.IndexOf(instruction);
-            if (instructionIndex < 0)
-                return;
-
-            while (instructionIndex < instructions.Count && instructions[instructionIndex].OpCode == OpCodes.Nop)
-                instructions.RemoveAt(instructionIndex);
-
-            while (--instructionIndex > 0 && instructions[instructionIndex].OpCode == OpCodes.Nop)
-                instructions.RemoveAt(instructionIndex);
-        }
+        public static Instruction NextSkipNops(this Instruction instruction)
+            => instruction?.Next?.SkipNops();
 
         public static Instruction GetValueConsumingInstruction(this Instruction instruction)
         {
@@ -106,6 +94,20 @@ namespace InlineIL.Fody
 
             while (stackToConsume > 0)
             {
+                switch (currentInstruction.OpCode.FlowControl)
+                {
+                    case FlowControl.Branch:
+                    case FlowControl.Cond_Branch:
+                    case FlowControl.Return:
+                    case FlowControl.Throw:
+                        throw new InstructionWeavingException(startInstruction, $"Could not locate call argument due to {currentInstruction}");
+
+                    case FlowControl.Call:
+                        if (currentInstruction.OpCode == OpCodes.Jmp)
+                            throw new InstructionWeavingException(startInstruction, $"Could not locate call argument due to {currentInstruction}");
+                        break;
+                }
+
                 var popCount = GetPopCount(currentInstruction);
                 var pushCount = GetPushCount(currentInstruction);
 
@@ -115,14 +117,14 @@ namespace InlineIL.Fody
                     result = currentInstruction;
 
                 if (stackToConsume < 0)
-                    throw new InstructionWeavingException(startInstruction, "Unexpected stack behavior");
+                    throw new InstructionWeavingException(startInstruction, $"Could not locate call argument due to {currentInstruction} which pops an unexpected number of items from the stack");
 
                 stackToConsume += popCount;
                 currentInstruction = currentInstruction.Previous;
             }
 
             if (result == null)
-                throw new InstructionWeavingException(startInstruction, "Could not locate call argument");
+                throw new InstructionWeavingException(startInstruction, "Could not locate call argument, reached beginning of method");
 
             return result;
         }
@@ -175,6 +177,9 @@ namespace InlineIL.Fody
                 case StackBehaviour.Popref_popi_popr8:
                 case StackBehaviour.Popref_popi_popref:
                     return 3;
+
+                case StackBehaviour.PopAll:
+                    throw new InstructionWeavingException(instruction, "Unexpected stack-clearing instruction encountered");
 
                 default:
                     throw new InstructionWeavingException(instruction, "Could not locate method argument value");
@@ -253,6 +258,24 @@ namespace InlineIL.Fody
                 default:
                     throw new WeavingException("Invalid calling convention");
             }
+        }
+
+        public static IEnumerable<Instruction> GetInstructions(this ExceptionHandler handler)
+        {
+            if (handler.TryStart != null)
+                yield return handler.TryStart;
+
+            if (handler.TryEnd != null)
+                yield return handler.TryEnd;
+
+            if (handler.FilterStart != null)
+                yield return handler.FilterStart;
+
+            if (handler.HandlerStart != null)
+                yield return handler.HandlerStart;
+
+            if (handler.HandlerEnd != null)
+                yield return handler.HandlerEnd;
         }
     }
 }

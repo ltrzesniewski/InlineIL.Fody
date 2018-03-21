@@ -7,7 +7,6 @@ using Fody;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using Mono.Collections.Generic;
 
 namespace InlineIL.Fody
 {
@@ -15,18 +14,18 @@ namespace InlineIL.Fody
     {
         private readonly ModuleDefinition _module;
         private readonly MethodDefinition _method;
-        private readonly ILProcessor _il;
+        private readonly WeaverILProcessor _il;
         private readonly List<SequencePoint> _sequencePoints;
         private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
         private readonly Dictionary<string, VariableDefinition> _locals = new Dictionary<string, VariableDefinition>();
 
-        private Collection<Instruction> Instructions => _method.Body.Instructions;
+        private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
 
         public MethodWeaver(ModuleDefinition module, MethodDefinition method)
         {
             _module = module;
             _method = method;
-            _il = _method.Body.GetILProcessor();
+            _il = new WeaverILProcessor(_method);
             _sequencePoints = _method.DebugInformation.SequencePoints.ToList();
         }
 
@@ -146,7 +145,7 @@ namespace InlineIL.Fody
                                 break;
 
                             case KnownNames.Short.UnreachableMethod:
-                                ProcessUnreachableMethod(instruction);
+                                ProcessUnreachableMethod(instruction, ref nextInstruction);
                                 break;
 
                             case KnownNames.Short.ReturnMethod:
@@ -190,39 +189,7 @@ namespace InlineIL.Fody
                 if (!info.IsDefined)
                     throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: {name}");
 
-                var actualTarget = info.PlaceholderTarget.Next;
                 _il.Remove(info.PlaceholderTarget);
-
-                foreach (var labelRef in info.References)
-                {
-                    switch (labelRef.OpCode.OperandType)
-                    {
-                        case OperandType.InlineBrTarget:
-                        case OperandType.ShortInlineBrTarget:
-                        {
-                            if (labelRef.Operand != info.PlaceholderTarget)
-                                throw new InstructionWeavingException(labelRef, "Unexpected branch target");
-
-                            labelRef.Operand = actualTarget;
-                            break;
-                        }
-
-                        case OperandType.InlineSwitch:
-                        {
-                            var targets = (Instruction[])labelRef.Operand;
-                            for (var i = 0; i < targets.Length; ++i)
-                            {
-                                if (targets[i] == info.PlaceholderTarget)
-                                    targets[i] = actualTarget;
-                            }
-
-                            break;
-                        }
-
-                        default:
-                            throw new InstructionWeavingException(labelRef, "Invalid branch instruction");
-                    }
-                }
             }
 
             _labels.Clear();
@@ -233,6 +200,13 @@ namespace InlineIL.Fody
             var libReferencingInstruction = GetLibReferencingInstruction(_method);
             if (libReferencingInstruction != null)
                 throw new InstructionWeavingException(libReferencingInstruction, "Unconsumed reference to InlineIL");
+
+            var allInstructions = Instructions.ToHashSet();
+            foreach (var handler in _method.Body.ExceptionHandlers)
+            {
+                if (!allInstructions.IsSupersetOf(handler.GetInstructions()))
+                    throw new WeavingException("Invalid exception handler delimiting instructions after weaving");
+            }
         }
 
         private void ProcessEmitMethod(Instruction instruction)
@@ -245,7 +219,7 @@ namespace InlineIL.Fody
 
             if (methodParams.Count == 1)
             {
-                _il.Replace(instruction, InstructionHelper.Create(opCode));
+                _il.Replace(instruction, _il.Create(opCode));
                 return;
             }
 
@@ -253,7 +227,7 @@ namespace InlineIL.Fody
             if (operandType.IsPrimitive || operandType.FullName == _module.TypeSystem.String.FullName)
             {
                 var operandValue = ConsumeArgConst(args[1]);
-                _il.Replace(instruction, InstructionHelper.CreateConst(_il, opCode, operandValue));
+                _il.Replace(instruction, _il.CreateConst(opCode, operandValue));
                 return;
             }
 
@@ -262,28 +236,28 @@ namespace InlineIL.Fody
                 case KnownNames.Full.TypeRefType:
                 {
                     var typeRef = ConsumeArgTypeRef(args[1]);
-                    _il.Replace(instruction, InstructionHelper.Create(opCode, typeRef));
+                    _il.Replace(instruction, _il.Create(opCode, typeRef));
                     return;
                 }
 
                 case KnownNames.Full.MethodRefType:
                 {
                     var methodRef = ConsumeArgMethodRef(args[1]);
-                    _il.Replace(instruction, InstructionHelper.Create(opCode, methodRef));
+                    _il.Replace(instruction, _il.Create(opCode, methodRef));
                     return;
                 }
 
                 case KnownNames.Full.FieldRefType:
                 {
                     var fieldRef = ConsumeArgFieldRef(args[1]);
-                    _il.Replace(instruction, InstructionHelper.Create(opCode, fieldRef));
+                    _il.Replace(instruction, _il.Create(opCode, fieldRef));
                     return;
                 }
 
                 case KnownNames.Full.LabelRefType:
                 {
                     var labelInfo = ConsumeArgLabelRef(args[1]);
-                    var resultInstruction = InstructionHelper.Create(opCode, labelInfo.PlaceholderTarget);
+                    var resultInstruction = _il.Create(opCode, labelInfo.PlaceholderTarget);
                     labelInfo.References.Add(resultInstruction);
                     _il.Replace(instruction, resultInstruction);
                     return;
@@ -292,7 +266,7 @@ namespace InlineIL.Fody
                 case KnownNames.Full.LabelRefType + "[]":
                 {
                     var labelInfos = ConsumeArgArray(args[1], ConsumeArgLabelRef).ToList();
-                    var resultInstruction = InstructionHelper.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
+                    var resultInstruction = _il.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
 
                     foreach (var info in labelInfos)
                         info.References.Add(resultInstruction);
@@ -304,14 +278,14 @@ namespace InlineIL.Fody
                 case KnownNames.Full.LocalRefType:
                 {
                     var variableDef = ConsumeArgLocalRef(args[1]);
-                    _il.Replace(instruction, InstructionHelper.Create(opCode, variableDef));
+                    _il.Replace(instruction, _il.Create(opCode, variableDef));
                     return;
                 }
 
                 case KnownNames.Full.StandAloneMethodSigType:
                 {
                     var callSite = ConsumeArgCallSite(args[1]);
-                    _il.Replace(instruction, InstructionHelper.Create(opCode, callSite));
+                    _il.Replace(instruction, _il.Create(opCode, callSite));
                     return;
                 }
             }
@@ -319,8 +293,12 @@ namespace InlineIL.Fody
             throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
         }
 
-        private static void ValidatePushMethod(Instruction instruction)
+        private void ValidatePushMethod(Instruction instruction)
         {
+            if (_method.Body.ExceptionHandlers.Any(h => h.HandlerType == ExceptionHandlerType.Catch && h.HandlerStart == instruction
+                                                        || h.HandlerType == ExceptionHandlerType.Filter && (h.FilterStart == instruction || h.HandlerStart == instruction)))
+                return;
+
             var args = instruction.GetArgumentPushInstructions();
             var prevInstruction = instruction.PrevSkipNops();
 
@@ -333,11 +311,13 @@ namespace InlineIL.Fody
             _il.Remove(instruction);
         }
 
-        private void ProcessUnreachableMethod(Instruction instruction)
+        private void ProcessUnreachableMethod(Instruction instruction, ref Instruction nextInstruction)
         {
             var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction.OpCode != OpCodes.Throw)
                 throw new InstructionWeavingException(instruction, "The Unreachable method should be used along with the throw keyword: throw IL.Unreachable();");
+
+            nextInstruction = throwInstruction.Next;
 
             _il.Remove(instruction);
             _il.RemoveNopsAround(throwInstruction);
@@ -346,34 +326,47 @@ namespace InlineIL.Fody
 
         private void ProcessReturnMethod(Instruction instruction)
         {
-            var nextInstruction = instruction.NextSkipNops();
-
-            switch (nextInstruction.OpCode.Code)
-            {
-                case Code.Ret:
-                    break;
-
-                case Code.Stloc: // Debug builds
-                {
-                    var localIndex = ((VariableReference)nextInstruction.Operand).Index;
-                    var branchInstruction = nextInstruction.NextSkipNops();
-                    if (branchInstruction?.OpCode == OpCodes.Br && branchInstruction.Operand is Instruction branchTarget)
-                    {
-                        if (branchTarget.OpCode == OpCodes.Nop)
-                            branchTarget = branchTarget.NextSkipNops();
-
-                        if (branchTarget.OpCode == OpCodes.Ldloc && ((VariableReference)branchTarget.Operand).Index == localIndex)
-                            break;
-                    }
-
-                    goto default;
-                }
-
-                default:
-                    throw new InstructionWeavingException(instruction, "The Return method should be used along the return keyword: return IL.Return<T>();");
-            }
+            ValidateReturnMethod();
 
             _il.Remove(instruction);
+
+            void ValidateReturnMethod()
+            {
+                var nextInstruction = instruction.NextSkipNops();
+
+                switch (nextInstruction.OpCode.Code)
+                {
+                    case Code.Ret:
+                        return;
+
+                    case Code.Stloc:
+                    {
+                        var localIndex = ((VariableReference)nextInstruction.Operand).Index;
+                        var branchInstruction = nextInstruction.NextSkipNops();
+
+                        switch (branchInstruction?.OpCode.Code)
+                        {
+                            case Code.Br: // Debug builds
+                            case Code.Leave: // try/catch blocks
+                            {
+                                if (branchInstruction.Operand is Instruction branchTarget)
+                                {
+                                    branchTarget = branchTarget.SkipNops();
+
+                                    if (branchTarget.OpCode == OpCodes.Ldloc && ((VariableReference)branchTarget.Operand).Index == localIndex)
+                                        return;
+                                }
+
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                throw new InstructionWeavingException(instruction, "The Return method should be used along the return keyword: return IL.Return<T>();");
+            }
         }
 
         private void ProcessMarkLabelMethod(Instruction instruction)
@@ -398,7 +391,7 @@ namespace InlineIL.Fody
                 throw new InstructionWeavingException(instruction, $"Local {localName} is already defined");
 
             var variableDef = new VariableDefinition(pinned ? localType.MakePinnedType() : localType);
-            _il.Body.Variables.Add(variableDef);
+            _method.Body.Variables.Add(variableDef);
             _locals.Add(localName, variableDef);
 
             _il.Remove(instruction);

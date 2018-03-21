@@ -86,5 +86,12 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
         }
+
+        [Fact]
+        public void should_handle_exception_blocks()
+        {
+            var result = (int)GetInstance().HandleExceptionBlocks();
+            result.ShouldEqual(19);
+        }
     }
 }
