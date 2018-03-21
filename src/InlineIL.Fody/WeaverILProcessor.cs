@@ -57,6 +57,9 @@ namespace InlineIL.Fody
 
         private void UpdateReferences(Instruction oldInstruction, Instruction newInstruction)
         {
+            if (!_referencedInstructions.Contains(oldInstruction))
+                return;
+
             foreach (var handler in _il.Body.ExceptionHandlers)
             {
                 if (handler.TryStart == oldInstruction)
@@ -169,7 +172,9 @@ namespace InlineIL.Fody
         {
             try
             {
-                return _il.Create(opCode, instruction);
+                var result = _il.Create(opCode, instruction);
+                _referencedInstructions.Add(instruction);
+                return result;
             }
             catch (ArgumentException)
             {
@@ -181,7 +186,9 @@ namespace InlineIL.Fody
         {
             try
             {
-                return _il.Create(opCode, instructions);
+                var result = _il.Create(opCode, instructions);
+                _referencedInstructions.UnionWith(instructions.Where(i => i != null));
+                return result;
             }
             catch (ArgumentException)
             {

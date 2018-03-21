@@ -1,4 +1,6 @@
-﻿using InlineIL.Tests.Support;
+﻿using System.Diagnostics;
+using System.Reflection;
+using InlineIL.Tests.Support;
 using Xunit;
 
 #pragma warning disable 618
@@ -84,6 +86,9 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public void should_report_invalid_push_usage()
         {
+            if (((InvalidAssemblyToProcessFixture.TestResult.Assembly.GetCustomAttribute<DebuggableAttribute>()?.DebuggingFlags ?? DebuggableAttribute.DebuggingModes.Default) & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0)
+                return; // Inconclusive in debug builds
+
             ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
         }
 
