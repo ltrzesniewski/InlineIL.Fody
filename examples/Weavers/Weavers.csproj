@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FodyCecil" Version="2.4.6" />
+    <PackageReference Include="FodyHelpers" Version="2.4.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\InlineIL.Fody\InlineIL.Fody.csproj" />
+  </ItemGroup>
+
+</Project>
