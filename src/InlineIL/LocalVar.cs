@@ -8,6 +8,9 @@ namespace InlineIL
         public LocalVar(string localName, TypeRef type)
             => IL.Throw();
 
+        public LocalVar(TypeRef type)
+            => IL.Throw();
+
         public LocalVar Pinned()
             => throw IL.Throw();
     }

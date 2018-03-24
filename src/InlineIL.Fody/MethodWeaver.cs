@@ -822,6 +822,15 @@ namespace InlineIL.Fody
                     return new MethodLocals.NamedLocal(name, new VariableDefinition(type));
                 }
 
+                case "System.Void InlineIL.LocalVar::.ctor(InlineIL.TypeRef)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var type = ConsumeArgTypeRef(args[0]);
+
+                    _il.Remove(instruction);
+                    return new MethodLocals.NamedLocal(null, new VariableDefinition(type));
+                }
+
                 case "InlineIL.LocalVar InlineIL.LocalVar::Pinned()":
                 {
                     var args = instruction.GetArgumentPushInstructions();

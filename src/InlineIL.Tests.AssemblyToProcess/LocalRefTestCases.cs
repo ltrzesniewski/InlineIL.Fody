@@ -51,10 +51,10 @@ public class LocalRefTestCases
     public int MapLocalIndexes(int a, int b, int c, int d)
     {
         IL.DeclareLocals(
-            new LocalVar("a", typeof(int)),
-            new LocalVar("b", typeof(int)),
-            new LocalVar("c", typeof(int)),
-            new LocalVar("d", typeof(int))
+            new LocalVar(typeof(int)),
+            new LocalVar(typeof(int)),
+            new LocalVar(typeof(int)),
+            new LocalVar(typeof(int))
         );
 
         // Make sure the compiler declares some (double) locals on its own
@@ -91,8 +91,8 @@ public class LocalRefTestCases
     public int MapLocalIndexesLong(int a, int b)
     {
         IL.DeclareLocals(
-            new LocalVar("a", typeof(int)),
-            new LocalVar("b", typeof(int))
+            new LocalVar(typeof(int)),
+            new LocalVar(typeof(int))
         );
 
         // Make sure the compiler declares some (double) locals on its own

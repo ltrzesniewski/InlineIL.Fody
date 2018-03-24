@@ -14,10 +14,14 @@ namespace InlineIL.Fody
         {
             foreach (var local in locals)
             {
-                if (_localsByName.ContainsKey(local.Name))
-                    throw new WeavingException($"Local {local.Name} is already defined");
+                if (local.Name != null)
+                {
+                    if (_localsByName.ContainsKey(local.Name))
+                        throw new WeavingException($"Local {local.Name} is already defined");
 
-                _localsByName.Add(local.Name, local.Definition);
+                    _localsByName.Add(local.Name, local.Definition);
+                }
+
                 _localsByIndex.Add(local.Definition);
                 methodBody.Variables.Add(local.Definition);
             }
@@ -99,10 +103,12 @@ namespace InlineIL.Fody
 
         public class NamedLocal
         {
+            [CanBeNull]
             public string Name { get; }
+
             public VariableDefinition Definition { get; }
 
-            public NamedLocal(string name, VariableDefinition definition)
+            public NamedLocal([CanBeNull] string name, VariableDefinition definition)
             {
                 Name = name;
                 Definition = definition;
