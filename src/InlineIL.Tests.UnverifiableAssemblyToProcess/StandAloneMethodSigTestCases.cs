@@ -26,6 +26,7 @@ public unsafe class StandAloneMethodSigTestCases
         return IL.Return<int>();
     }
 
+#if NET46
     public int CallIndirectVarArg()
     {
         IL.Push(40);
@@ -35,6 +36,7 @@ public unsafe class StandAloneMethodSigTestCases
         IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConventions.VarArgs, typeof(int), typeof(int)).WithOptionalParameters(typeof(int), typeof(int)));
         return IL.Return<int>();
     }
+#endif
 
     public int CallIndirectNativeStdcall()
     {
@@ -77,11 +79,13 @@ public unsafe class StandAloneMethodSigTestCases
     private static int IndirectCallStaticTargetMethod(int value) => value;
     private int IndirectCallInstanceTargetMethod(int value) => value;
 
+#if NET46
     private static int IndirectCallVarArgTargetMethod(int value, __arglist)
     {
         var it = new ArgIterator(__arglist);
         return value + it.GetRemainingCount();
     }
+#endif
 
     private static int IndirectCallNativeTargetMethod(int a, int b, int c, int d, int e, int f, int g, int h)
         => a + b + c + d + e + f + g + h;

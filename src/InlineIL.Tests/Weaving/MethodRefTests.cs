@@ -83,12 +83,14 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveError("TooManyGenericArgsProvided").ShouldContain("Incorrect number of generic arguments");
         }
 
+#if NET46
         [Fact]
         public void should_call_vararg_method()
         {
             var result = (int[])GetInstance().CallVarArgMethod();
             result.ShouldEqual(new[] { 1, 2, 3, 0, 0 });
         }
+#endif
 
         [Fact]
         public void should_report_vararg_usage_on_normal_method()

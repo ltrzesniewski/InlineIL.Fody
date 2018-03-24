@@ -76,6 +76,7 @@ public class MethodRefTestCases
         return IL.Return<int>();
     }
 
+#if NET46
     public int[] CallVarArgMethod()
     {
         IL.Push(5);
@@ -85,6 +86,7 @@ public class MethodRefTestCases
         IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters(typeof(int), typeof(int), typeof(int)));
         return IL.Return<int[]>();
     }
+#endif
 
     private static int OverloadedMethod() => 10;
     private static int OverloadedMethod(int a) => 20;
@@ -95,6 +97,7 @@ public class MethodRefTestCases
 
     private static T GenericMethod<T>(T value) => value;
 
+#if NET46
     private static int[] VarArgMethod(int count, __arglist)
     {
         var it = new ArgIterator(__arglist);
@@ -105,4 +108,5 @@ public class MethodRefTestCases
 
         return result;
     }
+#endif
 }

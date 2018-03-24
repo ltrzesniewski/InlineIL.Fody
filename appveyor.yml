@@ -11,7 +11,8 @@ build:
   verbosity: minimal
 test_script:
 - cmd: >-
-    %xunit20%\xunit.console src\InlineIL.Tests\bin\Release\net471\InlineIL.Tests.dll
+    rem %xunit20%\xunit.console src\InlineIL.Tests\bin\Release\net471\InlineIL.Tests.dll -appveyor
+
     dotnet test "src\InlineIL.Tests\InlineIL.Tests.csproj" --framework netcoreapp2.0 --configuration Release --no-build --output bin\Release\netcoreapp2.0
 artifacts:
 - path: output\**\*.nupkg

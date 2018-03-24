@@ -47,7 +47,7 @@ namespace InlineIL.Tests.Weaving
             var result = (int)instance.UsePinnedLocalVariables(buf, 2);
             result.ShouldEqual(42);
 
-            GetUnverifiableMethodDefinition("UsePinnedLocalVariables").Body.Variables.Single().IsPinned.ShouldBeTrue();
+            GetUnverifiableMethodDefinition("UsePinnedLocalVariables").Body.Variables.ShouldContain(v => v.IsPinned);
         }
 
         [Fact]
