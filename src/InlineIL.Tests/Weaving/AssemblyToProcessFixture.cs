@@ -19,7 +19,15 @@ namespace InlineIL.Tests.Weaving
         static AssemblyToProcessFixture()
         {
             var weavingTask = new GuardedWeaver();
-            TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll");
+
+            TestResult = weavingTask.ExecuteTestRun(
+                "InlineIL.Tests.AssemblyToProcess.dll",
+                ignoreCodes: new[]
+                {
+                    "0x801312da" // VLDTR_E_MR_VARARGCALLINGCONV
+                }
+            );
+
             ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate));
         }
 
