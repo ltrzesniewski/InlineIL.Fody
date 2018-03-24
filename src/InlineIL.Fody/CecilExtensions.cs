@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Fody;
+using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -9,6 +10,7 @@ namespace InlineIL.Fody
 {
     internal static class CecilExtensions
     {
+        [NotNull]
         public static TypeDefinition ResolveRequiredType(this TypeReference typeRef)
         {
             try
@@ -26,6 +28,7 @@ namespace InlineIL.Fody
             }
         }
 
+        [CanBeNull]
         public static Instruction PrevSkipNops(this Instruction instruction)
         {
             instruction = instruction?.Previous;
@@ -36,6 +39,7 @@ namespace InlineIL.Fody
             return instruction;
         }
 
+        [ContractAnnotation("null => null; notnull => notnull")]
         public static Instruction SkipNops(this Instruction instruction)
         {
             while (instruction != null && instruction.OpCode == OpCodes.Nop)
@@ -44,9 +48,11 @@ namespace InlineIL.Fody
             return instruction;
         }
 
+        [CanBeNull]
         public static Instruction NextSkipNops(this Instruction instruction)
             => instruction?.Next?.SkipNops();
 
+        [NotNull]
         public static Instruction GetValueConsumingInstruction(this Instruction instruction)
         {
             var stackSize = 0;
@@ -66,6 +72,7 @@ namespace InlineIL.Fody
             }
         }
 
+        [NotNull]
         public static Instruction[] GetArgumentPushInstructions(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call)

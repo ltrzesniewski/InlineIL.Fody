@@ -19,8 +19,6 @@ namespace InlineIL.Fody
         private readonly List<SequencePoint> _sequencePoints;
         private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
 
-
-
         private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
 
         public MethodWeaver(ModuleDefinition module, MethodDefinition method)
@@ -34,6 +32,7 @@ namespace InlineIL.Fody
         public static bool NeedsProcessing(MethodDefinition method)
             => GetLibReferencingInstruction(method) != null;
 
+        [CanBeNull]
         private static Instruction GetLibReferencingInstruction(MethodDefinition method)
         {
             if (!method.HasBody)
@@ -309,7 +308,7 @@ namespace InlineIL.Fody
         private void ProcessUnreachableMethod(Instruction instruction, ref Instruction nextInstruction)
         {
             var throwInstruction = instruction.NextSkipNops();
-            if (throwInstruction.OpCode != OpCodes.Throw)
+            if (throwInstruction?.OpCode != OpCodes.Throw)
                 throw new InstructionWeavingException(instruction, "The result of the IL.Unreachable method should be immediately thrown: throw IL.Unreachable();");
 
             nextInstruction = throwInstruction.Next;
@@ -329,7 +328,7 @@ namespace InlineIL.Fody
             {
                 var nextInstruction = instruction.NextSkipNops();
 
-                switch (nextInstruction.OpCode.Code)
+                switch (nextInstruction?.OpCode.Code)
                 {
                     case Code.Ret:
                         return;
@@ -356,7 +355,7 @@ namespace InlineIL.Fody
                             }
                         }
 
-                        break;
+                        goto default;
                     }
 
                     default:
@@ -410,6 +409,7 @@ namespace InlineIL.Fody
             return OpCodeMap.FromLdsfld(instruction);
         }
 
+        [NotNull]
         private string ConsumeArgString(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Ldstr)
@@ -465,6 +465,7 @@ namespace InlineIL.Fody
             throw UnexpectedInstruction(instruction, "a constant value");
         }
 
+        [NotNull]
         private TypeReference ConsumeArgTypeRef(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -583,6 +584,7 @@ namespace InlineIL.Fody
             }
         }
 
+        [NotNull]
         private MethodReference ConsumeArgMethodRef(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -705,6 +707,7 @@ namespace InlineIL.Fody
             }
         }
 
+        [NotNull]
         private FieldReference ConsumeArgFieldRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)")
@@ -731,6 +734,7 @@ namespace InlineIL.Fody
             }
         }
 
+        [NotNull]
         private T[] ConsumeArgArray<T>(Instruction instruction, Func<Instruction, T> consumeItem)
         {
             if (instruction.OpCode == OpCodes.Call)
@@ -748,7 +752,7 @@ namespace InlineIL.Fody
             var newarrInstruction = instruction;
 
             var countInstruction = newarrInstruction.PrevSkipNops();
-            if (countInstruction.OpCode != OpCodes.Ldc_I4)
+            if (countInstruction?.OpCode != OpCodes.Ldc_I4)
                 throw UnexpectedInstruction(countInstruction, OpCodes.Ldc_I4);
 
             var count = (int)countInstruction.Operand;
@@ -759,14 +763,14 @@ namespace InlineIL.Fody
             for (var index = 0; index < count; ++index)
             {
                 var dupInstruction = currentDupInstruction;
-                if (dupInstruction.OpCode != OpCodes.Dup)
+                if (dupInstruction?.OpCode != OpCodes.Dup)
                     throw UnexpectedInstruction(dupInstruction, OpCodes.Dup);
 
                 var indexInstruction = dupInstruction.NextSkipNops();
-                if (indexInstruction.OpCode != OpCodes.Ldc_I4)
+                if (indexInstruction?.OpCode != OpCodes.Ldc_I4)
                     throw UnexpectedInstruction(indexInstruction, OpCodes.Ldc_I4);
 
-                if ((int)indexInstruction.Operand != index)
+                if ((int?)indexInstruction?.Operand != index)
                     throw UnexpectedInstruction(indexInstruction, $"ldc.i4 with value of {index}");
 
                 var stelemInstruction = dupInstruction.GetValueConsumingInstruction();
@@ -788,6 +792,7 @@ namespace InlineIL.Fody
             return args;
         }
 
+        [NotNull]
         private LabelInfo ConsumeArgLabelRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LabelRef::.ctor(System.String)")
@@ -799,6 +804,7 @@ namespace InlineIL.Fody
             return _labels.GetOrAddNew(labelName);
         }
 
+        [NotNull]
         private MethodLocals.NamedLocal ConsumeArgLocalVar(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -835,6 +841,7 @@ namespace InlineIL.Fody
             }
         }
 
+        [NotNull]
         private VariableDefinition ConsumeArgLocalRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LocalRef::.ctor(System.String)")
@@ -853,6 +860,7 @@ namespace InlineIL.Fody
             return variableDef;
         }
 
+        [NotNull]
         private CallSite ConsumeArgCallSite(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -933,10 +941,10 @@ namespace InlineIL.Fody
             }
         }
 
-        private InstructionWeavingException UnexpectedInstruction(Instruction instruction, OpCode expectedOpcode)
+        private InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, OpCode expectedOpcode)
             => UnexpectedInstruction(instruction, expectedOpcode.Name);
 
-        private InstructionWeavingException UnexpectedInstruction(Instruction instruction, string expected)
+        private InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
             => new InstructionWeavingException(instruction, $"Error in {_method.FullName}: Unexpected instruction, expected {expected} but was: {instruction}");
 
         private class LabelInfo
