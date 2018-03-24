@@ -42,7 +42,7 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public void should_report_unknown_mehtod()
         {
-            ShouldHaveError("UnknownMethodWithoutParams").ShouldContain("Method Nope not found");
+            ShouldHaveError("UnknownMethodWithoutParams").ShouldContain("Method 'Nope' not found");
             ShouldHaveError("UnknownMethodWithParams").ShouldContain("Method Nope(System.Int32) not found");
         }
 

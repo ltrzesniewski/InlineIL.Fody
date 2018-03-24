@@ -29,7 +29,7 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public void should_report_unknown_field()
         {
-            ShouldHaveError("UnknownField").ShouldContain("Field Nope not found");
+            ShouldHaveError("UnknownField").ShouldContain("Field 'Nope' not found");
         }
 
         [Fact]

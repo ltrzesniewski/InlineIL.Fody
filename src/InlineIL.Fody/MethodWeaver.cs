@@ -189,7 +189,7 @@ namespace InlineIL.Fody
             foreach (var (name, info) in _labels)
             {
                 if (!info.IsDefined)
-                    throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: {name}");
+                    throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: '{name}'");
 
                 _il.Remove(info.PlaceholderTarget);
             }
@@ -287,9 +287,10 @@ namespace InlineIL.Fody
                     _il.Replace(instruction, _il.Create(opCode, callSite));
                     return;
                 }
-            }
 
-            throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
+                default:
+                    throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
+            }
         }
 
         private void ValidatePushMethod(Instruction instruction)
@@ -314,7 +315,7 @@ namespace InlineIL.Fody
         {
             var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction.OpCode != OpCodes.Throw)
-                throw new InstructionWeavingException(instruction, "The Unreachable method should be used along with the throw keyword: throw IL.Unreachable();");
+                throw new InstructionWeavingException(instruction, "The result of the IL.Unreachable method should be immediately thrown: throw IL.Unreachable();");
 
             nextInstruction = throwInstruction.Next;
 
@@ -362,9 +363,10 @@ namespace InlineIL.Fody
 
                         break;
                     }
-                }
 
-                throw new InstructionWeavingException(instruction, "The Return method should be used along the return keyword: return IL.Return<T>();");
+                    default:
+                        throw new InstructionWeavingException(instruction, "The result of the IL.Return method should be immediately returned: return IL.Return<T>();");
+                }
             }
         }
 
@@ -374,18 +376,17 @@ namespace InlineIL.Fody
             var labelInfo = _labels.GetOrAddNew(labelName);
 
             if (labelInfo.IsDefined)
-                throw new InstructionWeavingException(instruction, $"Label {labelName} is already defined");
+                throw new InstructionWeavingException(instruction, $"Label '{labelName}' is already defined");
 
             _il.Replace(instruction, labelInfo.PlaceholderTarget);
         }
 
         private void ProcessDeclareLocalsMethod(Instruction instruction)
         {
-            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
-                throw UnexpectedInstruction(instruction, "a method call");
+            var method = (MethodReference)instruction.Operand;
 
             if (_locals != null)
-                throw new InstructionWeavingException(instruction, "Local variables have already been declared");
+                throw new InstructionWeavingException(instruction, "Local variables have already been declared for this method");
 
             switch (method.FullName)
             {
@@ -469,7 +470,7 @@ namespace InlineIL.Fody
                     return value;
             }
 
-            throw UnexpectedInstruction(instruction, "a constant");
+            throw UnexpectedInstruction(instruction, "a constant value");
         }
 
         private TypeReference ConsumeArgTypeRef(Instruction instruction)
@@ -509,7 +510,7 @@ namespace InlineIL.Fody
                         : _module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
 
                     if (assembly == null)
-                        throw new InstructionWeavingException(instruction, $"Could not resolve assembly {assemblyName}");
+                        throw new InstructionWeavingException(instruction, $"Could not resolve assembly '{assemblyName}'");
 
                     var typeReference = assembly.Modules
                                                 .Select(module =>
@@ -522,7 +523,7 @@ namespace InlineIL.Fody
                                                 .FirstOrDefault(t => t != null);
 
                     if (typeReference == null)
-                        throw new InstructionWeavingException(instruction, $"Could not find type {typeName} in assembly {assemblyName}");
+                        throw new InstructionWeavingException(instruction, $"Could not find type '{typeName}' in assembly '{assemblyName}'");
 
                     _il.Remove(instruction);
                     return _module.ImportReference(typeReference);
@@ -584,9 +585,10 @@ namespace InlineIL.Fody
                     _il.Remove(instruction);
                     return genericType.MakeGenericInstanceType(genericArgs);
                 }
-            }
 
-            throw UnexpectedInstruction(instruction, "a type reference");
+                default:
+                    throw UnexpectedInstruction(instruction, "a type reference");
+            }
         }
 
         private MethodReference ConsumeArgMethodRef(Instruction instruction)
@@ -606,14 +608,14 @@ namespace InlineIL.Fody
                     switch (methods.Count)
                     {
                         case 0:
-                            throw new InstructionWeavingException(instruction, $"Method {methodName} not found in type {typeDef.FullName}");
+                            throw new InstructionWeavingException(instruction, $"Method '{methodName}' not found in type {typeDef.FullName}");
 
                         case 1:
                             _il.Remove(instruction);
                             return _module.ImportReference(methods.Single());
 
                         default:
-                            throw new InstructionWeavingException(instruction, $"Ambiguous method {methodName} in type {typeDef.FullName}");
+                            throw new InstructionWeavingException(instruction, $"Ambiguous method '{methodName}' in type {typeDef.FullName}");
                     }
                 }
 
@@ -705,9 +707,10 @@ namespace InlineIL.Fody
                     _il.Remove(instruction);
                     return _module.ImportReference(methodRef);
                 }
-            }
 
-            throw UnexpectedInstruction(instruction, "a method reference");
+                default:
+                    throw UnexpectedInstruction(instruction, "a method reference");
+            }
         }
 
         private FieldReference ConsumeArgFieldRef(Instruction instruction)
@@ -724,7 +727,7 @@ namespace InlineIL.Fody
             switch (fields.Count)
             {
                 case 0:
-                    throw new InstructionWeavingException(instruction, $"Field {fieldName} not found in type {typeDef.FullName}");
+                    throw new InstructionWeavingException(instruction, $"Field '{fieldName}' not found in type {typeDef.FullName}");
 
                 case 1:
                     _il.Remove(instruction);
@@ -732,7 +735,7 @@ namespace InlineIL.Fody
 
                 default:
                     // This should never happen
-                    throw new InstructionWeavingException(instruction, $"Ambiguous field {fieldName} in type {typeDef.FullName}");
+                    throw new InstructionWeavingException(instruction, $"Ambiguous field '{fieldName}' in type {typeDef.FullName}");
             }
         }
 
@@ -827,7 +830,7 @@ namespace InlineIL.Fody
                     var innerDefinition = ConsumeArgLocalVar(args[0]);
 
                     if (innerDefinition.Definition.IsPinned)
-                        throw new InstructionWeavingException(instruction, $"Local {innerDefinition.Name} is already pinned");
+                        throw new InstructionWeavingException(instruction, $"Local '{innerDefinition.Name}' is already pinned");
 
                     innerDefinition.Definition.VariableType = innerDefinition.Definition.VariableType.MakePinnedType();
 
@@ -848,11 +851,11 @@ namespace InlineIL.Fody
             var localName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
 
             if (_locals == null)
-                throw new InstructionWeavingException(instruction, $"Local {localName} is not defined, call IL.DeclareLocals");
+                throw new InstructionWeavingException(instruction, $"Local '{localName}' is not defined, call IL.DeclareLocals");
 
             var variableDef = _locals.TryGetByName(localName);
             if (variableDef == null)
-                throw new InstructionWeavingException(instruction, $"Local {localName} is not defined");
+                throw new InstructionWeavingException(instruction, $"Local '{localName}' is not defined");
 
             _il.Remove(instruction);
             return variableDef;
@@ -932,9 +935,10 @@ namespace InlineIL.Fody
                     _il.Remove(instruction);
                     return callSite;
                 }
-            }
 
-            throw UnexpectedInstruction(instruction, "a stand-alone method signature");
+                default:
+                    throw UnexpectedInstruction(instruction, "a stand-alone method signature");
+            }
         }
 
         private InstructionWeavingException UnexpectedInstruction(Instruction instruction, OpCode expectedOpcode)
