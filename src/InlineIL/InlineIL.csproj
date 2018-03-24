@@ -1,17 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(Configuration)=='Release'">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard2.0\InlineIL.xml</DocumentationFile>
+  <PropertyGroup>
+    <Authors>Lucas Trzesniewski</Authors>
+    <Description>Inject arbitrary IL code at compile time.</Description>
+    <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
+    <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageOutputPath>$(SolutionDir)..\output</PackageOutputPath>
+    <PackageIconUrl></PackageIconUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard2.0\InlineIL.xml</DocumentationFile>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="2.4.6" PrivateAssets="None" />
+    <PackageReference Include="FodyPackaging" Version="2.4.6" PrivateAssets="All" />
+  </ItemGroup>
 
 </Project>

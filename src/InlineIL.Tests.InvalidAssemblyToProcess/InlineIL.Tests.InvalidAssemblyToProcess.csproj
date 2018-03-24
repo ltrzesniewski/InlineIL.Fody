@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
     <RootNamespace />
+    <DisableFody>true</DisableFody>
   </PropertyGroup>
 
   <ItemGroup>

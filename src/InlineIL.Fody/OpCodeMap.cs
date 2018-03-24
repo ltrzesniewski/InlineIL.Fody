@@ -23,9 +23,9 @@ namespace InlineIL.Fody
             var items = typeof(System.Reflection.Emit.OpCodes)
                         .GetFields(BindingFlags.Public | BindingFlags.Static)
                         .Where(field => field.IsInitOnly && field.FieldType == typeof(System.Reflection.Emit.OpCode))
-                        .Select(field => (field, opCode: (System.Reflection.Emit.OpCode)field.GetValue(null)))
+                        .Select(field => new { field, opCode = (System.Reflection.Emit.OpCode)field.GetValue(null) })
                         .Where(item => cecilOpCodes.ContainsKey(item.opCode.Value))
-                        .Select(item => (item.field, item.opCode, cecilOpCode: cecilOpCodes[item.opCode.Value]))
+                        .Select(item => new { item.field, item.opCode, cecilOpCode = cecilOpCodes[item.opCode.Value] })
                         .ToList();
 
             _byReflectionEmitFieldName = items.ToDictionary(item => item.field.Name, item => item.cecilOpCode);

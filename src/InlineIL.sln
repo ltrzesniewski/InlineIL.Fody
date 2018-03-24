@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL", "InlineIL\InlineIL.csproj", "{B9A87D8F-3780-423B-80C8-E8D55F78D834}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DA0A9F48-747B-4FA4-B8FA-BCA539019A72} = {DA0A9F48-747B-4FA4-B8FA-BCA539019A72}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Fody", "InlineIL.Fody\InlineIL.Fody.csproj", "{DA0A9F48-747B-4FA4-B8FA-BCA539019A72}"
 EndProject
