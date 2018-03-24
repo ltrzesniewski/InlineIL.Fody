@@ -79,6 +79,7 @@ namespace InlineIL.Fody
         private void ProcessImpl()
         {
             _method.Body.SimplifyMacros();
+            _method.Body.InitLocals = true; // Force fat method header
 
             ValidateBeforeProcessing();
             ProcessMethodCalls();
