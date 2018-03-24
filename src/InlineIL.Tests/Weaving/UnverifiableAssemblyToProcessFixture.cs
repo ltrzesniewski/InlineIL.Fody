@@ -1,4 +1,5 @@
 ﻿using Fody;
+using Mono.Cecil;
 
 #pragma warning disable 618
 
@@ -8,10 +9,13 @@ namespace InlineIL.Tests.Weaving
     {
         public static TestResult TestResult { get; }
 
+        public static ModuleDefinition ResultModule { get; }
+
         static UnverifiableAssemblyToProcessFixture()
         {
             var weavingTask = new AssemblyToProcessFixture.GuardedWeaver();
             TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.UnverifiableAssemblyToProcess.dll", false);
+            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate));
         }
     }
 }

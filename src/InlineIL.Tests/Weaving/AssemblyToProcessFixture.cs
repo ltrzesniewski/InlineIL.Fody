@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Fody;
 using InlineIL.Fody;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 #pragma warning disable 618
@@ -13,10 +14,13 @@ namespace InlineIL.Tests.Weaving
     {
         public static TestResult TestResult { get; }
 
+        public static ModuleDefinition ResultModule { get; }
+
         static AssemblyToProcessFixture()
         {
             var weavingTask = new GuardedWeaver();
             TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.AssemblyToProcess.dll");
+            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate));
         }
 
         internal class GuardedWeaver : ModuleWeaver

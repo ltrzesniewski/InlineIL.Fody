@@ -1,4 +1,5 @@
-﻿using InlineIL.Tests.Support;
+﻿using System.Linq;
+using InlineIL.Tests.Support;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving
@@ -24,6 +25,18 @@ namespace InlineIL.Tests.Weaving
             var instance = GetInstance();
             var result = (int)instance.UseLocalVariablesExplicitInit(8);
             result.ShouldEqual(50);
+
+            GetMethodDefinition("UseLocalVariablesExplicitInit").Body.InitLocals.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void should_handle_local_variables_with_no_init()
+        {
+            var instance = GetUnverifiableInstance();
+            var result = (int)instance.UseLocalVariablesNoInit(8);
+            result.ShouldEqual(50);
+
+            GetUnverifiableMethodDefinition("UseLocalVariablesNoInit").Body.InitLocals.ShouldBeFalse();
         }
 
         [Fact]
@@ -33,6 +46,8 @@ namespace InlineIL.Tests.Weaving
             var instance = GetUnverifiableInstance();
             var result = (int)instance.UsePinnedLocalVariables(buf, 2);
             result.ShouldEqual(42);
+
+            GetUnverifiableMethodDefinition("UsePinnedLocalVariables").Body.Variables.Single().IsPinned.ShouldBeTrue();
         }
 
         [Fact]
