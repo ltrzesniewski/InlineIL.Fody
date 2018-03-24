@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
-    <LangVersion>latest</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <DisableFody>true</DisableFody>
   </PropertyGroup>

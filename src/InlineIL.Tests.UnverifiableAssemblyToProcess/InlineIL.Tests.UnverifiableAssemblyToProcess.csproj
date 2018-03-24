@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
     <RootNamespace />
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
