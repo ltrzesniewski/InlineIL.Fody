@@ -7,8 +7,6 @@ namespace InlineIL.Fody
 {
     public class ModuleWeaver : BaseModuleWeaver
     {
-        public override bool ShouldCleanReference => true;
-
         public override IEnumerable<string> GetAssembliesForScanning()
         {
             yield return "InlineIL";
@@ -18,7 +16,7 @@ namespace InlineIL.Fody
         {
             var hasErrors = false;
 
-            foreach (var method in ModuleDefinition.Assembly.Modules.SelectMany(m => m.Types).SelectMany(t => t.Methods))
+            foreach (var method in ModuleDefinition.Types.SelectMany(t => t.Methods))
             {
                 try
                 {
@@ -39,6 +37,15 @@ namespace InlineIL.Fody
 
             if (hasErrors)
                 throw new WeavingException("Weaving failed - see logged errors");
+
+            RemoveLibReference();
+        }
+
+        private void RemoveLibReference()
+        {
+            var libRef = ModuleDefinition.AssemblyReferences.FirstOrDefault(i => i.Name == "InlineIL");
+            if (libRef != null)
+                ModuleDefinition.AssemblyReferences.Remove(libRef);
         }
 
         protected virtual void AddError(string message, SequencePoint sequencePoint)
