@@ -19,6 +19,14 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_local_variables_with_explicit_init()
+        {
+            var instance = GetInstance();
+            var result = (int)instance.UseLocalVariablesExplicitInit(8);
+            result.ShouldEqual(50);
+        }
+
+        [Fact]
         public void should_handle_pinned_local_variables()
         {
             var buf = new byte[] { 0, 0, 42, 0 };
@@ -40,9 +48,21 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_report_multiple_declarations()
+        {
+            ShouldHaveError("MultipleDeclarations").ShouldContain("Local variables have already been declared");
+        }
+
+        [Fact]
         public void should_report_null_local_definition()
         {
             ShouldHaveError("NullLocal").ShouldContain("ldnull");
+        }
+
+        [Fact]
+        public void should_report_null_local_name()
+        {
+            ShouldHaveError("NullLocalName").ShouldContain("ldnull");
         }
 
         [Fact]

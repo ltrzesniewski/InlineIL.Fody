@@ -7,7 +7,9 @@ public class LocalRefTestCases
 {
     public byte UsePinnedLocalVariables(byte[] buf, int offset)
     {
-        IL.DeclareLocal("buf", typeof(byte).MakeByRefType(), true);
+        IL.DeclareLocals(
+            new LocalVar("buf", typeof(byte).MakeByRefType()).Pinned()
+        );
 
         IL.Push(buf);
         IL.Emit(OpCodes.Ldc_I4_0);

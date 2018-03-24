@@ -11,7 +11,7 @@ namespace InlineIL.Fody
             public const string UnreachableMethod = "Unreachable";
             public const string ReturnMethod = "Return";
             public const string MarkLabelMethod = "MarkLabel";
-            public const string DeclareLocalMethod = "DeclareLocal";
+            public const string DeclareLocalsMethod = "DeclareLocals";
         }
 
         public static class Full
@@ -21,6 +21,7 @@ namespace InlineIL.Fody
             public const string MethodRefType = "InlineIL.MethodRef";
             public const string FieldRefType = "InlineIL.FieldRef";
             public const string LabelRefType = "InlineIL.LabelRef";
+            public const string LocalVarType = "InlineIL.LocalVar";
             public const string LocalRefType = "InlineIL.LocalRef";
             public const string StandAloneMethodSigType = "InlineIL.StandAloneMethodSig";
 
@@ -31,6 +32,7 @@ namespace InlineIL.Fody
                 MethodRefType,
                 FieldRefType,
                 LabelRefType,
+                LocalVarType,
                 LocalRefType,
                 StandAloneMethodSigType
             };

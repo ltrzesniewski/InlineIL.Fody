@@ -44,10 +44,10 @@ namespace InlineIL
         public static void Emit(OpCode opCode, StandAloneMethodSig arg)
             => Throw();
 
-        public static void DeclareLocal(string name, TypeRef type)
+        public static void DeclareLocals(params LocalVar[] locals)
             => Throw();
 
-        public static void DeclareLocal(string name, TypeRef type, bool pinned)
+        public static void DeclareLocals(bool init, params LocalVar[] locals)
             => Throw();
 
         public static void MarkLabel(string labelName)

@@ -13,13 +13,35 @@ public class LocalRefTestCases
 
     public void RedefinedLocal()
     {
-        IL.DeclareLocal("foo", typeof(int));
-        IL.DeclareLocal("foo", typeof(int));
+        IL.DeclareLocals(
+            new LocalVar("foo", typeof(int)),
+            new LocalVar("foo", typeof(int))
+        );
+    }
+
+    public void MultipleDeclarations()
+    {
+        IL.DeclareLocals(
+            new LocalVar("foo", typeof(int))
+        );
+
+        IL.DeclareLocals(
+            new LocalVar("bar", typeof(int))
+        );
     }
 
     public void NullLocal()
     {
-        IL.DeclareLocal(null, typeof(int));
+        IL.DeclareLocals(
+            null
+        );
+    }
+
+    public void NullLocalName()
+    {
+        IL.DeclareLocals(
+            new LocalVar(null, typeof(int))
+        );
     }
 
     public void NullLocalRefName()

@@ -187,8 +187,11 @@ namespace InlineIL.Examples
         public static ref T AsRef<T>(void* source)
         {
             // Roundtrip via a local to avoid type mismatch on return that the JIT inliner chokes on.
+            IL.DeclareLocals(
+                false,
+                new LocalVar("local", typeof(int).MakeByRefType())
+            );
 
-            IL.DeclareLocal("local", typeof(int).MakeByRefType());
             IL.Push(source);
             IL.Emit(OpCodes.Stloc, new LocalRef("local"));
             IL.Emit(OpCodes.Ldloc, new LocalRef("local"));

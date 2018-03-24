@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Fody;
+using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -17,7 +18,8 @@ namespace InlineIL.Fody
         private readonly WeaverILProcessor _il;
         private readonly List<SequencePoint> _sequencePoints;
         private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
-        private readonly Dictionary<string, VariableDefinition> _locals = new Dictionary<string, VariableDefinition>();
+
+        [CanBeNull] private MethodLocals _locals;
 
         private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
 
@@ -156,8 +158,8 @@ namespace InlineIL.Fody
                                 ProcessMarkLabelMethod(instruction);
                                 break;
 
-                            case KnownNames.Short.DeclareLocalMethod:
-                                ProcessDeclareLocalMethod(instruction);
+                            case KnownNames.Short.DeclareLocalsMethod:
+                                ProcessDeclareLocalsMethod(instruction);
                                 break;
 
                             default:
@@ -377,21 +379,36 @@ namespace InlineIL.Fody
             _il.Replace(instruction, labelInfo.PlaceholderTarget);
         }
 
-        private void ProcessDeclareLocalMethod(Instruction instruction)
+        private void ProcessDeclareLocalsMethod(Instruction instruction)
         {
-            var args = instruction.GetArgumentPushInstructions();
-            var localName = ConsumeArgString(args[0]);
-            var localType = ConsumeArgTypeRef(args[1]);
-            var pinned = args.Length == 3 && ConsumeArgBool(args[2]);
+            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                throw UnexpectedInstruction(instruction, "a method call");
 
-            if (_locals.ContainsKey(localName))
-                throw new InstructionWeavingException(instruction, $"Local {localName} is already defined");
+            if (_locals != null)
+                throw new InstructionWeavingException(instruction, "Local variables have already been declared");
 
-            var variableDef = new VariableDefinition(pinned ? localType.MakePinnedType() : localType);
-            _method.Body.Variables.Add(variableDef);
-            _locals.Add(localName, variableDef);
+            switch (method.FullName)
+            {
+                case "System.Void InlineIL.IL::DeclareLocals(InlineIL.LocalVar[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    _locals = new MethodLocals(_method, ConsumeArgArray(args[0], ConsumeArgLocalVar));
+                    _il.Remove(instruction);
+                    return;
+                }
 
-            _il.Remove(instruction);
+                case "System.Void InlineIL.IL::DeclareLocals(System.Boolean,InlineIL.LocalVar[])":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    _method.Body.InitLocals = ConsumeArgBool(args[0]);
+                    _locals = new MethodLocals(_method, ConsumeArgArray(args[1], ConsumeArgLocalVar));
+                    _il.Remove(instruction);
+                    return;
+                }
+
+                default:
+                    throw UnexpectedInstruction(instruction, "a InlineIL.DeclareLocals method call");
+            }
         }
 
         private OpCode ConsumeArgOpCode(Instruction instruction)
@@ -787,6 +804,42 @@ namespace InlineIL.Fody
             return _labels.GetOrAddNew(labelName);
         }
 
+        private MethodLocals.NamedLocal ConsumeArgLocalVar(Instruction instruction)
+        {
+            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                throw UnexpectedInstruction(instruction, "a call on LocalVar");
+
+            switch (method.FullName)
+            {
+                case "System.Void InlineIL.LocalVar::.ctor(System.String,InlineIL.TypeRef)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var name = ConsumeArgString(args[0]);
+                    var type = ConsumeArgTypeRef(args[1]);
+
+                    _il.Remove(instruction);
+                    return new MethodLocals.NamedLocal(name, new VariableDefinition(type));
+                }
+
+                case "InlineIL.LocalVar InlineIL.LocalVar::Pinned()":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var innerDefinition = ConsumeArgLocalVar(args[0]);
+
+                    if (innerDefinition.Definition.IsPinned)
+                        throw new InstructionWeavingException(instruction, $"Local {innerDefinition.Name} is already pinned");
+
+                    innerDefinition.Definition.VariableType = innerDefinition.Definition.VariableType.MakePinnedType();
+
+                    _il.Remove(instruction);
+                    return innerDefinition;
+                }
+
+                default:
+                    throw UnexpectedInstruction(instruction, "a method call on LocalVar");
+            }
+        }
+
         private VariableDefinition ConsumeArgLocalRef(Instruction instruction)
         {
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LocalRef::.ctor(System.String)")
@@ -794,7 +847,11 @@ namespace InlineIL.Fody
 
             var localName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
 
-            if (!_locals.TryGetValue(localName, out var variableDef))
+            if (_locals == null)
+                throw new InstructionWeavingException(instruction, $"Local {localName} is not defined, call IL.DeclareLocals");
+
+            var variableDef = _locals.TryGetByName(localName);
+            if (variableDef == null)
                 throw new InstructionWeavingException(instruction, $"Local {localName} is not defined");
 
             _il.Remove(instruction);
