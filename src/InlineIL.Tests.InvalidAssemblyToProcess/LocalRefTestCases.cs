@@ -58,4 +58,26 @@ public class LocalRefTestCases
     {
         GC.KeepAlive(new LocalRef("foo"));
     }
+
+    public void UndefinedLocalByIndexMacro()
+    {
+        IL.Emit(OpCodes.Ldloc_0);
+    }
+
+    public void UndefinedLocalByIndex()
+    {
+        IL.Emit(OpCodes.Ldloc, 0);
+    }
+
+    public void LocalOutOfRangeMacro()
+    {
+        IL.DeclareLocals(new LocalVar("foo", typeof(int)));
+        IL.Emit(OpCodes.Ldloc_1);
+    }
+
+    public void LocalOutOfRange()
+    {
+        IL.DeclareLocals(new LocalVar("foo", typeof(int)));
+        IL.Emit(OpCodes.Ldloc, 1);
+    }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Fody;
+using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -11,6 +12,9 @@ namespace InlineIL.Fody
     {
         private readonly ILProcessor _il;
         private readonly HashSet<Instruction> _referencedInstructions;
+
+        [CanBeNull]
+        public MethodLocals Locals { get; private set; }
 
         public WeaverILProcessor(MethodDefinition method)
         {
@@ -29,6 +33,14 @@ namespace InlineIL.Fody
         {
             _il.Replace(oldInstruction, newInstruction);
             UpdateReferences(oldInstruction, newInstruction);
+        }
+
+        public void DeclareLocals(IEnumerable<MethodLocals.NamedLocal> locals)
+        {
+            if (Locals != null)
+                throw new WeavingException("Local variables have already been declared for this method");
+
+            Locals = new MethodLocals(_il.Body, locals);
         }
 
         public HashSet<Instruction> GetAllReferencedInstructions()
@@ -124,7 +136,9 @@ namespace InlineIL.Fody
         {
             try
             {
-                return _il.Create(opCode);
+                var instruction = _il.Create(opCode);
+                MethodLocals.MapMacroInstruction(Locals, instruction);
+                return instruction;
             }
             catch (ArgumentException)
             {
@@ -227,6 +241,8 @@ namespace InlineIL.Fody
                 switch (opCode.OperandType)
                 {
                     case OperandType.InlineI:
+                    case OperandType.InlineVar:
+                    case OperandType.ShortInlineVar:
                         operand = Convert.ToInt32(operand);
                         break;
 
@@ -251,11 +267,17 @@ namespace InlineIL.Fody
 
                 switch (operand)
                 {
+                    case int value:
+                    {
+                        if (MethodLocals.MapIndexInstruction(Locals, ref opCode, value, out var localVar))
+                            return Create(opCode, localVar);
+
+                        return _il.Create(opCode, value);
+                    }
+
                     case byte value:
                         return _il.Create(opCode, value);
                     case sbyte value:
-                        return _il.Create(opCode, value);
-                    case int value:
                         return _il.Create(opCode, value);
                     case long value:
                         return _il.Create(opCode, value);
@@ -267,6 +289,7 @@ namespace InlineIL.Fody
                         return _il.Create(opCode, value);
                     case string value:
                         return _il.Create(opCode, value);
+
                     default:
                         throw new WeavingException($"Unexpected operand for instruction {opCode}: {operand}");
                 }

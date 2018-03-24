@@ -51,6 +51,22 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_map_local_indexes()
+        {
+            var instance = GetInstance();
+            var result = (int)instance.MapLocalIndexes(3, 12, 54, 9);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_map_local_indexes_long_form()
+        {
+            var instance = GetInstance();
+            var result = (int)instance.MapLocalIndexesLong(38, 4);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
         public void should_report_undefined_local()
         {
             ShouldHaveError("UndefinedLocal").ShouldContain("is not defined");
@@ -91,6 +107,30 @@ namespace InlineIL.Tests.Weaving
         public void should_report_unconsumed_reference()
         {
             ShouldHaveError("UnusedInstance");
+        }
+
+        [Fact]
+        public void should_report_undefined_local_usage_by_index_macro_when_no_locals_are_defined()
+        {
+            ShouldHaveError("UndefinedLocalByIndexMacro").ShouldContain("No locals are defined");
+        }
+
+        [Fact]
+        public void should_report_undefined_local_usage_by_index_when_no_locals_are_defined()
+        {
+            ShouldHaveError("UndefinedLocalByIndex").ShouldContain("No locals are defined");
+        }
+
+        [Fact]
+        public void should_report_local_out_of_range_macro()
+        {
+            ShouldHaveError("LocalOutOfRangeMacro").ShouldContain("out of range");
+        }
+
+        [Fact]
+        public void should_report_local_out_of_range()
+        {
+            ShouldHaveError("LocalOutOfRange").ShouldContain("out of range");
         }
     }
 }
