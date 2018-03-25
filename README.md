@@ -79,32 +79,35 @@ The API is similar to the [`System.Reflection.Emit.ILGenerator`](https://docs.mi
 
 - Unit tests can also serve as examples of API usage, which is entirely covered. See [verifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.AssemblyToProcess) and [unverifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.UnverifiableAssemblyToProcess) test cases.
 
- - Simple example:
+ - [Simple example](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL.Examples/Examples.cs):
 
     ```C#
-    public void AddAssign(ref int a, int b)
+    public static void ZeroInit<T>(ref T value)
+        where T : struct
     {
-        IL.Push(ref a);
-        IL.Push(a);
-        IL.Push(b);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Stind_I4);
+        IL.Push(ref value);
+        IL.Push((byte)0);
+        IL.Emit(OpCodes.Sizeof, typeof(T));
+        IL.Emit(OpCodes.Unaligned, 1);
+        IL.Emit(OpCodes.Initblk);
     }
     ```
 
     What gets compiled:
 
     ```
-    .method public hidebysig instance void AddAssign (int32& a, int32 b) cil managed 
+    .method public hidebysig static 
+      void ZeroInit<valuetype .ctor ([mscorlib]System.ValueType) T> (
+        !!T& 'value'
+      ) cil managed 
     {
-        .maxstack 3
+      .maxstack 3
 
-        ldarg.1
-        ldarg.1
-        ldind.i4
-        ldarg.2
-        add
-        stind.i4
-        ret
+      IL_0000: ldarg.0
+      IL_0001: ldc.i4.0
+      IL_0002: sizeof !!T
+      IL_0008: unaligned. 1
+      IL_000b: initblk
+      IL_000d: ret
     }
     ```
