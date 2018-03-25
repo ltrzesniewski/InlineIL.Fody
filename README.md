@@ -29,9 +29,11 @@ Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fo
 
 ## Usage
 
-The API is similar to the [`System.Reflection.Emit.ILGenerator`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator) class, except it works by substituting calls to static methods of the `InlineIL.IL` class at compile time. After weaving, the reference to the `InlineIL` assembly is removed from your project.
+The API is similar to the [`System.Reflection.Emit.ILGenerator`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator) class, except it works by substituting calls to static methods of the [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class at compile time.
 
-### Methods:
+You can combine InlineIL instructions with existing C# code: a given method doesn't have to be *entirely* written in IL. After weaving, the reference to the `InlineIL` assembly is removed from your project.
+
+### Methods
 
  - `IL.Emit`  
    This is the method used to generate IL instructions.
