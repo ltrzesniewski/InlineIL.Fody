@@ -139,7 +139,7 @@ namespace InlineIL.Fody
                         switch (calledMethod.Name)
                         {
                             case KnownNames.Short.EmitMethod:
-                                ProcessEmitMethod(instruction);
+                                ProcessEmitMethod(instruction, out nextInstruction);
                                 break;
 
                             case KnownNames.Short.PushMethod:
@@ -147,7 +147,7 @@ namespace InlineIL.Fody
                                 break;
 
                             case KnownNames.Short.UnreachableMethod:
-                                ProcessUnreachableMethod(instruction, ref nextInstruction);
+                                ProcessUnreachableMethod(instruction, out nextInstruction);
                                 break;
 
                             case KnownNames.Short.ReturnMethod:
@@ -208,10 +208,15 @@ namespace InlineIL.Fody
                 throw new WeavingException($"Found invalid references to instructions:{Environment.NewLine}{string.Join(Environment.NewLine, invalidRefs)}");
         }
 
-        private void ProcessEmitMethod(Instruction emitCallInstruction)
+        private void ProcessEmitMethod(Instruction emitCallInstruction, out Instruction nextInstruction)
         {
             var emittedInstruction = CreateInstructionToEmit();
             _il.Replace(emitCallInstruction, emittedInstruction);
+
+            if (emittedInstruction.OpCode.FlowControl == FlowControl.Meta)
+                _il.RemoveNopsAfter(emittedInstruction);
+
+            nextInstruction = emittedInstruction.Next;
 
             Instruction CreateInstructionToEmit()
             {
@@ -306,16 +311,15 @@ namespace InlineIL.Fody
             _il.Remove(instruction);
         }
 
-        private void ProcessUnreachableMethod(Instruction instruction, ref Instruction nextInstruction)
+        private void ProcessUnreachableMethod(Instruction instruction, out Instruction nextInstruction)
         {
             var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction?.OpCode != OpCodes.Throw)
                 throw new InstructionWeavingException(instruction, "The result of the IL.Unreachable method should be immediately thrown: throw IL.Unreachable();");
 
-            nextInstruction = throwInstruction.Next;
-
             _il.Remove(instruction);
             _il.RemoveNopsAround(throwInstruction);
+            nextInstruction = throwInstruction.Next;
             _il.Remove(throwInstruction);
         }
 

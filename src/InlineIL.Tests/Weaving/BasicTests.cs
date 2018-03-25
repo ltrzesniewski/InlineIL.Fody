@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using InlineIL.Tests.Support;
 using Xunit;
@@ -97,6 +98,14 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (int)GetInstance().HandleExceptionBlocks();
             result.ShouldEqual(19);
+        }
+
+        [Fact]
+        public void should_handle_prefix_instructions_in_debug_mode()
+        {
+            var guid = Guid.NewGuid();
+            GetUnverifiableInstance().HandlePrefixesInDebugMode(ref guid);
+            guid.ShouldEqual(Guid.Empty);
         }
     }
 }

@@ -115,15 +115,24 @@ namespace InlineIL.Fody
 
         public void RemoveNopsAround(Instruction instruction)
         {
-            var currentInstruction = instruction.Previous;
+            RemoveNopsBefore(instruction);
+            RemoveNopsAfter(instruction);
+        }
+
+        private void RemoveNopsBefore(Instruction instruction)
+        {
+            var currentInstruction = instruction?.Previous;
             while (currentInstruction != null && currentInstruction.OpCode == OpCodes.Nop)
             {
-                var next = currentInstruction.Previous;
+                var prev = currentInstruction.Previous;
                 Remove(currentInstruction);
-                currentInstruction = next;
+                currentInstruction = prev;
             }
+        }
 
-            currentInstruction = instruction.Next;
+        public void RemoveNopsAfter(Instruction instruction)
+        {
+            var currentInstruction = instruction?.Next;
             while (currentInstruction != null && currentInstruction.OpCode == OpCodes.Nop)
             {
                 var next = currentInstruction.Next;
