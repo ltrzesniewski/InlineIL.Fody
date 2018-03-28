@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Fody;
 using Mono.Cecil.Cil;
@@ -7,6 +8,14 @@ namespace InlineIL.Fody
 {
     public class ModuleWeaver : BaseModuleWeaver
     {
+        private Logger _log;
+
+        [SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
+        public ModuleWeaver()
+        {
+            _log = new Logger(this);
+        }
+
         public override IEnumerable<string> GetAssembliesForScanning()
         {
             yield return "InlineIL";
@@ -20,8 +29,11 @@ namespace InlineIL.Fody
             {
                 try
                 {
-                    if (MethodWeaver.NeedsProcessing(method))
-                        new MethodWeaver(ModuleDefinition, method).Process();
+                    if (!MethodWeaver.NeedsProcessing(method))
+                        continue;
+
+                    _log.Info($"Processing: {method.FullName}");
+                    new MethodWeaver(ModuleDefinition, method).Process();
                 }
                 catch (SequencePointWeavingException ex)
                 {
@@ -45,10 +57,13 @@ namespace InlineIL.Fody
         {
             var libRef = ModuleDefinition.AssemblyReferences.FirstOrDefault(i => i.Name == "InlineIL");
             if (libRef != null)
+            {
                 ModuleDefinition.AssemblyReferences.Remove(libRef);
+                _log.Info("Removed reference to InlineIL");
+            }
         }
 
         protected virtual void AddError(string message, SequencePoint sequencePoint)
-            => LogErrorPoint(message, sequencePoint);
+            => _log.Error(message, sequencePoint);
     }
 }
