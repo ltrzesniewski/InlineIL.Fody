@@ -76,7 +76,7 @@ public class MethodRefTestCases
         return IL.Return<int>();
     }
 
-#if NET46
+#if NETFWK
     public int[] CallVarArgMethod()
     {
         IL.Push(5);
@@ -97,7 +97,7 @@ public class MethodRefTestCases
 
     private static T GenericMethod<T>(T value) => value;
 
-#if NET46
+#if NETFWK
     private static int[] VarArgMethod(int count, __arglist)
     {
         var it = new ArgIterator(__arglist);
