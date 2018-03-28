@@ -2,17 +2,14 @@ version: 1.0.{build}
 image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
-install:
-- cmd: appveyor downloadfile https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
 before_build:
 - ps: nuget restore src\InlineIL.sln
 build:
   project: src\InlineIL.sln
   verbosity: minimal
 test_script:
-- cmd: >-
-    %xunit20%\xunit.console src\InlineIL.Tests\bin\Release\net452\InlineIL.Tests.dll -appveyor
-
+- cmd: |
+    %xunit20%\xunit.console src\InlineIL.Tests\bin\Release\net46\InlineIL.Tests.dll -appveyor
     dotnet test "src\InlineIL.Tests\InlineIL.Tests.csproj" --framework netcoreapp2.0 --configuration Release --no-build --output bin\Release\netcoreapp2.0
 artifacts:
 - path: output\**\*.nupkg
