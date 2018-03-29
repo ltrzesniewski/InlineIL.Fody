@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-    <DefineConstants Condition="'$(TargetFramework)'=='net46'">$(DefineConstants);NETFWK</DefineConstants>
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <DefineConstants Condition="'$(TargetFramework)'=='net452'">$(DefineConstants);NETFWK</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(Configuration)=='Release'">true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition=" '$(Configuration)|$(GenerateNuGetPackage)' == 'Release|true' ">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -16,7 +16,7 @@
     <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
     <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageOutputPath>$(SolutionDir)..\output</PackageOutputPath>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\output</PackageOutputPath>
     <PackageIconUrl></PackageIconUrl>
   </PropertyGroup>
 
