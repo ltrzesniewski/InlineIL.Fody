@@ -88,7 +88,7 @@ You can combine InlineIL instructions with existing C# code: a given method does
         where T : struct
     {
         IL.Push(ref value);
-        IL.Push((byte)0);
+        IL.Push(0);
         IL.Emit(OpCodes.Sizeof, typeof(T));
         IL.Emit(OpCodes.Unaligned, 1);
         IL.Emit(OpCodes.Initblk);
