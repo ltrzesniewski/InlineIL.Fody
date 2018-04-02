@@ -8,7 +8,7 @@ namespace InlineIL.Fody
 {
     public class ModuleWeaver : BaseModuleWeaver
     {
-        private Logger _log;
+        private readonly Logger _log;
 
         [SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
         public ModuleWeaver()
@@ -32,7 +32,7 @@ namespace InlineIL.Fody
                     if (!MethodWeaver.NeedsProcessing(method))
                         continue;
 
-                    _log.Info($"Processing: {method.FullName}");
+                    _log.Debug($"Processing: {method.FullName}");
                     new MethodWeaver(ModuleDefinition, method).Process();
                 }
                 catch (SequencePointWeavingException ex)
@@ -59,7 +59,7 @@ namespace InlineIL.Fody
             if (libRef != null)
             {
                 ModuleDefinition.AssemblyReferences.Remove(libRef);
-                _log.Info("Removed reference to InlineIL");
+                _log.Debug("Removed reference to InlineIL");
             }
         }
 
