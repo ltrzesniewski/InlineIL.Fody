@@ -107,4 +107,21 @@ public class BasicTestCases
         IL.Emit(OpCodes.Add);
         return IL.Return<int>();
     }
+
+    public int NestedClass()
+        => NestedClassA.NestedClassB.Call();
+
+    private static class NestedClassA
+    {
+        public static class NestedClassB
+        {
+            public static int Call()
+            {
+                IL.Emit(OpCodes.Ldc_I4_1);
+                IL.Emit(OpCodes.Ldc_I4_2);
+                IL.Emit(OpCodes.Add);
+                return IL.Return<int>();
+            }
+        }
+    }
 }

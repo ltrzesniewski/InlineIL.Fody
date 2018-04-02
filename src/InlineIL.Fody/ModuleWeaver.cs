@@ -25,7 +25,7 @@ namespace InlineIL.Fody
         {
             var hasErrors = false;
 
-            foreach (var method in ModuleDefinition.Types.SelectMany(t => t.Methods))
+            foreach (var method in ModuleDefinition.GetTypes().SelectMany(t => t.Methods))
             {
                 try
                 {

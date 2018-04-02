@@ -107,5 +107,12 @@ namespace InlineIL.Tests.Weaving
             GetUnverifiableInstance().HandlePrefixesInDebugMode(ref guid);
             guid.ShouldEqual(Guid.Empty);
         }
+
+        [Fact]
+        public void should_process_nested_classes()
+        {
+            var result = (int)GetInstance().NestedClass();
+            result.ShouldEqual(3);
+        }
     }
 }
