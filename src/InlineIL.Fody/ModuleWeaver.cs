@@ -17,9 +17,7 @@ namespace InlineIL.Fody
         }
 
         public override IEnumerable<string> GetAssembliesForScanning()
-        {
-            yield return "InlineIL";
-        }
+            => Enumerable.Empty<string>();
 
         public override void Execute()
         {
