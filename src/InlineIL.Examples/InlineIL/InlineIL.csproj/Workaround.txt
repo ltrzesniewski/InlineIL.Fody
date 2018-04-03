@@ -1,2 +1,0 @@
-This is a workaround for https://github.com/Fody/Fody/issues/376
-:'(

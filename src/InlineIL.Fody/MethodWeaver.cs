@@ -511,13 +511,7 @@ namespace InlineIL.Fody
                         throw new InstructionWeavingException(instruction, $"Could not resolve assembly '{assemblyName}'");
 
                     var typeReference = assembly.Modules
-                                                .Select(module =>
-                                                {
-                                                    var parsedType = module.GetType(typeName, true);
-
-                                                    // parsedType is not null when the type doesn't exist in the current version of Cecil
-                                                    return parsedType != null ? module.GetType(parsedType.FullName) : null;
-                                                })
+                                                .Select(module => module.GetType(typeName, true))
                                                 .FirstOrDefault(t => t != null);
 
                     if (typeReference == null)
