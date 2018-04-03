@@ -230,14 +230,15 @@ namespace InlineIL.Fody
                     return _il.Create(opCode);
 
                 var operandType = methodParams[1].ParameterType;
-                if (operandType.IsPrimitive || operandType.FullName == _module.TypeSystem.String.FullName)
-                {
-                    var operandValue = ConsumeArgConst(args[1]);
-                    return _il.CreateConst(opCode, operandValue);
-                }
 
                 switch (operandType.FullName)
                 {
+                    case var typeName when operandType.IsPrimitive || typeName == _module.TypeSystem.String.FullName:
+                    {
+                        var operandValue = ConsumeArgConst(args[1]);
+                        return _il.CreateConst(opCode, operandValue);
+                    }
+
                     case KnownNames.Full.TypeRefType:
                     {
                         var typeRef = ConsumeArgTypeRef(args[1]);
