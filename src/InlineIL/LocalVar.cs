@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InlineIL
 {
@@ -23,6 +24,13 @@ namespace InlineIL
         /// <param name="type">The local variable type.</param>
         public LocalVar(TypeRef type)
             => IL.Throw();
+
+        /// <summary>
+        /// Converts a <see cref="Type"/> to a <see cref="LocalVar"/>.
+        /// </summary>
+        /// <param name="type">The local variable type.</param>
+        public static implicit operator LocalVar(Type type)
+            => throw IL.Throw();
 
         /// <summary>
         /// Makes the object referred to by the local pinned in memory, which prevents the garbage collector from moving it.

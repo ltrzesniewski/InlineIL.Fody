@@ -828,6 +828,7 @@ namespace InlineIL.Fody
                 }
 
                 case "System.Void InlineIL.LocalVar::.ctor(InlineIL.TypeRef)":
+                case "InlineIL.LocalVar InlineIL.LocalVar::op_Implicit(System.Type)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var type = ConsumeArgTypeRef(args[0]);

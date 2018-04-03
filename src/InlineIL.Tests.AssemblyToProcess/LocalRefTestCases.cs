@@ -53,8 +53,8 @@ public class LocalRefTestCases
         IL.DeclareLocals(
             new LocalVar(typeof(int)),
             new LocalVar(typeof(int)),
-            new LocalVar(typeof(int)),
-            new LocalVar(typeof(int))
+            typeof(int),
+            typeof(int)
         );
 
         // Make sure the compiler declares some (double) locals on its own
