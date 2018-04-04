@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Fody;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace InlineIL.Fody
@@ -21,8 +23,6 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
-            var hasErrors = false;
-
             foreach (var method in ModuleDefinition.GetTypes().SelectMany(t => t.Methods))
             {
                 try
@@ -36,19 +36,48 @@ namespace InlineIL.Fody
                 catch (SequencePointWeavingException ex)
                 {
                     AddError(ex.Message, ex.SequencePoint);
-                    hasErrors = true;
+                    InvalidateMethod(method, ex.Message);
                 }
                 catch (WeavingException ex)
                 {
                     AddError(ex.Message, null);
-                    hasErrors = true;
+                    InvalidateMethod(method, ex.Message);
                 }
             }
 
-            if (hasErrors)
-                throw new WeavingException("Weaving failed - see logged errors");
-
             RemoveLibReference();
+        }
+
+        private void InvalidateMethod(MethodDefinition method, string message)
+        {
+            method.Body.Instructions.Clear();
+            method.Body.Variables.Clear();
+            method.Body.ExceptionHandlers.Clear();
+
+            var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.TypeSystem.CoreLibrary)
+                                .Resolve()?
+                                .Methods
+                                .FirstOrDefault(m => m.IsRuntimeSpecialName
+                                                     && m.Name == ".ctor"
+                                                     && m.Parameters.Count == 1
+                                                     && m.Parameters[0].ParameterType.FullName == ModuleDefinition.TypeSystem.String.FullName
+                                );
+
+            if (exceptionCtor != null)
+            {
+                method.Body.Instructions.AddRange(
+                    Instruction.Create(OpCodes.Ldstr, $"InlineIL processing failed: {message}"),
+                    Instruction.Create(OpCodes.Newobj, ModuleDefinition.ImportReference(exceptionCtor)),
+                    Instruction.Create(OpCodes.Throw)
+                );
+            }
+            else
+            {
+                method.Body.Instructions.AddRange(
+                    Instruction.Create(OpCodes.Ldnull),
+                    Instruction.Create(OpCodes.Throw)
+                );
+            }
         }
 
         private void RemoveLibReference()

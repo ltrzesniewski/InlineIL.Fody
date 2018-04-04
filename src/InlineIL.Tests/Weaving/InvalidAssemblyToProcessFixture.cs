@@ -13,7 +13,7 @@ namespace InlineIL.Tests.Weaving
 
         static InvalidAssemblyToProcessFixture()
         {
-            var weavingTask = new GuardedWeaver();
+            var weavingTask = new ModuleWeaver();
             TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.InvalidAssemblyToProcess.dll", false);
         }
 
@@ -24,22 +24,6 @@ namespace InlineIL.Tests.Weaving
             errorMessage.ShouldNotBeNull();
             errorMessage.SequencePoint.ShouldNotBeNull();
             return errorMessage.Text;
-        }
-
-        private class GuardedWeaver : ModuleWeaver
-        {
-            public override void Execute()
-            {
-                try
-                {
-                    base.Execute();
-                }
-                catch (WeavingException ex)
-                {
-                    if (!ex.Message.StartsWith("Weaving failed"))
-                        throw;
-                }
-            }
         }
     }
 }

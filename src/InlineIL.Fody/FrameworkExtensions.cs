@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace InlineIL.Fody
@@ -33,5 +34,8 @@ namespace InlineIL.Fody
             foreach (var item in items)
                 collection.Add(item);
         }
+
+        public static void AddRange<T>(this ICollection<T> collection, params T[] items)
+            => AddRange(collection, items.AsEnumerable());
     }
 }
