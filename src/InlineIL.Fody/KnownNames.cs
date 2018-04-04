@@ -6,6 +6,15 @@ namespace InlineIL.Fody
     {
         public static class Short
         {
+            public const string IlType = "IL";
+            public const string TypeRefType = "TypeRef";
+            public const string MethodRefType = "MethodRef";
+            public const string FieldRefType = "FieldRef";
+            public const string LabelRefType = "LabelRef";
+            public const string LocalVarType = "LocalVar";
+            public const string LocalRefType = "LocalRef";
+            public const string StandAloneMethodSigType = "StandAloneMethodSig";
+
             public const string EmitMethod = "Emit";
             public const string PushMethod = "Push";
             public const string UnreachableMethod = "Unreachable";
@@ -16,14 +25,16 @@ namespace InlineIL.Fody
 
         public static class Full
         {
-            public const string IlType = "InlineIL.IL";
-            public const string TypeRefType = "InlineIL.TypeRef";
-            public const string MethodRefType = "InlineIL.MethodRef";
-            public const string FieldRefType = "InlineIL.FieldRef";
-            public const string LabelRefType = "InlineIL.LabelRef";
-            public const string LocalVarType = "InlineIL.LocalVar";
-            public const string LocalRefType = "InlineIL.LocalRef";
-            public const string StandAloneMethodSigType = "InlineIL.StandAloneMethodSig";
+            private const string _nsPrefix = "InlineIL.";
+
+            public const string IlType = _nsPrefix + Short.IlType;
+            public const string TypeRefType = _nsPrefix + Short.TypeRefType;
+            public const string MethodRefType = _nsPrefix + Short.MethodRefType;
+            public const string FieldRefType = _nsPrefix + Short.FieldRefType;
+            public const string LabelRefType = _nsPrefix + Short.LabelRefType;
+            public const string LocalVarType = _nsPrefix + Short.LocalVarType;
+            public const string LocalRefType = _nsPrefix + Short.LocalRefType;
+            public const string StandAloneMethodSigType = _nsPrefix + Short.StandAloneMethodSigType;
 
             public static readonly HashSet<string> AllTypes = new HashSet<string>
             {

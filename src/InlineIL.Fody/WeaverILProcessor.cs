@@ -310,6 +310,57 @@ namespace InlineIL.Fody
         }
 
         private static WeavingException ExceptionInvalidOperand(OpCode opCode)
-            => new WeavingException($"Invalid instruction/operand combination: {opCode}");
+        {
+            switch (opCode.OperandType)
+            {
+                case OperandType.InlineNone:
+                    return new WeavingException($"Opcode {opCode} does not expect an operand");
+
+                case OperandType.InlineBrTarget:
+                case OperandType.ShortInlineBrTarget:
+                    return ExpectedOperand(KnownNames.Short.LabelRefType);
+
+                case OperandType.InlineField:
+                    return ExpectedOperand(KnownNames.Short.FieldRefType);
+
+                case OperandType.InlineI:
+                case OperandType.ShortInlineI:
+                case OperandType.InlineArg:
+                case OperandType.ShortInlineArg:
+                    return ExpectedOperand(nameof(Int32));
+
+                case OperandType.InlineI8:
+                    return ExpectedOperand(nameof(Int64));
+
+                case OperandType.InlineMethod:
+                    return ExpectedOperand(KnownNames.Short.MethodRefType);
+
+                case OperandType.InlineR:
+                case OperandType.ShortInlineR:
+                    return ExpectedOperand(nameof(Double));
+
+                case OperandType.InlineSig:
+                    return ExpectedOperand(KnownNames.Short.StandAloneMethodSigType);
+
+                case OperandType.InlineString:
+                    return ExpectedOperand(nameof(String));
+
+                case OperandType.InlineSwitch:
+                    return ExpectedOperand($"{KnownNames.Short.LabelRefType}[]");
+
+                case OperandType.InlineType:
+                    return ExpectedOperand($"{KnownNames.Short.TypeRefType} or {nameof(Type)}");
+
+                case OperandType.InlineVar:
+                case OperandType.ShortInlineVar:
+                    return ExpectedOperand($"{KnownNames.Short.LocalRefType} or {nameof(Int32)}");
+
+                default:
+                    return ExpectedOperand(opCode.OperandType.ToString());
+            }
+
+            WeavingException ExpectedOperand(string expected)
+                => new WeavingException($"Opcode {opCode} expects an operand of type {expected}");
+        }
     }
 }
