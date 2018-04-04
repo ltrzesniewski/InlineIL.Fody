@@ -64,11 +64,17 @@ namespace InlineIL.Fody
                         ? $"{ex.Message} (in {_method.FullName} at instruction {ex.Instruction})"
                         : $"{ex.Message} (in {_method.FullName})";
 
-                throw new SequencePointWeavingException(_sequencePoints.LastOrDefault(sp => sp.Offset <= ex.Instruction?.Offset), message);
+                throw new WeavingException(message)
+                {
+                    SequencePoint = _sequencePoints.LastOrDefault(sp => sp.Offset <= ex.Instruction?.Offset)
+                };
             }
             catch (WeavingException ex)
             {
-                throw new WeavingException($"{ex.Message} (in {_method.FullName})");
+                throw new WeavingException($"{ex.Message} (in {_method.FullName})")
+                {
+                    SequencePoint = ex.SequencePoint
+                };
             }
             catch (Exception ex)
             {

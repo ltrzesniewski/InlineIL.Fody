@@ -33,14 +33,9 @@ namespace InlineIL.Fody
                     _log.Debug($"Processing: {method.FullName}");
                     new MethodWeaver(ModuleDefinition, method).Process();
                 }
-                catch (SequencePointWeavingException ex)
-                {
-                    AddError(ex.Message, ex.SequencePoint);
-                    InvalidateMethod(method, ex.Message);
-                }
                 catch (WeavingException ex)
                 {
-                    AddError(ex.Message, null);
+                    AddError(ex.Message, ex.SequencePoint);
                     InvalidateMethod(method, ex.Message);
                 }
             }
