@@ -61,14 +61,14 @@ namespace InlineIL.Fody
                 var message = ex.Message.Contains(_method.FullName)
                     ? ex.Message
                     : ex.Instruction != null
-                        ? $"Error in {_method.FullName} at instruction {ex.Instruction}: {ex.Message}"
-                        : $"Error in {_method.FullName}: {ex.Message}";
+                        ? $"{ex.Message} (in {_method.FullName} at instruction {ex.Instruction})"
+                        : $"{ex.Message} (in {_method.FullName})";
 
                 throw new SequencePointWeavingException(_sequencePoints.LastOrDefault(sp => sp.Offset <= ex.Instruction?.Offset), message);
             }
             catch (WeavingException ex)
             {
-                throw new WeavingException($"Error in {_method.FullName}: {ex.Message}");
+                throw new WeavingException($"{ex.Message} (in {_method.FullName})");
             }
             catch (Exception ex)
             {
@@ -112,7 +112,7 @@ namespace InlineIL.Fody
                     }
                     catch (WeavingException ex)
                     {
-                        throw new InstructionWeavingException(instruction, $"Error in {_method.FullName} at instruction {instruction}: {ex.Message}");
+                        throw new InstructionWeavingException(instruction, $"{ex.Message} (in {_method.FullName} at instruction {instruction})");
                     }
                     catch (Exception ex)
                     {
@@ -172,7 +172,7 @@ namespace InlineIL.Fody
                     }
                     catch (WeavingException ex)
                     {
-                        throw new InstructionWeavingException(instruction, $"Error in {_method.FullName} at instruction {instruction}: {ex.Message}");
+                        throw new InstructionWeavingException(instruction, $"{ex.Message} (in {_method.FullName} at instruction {instruction})");
                     }
                     catch (Exception ex)
                     {
@@ -951,11 +951,11 @@ namespace InlineIL.Fody
             }
         }
 
-        private InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, OpCode expectedOpcode)
+        private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, OpCode expectedOpcode)
             => UnexpectedInstruction(instruction, expectedOpcode.Name);
 
-        private InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
-            => new InstructionWeavingException(instruction, $"Error in {_method.FullName}: Unexpected instruction, expected {expected} but was: {instruction}");
+        private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
+            => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction}");
 
         private class LabelInfo
         {
