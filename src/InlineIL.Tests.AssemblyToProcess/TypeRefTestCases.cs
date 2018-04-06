@@ -31,13 +31,8 @@ public class TypeRefTestCases
         IL.Push(result);
         IL.Emit(OpCodes.Ldc_I4_2);
 
-        #if NETSTANDARD2_0
-        IL.Emit(OpCodes.Ldtoken, new TypeRef("netstandard", "System.Int32"));
-        IL.Emit(OpCodes.Stelem, new TypeRef("netstandard", "System.RuntimeTypeHandle"));
-        #else
-        IL.Emit(OpCodes.Ldtoken, new TypeRef("mscorlib", "System.Int32"));
-        IL.Emit(OpCodes.Stelem, new TypeRef("mscorlib", "System.RuntimeTypeHandle"));
-        #endif
+        IL.Emit(OpCodes.Ldtoken, new TypeRef(TypeRef.CoreLibrary, "System.Int32"));
+        IL.Emit(OpCodes.Stelem, new TypeRef(TypeRef.CoreLibrary, "System.RuntimeTypeHandle"));
 
         return result;
     }

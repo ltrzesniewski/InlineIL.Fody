@@ -239,9 +239,15 @@ namespace InlineIL.Fody
 
                 switch (operandType.FullName)
                 {
-                    case var typeName when operandType.IsPrimitive || typeName == _module.TypeSystem.String.FullName:
+                    case var _ when operandType.IsPrimitive:
                     {
                         var operandValue = ConsumeArgConst(args[1]);
+                        return _il.CreateConst(opCode, operandValue);
+                    }
+
+                    case "System.String":
+                    {
+                        var operandValue = ConsumeArgString(args[1]);
                         return _il.CreateConst(opCode, operandValue);
                     }
 
@@ -424,11 +430,25 @@ namespace InlineIL.Fody
         [NotNull]
         private string ConsumeArgString(Instruction instruction)
         {
-            if (instruction.OpCode != OpCodes.Ldstr)
-                throw UnexpectedInstruction(instruction, OpCodes.Ldstr);
+            if (instruction.OpCode == OpCodes.Ldstr)
+            {
+                _il.Remove(instruction);
+                return (string)instruction.Operand;
+            }
 
-            _il.Remove(instruction);
-            return (string)instruction.Operand;
+            if (instruction.OpCode.FlowControl == FlowControl.Call && instruction.Operand is MethodReference method)
+            {
+                switch (method.FullName)
+                {
+                    case "System.String InlineIL.TypeRef::get_CoreLibrary()":
+                    {
+                        _il.Remove(instruction);
+                        return _module.TypeSystem.CoreLibrary.Name;
+                    }
+                }
+            }
+
+            throw UnexpectedInstruction(instruction, OpCodes.Ldstr);
         }
 
         private int ConsumeArgInt32(Instruction instruction)

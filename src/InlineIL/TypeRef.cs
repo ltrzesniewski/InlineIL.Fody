@@ -12,6 +12,12 @@ namespace InlineIL
     public sealed class TypeRef
     {
         /// <summary>
+        /// Returns the core library name, for use with <see cref="TypeRef(string, string)"/>
+        /// </summary>
+        public static string CoreLibrary
+            => throw IL.Throw();
+
+        /// <summary>
         /// Constructs a type reference from a <see cref="Type"/>.
         /// </summary>
         /// <param name="type">The type to reference.</param>
