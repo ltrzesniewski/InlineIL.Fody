@@ -515,7 +515,8 @@ namespace InlineIL.Fody
 
                     if (typeRef.MetadataType == MetadataType.Class && !(typeRef is TypeDefinition))
                     {
-                        // Not sure if that's a Cecil issue, but value type operands get imported as refernce types...
+                        // TypeRefs from different assemblies get imported as MetadataType.Class
+                        // since this information is not stored in the assembly metadata.
                         typeRef = _module.ImportReference(typeRef.ResolveRequiredType());
                     }
 

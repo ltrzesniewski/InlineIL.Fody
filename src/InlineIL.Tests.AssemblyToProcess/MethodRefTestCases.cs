@@ -82,6 +82,12 @@ public class MethodRefTestCases
         return IL.Return<string>();
     }
 
+    public string CallMethodInGenericTypeArray()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(Guid[])), nameof(GenericType<object>.NormalMethod)));
+        return IL.Return<string>();
+    }
+
     public string CallMethodInGenericTypeGeneric<TClass>()
     {
         IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(TClass)), nameof(GenericType<object>.NormalMethod)));
@@ -91,6 +97,12 @@ public class MethodRefTestCases
     public string CallGenericMethodInGenericType()
     {
         IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(Guid)), nameof(GenericType<object>.GenericMethod)).MakeGenericMethod(typeof(TimeSpan)));
+        return IL.Return<string>();
+    }
+
+    public string CallGenericMethodInGenericTypeArray()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(Guid[])), nameof(GenericType<object>.GenericMethod)).MakeGenericMethod(typeof(TimeSpan[])));
         return IL.Return<string>();
     }
 

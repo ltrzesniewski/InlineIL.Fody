@@ -73,6 +73,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_method_in_generic_type_array()
+        {
+            var result = (string)GetInstance().CallMethodInGenericTypeArray();
+            result.ShouldEqual(typeof(Guid[]).FullName);
+        }
+
+        [Fact]
         public void should_call_method_in_generic_type_generic()
         {
             var result = (string)GetInstance().CallMethodInGenericTypeGeneric<DayOfWeek>();
@@ -84,6 +91,13 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (string)GetInstance().CallGenericMethodInGenericType();
             result.ShouldEqual($"{typeof(Guid).FullName} {typeof(TimeSpan).FullName}");
+        }
+
+        [Fact]
+        public void should_call_generic_method_in_generic_type_array()
+        {
+            var result = (string)GetInstance().CallGenericMethodInGenericTypeArray();
+            result.ShouldEqual($"{typeof(Guid[]).FullName} {typeof(TimeSpan[]).FullName}");
         }
 
         [Fact]
