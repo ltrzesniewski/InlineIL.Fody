@@ -511,9 +511,17 @@ namespace InlineIL.Fody
                     if (ldToken.OpCode != OpCodes.Ldtoken)
                         throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
+                    var typeRef = (TypeReference)ldToken.Operand;
+
+                    if (typeRef.MetadataType == MetadataType.Class && !(typeRef is TypeDefinition))
+                    {
+                        // Not sure if that's a Cecil issue, but value type operands get imported as refernce types...
+                        typeRef = _module.ImportReference(typeRef.ResolveRequiredType());
+                    }
+
                     _il.Remove(ldToken);
                     _il.Remove(instruction);
-                    return (TypeReference)ldToken.Operand;
+                    return typeRef;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::op_Implicit(System.Type)":
@@ -553,7 +561,7 @@ namespace InlineIL.Fody
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
-                    return innerTypeRef.MakePointerType();
+                    return _module.ImportReference(innerTypeRef.MakePointerType());
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
@@ -561,7 +569,7 @@ namespace InlineIL.Fody
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
-                    return innerTypeRef.MakeByReferenceType();
+                    return _module.ImportReference(innerTypeRef.MakeByReferenceType());
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
@@ -569,7 +577,7 @@ namespace InlineIL.Fody
                 {
                     var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
                     _il.Remove(instruction);
-                    return innerTypeRef.MakeArrayType();
+                    return _module.ImportReference(innerTypeRef.MakeArrayType());
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType(System.Int32)":
@@ -582,27 +590,28 @@ namespace InlineIL.Fody
                         throw new InstructionWeavingException(args[1], $"Invalid array rank: {rank}, must be at least 1");
 
                     _il.Remove(instruction);
-                    return innerTypeRef.MakeArrayType(rank);
+                    return _module.ImportReference(innerTypeRef.MakeArrayType(rank));
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeGenericType(InlineIL.TypeRef[])":
                 case "System.Type System.Type::MakeGenericType(System.Type[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var genericType = _module.ImportReference(ConsumeArgTypeRef(args[0]).ResolveRequiredType());
+                    var typeRef = ConsumeArgTypeRef(args[0]);
+                    var typeDef = typeRef.ResolveRequiredType();
                     var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
 
-                    if (!genericType.HasGenericParameters)
-                        throw new InstructionWeavingException(instruction, $"Not a generic type: {genericType.FullName}");
+                    if (!typeDef.HasGenericParameters)
+                        throw new InstructionWeavingException(instruction, $"Not a generic type: {typeDef.FullName}");
 
                     if (genericArgs.Length == 0)
                         throw new InstructionWeavingException(instruction, "No generic arguments supplied");
 
-                    if (genericType.GenericParameters.Count != genericArgs.Length)
-                        throw new InstructionWeavingException(instruction, $"Incorrect number of generic arguments supplied for type {genericType.FullName} - expected {genericType.GenericParameters.Count}, but got {genericArgs.Length}");
+                    if (typeDef.GenericParameters.Count != genericArgs.Length)
+                        throw new InstructionWeavingException(instruction, $"Incorrect number of generic arguments supplied for type {typeDef.FullName} - expected {typeDef.GenericParameters.Count}, but got {genericArgs.Length}");
 
                     _il.Remove(instruction);
-                    return genericType.MakeGenericInstanceType(genericArgs);
+                    return _module.ImportReference(typeDef.MakeGenericInstanceType(genericArgs));
                 }
 
                 default:
@@ -621,7 +630,8 @@ namespace InlineIL.Fody
                 case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();
+                    var typeRef = ConsumeArgTypeRef(args[0]);
+                    var typeDef = typeRef.ResolveRequiredType();
                     var methodName = ConsumeArgString(args[1]);
 
                     var methods = typeDef.Methods.Where(m => m.Name == methodName).ToList();
@@ -632,7 +642,7 @@ namespace InlineIL.Fody
 
                         case 1:
                             _il.Remove(instruction);
-                            return _module.ImportReference(methods.Single());
+                            return _module.ImportReference(_module.ImportReference(methods.Single()).MakeGeneric(typeRef));
 
                         default:
                             throw new InstructionWeavingException(instruction, $"Ambiguous method '{methodName}' in type {typeDef.FullName}");
@@ -642,7 +652,8 @@ namespace InlineIL.Fody
                 case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();
+                    var typeRef = ConsumeArgTypeRef(args[0]);
+                    var typeDef = typeRef.ResolveRequiredType();
                     var methodName = ConsumeArgString(args[1]);
                     var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
 
@@ -659,7 +670,7 @@ namespace InlineIL.Fody
 
                         case 1:
                             _il.Remove(instruction);
-                            return _module.ImportReference(methods.Single());
+                            return _module.ImportReference(_module.ImportReference(methods.Single()).MakeGeneric(typeRef));
 
                         default:
                             // This should never happen
@@ -686,7 +697,7 @@ namespace InlineIL.Fody
                     genericInstance.GenericArguments.AddRange(genericArgs);
 
                     _il.Remove(instruction);
-                    return genericInstance;
+                    return _module.ImportReference(genericInstance);
                 }
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::WithOptionalParameters(InlineIL.TypeRef[])":
@@ -704,16 +715,8 @@ namespace InlineIL.Fody
                     if (optionalParamTypes.Length == 0)
                         throw new InstructionWeavingException(instruction, "No optional parameter type supplied for vararg method call");
 
-                    var methodRef = new MethodReference(baseMethod.Name, baseMethod.ReturnType, baseMethod.DeclaringType)
-                    {
-                        CallingConvention = MethodCallingConvention.VarArg,
-                        HasThis = baseMethod.HasThis,
-                        ExplicitThis = baseMethod.ExplicitThis,
-                        MethodReturnType = baseMethod.MethodReturnType
-                    };
-
-                    foreach (var param in baseMethod.Parameters)
-                        methodRef.Parameters.Add(param);
+                    var methodRef = baseMethod.Clone();
+                    methodRef.CallingConvention = MethodCallingConvention.VarArg;
 
                     for (var i = 0; i < optionalParamTypes.Length; ++i)
                     {

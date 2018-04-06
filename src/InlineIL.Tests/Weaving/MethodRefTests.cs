@@ -66,6 +66,41 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_method_in_generic_type()
+        {
+            var result = (string)GetInstance().CallMethodInGenericType();
+            result.ShouldEqual(typeof(Guid).FullName);
+        }
+
+        [Fact]
+        public void should_call_method_in_generic_type_generic()
+        {
+            var result = (string)GetInstance().CallMethodInGenericTypeGeneric<DayOfWeek>();
+            result.ShouldEqual(typeof(DayOfWeek).FullName);
+        }
+
+        [Fact]
+        public void should_call_generic_method_in_generic_type()
+        {
+            var result = (string)GetInstance().CallGenericMethodInGenericType();
+            result.ShouldEqual($"{typeof(Guid).FullName} {typeof(TimeSpan).FullName}");
+        }
+
+        [Fact]
+        public void should_call_generic_method_in_generic_type_generic()
+        {
+            var result = (string)GetInstance().CallGenericMethodInGenericTypeGeneric<DayOfWeek, ConsoleColor>();
+            result.ShouldEqual($"{typeof(DayOfWeek).FullName} {typeof(ConsoleColor).FullName}");
+        }
+
+        [Fact]
+        public void should_call_corelib_method()
+        {
+            ((bool)GetInstance().CallCoreLibMethod<Guid>(null)).ShouldBeFalse();
+            ((bool)GetInstance().CallCoreLibMethod<Guid>(Guid.Empty)).ShouldBeTrue();
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");

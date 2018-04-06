@@ -5,6 +5,7 @@ using Fody;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace InlineIL.Fody
 {
@@ -26,6 +27,34 @@ namespace InlineIL.Fody
             {
                 throw new WeavingException($"Could not resolve type {typeRef.FullName}: {ex.Message}");
             }
+        }
+
+        public static MethodReference Clone(this MethodReference method)
+        {
+            var clone = new MethodReference(method.Name, method.ReturnType, method.DeclaringType)
+            {
+                HasThis = method.HasThis,
+                ExplicitThis = method.ExplicitThis,
+                CallingConvention = method.CallingConvention
+            };
+
+            foreach (var param in method.Parameters)
+                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType));
+
+            foreach (var param in method.GenericParameters)
+                clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+
+            return clone;
+        }
+
+        public static MethodReference MakeGeneric(this MethodReference method, TypeReference declaringType)
+        {
+            if (!declaringType.IsGenericInstance || method.DeclaringType.IsGenericInstance)
+                return method;
+
+            var result = method.Clone();
+            result.DeclaringType = result.DeclaringType.MakeGenericInstanceType(((GenericInstanceType)declaringType).GenericArguments.ToArray());
+            return result;
         }
 
         [CanBeNull]

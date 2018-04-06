@@ -76,6 +76,38 @@ public class MethodRefTestCases
         return IL.Return<int>();
     }
 
+    public string CallMethodInGenericType()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(Guid)), nameof(GenericType<object>.NormalMethod)));
+        return IL.Return<string>();
+    }
+
+    public string CallMethodInGenericTypeGeneric<TClass>()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(TClass)), nameof(GenericType<object>.NormalMethod)));
+        return IL.Return<string>();
+    }
+
+    public string CallGenericMethodInGenericType()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(Guid)), nameof(GenericType<object>.GenericMethod)).MakeGenericMethod(typeof(TimeSpan)));
+        return IL.Return<string>();
+    }
+
+    public string CallGenericMethodInGenericTypeGeneric<TClass, TMethod>()
+    {
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(GenericType<>).MakeGenericType(typeof(TClass)), nameof(GenericType<object>.GenericMethod)).MakeGenericMethod(typeof(TMethod)));
+        return IL.Return<string>();
+    }
+
+    public bool CallCoreLibMethod<T>(T? value)
+        where T : struct
+    {
+        IL.Emit(OpCodes.Ldarga, 1);
+        IL.Emit(OpCodes.Call, new MethodRef(typeof(T?), "get_HasValue"));
+        return IL.Return<bool>();
+    }
+
 #if NETFWK
     public int[] CallVarArgMethod()
     {
@@ -96,6 +128,15 @@ public class MethodRefTestCases
     private static int OverloadedMethod(double a, int b) => 60;
 
     private static T GenericMethod<T>(T value) => value;
+
+    private class GenericType<TClass>
+    {
+        public static string NormalMethod()
+            => typeof(TClass).FullName;
+
+        public static string GenericMethod<TMethod>()
+            => $"{typeof(TClass).FullName} {typeof(TMethod).FullName}";
+    }
 
 #if NETFWK
     private static int[] VarArgMethod(int count, __arglist)
