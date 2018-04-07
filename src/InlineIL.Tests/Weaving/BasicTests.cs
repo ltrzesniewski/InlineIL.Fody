@@ -114,5 +114,12 @@ namespace InlineIL.Tests.Weaving
             var result = (int)GetInstance().NestedClass();
             result.ShouldEqual(3);
         }
+
+        [Fact]
+        public void should_handle_return_with_conversions()
+        {
+            ((float)GetInstance().ReturnWithConversion1()).ShouldEqual(42.0f);
+            ((int?)GetInstance().ReturnWithConversion2()).ShouldEqual(42);
+        }
     }
 }

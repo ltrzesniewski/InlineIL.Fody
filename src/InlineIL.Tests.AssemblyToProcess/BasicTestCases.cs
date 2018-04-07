@@ -108,6 +108,18 @@ public class BasicTestCases
         return IL.Return<int>();
     }
 
+    public float ReturnWithConversion1()
+    {
+        IL.Emit(OpCodes.Ldc_I4, 42);
+        return IL.Return<int>();
+    }
+
+    public int? ReturnWithConversion2()
+    {
+        IL.Emit(OpCodes.Ldc_I4, 42);
+        return IL.Return<int>();
+    }
+
     public int NestedClass()
         => NestedClassA.NestedClassB.Call();
 

@@ -178,7 +178,7 @@ namespace InlineIL.Fody
             return argCount;
         }
 
-        private static int GetPopCount(Instruction instruction)
+        public static int GetPopCount(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl == FlowControl.Call)
                 return GetArgCount(instruction.OpCode, (IMethodSignature)instruction.Operand);
@@ -222,7 +222,7 @@ namespace InlineIL.Fody
             }
         }
 
-        private static int GetPushCount(Instruction instruction)
+        public static int GetPushCount(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl == FlowControl.Call)
             {

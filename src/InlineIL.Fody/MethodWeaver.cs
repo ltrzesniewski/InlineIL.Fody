@@ -344,41 +344,60 @@ namespace InlineIL.Fody
 
             void ValidateReturnMethod()
             {
-                var nextInstruction = instruction.NextSkipNops();
+                var currentInstruction = instruction.NextSkipNops();
 
-                switch (nextInstruction?.OpCode.Code)
+                while (true)
                 {
-                    case Code.Ret:
-                        return;
-
-                    case Code.Stloc:
+                    switch (currentInstruction?.OpCode.Code)
                     {
-                        var localIndex = ((VariableReference)nextInstruction.Operand).Index;
-                        var branchInstruction = nextInstruction.NextSkipNops();
+                        case Code.Ret:
+                            return;
 
-                        switch (branchInstruction?.OpCode.Code)
+                        case Code.Stloc:
                         {
-                            case Code.Br: // Debug builds
-                            case Code.Leave: // try/catch blocks
+                            var localIndex = ((VariableReference)currentInstruction.Operand).Index;
+                            var branchInstruction = currentInstruction.NextSkipNops();
+
+                            switch (branchInstruction?.OpCode.Code)
                             {
-                                if (branchInstruction.Operand is Instruction branchTarget)
+                                case Code.Br: // Debug builds
+                                case Code.Leave: // try/catch blocks
                                 {
-                                    branchTarget = branchTarget.SkipNops();
+                                    if (branchInstruction.Operand is Instruction branchTarget)
+                                    {
+                                        branchTarget = branchTarget.SkipNops();
 
-                                    if (branchTarget.OpCode == OpCodes.Ldloc && ((VariableReference)branchTarget.Operand).Index == localIndex)
-                                        return;
+                                        if (branchTarget.OpCode == OpCodes.Ldloc && ((VariableReference)branchTarget.Operand).Index == localIndex)
+                                            return;
+                                    }
+
+                                    break;
                                 }
-
-                                break;
                             }
+
+                            throw InvalidReturnException();
                         }
 
-                        goto default;
-                    }
+                        default:
+                        {
+                            // Allow implicit conversions
+                            if (currentInstruction != null
+                                && (currentInstruction.OpCode.FlowControl == FlowControl.Next
+                                    || currentInstruction.OpCode.FlowControl == FlowControl.Call)
+                                && currentInstruction.GetPopCount() == 1
+                                && currentInstruction.GetPushCount() == 1
+                            )
+                            {
+                                currentInstruction = currentInstruction.NextSkipNops();
+                                continue;
+                            }
 
-                    default:
-                        throw new InstructionWeavingException(instruction, "The result of the IL.Return method should be immediately returned: return IL.Return<T>();");
+                            throw InvalidReturnException();
+                        }
+                    }
                 }
+
+                Exception InvalidReturnException() => new InstructionWeavingException(instruction, "The result of the IL.Return method should be immediately returned: return IL.Return<T>();");
             }
         }
 
