@@ -219,7 +219,7 @@ namespace InlineIL.Fody
             var emittedInstruction = CreateInstructionToEmit();
             _il.Replace(emitCallInstruction, emittedInstruction);
 
-            if (emittedInstruction.OpCode.FlowControl == FlowControl.Meta)
+            if (emittedInstruction.OpCode.OpCodeType == OpCodeType.Prefix)
                 _il.RemoveNopsAfter(emittedInstruction);
 
             nextInstruction = emittedInstruction.Next;
