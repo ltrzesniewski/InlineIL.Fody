@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version)-pre</Version>
+    <Version Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version).$(APPVEYOR_BUILD_NUMBER)-pre</Version>
     <Authors>Lucas Trzesniewski</Authors>
     <Description>Inject arbitrary IL code at compile time.</Description>
     <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
