@@ -8,10 +8,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition=" '$(Configuration)|$(GenerateNuGetPackage)' == 'Release|true' ">true</GeneratePackageOnBuild>
+    <PackageVersion Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version)-build$(APPVEYOR_BUILD_NUMBER)</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version).$(APPVEYOR_BUILD_NUMBER)-pre</Version>
     <Authors>Lucas Trzesniewski</Authors>
     <Description>Inject arbitrary IL code at compile time.</Description>
     <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
