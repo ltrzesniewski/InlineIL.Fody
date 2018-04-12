@@ -1,15 +1,12 @@
 version: 1.0.{build}
 image: Visual Studio 2017
 
-before_build:
-- cmd: |
-    nuget restore src\InlineIL.sln
-
 build_script:
 - cmd: |
+    msbuild src\InlineIL.sln             /t:Restore /v:m
     msbuild src\InlineIL.sln             /t:Rebuild /v:m /p:Configuration=Debug
     msbuild src\InlineIL.sln             /t:Rebuild /v:m /p:Configuration=Release
-    msbuild src\InlineIL\InlineIL.csproj /t:Rebuild /v:m /p:Configuration=Release /p:GenerateNuGetPackage=true
+    msbuild src\InlineIL\InlineIL.csproj /t:Pack    /v:m /p:Configuration=Release
 
 test_script:
 - cmd: |

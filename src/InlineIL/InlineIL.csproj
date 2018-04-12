@@ -7,7 +7,6 @@
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition=" '$(Configuration)|$(GenerateNuGetPackage)' == 'Release|true' ">true</GeneratePackageOnBuild>
     <PackageVersion Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version)-build$(APPVEYOR_BUILD_NUMBER)</PackageVersion>
   </PropertyGroup>
 
