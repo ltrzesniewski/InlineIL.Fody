@@ -1,12 +1,16 @@
-﻿namespace InlineIL
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace InlineIL
 {
     /// <summary>
     /// Injects IL code to the calling method, using InlineIL.Fody.
     /// All method calls are replaced at weaving time.
     /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class ILEmit
     {
-
         /// <summary>
         /// <c>nop</c> - Fills space if opcodes are patched. No meaningful operation is performed although a processing cycle can be consumed.
         /// </summary>
@@ -94,37 +98,64 @@
         /// <summary>
         /// <c>ldarg.s</c> - Loads the argument (referenced by a specified short form index) onto the evaluation stack.
         /// </summary>
-        public static void Ldarg_S()
+        /// <param name="index">The argument index.</param>
+        public static void Ldarg_S(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldarga.s</c> - Load an argument address, in short form, onto the evaluation stack.
         /// </summary>
-        public static void Ldarga_S()
+        /// <param name="index">The argument index.</param>
+        public static void Ldarga_S(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>starg.s</c> - Stores the value on top of the evaluation stack in the argument slot at a specified index, short form.
         /// </summary>
-        public static void Starg_S()
+        /// <param name="index">The argument index.</param>
+        public static void Starg_S(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldloc.s</c> - Loads the local variable at a specific index onto the evaluation stack, short form.
         /// </summary>
-        public static void Ldloc_S()
+        /// <param name="name">The local variable name.</param>
+        public static void Ldloc_S(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldloc.s</c> - Loads the local variable at a specific index onto the evaluation stack, short form.
+        /// </summary>
+        /// <param name="index">The local variable index.</param>
+        public static void Ldloc_S(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldloca.s</c> - Loads the address of the local variable at a specific index onto the evaluation stack, short form.
         /// </summary>
-        public static void Ldloca_S()
+        /// <param name="name">The local variable name.</param>
+        public static void Ldloca_S(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldloca.s</c> - Loads the address of the local variable at a specific index onto the evaluation stack, short form.
+        /// </summary>
+        /// <param name="index">The local variable index.</param>
+        public static void Ldloca_S(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
         /// </summary>
-        public static void Stloc_S()
+        /// <param name="name">The local variable name.</param>
+        public static void Stloc_S(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
+        /// </summary>
+        /// <param name="index">The local variable index.</param>
+        public static void Stloc_S(int index)
             => IL.Throw();
 
         /// <summary>
@@ -196,31 +227,36 @@
         /// <summary>
         /// <c>ldc.i4.s</c> - Pushes the supplied int8 value onto the evaluation stack as an int32, short form.
         /// </summary>
-        public static void Ldc_I4_S()
+        /// <param name="operand">The operand.</param>
+        public static void Ldc_I4_S(int operand)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldc.i4</c> - Pushes a supplied value of type int32 onto the evaluation stack as an int32.
         /// </summary>
-        public static void Ldc_I4()
+        /// <param name="operand">The operand.</param>
+        public static void Ldc_I4(int operand)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldc.i8</c> - Pushes a supplied value of type int64 onto the evaluation stack as an int64.
         /// </summary>
-        public static void Ldc_I8()
+        /// <param name="operand">The operand.</param>
+        public static void Ldc_I8(long operand)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldc.r4</c> - Pushes a supplied value of type float32 onto the evaluation stack as type F (float).
         /// </summary>
-        public static void Ldc_R4()
+        /// <param name="operand">The operand.</param>
+        public static void Ldc_R4(double operand)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldc.r8</c> - Pushes a supplied value of type float64 onto the evaluation stack as type F (float).
         /// </summary>
-        public static void Ldc_R8()
+        /// <param name="operand">The operand.</param>
+        public static void Ldc_R8(double operand)
             => IL.Throw();
 
         /// <summary>
@@ -238,19 +274,22 @@
         /// <summary>
         /// <c>jmp</c> - Exits current method and jumps to specified method.
         /// </summary>
-        public static void Jmp()
+        /// <param name="method">The method reference.</param>
+        public static void Jmp(MethodRef method)
             => IL.Throw();
 
         /// <summary>
         /// <c>call</c> - Calls the method indicated by the passed method descriptor.
         /// </summary>
-        public static void Call()
+        /// <param name="method">The method reference.</param>
+        public static void Call(MethodRef method)
             => IL.Throw();
 
         /// <summary>
         /// <c>calli</c> - Calls the method indicated on the evaluation stack (as a pointer to an entry point) with arguments described by a calling convention.
         /// </summary>
-        public static void Calli()
+        /// <param name="signature">The method signature.</param>
+        public static void Calli(StandAloneMethodSig signature)
             => IL.Throw();
 
         /// <summary>
@@ -262,163 +301,190 @@
         /// <summary>
         /// <c>br.s</c> - Unconditionally transfers control to a target instruction (short form).
         /// </summary>
-        public static void Br_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Br_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>brfalse.s</c> - Transfers control to a target instruction if value is false, a null reference, or zero.
         /// </summary>
-        public static void Brfalse_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Brfalse_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>brtrue.s</c> - Transfers control to a target instruction (short form) if value is true, not null, or non-zero.
         /// </summary>
-        public static void Brtrue_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Brtrue_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>beq.s</c> - Transfers control to a target instruction (short form) if two values are equal.
         /// </summary>
-        public static void Beq_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Beq_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bge.s</c> - Transfers control to a target instruction (short form) if the first value is greater than or equal to the second value.
         /// </summary>
-        public static void Bge_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bge_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bgt.s</c> - Transfers control to a target instruction (short form) if the first value is greater than the second value.
         /// </summary>
-        public static void Bgt_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bgt_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>ble.s</c> - Transfers control to a target instruction (short form) if the first value is less than or equal to the second value.
         /// </summary>
-        public static void Ble_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Ble_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>blt.s</c> - Transfers control to a target instruction (short form) if the first value is less than the second value.
         /// </summary>
-        public static void Blt_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Blt_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bne.un.s</c> - Transfers control to a target instruction (short form) when two unsigned integer values or unordered float values are not equal.
         /// </summary>
-        public static void Bne_Un_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bne_Un_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bge.un.s</c> - Transfers control to a target instruction (short form) if the first value is greater than the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Bge_Un_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bge_Un_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bgt.un.s</c> - Transfers control to a target instruction (short form) if the first value is greater than the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Bgt_Un_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bgt_Un_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>ble.un.s</c> - Transfers control to a target instruction (short form) if the first value is less than or equal to the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Ble_Un_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Ble_Un_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>blt.un.s</c> - Transfers control to a target instruction (short form) if the first value is less than the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Blt_Un_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Blt_Un_S(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>br</c> - Unconditionally transfers control to a target instruction.
         /// </summary>
-        public static void Br()
+        /// <param name="labelName">The target label name.</param>
+        public static void Br(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>brfalse</c> - Transfers control to a target instruction if value is false, a null reference (Nothing in Visual Basic), or zero.
         /// </summary>
-        public static void Brfalse()
+        /// <param name="labelName">The target label name.</param>
+        public static void Brfalse(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>brtrue</c> - Transfers control to a target instruction if value is true, not null, or non-zero.
         /// </summary>
-        public static void Brtrue()
+        /// <param name="labelName">The target label name.</param>
+        public static void Brtrue(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>beq</c> - Transfers control to a target instruction if two values are equal.
         /// </summary>
-        public static void Beq()
+        /// <param name="labelName">The target label name.</param>
+        public static void Beq(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bge</c> - Transfers control to a target instruction if the first value is greater than or equal to the second value.
         /// </summary>
-        public static void Bge()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bge(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bgt</c> - Transfers control to a target instruction if the first value is greater than the second value.
         /// </summary>
-        public static void Bgt()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bgt(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>ble</c> - Transfers control to a target instruction if the first value is less than or equal to the second value.
         /// </summary>
-        public static void Ble()
+        /// <param name="labelName">The target label name.</param>
+        public static void Ble(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>blt</c> - Transfers control to a target instruction if the first value is less than the second value.
         /// </summary>
-        public static void Blt()
+        /// <param name="labelName">The target label name.</param>
+        public static void Blt(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bne.un</c> - Transfers control to a target instruction when two unsigned integer values or unordered float values are not equal.
         /// </summary>
-        public static void Bne_Un()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bne_Un(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bge.un</c> - Transfers control to a target instruction if the first value is greater than the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Bge_Un()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bge_Un(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>bgt.un</c> - Transfers control to a target instruction if the first value is greater than the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Bgt_Un()
+        /// <param name="labelName">The target label name.</param>
+        public static void Bgt_Un(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>ble.un</c> - Transfers control to a target instruction if the first value is less than or equal to the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Ble_Un()
+        /// <param name="labelName">The target label name.</param>
+        public static void Ble_Un(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>blt.un</c> - Transfers control to a target instruction if the first value is less than the second value, when comparing unsigned integer values or unordered float values.
         /// </summary>
-        public static void Blt_Un()
+        /// <param name="labelName">The target label name.</param>
+        public static void Blt_Un(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>switch</c> - Implements a jump table.
         /// </summary>
-        public static void Switch()
+        /// <param name="labelNames">The target label names.</param>
+        public static void Switch(params string[] labelNames)
             => IL.Throw();
 
         /// <summary>
@@ -670,43 +736,50 @@
         /// <summary>
         /// <c>callvirt</c> - Calls a late-bound method on an object, pushing the return value onto the evaluation stack.
         /// </summary>
-        public static void Callvirt()
+        /// <param name="method">The method reference.</param>
+        public static void Callvirt(MethodRef method)
             => IL.Throw();
 
         /// <summary>
         /// <c>cpobj</c> - Copies the value type located at the address of an object (type &amp;, * or native int) to the address of the destination object (type &amp;, * or native int).
         /// </summary>
-        public static void Cpobj()
+        /// <param name="type">The type reference.</param>
+        public static void Cpobj(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldobj</c> - Copies the value type object pointed to by an address to the top of the evaluation stack.
         /// </summary>
-        public static void Ldobj()
+        /// <param name="type">The type reference.</param>
+        public static void Ldobj(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldstr</c> - Pushes a new object reference to a string literal stored in the metadata.
         /// </summary>
-        public static void Ldstr()
+        /// <param name="operand">The operand.</param>
+        public static void Ldstr(string operand)
             => IL.Throw();
 
         /// <summary>
         /// <c>newobj</c> - Creates a new object or a new instance of a value type, pushing an object reference (type O) onto the evaluation stack.
         /// </summary>
-        public static void Newobj()
+        /// <param name="method">The method reference.</param>
+        public static void Newobj(MethodRef method)
             => IL.Throw();
 
         /// <summary>
         /// <c>castclass</c> - Attempts to cast an object passed by reference to the specified class.
         /// </summary>
-        public static void Castclass()
+        /// <param name="type">The type reference.</param>
+        public static void Castclass(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>isinst</c> - Tests whether an object reference (type O) is an instance of a particular class.
         /// </summary>
-        public static void Isinst()
+        /// <param name="type">The type reference.</param>
+        public static void Isinst(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -718,7 +791,8 @@
         /// <summary>
         /// <c>unbox</c> - Converts the boxed representation of a value type to its unboxed form.
         /// </summary>
-        public static void Unbox()
+        /// <param name="type">The type reference.</param>
+        public static void Unbox(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -730,43 +804,50 @@
         /// <summary>
         /// <c>ldfld</c> - Finds the value of a field in the object whose reference is currently on the evaluation stack.
         /// </summary>
-        public static void Ldfld()
+        /// <param name="field">The field reference.</param>
+        public static void Ldfld(FieldRef field)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldflda</c> - Finds the address of a field in the object whose reference is currently on the evaluation stack.
         /// </summary>
-        public static void Ldflda()
+        /// <param name="field">The field reference.</param>
+        public static void Ldflda(FieldRef field)
             => IL.Throw();
 
         /// <summary>
         /// <c>stfld</c> - Replaces the value stored in the field of an object reference or pointer with a new value.
         /// </summary>
-        public static void Stfld()
+        /// <param name="field">The field reference.</param>
+        public static void Stfld(FieldRef field)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldsfld</c> - Pushes the value of a static field onto the evaluation stack.
         /// </summary>
-        public static void Ldsfld()
+        /// <param name="field">The field reference.</param>
+        public static void Ldsfld(FieldRef field)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldsflda</c> - Pushes the address of a static field onto the evaluation stack.
         /// </summary>
-        public static void Ldsflda()
+        /// <param name="field">The field reference.</param>
+        public static void Ldsflda(FieldRef field)
             => IL.Throw();
 
         /// <summary>
         /// <c>stsfld</c> - Replaces the value of a static field with a value from the evaluation stack.
         /// </summary>
-        public static void Stsfld()
+        /// <param name="field">The field reference.</param>
+        public static void Stsfld(FieldRef field)
             => IL.Throw();
 
         /// <summary>
         /// <c>stobj</c> - Copies a value of a specified type from the evaluation stack into a supplied memory address.
         /// </summary>
-        public static void Stobj()
+        /// <param name="type">The type reference.</param>
+        public static void Stobj(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -832,13 +913,15 @@
         /// <summary>
         /// <c>box</c> - Converts a value type to an object reference (type O).
         /// </summary>
-        public static void Box()
+        /// <param name="type">The type reference.</param>
+        public static void Box(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>newarr</c> - Pushes an object reference to a new zero-based, one-dimensional array whose elements are of a specific type onto the evaluation stack.
         /// </summary>
-        public static void Newarr()
+        /// <param name="type">The type reference.</param>
+        public static void Newarr(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -850,7 +933,8 @@
         /// <summary>
         /// <c>ldelema</c> - Loads the address of the array element at a specified array index onto the top of the evaluation stack as type &amp; (managed pointer).
         /// </summary>
-        public static void Ldelema()
+        /// <param name="type">The type reference.</param>
+        public static void Ldelema(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -970,19 +1054,22 @@
         /// <summary>
         /// <c>ldelem.any</c> - Loads the element at a specified array index onto the top of the evaluation stack as the type specified in the instruction. 
         /// </summary>
-        public static void Ldelem_Any()
+        /// <param name="type">The type reference.</param>
+        public static void Ldelem_Any(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>stelem.any</c> - Replaces the array element at a given index with the value on the evaluation stack, whose type is specified in the instruction.
         /// </summary>
-        public static void Stelem_Any()
+        /// <param name="type">The type reference.</param>
+        public static void Stelem_Any(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>unbox.any</c> - Converts the boxed representation of a type specified in the instruction to its unboxed form. 
         /// </summary>
-        public static void Unbox_Any()
+        /// <param name="type">The type reference.</param>
+        public static void Unbox_Any(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -1036,7 +1123,8 @@
         /// <summary>
         /// <c>refanyval</c> - Retrieves the address (type &amp;) embedded in a typed reference.
         /// </summary>
-        public static void Refanyval()
+        /// <param name="type">The type reference.</param>
+        public static void Refanyval(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -1048,13 +1136,29 @@
         /// <summary>
         /// <c>mkrefany</c> - Pushes a typed reference to an instance of a specific type onto the evaluation stack.
         /// </summary>
-        public static void Mkrefany()
+        /// <param name="type">The type reference.</param>
+        public static void Mkrefany(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldtoken</c> - Converts a metadata token to its runtime representation, pushing it onto the evaluation stack.
         /// </summary>
-        public static void Ldtoken()
+        /// <param name="type">The type reference.</param>
+        public static void Ldtoken(TypeRef type)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldtoken</c> - Converts a metadata token to its runtime representation, pushing it onto the evaluation stack.
+        /// </summary>
+        /// <param name="method">The method reference.</param>
+        public static void Ldtoken(MethodRef method)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldtoken</c> - Converts a metadata token to its runtime representation, pushing it onto the evaluation stack.
+        /// </summary>
+        /// <param name="field">The field reference.</param>
+        public static void Ldtoken(FieldRef field)
             => IL.Throw();
 
         /// <summary>
@@ -1132,13 +1236,15 @@
         /// <summary>
         /// <c>leave</c> - Exits a protected region of code, unconditionally transferring control to a specific target instruction.
         /// </summary>
-        public static void Leave()
+        /// <param name="labelName">The target label name.</param>
+        public static void Leave(string labelName)
             => IL.Throw();
 
         /// <summary>
         /// <c>leave.s</c> - Exits a protected region of code, unconditionally transferring control to a target instruction (short form).
         /// </summary>
-        public static void Leave_S()
+        /// <param name="labelName">The target label name.</param>
+        public static void Leave_S(string labelName)
             => IL.Throw();
 
         /// <summary>
@@ -1192,49 +1298,78 @@
         /// <summary>
         /// <c>ldftn</c> - Pushes an unmanaged pointer (type native int) to the native code implementing a specific method onto the evaluation stack.
         /// </summary>
-        public static void Ldftn()
+        /// <param name="method">The method reference.</param>
+        public static void Ldftn(MethodRef method)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldvirtftn</c> - Pushes an unmanaged pointer (type native int) to the native code implementing a particular virtual method associated with a specified object onto the evaluation stack.
         /// </summary>
-        public static void Ldvirtftn()
+        /// <param name="method">The method reference.</param>
+        public static void Ldvirtftn(MethodRef method)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldarg</c> - Loads an argument (referenced by a specified index value) onto the stack.
         /// </summary>
-        public static void Ldarg()
+        /// <param name="index">The argument index.</param>
+        public static void Ldarg(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldarga</c> - Load an argument address onto the evaluation stack.
         /// </summary>
-        public static void Ldarga()
+        /// <param name="index">The argument index.</param>
+        public static void Ldarga(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>starg</c> - Stores the value on top of the evaluation stack in the argument slot at a specified index.
         /// </summary>
-        public static void Starg()
+        /// <param name="index">The argument index.</param>
+        public static void Starg(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldloc</c> - Loads the local variable at a specific index onto the evaluation stack.
         /// </summary>
-        public static void Ldloc()
+        /// <param name="name">The local variable name.</param>
+        public static void Ldloc(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldloc</c> - Loads the local variable at a specific index onto the evaluation stack.
+        /// </summary>
+        /// <param name="index">The local variable index.</param>
+        public static void Ldloc(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldloca</c> - Loads the address of the local variable at a specific index onto the evaluation stack.
         /// </summary>
-        public static void Ldloca()
+        /// <param name="name">The local variable name.</param>
+        public static void Ldloca(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldloca</c> - Loads the address of the local variable at a specific index onto the evaluation stack.
+        /// </summary>
+        /// <param name="index">The local variable index.</param>
+        public static void Ldloca(int index)
             => IL.Throw();
 
         /// <summary>
         /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at a specified index.
         /// </summary>
-        public static void Stloc()
+        /// <param name="name">The local variable name.</param>
+        public static void Stloc(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at a specified index.
+        /// </summary>
+        /// <param name="index">The local variable index.</param>
+        public static void Stloc(int index)
             => IL.Throw();
 
         /// <summary>
@@ -1252,7 +1387,8 @@
         /// <summary>
         /// <c>unaligned.</c> - Indicates that an address currently atop the evaluation stack might not be aligned to the natural size of the immediately following ldind, stind, ldfld, stfld, ldobj, stobj, initblk, or cpblk instruction.
         /// </summary>
-        public static void Unaligned()
+        /// <param name="operand">The operand.</param>
+        public static void Unaligned(int operand)
             => IL.Throw();
 
         /// <summary>
@@ -1270,13 +1406,15 @@
         /// <summary>
         /// <c>initobj</c> - Initializes each field of the value type at a specified address to a null reference or a 0 of the appropriate primitive type.
         /// </summary>
-        public static void Initobj()
+        /// <param name="type">The type reference.</param>
+        public static void Initobj(TypeRef type)
             => IL.Throw();
 
         /// <summary>
         /// <c>constrained.</c> - Constrains the type on which a virtual method call is made.
         /// </summary>
-        public static void Constrained()
+        /// <param name="type">The type reference.</param>
+        public static void Constrained(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -1294,7 +1432,8 @@
         /// <summary>
         /// <c>no.</c>
         /// </summary>
-        public static void No()
+        /// <param name="operand">The operand.</param>
+        public static void No(int operand)
             => IL.Throw();
 
         /// <summary>
@@ -1306,7 +1445,8 @@
         /// <summary>
         /// <c>sizeof</c> - Pushes the size, in bytes, of a supplied value type onto the evaluation stack.
         /// </summary>
-        public static void Sizeof()
+        /// <param name="type">The type reference.</param>
+        public static void Sizeof(TypeRef type)
             => IL.Throw();
 
         /// <summary>
@@ -1320,5 +1460,6 @@
         /// </summary>
         public static void Readonly()
             => IL.Throw();
+
     }
 }
