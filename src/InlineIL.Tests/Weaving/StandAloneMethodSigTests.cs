@@ -18,6 +18,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_indirect_static_alt()
+        {
+            var result = (int)GetUnverifiableInstance().CallIndirectStaticAlt();
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
         public void should_call_indirect_instance()
         {
             var result = (int)GetUnverifiableInstance().CallIndirectInstance();

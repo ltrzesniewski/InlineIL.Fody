@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
+using static InlineIL.ILEmit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
@@ -12,6 +13,14 @@ public class MethodRefTestCases
         IL.Emit(OpCodes.Ldtoken, typeof(T));
         IL.Emit(OpCodes.Call, new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
         IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
+    public Type ReturnTypeAlt<T>()
+    {
+        Ldtoken(typeof(T));
+        Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        Ret();
         throw IL.Unreachable();
     }
 

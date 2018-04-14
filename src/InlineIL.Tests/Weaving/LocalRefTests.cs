@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using InlineIL.Tests.Support;
+﻿using InlineIL.Tests.Support;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving
@@ -16,6 +15,14 @@ namespace InlineIL.Tests.Weaving
         {
             var instance = GetInstance();
             var result = (int)instance.UseLocalVariables(8);
+            result.ShouldEqual(50);
+        }
+
+        [Fact]
+        public void should_handle_local_variables_alt()
+        {
+            var instance = GetInstance();
+            var result = (int)instance.UseLocalVariablesAlt(8);
             result.ShouldEqual(50);
         }
 
@@ -63,6 +70,14 @@ namespace InlineIL.Tests.Weaving
         {
             var instance = GetInstance();
             var result = (int)instance.MapLocalIndexesLong(38, 4);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_map_local_indexes_long_form_alt()
+        {
+            var instance = GetInstance();
+            var result = (int)instance.MapLocalIndexesLongAlt(38, 4);
             result.ShouldEqual(42);
         }
 

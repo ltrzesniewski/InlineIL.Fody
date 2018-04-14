@@ -50,12 +50,32 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
+    public int TwoPlusTwoAlt()
+    {
+        Ldc_I4(2);
+        Conv_I8();
+        Ldc_I8(2L);
+        Add();
+        Conv_I4();
+        Ret();
+        throw IL.Unreachable();
+    }
+
     public double TwoPlusTwoFloat()
     {
         IL.Emit(OpCodes.Ldc_R4, 2.0f);
         IL.Emit(OpCodes.Ldc_R8, 2.0);
         IL.Emit(OpCodes.Add);
         IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
+    public double TwoPlusTwoFloatAlt()
+    {
+        Ldc_R4(2.0f);
+        Ldc_R8(2.0);
+        Add();
+        Ret();
         throw IL.Unreachable();
     }
 
@@ -68,10 +88,26 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
+    public int TwoPlusTwoByteAlt()
+    {
+        Ldc_I4_S(2);
+        Ldc_I4_S(2);
+        Add();
+        Ret();
+        throw IL.Unreachable();
+    }
+
     public string SayHi()
     {
         IL.Emit(OpCodes.Ldstr, "Hello!");
         IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
+    public string SayHiAlt()
+    {
+        Ldstr("Hello!");
+        Ret();
         throw IL.Unreachable();
     }
 

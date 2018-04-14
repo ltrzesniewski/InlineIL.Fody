@@ -19,6 +19,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_method_call_alt()
+        {
+            var result = (Type)GetInstance().ReturnTypeAlt<Guid>();
+            result.ShouldEqual(typeof(Guid));
+        }
+
+        [Fact]
         public void should_resolve_overloads()
         {
             var result = (int[])GetInstance().ResolveOverloads();

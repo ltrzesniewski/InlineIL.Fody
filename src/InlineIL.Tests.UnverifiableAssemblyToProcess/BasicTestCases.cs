@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
+using static InlineIL.ILEmit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class BasicTestCases
@@ -17,5 +18,18 @@ public class BasicTestCases
 
         IL.Emit(OpCodes.Unaligned, 1);
         IL.Emit(OpCodes.Initblk);
+    }
+
+    public void HandlePrefixesInDebugModeAlt(ref Guid value)
+    {
+        IL.Push(ref value);
+
+        Ldc_I4_0();
+        Conv_U1();
+
+        Sizeof(typeof(Guid));
+
+        Unaligned(1);
+        Initblk();
     }
 }

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using InlineIL;
+using static InlineIL.ILEmit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
@@ -14,6 +15,14 @@ public unsafe class StandAloneMethodSigTestCases
         IL.Push(42);
         IL.Emit(OpCodes.Ldftn, new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
         IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+        return IL.Return<int>();
+    }
+
+    public int CallIndirectStaticAlt()
+    {
+        IL.Push(42);
+        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+        Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
         return IL.Return<int>();
     }
 
