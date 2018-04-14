@@ -24,6 +24,14 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_push_value_alt()
+        {
+            var result = (int)GetInstance().MultiplyBy3Alt(42);
+
+            result.ShouldEqual(42 * 3);
+        }
+
+        [Fact]
         public void should_push_value_by_ref()
         {
             var a = 42;

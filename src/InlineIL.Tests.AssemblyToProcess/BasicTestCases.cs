@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
+using static InlineIL.ILEmit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
@@ -15,6 +16,17 @@ public class BasicTestCases
         IL.Emit(OpCodes.Add);
         IL.Emit(OpCodes.Add);
         IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
+    public int MultiplyBy3Alt(int value)
+    {
+        IL.Push(value);
+        Dup();
+        Dup();
+        Add();
+        Add();
+        Ret();
         throw IL.Unreachable();
     }
 

@@ -136,40 +136,19 @@ namespace InlineIL.Fody
             {
                 var nextInstruction = instruction.Next;
 
-                if (instruction.OpCode == OpCodes.Call
-                    && instruction.Operand is MethodReference calledMethod
-                    && calledMethod.DeclaringType.FullName == KnownNames.Full.IlType)
+                if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
                 {
                     try
                     {
-                        switch (calledMethod.Name)
+                        switch (calledMethod.DeclaringType.FullName)
                         {
-                            case KnownNames.Short.EmitMethod:
-                                ProcessEmitMethod(instruction, out nextInstruction);
+                            case KnownNames.Full.IlType:
+                                ProcessIlMethodCall(instruction, out nextInstruction);
                                 break;
 
-                            case KnownNames.Short.PushMethod:
-                                ProcessPushMethod(instruction);
+                            case KnownNames.Full.IlEmitType:
+                                ProcessIlEmitMethodCall(instruction, out nextInstruction);
                                 break;
-
-                            case KnownNames.Short.UnreachableMethod:
-                                ProcessUnreachableMethod(instruction, out nextInstruction);
-                                break;
-
-                            case KnownNames.Short.ReturnMethod:
-                                ProcessReturnMethod(instruction);
-                                break;
-
-                            case KnownNames.Short.MarkLabelMethod:
-                                ProcessMarkLabelMethod(instruction);
-                                break;
-
-                            case KnownNames.Short.DeclareLocalsMethod:
-                                ProcessDeclareLocalsMethod(instruction);
-                                break;
-
-                            default:
-                                throw new InstructionWeavingException(instruction, $"Unsupported method: {calledMethod.FullName}");
                         }
                     }
                     catch (InstructionWeavingException)
@@ -187,6 +166,42 @@ namespace InlineIL.Fody
                 }
 
                 instruction = nextInstruction;
+            }
+        }
+
+        private void ProcessIlMethodCall(Instruction instruction, out Instruction nextInstruction)
+        {
+            var calledMethod = (MethodReference)instruction.Operand;
+            nextInstruction = instruction.Next;
+
+            switch (calledMethod.Name)
+            {
+                case KnownNames.Short.EmitMethod:
+                    ProcessGenericEmitMethod(instruction, out nextInstruction);
+                    break;
+
+                case KnownNames.Short.PushMethod:
+                    ProcessPushMethod(instruction);
+                    break;
+
+                case KnownNames.Short.UnreachableMethod:
+                    ProcessUnreachableMethod(instruction, out nextInstruction);
+                    break;
+
+                case KnownNames.Short.ReturnMethod:
+                    ProcessReturnMethod(instruction);
+                    break;
+
+                case KnownNames.Short.MarkLabelMethod:
+                    ProcessMarkLabelMethod(instruction);
+                    break;
+
+                case KnownNames.Short.DeclareLocalsMethod:
+                    ProcessDeclareLocalsMethod(instruction);
+                    break;
+
+                default:
+                    throw new InstructionWeavingException(instruction, $"Unsupported method: {calledMethod.FullName}");
             }
         }
 
@@ -214,14 +229,116 @@ namespace InlineIL.Fody
                 throw new WeavingException($"Found invalid references to instructions:{Environment.NewLine}{string.Join(Environment.NewLine, invalidRefs)}");
         }
 
-        private void ProcessEmitMethod(Instruction emitCallInstruction, out Instruction nextInstruction)
+        private void ProcessIlEmitMethodCall(Instruction emitCallInstruction, out Instruction nextInstruction)
         {
             var emittedInstruction = CreateInstructionToEmit();
             _il.Replace(emitCallInstruction, emittedInstruction);
 
-            if (emittedInstruction.OpCode.OpCodeType == OpCodeType.Prefix)
-                _il.RemoveNopsAfter(emittedInstruction);
+            ProcessEmittedInstruction(emittedInstruction);
+            nextInstruction = emittedInstruction.Next;
 
+            Instruction CreateInstructionToEmit()
+            {
+                var method = (MethodReference)emitCallInstruction.Operand;
+                var opCode = OpCodeMap.FromCecilFieldName(method.Name);
+                var args = emitCallInstruction.GetArgumentPushInstructions();
+
+                switch (opCode.OperandType)
+                {
+                    case OperandType.InlineNone:
+                        return _il.Create(opCode);
+
+                    case OperandType.InlineI:
+                    case OperandType.ShortInlineI:
+                    case OperandType.InlineI8:
+                    case OperandType.InlineR:
+                    case OperandType.ShortInlineR:
+                        return _il.CreateConst(opCode, ConsumeArgConst(args.Single()));
+
+                    case OperandType.InlineString:
+                        return _il.CreateConst(opCode, ConsumeArgString(args.Single()));
+
+                    case OperandType.InlineType:
+                        return _il.Create(opCode, ConsumeArgTypeRef(args.Single()));
+
+                    case OperandType.InlineMethod:
+                        return _il.Create(opCode, ConsumeArgMethodRef(args.Single()));
+
+                    case OperandType.InlineField:
+                        return _il.Create(opCode, ConsumeArgFieldRef(args.Single()));
+
+                    case OperandType.InlineTok:
+                        switch (method.Parameters[0].ParameterType.FullName)
+                        {
+                            case KnownNames.Full.TypeRefType:
+                                return _il.Create(opCode, ConsumeArgTypeRef(args.Single()));
+
+                            case KnownNames.Full.MethodRefType:
+                                return _il.Create(opCode, ConsumeArgMethodRef(args.Single()));
+
+                            case KnownNames.Full.FieldRefType:
+                                return _il.Create(opCode, ConsumeArgFieldRef(args.Single()));
+
+                            default:
+                                throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}");
+                        }
+
+                    case OperandType.InlineBrTarget:
+                    case OperandType.ShortInlineBrTarget:
+                    {
+                        var labelInfo = ConsumeArgLabelRefString(args.Single());
+                        var resultInstruction = _il.Create(opCode, labelInfo.PlaceholderTarget);
+                        labelInfo.References.Add(resultInstruction);
+                        return resultInstruction;
+                    }
+
+                    case OperandType.InlineSwitch:
+                    {
+                        var labelInfos = ConsumeArgArray(args.Single(), ConsumeArgLabelRefString).ToList();
+                        var resultInstruction = _il.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
+
+                        foreach (var info in labelInfos)
+                            info.References.Add(resultInstruction);
+
+                        return resultInstruction;
+                    }
+
+                    case OperandType.InlineVar:
+                    case OperandType.ShortInlineVar:
+                    {
+                        switch (method.Parameters[0].ParameterType.FullName)
+                        {
+                            case "System.String":
+                                return _il.Create(opCode, ConsumeArgLocalRefString(args.Single()));
+
+                            case "System.UInt16":
+                            case "System.UInt32":
+                                return _il.CreateConst(opCode, ConsumeArgConst(args.Single()));
+
+                            default:
+                                throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}");
+                        }
+                    }
+
+                    case OperandType.InlineArg:
+                    case OperandType.ShortInlineArg:
+                        return _il.CreateConst(opCode, ConsumeArgConst(args.Single()));
+
+                    case OperandType.InlineSig:
+                        return _il.Create(opCode, ConsumeArgCallSite(args.Single()));
+
+                    default:
+                        throw new NotSupportedException($"Unsupported operand type: {opCode.OperandType}");
+                }
+            }
+        }
+
+        private void ProcessGenericEmitMethod(Instruction emitCallInstruction, out Instruction nextInstruction)
+        {
+            var emittedInstruction = CreateInstructionToEmit();
+            _il.Replace(emitCallInstruction, emittedInstruction);
+
+            ProcessEmittedInstruction(emittedInstruction);
             nextInstruction = emittedInstruction.Next;
 
             Instruction CreateInstructionToEmit()
@@ -304,6 +421,12 @@ namespace InlineIL.Fody
                         throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
                 }
             }
+        }
+
+        private void ProcessEmittedInstruction(Instruction emittedInstruction)
+        {
+            if (emittedInstruction.OpCode.OpCodeType == OpCodeType.Prefix)
+                _il.RemoveNopsAfter(emittedInstruction);
         }
 
         private void ValidatePushMethod(Instruction instruction)
@@ -847,11 +970,14 @@ namespace InlineIL.Fody
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LabelRef::.ctor(System.String)")
                 throw UnexpectedInstruction(instruction, "newobj LabelRef");
 
-            var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
-
+            var label = ConsumeArgLabelRefString(instruction.GetArgumentPushInstructions().Single());
             _il.Remove(instruction);
-            return _labels.GetOrAddNew(labelName);
+            return label;
         }
+
+        [NotNull]
+        private LabelInfo ConsumeArgLabelRefString(Instruction instruction)
+            => _labels.GetOrAddNew(ConsumeArgString(instruction));
 
         [NotNull]
         private MethodLocals.NamedLocal ConsumeArgLocalVar(Instruction instruction)
@@ -906,7 +1032,15 @@ namespace InlineIL.Fody
             if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LocalRef::.ctor(System.String)")
                 throw UnexpectedInstruction(instruction, "newobj LocalRef");
 
-            var localName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
+            var variableDef = ConsumeArgLocalRefString(instruction.GetArgumentPushInstructions().Single());
+            _il.Remove(instruction);
+            return variableDef;
+        }
+
+        [NotNull]
+        private VariableDefinition ConsumeArgLocalRefString(Instruction instruction)
+        {
+            var localName = ConsumeArgString(instruction);
 
             if (_il.Locals == null)
                 throw new InstructionWeavingException(instruction, $"Local '{localName}' is not defined, call IL.DeclareLocals");
@@ -915,7 +1049,6 @@ namespace InlineIL.Fody
             if (variableDef == null)
                 throw new InstructionWeavingException(instruction, $"Local '{localName}' is not defined");
 
-            _il.Remove(instruction);
             return variableDef;
         }
 
