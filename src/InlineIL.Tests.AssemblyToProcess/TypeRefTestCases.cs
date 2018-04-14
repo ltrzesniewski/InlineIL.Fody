@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
+using static InlineIL.ILEmit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class TypeRefTestCases
@@ -10,6 +11,12 @@ public class TypeRefTestCases
     public RuntimeTypeHandle ReturnTypeHandle<T>()
     {
         IL.Emit(OpCodes.Ldtoken, typeof(T));
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle ReturnTypeHandle()
+    {
+        Ldtoken(typeof(Guid));
         return IL.Return<RuntimeTypeHandle>();
     }
 

@@ -129,6 +129,12 @@ public class MethodRefTestCases
         return IL.Return<bool>();
     }
 
+    public RuntimeMethodHandle ReturnMethodHandle()
+    {
+        Ldtoken(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        return IL.Return<RuntimeMethodHandle>();
+    }
+
 #if NETFWK
     public int[] CallVarArgMethod()
     {

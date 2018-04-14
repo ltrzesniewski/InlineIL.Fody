@@ -22,6 +22,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_type_token_load()
+        {
+            var handle = (RuntimeTypeHandle)GetInstance().ReturnTypeHandle();
+            Type.GetTypeFromHandle(handle).ShouldEqual(typeof(Guid));
+        }
+
+        [Fact]
         public void should_handle_type_arg_different_ways()
         {
             var result = (RuntimeTypeHandle[])GetInstance().LoadTypeDifferentWays();

@@ -1,4 +1,6 @@
-﻿using InlineIL.Tests.Support;
+﻿using System;
+using System.Reflection;
+using InlineIL.Tests.Support;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving
@@ -45,6 +47,13 @@ namespace InlineIL.Tests.Weaving
         public void should_report_unconsumed_reference()
         {
             ShouldHaveError("UnusedInstance");
+        }
+
+        [Fact]
+        public void should_handle_field_token_load()
+        {
+            var handle = (RuntimeFieldHandle)GetInstance().ReturnFieldHandle();
+            FieldInfo.GetFieldFromHandle(handle).Name.ShouldEqual("IntField");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using InlineIL.Tests.Support;
 using Xunit;
 
@@ -119,6 +120,13 @@ namespace InlineIL.Tests.Weaving
         {
             ((bool)GetInstance().CallCoreLibMethod<Guid>(null)).ShouldBeFalse();
             ((bool)GetInstance().CallCoreLibMethod<Guid>(Guid.Empty)).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void should_handle_method_token_load()
+        {
+            var handle = (RuntimeMethodHandle)GetInstance().ReturnMethodHandle();
+            MethodBase.GetMethodFromHandle(handle).Name.ShouldEqual(nameof(Type.GetTypeFromHandle));
         }
 
         [Fact]

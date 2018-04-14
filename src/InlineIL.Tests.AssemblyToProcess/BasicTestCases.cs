@@ -21,7 +21,7 @@ public class BasicTestCases
 
     public int MultiplyBy3Alt(int value)
     {
-        IL.Push(value);
+        Ldarg(1);
         Dup();
         Dup();
         Add();

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
 using InlineIL;
 using static InlineIL.ILEmit;
@@ -22,5 +23,11 @@ public class FieldRefTestCases
         Ldarg_0();
         Ldfld(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
         return IL.Return<int>();
+    }
+
+    public RuntimeFieldHandle ReturnFieldHandle()
+    {
+        Ldtoken(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
+        return IL.Return<RuntimeFieldHandle>();
     }
 }
