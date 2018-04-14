@@ -25,4 +25,20 @@
     <PackageReference Include="FodyPackaging" Version="3.0.1" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ILEmit.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ILEmit.cs</LastGenOutput>
+    </None>
+    <Compile Update="ILEmit.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ILEmit.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,97 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ assembly name="Mono.Cecil" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="Mono.Cecil.Cil" #>
+<#@ output extension=".cs" #>
+<#
+
+    var cecilCodes = typeof(OpCodes)
+        .GetFields(BindingFlags.Public | BindingFlags.Static)
+        .Where(field => field.IsInitOnly && field.FieldType == typeof(OpCode))
+        .Select(field => (fieldName: field.Name, opCode: (OpCode)field.GetValue(null)))
+        .OrderBy(i => unchecked((ushort)i.opCode.Value))
+        .ToList();
+
+     var reflectionEmitCodes = typeof(System.Reflection.Emit.OpCodes)
+        .GetFields(BindingFlags.Public | BindingFlags.Static)
+        .Where(field => field.IsInitOnly && field.FieldType == typeof(System.Reflection.Emit.OpCode))
+        .Select(field => (fieldName: field.Name, opCode: (System.Reflection.Emit.OpCode)field.GetValue(null)))
+        .ToDictionary(i => i.opCode.Value);
+
+    var xmlDocs = XDocument.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Reference Assemblies\Microsoft\Framework\.NETFramework\v4.X\mscorlib.xml"))
+        .Root
+        .Element("members")
+        .Elements("member")
+        .ToDictionary(elem => elem.Attribute("name").Value, elem => elem);
+
+    string EscapeXml(string value) => value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+
+    string GetOpCodeSummary(OpCode opCode)
+    {
+        var sb = new StringBuilder();
+        sb.Append("<c>").Append(opCode.Name).Append("</c>");
+
+        if (reflectionEmitCodes.TryGetValue(opCode.Value, out var reflectionEmitCode))
+        {
+            sb.Append(" - ");
+
+            var summary = xmlDocs["F:System.Reflection.Emit.OpCodes." + reflectionEmitCode.fieldName].Element("summary");
+            foreach (var node in summary.Nodes())
+            {
+                switch (node)
+                {
+                    case XText text:
+                        sb.Append(EscapeXml(text.Value));
+                        break;
+
+                    case XElement elem when elem.Name == "see" && elem.Attribute("cref") != null:
+                        sb.Append(@"<see cref=""");
+                        sb.Append(EscapeXml(elem.Attribute("cref").Value.Substring(2)));
+                        sb.Append(@""" />");
+                        break;
+
+                    case XElement elem when elem.Name == "see" || elem.Name == "paramref":
+                        sb.Append(EscapeXml(elem.Attributes().Single().Value));
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Unsupported construct: {node}");
+                }
+            }
+        }
+
+        return sb.ToString();
+    }
+
+#>
+namespace InlineIL
+{
+    /// <summary>
+    /// Injects IL code to the calling method, using InlineIL.Fody.
+    /// All method calls are replaced at weaving time.
+    /// </summary>
+    public static class ILEmit
+    {
+<#
+    foreach (var item in cecilCodes)
+    {
+#>
+
+        /// <summary>
+        /// <#= GetOpCodeSummary(item.opCode) #>
+        /// </summary>
+        public static void <#= item.fieldName #>()
+            => IL.Throw();
+<#
+    }
+#>
+    }
+}
