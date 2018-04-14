@@ -99,21 +99,21 @@ namespace InlineIL
         /// <c>ldarg.s</c> - Loads the argument (referenced by a specified short form index) onto the evaluation stack.
         /// </summary>
         /// <param name="index">The argument index.</param>
-        public static void Ldarg_S(int index)
+        public static void Ldarg_S(byte index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldarga.s</c> - Load an argument address, in short form, onto the evaluation stack.
         /// </summary>
         /// <param name="index">The argument index.</param>
-        public static void Ldarga_S(int index)
+        public static void Ldarga_S(byte index)
             => IL.Throw();
 
         /// <summary>
         /// <c>starg.s</c> - Stores the value on top of the evaluation stack in the argument slot at a specified index, short form.
         /// </summary>
         /// <param name="index">The argument index.</param>
-        public static void Starg_S(int index)
+        public static void Starg_S(byte index)
             => IL.Throw();
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace InlineIL
         /// <c>ldloc.s</c> - Loads the local variable at a specific index onto the evaluation stack, short form.
         /// </summary>
         /// <param name="index">The local variable index.</param>
-        public static void Ldloc_S(int index)
+        public static void Ldloc_S(ushort index)
             => IL.Throw();
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace InlineIL
         /// <c>ldloca.s</c> - Loads the address of the local variable at a specific index onto the evaluation stack, short form.
         /// </summary>
         /// <param name="index">The local variable index.</param>
-        public static void Ldloca_S(int index)
+        public static void Ldloca_S(ushort index)
             => IL.Throw();
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace InlineIL
         /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
         /// </summary>
         /// <param name="index">The local variable index.</param>
-        public static void Stloc_S(int index)
+        public static void Stloc_S(ushort index)
             => IL.Throw();
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace InlineIL
         /// <c>ldc.i4.s</c> - Pushes the supplied int8 value onto the evaluation stack as an int32, short form.
         /// </summary>
         /// <param name="operand">The operand.</param>
-        public static void Ldc_I4_S(int operand)
+        public static void Ldc_I4_S(sbyte operand)
             => IL.Throw();
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace InlineIL
         /// <c>ldc.r4</c> - Pushes a supplied value of type float32 onto the evaluation stack as type F (float).
         /// </summary>
         /// <param name="operand">The operand.</param>
-        public static void Ldc_R4(double operand)
+        public static void Ldc_R4(float operand)
             => IL.Throw();
 
         /// <summary>
@@ -1313,21 +1313,21 @@ namespace InlineIL
         /// <c>ldarg</c> - Loads an argument (referenced by a specified index value) onto the stack.
         /// </summary>
         /// <param name="index">The argument index.</param>
-        public static void Ldarg(int index)
+        public static void Ldarg(ushort index)
             => IL.Throw();
 
         /// <summary>
         /// <c>ldarga</c> - Load an argument address onto the evaluation stack.
         /// </summary>
         /// <param name="index">The argument index.</param>
-        public static void Ldarga(int index)
+        public static void Ldarga(ushort index)
             => IL.Throw();
 
         /// <summary>
         /// <c>starg</c> - Stores the value on top of the evaluation stack in the argument slot at a specified index.
         /// </summary>
         /// <param name="index">The argument index.</param>
-        public static void Starg(int index)
+        public static void Starg(ushort index)
             => IL.Throw();
 
         /// <summary>
@@ -1341,7 +1341,7 @@ namespace InlineIL
         /// <c>ldloc</c> - Loads the local variable at a specific index onto the evaluation stack.
         /// </summary>
         /// <param name="index">The local variable index.</param>
-        public static void Ldloc(int index)
+        public static void Ldloc(uint index)
             => IL.Throw();
 
         /// <summary>
@@ -1355,7 +1355,7 @@ namespace InlineIL
         /// <c>ldloca</c> - Loads the address of the local variable at a specific index onto the evaluation stack.
         /// </summary>
         /// <param name="index">The local variable index.</param>
-        public static void Ldloca(int index)
+        public static void Ldloca(uint index)
             => IL.Throw();
 
         /// <summary>
@@ -1369,7 +1369,7 @@ namespace InlineIL
         /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at a specified index.
         /// </summary>
         /// <param name="index">The local variable index.</param>
-        public static void Stloc(int index)
+        public static void Stloc(uint index)
             => IL.Throw();
 
         /// <summary>
@@ -1388,7 +1388,7 @@ namespace InlineIL
         /// <c>unaligned.</c> - Indicates that an address currently atop the evaluation stack might not be aligned to the natural size of the immediately following ldind, stind, ldfld, stfld, ldobj, stobj, initblk, or cpblk instruction.
         /// </summary>
         /// <param name="operand">The operand.</param>
-        public static void Unaligned(int operand)
+        public static void Unaligned(sbyte operand)
             => IL.Throw();
 
         /// <summary>
@@ -1433,7 +1433,7 @@ namespace InlineIL
         /// <c>no.</c>
         /// </summary>
         /// <param name="operand">The operand.</param>
-        public static void No(int operand)
+        public static void No(sbyte operand)
             => IL.Throw();
 
         /// <summary>

@@ -105,13 +105,23 @@ namespace InlineIL
             //  ##### Constants #####
 
             case OperandType.InlineI:
-            case OperandType.ShortInlineI:
 #>
         /// <summary>
         /// <#= summary #>
         /// </summary>
         /// <param name="operand">The operand.</param>
         public static void <#= item.fieldName #>(int operand)
+            => IL.Throw();
+<#
+                break;
+
+            case OperandType.ShortInlineI:
+#>
+        /// <summary>
+        /// <#= summary #>
+        /// </summary>
+        /// <param name="operand">The operand.</param>
+        public static void <#= item.fieldName #>(sbyte operand)
             => IL.Throw();
 <#
                 break;
@@ -128,13 +138,23 @@ namespace InlineIL
                 break;
 
             case OperandType.InlineR:
-            case OperandType.ShortInlineR:
 #>
         /// <summary>
         /// <#= summary #>
         /// </summary>
         /// <param name="operand">The operand.</param>
         public static void <#= item.fieldName #>(double operand)
+            => IL.Throw();
+<#
+                break;
+
+            case OperandType.ShortInlineR:
+#>
+        /// <summary>
+        /// <#= summary #>
+        /// </summary>
+        /// <param name="operand">The operand.</param>
+        public static void <#= item.fieldName #>(float operand)
             => IL.Throw();
 <#
                 break;
@@ -238,6 +258,23 @@ namespace InlineIL
             // ##### Locals #####
 
             case OperandType.InlineVar:
+#>
+        /// <summary>
+        /// <#= summary #>
+        /// </summary>
+        /// <param name="name">The local variable name.</param>
+        public static void <#= item.fieldName #>(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <#= summary #>
+        /// </summary>
+        /// <param name="index">The local variable index.</param>
+        public static void <#= item.fieldName #>(uint index)
+            => IL.Throw();
+<#
+                break;
+
             case OperandType.ShortInlineVar:
 #>
         /// <summary>
@@ -251,7 +288,7 @@ namespace InlineIL
         /// <#= summary #>
         /// </summary>
         /// <param name="index">The local variable index.</param>
-        public static void <#= item.fieldName #>(int index)
+        public static void <#= item.fieldName #>(ushort index)
             => IL.Throw();
 <#
                 break;
@@ -259,13 +296,23 @@ namespace InlineIL
             // ##### Arguments #####
 
             case OperandType.InlineArg:
+#>
+        /// <summary>
+        /// <#= summary #>
+        /// </summary>
+        /// <param name="index">The argument index.</param>
+        public static void <#= item.fieldName #>(ushort index)
+            => IL.Throw();
+<#
+                break;
+
             case OperandType.ShortInlineArg:
 #>
         /// <summary>
         /// <#= summary #>
         /// </summary>
         /// <param name="index">The argument index.</param>
-        public static void <#= item.fieldName #>(int index)
+        public static void <#= item.fieldName #>(byte index)
             => IL.Throw();
 <#
                 break;
