@@ -6,7 +6,7 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 end_of_line = crlf
 
-[*.{cs,csx,xaml,cake}]
+[*.{cs,csx,xaml,cake,tt}]
 indent_size = 4
 indent_style = space
 

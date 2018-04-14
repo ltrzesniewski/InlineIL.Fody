@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using InlineIL.Fody;
@@ -33,14 +34,16 @@ namespace InlineIL.Tests
                                       .Select(field => (System.Reflection.Emit.OpCode)field.GetValue(null))
                                       .ToDictionary(i => i.Value);
 
-            var maxCode = Math.Max(cecilCodes.Keys.Max(), reflectionEmitCodes.Keys.Max());
+            var values = new HashSet<short>();
+            values.UnionWith(cecilCodes.Keys);
+            values.UnionWith(reflectionEmitCodes.Keys);
 
-            for (short i = 0; i < maxCode; ++i)
+            foreach (var value in values.OrderBy(i => unchecked((ushort)i)))
             {
-                var reflectionEmitCode = reflectionEmitCodes.TryGetValue(i, out var reflectionEmitOpCode) ? reflectionEmitOpCode.Name : "???";
-                var cecilCode = cecilCodes.TryGetValue(i, out var cecilOpCode) ? cecilOpCode.Name : "???";
+                var reflectionEmitCode = reflectionEmitCodes.TryGetValue(value, out var reflectionEmitOpCode) ? reflectionEmitOpCode.Name : "???";
+                var cecilCode = cecilCodes.TryGetValue(value, out var cecilOpCode) ? cecilOpCode.Name : "???";
 
-                _output.WriteLine($"{i:X4}: {reflectionEmitCode,-15} {cecilCode,-15}");
+                _output.WriteLine($"{value:X4}: {reflectionEmitCode,-15} {cecilCode,-15}");
             }
         }
 
