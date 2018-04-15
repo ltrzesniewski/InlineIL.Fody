@@ -29,14 +29,23 @@ Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fo
 
 ## Usage
 
-The API is similar to the [`System.Reflection.Emit.ILGenerator`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator) class, except it works by substituting calls to static methods of the [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class at compile time.
+Two ways of generating IL instructions are available:
+
+ - The recommended usage is to import static members of [the `InlineIL.ILEmit` class](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/ILEmit.cs) by declaring `using static InlineIL.ILEmit;`. This will let you call methods corresponding to IL opcodes. These method calls will be replaced by the IL instructions they represent at compile time.
+
+ - An alternate approach is available: The [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class exposes an `Emit` method which is similar to [`System.Reflection.Emit.ILGenerator`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator)'s [`Emit`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator.emit) method.
+
+The [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class also exposes various utility methods for handling labels and local variables (see below).
 
 You can combine InlineIL instructions with existing C# code: a given method doesn't have to be *entirely* written in IL. After weaving, the reference to the `InlineIL` assembly is removed from your project.
 
 ### Methods
 
+ - `ILEmit.*`  
+   Every method call on the `ILEmit` class will be replaced by the IL instruction it represents.
+
  - `IL.Emit`  
-   This is the method used to generate IL instructions.
+   This is an alternate method to generate IL instructions, it is similar to [`ILGenerator.Emit`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator.emit). Using `ILEmit` is recommended though.
 
  - `IL.DeclareLocals`  
    Declares local variables. Supports changing the [`init`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.methodbuilder.initlocals) flag and pinned variables. Local variables can be referenced by name or by index.
@@ -87,11 +96,11 @@ You can combine InlineIL instructions with existing C# code: a given method does
     public static void ZeroInit<T>(ref T value)
         where T : struct
     {
-        IL.Push(ref value);
-        IL.Push(0);
-        IL.Emit(OpCodes.Sizeof, typeof(T));
-        IL.Emit(OpCodes.Unaligned, 1);
-        IL.Emit(OpCodes.Initblk);
+        Ldarg(nameof(value));
+        Ldc_I4_0();
+        Sizeof(typeof(T));
+        Unaligned(1);
+        Initblk();
     }
     ```
 
