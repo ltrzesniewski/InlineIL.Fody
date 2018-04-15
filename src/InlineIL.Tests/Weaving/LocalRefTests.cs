@@ -88,6 +88,12 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_report_undefined_local_2()
+        {
+            ShouldHaveError("UndefinedLocal2").ShouldContain("is not defined");
+        }
+
+        [Fact]
         public void should_report_redefined_local()
         {
             ShouldHaveError("RedefinedLocal").ShouldContain("already defined");

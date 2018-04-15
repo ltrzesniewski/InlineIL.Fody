@@ -11,6 +11,12 @@ public class LocalRefTestCases
         IL.Emit(OpCodes.Ldloc, new LocalRef("foo"));
     }
 
+    public void UndefinedLocal2()
+    {
+        IL.DeclareLocals(new LocalVar("bar", typeof(int)));
+        IL.Emit(OpCodes.Ldloc, new LocalRef("foo"));
+    }
+
     public void RedefinedLocal()
     {
         IL.DeclareLocals(
