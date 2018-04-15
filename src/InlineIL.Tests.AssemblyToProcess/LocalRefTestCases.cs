@@ -16,14 +16,14 @@ public class LocalRefTestCases
         );
 
         IL.Push(value);
-        IL.Emit(OpCodes.Stloc, new LocalRef("foo"));
+        Stloc("foo");
 
-        IL.Emit(OpCodes.Ldc_I4, 42);
-        IL.Emit(OpCodes.Stloc, new LocalRef("bar"));
+        Ldc_I4(42);
+        Stloc("bar");
 
-        IL.Emit(OpCodes.Ldloc, new LocalRef("foo"));
-        IL.Emit(OpCodes.Ldloc, new LocalRef("bar"));
-        IL.Emit(OpCodes.Add);
+        Ldloc("foo");
+        Ldloc("bar");
+        Add();
 
         return IL.Return<int>();
     }
@@ -36,14 +36,14 @@ public class LocalRefTestCases
         );
 
         IL.Push(value);
-        Stloc("foo");
+        IL.Emit(OpCodes.Stloc, new LocalRef("foo"));
 
-        Ldc_I4(42);
-        Stloc("bar");
+        IL.Emit(OpCodes.Ldc_I4, 42);
+        IL.Emit(OpCodes.Stloc, new LocalRef("bar"));
 
-        Ldloc("foo");
-        Ldloc("bar");
-        Add();
+        IL.Emit(OpCodes.Ldloc, new LocalRef("foo"));
+        IL.Emit(OpCodes.Ldloc, new LocalRef("bar"));
+        IL.Emit(OpCodes.Add);
 
         return IL.Return<int>();
     }
@@ -123,14 +123,14 @@ public class LocalRefTestCases
         GC.KeepAlive(dummyA + dummyB + dummyC);
 
         IL.Push(a);
-        IL.Emit(OpCodes.Stloc, 0);
+        Stloc(0);
 
         IL.Push(b);
-        IL.Emit(OpCodes.Stloc_S, 1);
+        Stloc_S(1);
 
-        IL.Emit(OpCodes.Ldloc, 0);
-        IL.Emit(OpCodes.Ldloc_S, 1);
-        IL.Emit(OpCodes.Add);
+        Ldloc(0);
+        Ldloc_S(1);
+        Add();
 
         return IL.Return<int>();
     }
@@ -149,14 +149,14 @@ public class LocalRefTestCases
         GC.KeepAlive(dummyA + dummyB + dummyC);
 
         IL.Push(a);
-        Stloc(0);
+        IL.Emit(OpCodes.Stloc, 0);
 
         IL.Push(b);
-        Stloc_S(1);
+        IL.Emit(OpCodes.Stloc_S, 1);
 
-        Ldloc(0);
-        Ldloc_S(1);
-        Add();
+        IL.Emit(OpCodes.Ldloc, 0);
+        IL.Emit(OpCodes.Ldloc_S, 1);
+        IL.Emit(OpCodes.Add);
 
         return IL.Return<int>();
     }

@@ -12,17 +12,17 @@ public unsafe class StandAloneMethodSigTestCases
 {
     public int CallIndirectStatic()
     {
-        IL.Push(42);
-        IL.Emit(OpCodes.Ldftn, new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
-        IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+        Ldc_I4(42);
+        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+        Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
         return IL.Return<int>();
     }
 
     public int CallIndirectStaticAlt()
     {
         IL.Push(42);
-        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
-        Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+        IL.Emit(OpCodes.Ldftn, new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+        IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
         return IL.Return<int>();
     }
 

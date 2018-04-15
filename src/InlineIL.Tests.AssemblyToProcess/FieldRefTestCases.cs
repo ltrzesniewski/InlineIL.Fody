@@ -13,15 +13,15 @@ public class FieldRefTestCases
 
     public int ReturnIntField()
     {
-        IL.Emit(OpCodes.Ldarg_0);
-        IL.Emit(OpCodes.Ldfld, new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
+        Ldarg_0();
+        Ldfld(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
         return IL.Return<int>();
     }
 
     public int ReturnIntFieldAlt()
     {
-        Ldarg_0();
-        Ldfld(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
+        IL.Emit(OpCodes.Ldarg_0);
+        IL.Emit(OpCodes.Ldfld, new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
         return IL.Return<int>();
     }
 

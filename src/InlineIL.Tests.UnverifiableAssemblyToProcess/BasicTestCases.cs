@@ -11,19 +11,6 @@ public class BasicTestCases
     {
         IL.Push(ref value);
 
-        IL.Emit(OpCodes.Ldc_I4_0);
-        IL.Emit(OpCodes.Conv_U1);
-
-        IL.Emit(OpCodes.Sizeof, typeof(Guid));
-
-        IL.Emit(OpCodes.Unaligned, 1);
-        IL.Emit(OpCodes.Initblk);
-    }
-
-    public void HandlePrefixesInDebugModeAlt(ref Guid value)
-    {
-        IL.Push(ref value);
-
         Ldc_I4_0();
         Conv_U1();
 
@@ -31,5 +18,18 @@ public class BasicTestCases
 
         Unaligned(1);
         Initblk();
+    }
+
+    public void HandlePrefixesInDebugModeAlt(ref Guid value)
+    {
+        IL.Push(ref value);
+
+        IL.Emit(OpCodes.Ldc_I4_0);
+        IL.Emit(OpCodes.Conv_U1);
+
+        IL.Emit(OpCodes.Sizeof, typeof(Guid));
+
+        IL.Emit(OpCodes.Unaligned, 1);
+        IL.Emit(OpCodes.Initblk);
     }
 }

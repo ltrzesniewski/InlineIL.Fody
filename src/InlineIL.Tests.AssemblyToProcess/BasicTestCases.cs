@@ -10,17 +10,6 @@ public class BasicTestCases
 {
     public int MultiplyBy3(int value)
     {
-        IL.Push(value);
-        IL.Emit(OpCodes.Dup);
-        IL.Emit(OpCodes.Dup);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
-    }
-
-    public int MultiplyBy3Alt(int value)
-    {
         Ldarg(1);
         Dup();
         Dup();
@@ -30,16 +19,18 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
-    public void AddAssign(ref int a, int b)
+    public int MultiplyBy3Alt(int value)
     {
-        IL.Push(ref a);
-        IL.Push(a);
-        IL.Push(b);
+        IL.Push(value);
+        IL.Emit(OpCodes.Dup);
+        IL.Emit(OpCodes.Dup);
         IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Stind_I4);
+        IL.Emit(OpCodes.Add);
+        IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
     }
 
-    public void AddAssignAlt(ref int a, int b)
+    public void AddAssign(ref int a, int b)
     {
         Ldarg(nameof(a));
         Ldarg(nameof(a));
@@ -49,18 +40,16 @@ public class BasicTestCases
         Stind_I4();
     }
 
-    public int TwoPlusTwo()
+    public void AddAssignAlt(ref int a, int b)
     {
-        IL.Emit(OpCodes.Ldc_I4, 2);
-        IL.Emit(OpCodes.Conv_I8);
-        IL.Emit(OpCodes.Ldc_I8, 2L);
+        IL.Push(ref a);
+        IL.Push(a);
+        IL.Push(b);
         IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Conv_I4);
-        IL.Emit(OpCodes.Ret);
-        throw IL.Unreachable();
+        IL.Emit(OpCodes.Stind_I4);
     }
 
-    public int TwoPlusTwoAlt()
+    public int TwoPlusTwo()
     {
         Ldc_I4(2);
         Conv_I8();
@@ -71,16 +60,18 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
-    public double TwoPlusTwoFloat()
+    public int TwoPlusTwoAlt()
     {
-        IL.Emit(OpCodes.Ldc_R4, 2.0f);
-        IL.Emit(OpCodes.Ldc_R8, 2.0);
+        IL.Emit(OpCodes.Ldc_I4, 2);
+        IL.Emit(OpCodes.Conv_I8);
+        IL.Emit(OpCodes.Ldc_I8, 2L);
         IL.Emit(OpCodes.Add);
+        IL.Emit(OpCodes.Conv_I4);
         IL.Emit(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
-    public double TwoPlusTwoFloatAlt()
+    public double TwoPlusTwoFloat()
     {
         Ldc_R4(2.0f);
         Ldc_R8(2.0);
@@ -89,16 +80,16 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
-    public int TwoPlusTwoByte()
+    public double TwoPlusTwoFloatAlt()
     {
-        IL.Emit(OpCodes.Ldc_I4_S, 2);
-        IL.Emit(OpCodes.Ldc_I4_S, 2);
+        IL.Emit(OpCodes.Ldc_R4, 2.0f);
+        IL.Emit(OpCodes.Ldc_R8, 2.0);
         IL.Emit(OpCodes.Add);
         IL.Emit(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
-    public int TwoPlusTwoByteAlt()
+    public int TwoPlusTwoByte()
     {
         Ldc_I4_S(2);
         Ldc_I4_S(2);
@@ -107,17 +98,26 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
+    public int TwoPlusTwoByteAlt()
+    {
+        IL.Emit(OpCodes.Ldc_I4_S, 2);
+        IL.Emit(OpCodes.Ldc_I4_S, 2);
+        IL.Emit(OpCodes.Add);
+        IL.Emit(OpCodes.Ret);
+        throw IL.Unreachable();
+    }
+
     public string SayHi()
     {
-        IL.Emit(OpCodes.Ldstr, "Hello!");
-        IL.Emit(OpCodes.Ret);
+        Ldstr("Hello!");
+        Ret();
         throw IL.Unreachable();
     }
 
     public string SayHiAlt()
     {
-        Ldstr("Hello!");
-        Ret();
+        IL.Emit(OpCodes.Ldstr, "Hello!");
+        IL.Emit(OpCodes.Ret);
         throw IL.Unreachable();
     }
 
