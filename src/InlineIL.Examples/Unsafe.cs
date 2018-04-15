@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
+using static InlineIL.ILEmit;
 
 namespace InlineIL.Examples
 {
@@ -13,177 +13,200 @@ namespace InlineIL.Examples
         // This is the InlineIL equivalent of System.Runtime.CompilerServices.Unsafe
         // https://github.com/dotnet/corefx/blob/master/src/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        // This version uses the friendlier ILEmit API
+        // Note the using static InlineIL.ILEmit;
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Read<T>(void* source)
         {
-            IL.Push(source);
-            IL.Emit(OpCodes.Ldobj, typeof(T));
+            Ldarg(nameof(source));
+            Ldobj(typeof(T));
             return IL.Return<T>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ReadUnaligned<T>(void* source)
         {
-            IL.Push(source);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Ldobj, typeof(T));
+            Ldarg(nameof(source));
+            Unaligned(1);
+            Ldobj(typeof(T));
             return IL.Return<T>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ReadUnaligned<T>(ref byte source)
         {
-            IL.Push(ref source);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Ldobj, typeof(T));
+            Ldarg(nameof(source));
+            Unaligned(1);
+            Ldobj(typeof(T));
             return IL.Return<T>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Write<T>(void* destination, T value)
         {
-            IL.Push(destination);
-            IL.Push(value);
-            IL.Emit(OpCodes.Stobj, typeof(T));
+            Ldarg(nameof(destination));
+            Ldarg(nameof(value));
+            Stobj(typeof(T));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUnaligned<T>(void* destination, T value)
         {
-            IL.Push(destination);
-            IL.Push(value);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Stobj, typeof(T));
+            Ldarg(nameof(destination));
+            Ldarg(nameof(value));
+            Unaligned(1);
+            Stobj(typeof(T));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUnaligned<T>(ref byte destination, T value)
         {
-            IL.Push(ref destination);
-            IL.Push(value);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Stobj, typeof(T));
+            Ldarg(nameof(destination));
+            Ldarg(nameof(value));
+            Unaligned(1);
+            Stobj(typeof(T));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Copy<T>(void* destination, ref T source)
         {
-            IL.Push(destination);
-            IL.Push(ref source);
-            IL.Emit(OpCodes.Ldobj, typeof(T));
-            IL.Emit(OpCodes.Stobj, typeof(T));
+            Ldarg(nameof(destination));
+            Ldarg(nameof(source));
+            Ldobj(typeof(T));
+            Stobj(typeof(T));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Copy<T>(ref T destination, void* source)
         {
-            IL.Push(ref destination);
-            IL.Push(source);
-            IL.Emit(OpCodes.Ldobj, typeof(T));
-            IL.Emit(OpCodes.Stobj, typeof(T));
+            Ldarg(nameof(destination));
+            Ldarg(nameof(source));
+            Ldobj(typeof(T));
+            Stobj(typeof(T));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* AsPointer<T>(ref T value)
         {
-            IL.Push(ref value);
-            IL.Emit(OpCodes.Conv_U);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(value));
+            Conv_U();
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SizeOf<T>()
         {
-            IL.Emit(OpCodes.Sizeof, typeof(T));
+            Sizeof(typeof(T));
             return IL.Return<int>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyBlock(void* destination, void* source, uint byteCount)
         {
-            IL.Push(destination);
-            IL.Push(source);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Cpblk);
+            Ldarg(nameof(destination));
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteCount));
+            Cpblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyBlock(ref byte destination, ref byte source, uint byteCount)
         {
-            IL.Push(ref destination);
-            IL.Push(ref source);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Cpblk);
+            Ldarg(nameof(destination));
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteCount));
+            Cpblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyBlockUnaligned(void* destination, void* source, uint byteCount)
         {
-            IL.Push(destination);
-            IL.Push(source);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Cpblk);
+            Ldarg(nameof(destination));
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteCount));
+            Unaligned(1);
+            Cpblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyBlockUnaligned(ref byte destination, ref byte source, uint byteCount)
         {
-            IL.Push(ref destination);
-            IL.Push(ref source);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Cpblk);
+            Ldarg(nameof(destination));
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteCount));
+            Unaligned(1);
+            Cpblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InitBlock(void* startAddress, byte value, uint byteCount)
         {
-            IL.Push(startAddress);
-            IL.Push(value);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Initblk);
+            Ldarg(nameof(startAddress));
+            Ldarg(nameof(value));
+            Ldarg(nameof(byteCount));
+            Initblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InitBlock(ref byte startAddress, byte value, uint byteCount)
         {
-            IL.Push(ref startAddress);
-            IL.Push(value);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Initblk);
+            Ldarg(nameof(startAddress));
+            Ldarg(nameof(value));
+            Ldarg(nameof(byteCount));
+            Initblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InitBlockUnaligned(void* startAddress, byte value, uint byteCount)
         {
-            IL.Push(startAddress);
-            IL.Push(value);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Initblk);
+            Ldarg(nameof(startAddress));
+            Ldarg(nameof(value));
+            Ldarg(nameof(byteCount));
+            Unaligned(1);
+            Initblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InitBlockUnaligned(ref byte startAddress, byte value, uint byteCount)
         {
-            IL.Push(ref startAddress);
-            IL.Push(value);
-            IL.Push(byteCount);
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Initblk);
+            Ldarg(nameof(startAddress));
+            Ldarg(nameof(value));
+            Ldarg(nameof(byteCount));
+            Unaligned(1);
+            Initblk();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T As<T>(object o)
             where T : class
         {
-            IL.Push(o);
+            Ldarg(nameof(o));
             return IL.Return<T>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AsRef<T>(void* source)
         {
             // Roundtrip via a local to avoid type mismatch on return that the JIT inliner chokes on.
@@ -193,159 +216,171 @@ namespace InlineIL.Examples
             );
 
             IL.Push(source);
-            IL.Emit(OpCodes.Stloc, new LocalRef("local"));
-            IL.Emit(OpCodes.Ldloc, new LocalRef("local"));
-            IL.Emit(OpCodes.Ret);
+            Stloc("local");
+            Ldloc("local");
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AsRef<T>(in T source)
         {
-            IL.Emit(OpCodes.Ldarg_0);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref TTo As<TFrom, TTo>(ref TFrom source)
         {
-            IL.Emit(OpCodes.Ldarg_0);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(ref T source, int elementOffset)
         {
-            IL.Push(ref source);
-            IL.Push(elementOffset);
-            IL.Emit(OpCodes.Sizeof, typeof(T));
-            IL.Emit(OpCodes.Conv_I);
-            IL.Emit(OpCodes.Mul);
-            IL.Emit(OpCodes.Add);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Conv_I();
+            Mul();
+            ILEmit.Add();
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* Add<T>(void* source, int elementOffset)
         {
-            IL.Push(source);
-            IL.Push(elementOffset);
-            IL.Emit(OpCodes.Sizeof, typeof(T));
-            IL.Emit(OpCodes.Conv_I);
-            IL.Emit(OpCodes.Mul);
-            IL.Emit(OpCodes.Add);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Conv_I();
+            Mul();
+            ILEmit.Add();
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(ref T source, IntPtr elementOffset)
         {
-            IL.Push(ref source);
-            IL.Push(elementOffset);
-            IL.Emit(OpCodes.Sizeof, typeof(T));
-            IL.Emit(OpCodes.Mul);
-            IL.Emit(OpCodes.Add);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Mul();
+            ILEmit.Add();
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AddByteOffset<T>(ref T source, IntPtr byteOffset)
         {
-            IL.Push(ref source);
-            IL.Push(byteOffset);
-            IL.Emit(OpCodes.Add);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteOffset));
+            ILEmit.Add();
+            Ret();
             throw IL.Unreachable();
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Subtract<T>(ref T source, int elementOffset)
         {
-            IL.Push(ref source);
-            IL.Push(elementOffset);
-            IL.Emit(OpCodes.Sizeof, typeof(T));
-            IL.Emit(OpCodes.Conv_I);
-            IL.Emit(OpCodes.Mul);
-            IL.Emit(OpCodes.Sub);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Conv_I();
+            Mul();
+            Sub();
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void* Subtract<T>(void* source, int elementOffset)
         {
-            IL.Push(source);
-            IL.Push(elementOffset);
-            IL.Emit(OpCodes.Sizeof, typeof(T));
-            IL.Emit(OpCodes.Conv_I);
-            IL.Emit(OpCodes.Mul);
-            IL.Emit(OpCodes.Sub);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Conv_I();
+            Mul();
+            Sub();
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Subtract<T>(ref T source, IntPtr elementOffset)
         {
-            IL.Push(ref source);
-            IL.Push(elementOffset);
-            IL.Emit(OpCodes.Sizeof, typeof(T));
-            IL.Emit(OpCodes.Mul);
-            IL.Emit(OpCodes.Sub);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Mul();
+            Sub();
+            Ret();
             throw IL.Unreachable();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T SubtractByteOffset<T>(ref T source, IntPtr byteOffset)
         {
-            IL.Push(ref source);
-            IL.Push(byteOffset);
-            IL.Emit(OpCodes.Sub);
-            IL.Emit(OpCodes.Ret);
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteOffset));
+            Sub();
+            Ret();
             throw IL.Unreachable();
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IntPtr ByteOffset<T>(ref T origin, ref T target)
         {
-            IL.Push(ref target);
-            IL.Push(ref origin);
-            IL.Emit(OpCodes.Sub);
+            Ldarg(nameof(target));
+            Ldarg(nameof(origin));
+            Sub();
             return IL.Return<IntPtr>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AreSame<T>(ref T left, ref T right)
         {
-            IL.Push(ref left);
-            IL.Push(ref right);
-            IL.Emit(OpCodes.Ceq);
+            Ldarg(nameof(left));
+            Ldarg(nameof(right));
+            Ceq();
             return IL.Return<bool>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAddressGreaterThan<T>(ref T left, ref T right)
         {
-            IL.Push(ref left);
-            IL.Push(ref right);
-            IL.Emit(OpCodes.Cgt_Un);
+            Ldarg(nameof(left));
+            Ldarg(nameof(right));
+            Cgt_Un();
             return IL.Return<bool>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining), NonVersionable]
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAddressLessThan<T>(ref T left, ref T right)
         {
-            IL.Push(ref left);
-            IL.Push(ref right);
-            IL.Emit(OpCodes.Clt_Un);
+            Ldarg(nameof(left));
+            Ldarg(nameof(right));
+            Clt_Un();
             return IL.Return<bool>();
         }
     }
