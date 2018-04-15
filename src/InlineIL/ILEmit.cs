@@ -98,6 +98,13 @@ namespace InlineIL
         /// <summary>
         /// <c>ldarg.s</c> - Loads the argument (referenced by a specified short form index) onto the evaluation stack.
         /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void Ldarg_S(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldarg.s</c> - Loads the argument (referenced by a specified short form index) onto the evaluation stack.
+        /// </summary>
         /// <param name="index">The argument index.</param>
         public static void Ldarg_S(byte index)
             => IL.Throw();
@@ -105,8 +112,22 @@ namespace InlineIL
         /// <summary>
         /// <c>ldarga.s</c> - Load an argument address, in short form, onto the evaluation stack.
         /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void Ldarga_S(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldarga.s</c> - Load an argument address, in short form, onto the evaluation stack.
+        /// </summary>
         /// <param name="index">The argument index.</param>
         public static void Ldarga_S(byte index)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>starg.s</c> - Stores the value on top of the evaluation stack in the argument slot at a specified index, short form.
+        /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void Starg_S(string name)
             => IL.Throw();
 
         /// <summary>
@@ -1312,6 +1333,13 @@ namespace InlineIL
         /// <summary>
         /// <c>ldarg</c> - Loads an argument (referenced by a specified index value) onto the stack.
         /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void Ldarg(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldarg</c> - Loads an argument (referenced by a specified index value) onto the stack.
+        /// </summary>
         /// <param name="index">The argument index.</param>
         public static void Ldarg(ushort index)
             => IL.Throw();
@@ -1319,8 +1347,22 @@ namespace InlineIL
         /// <summary>
         /// <c>ldarga</c> - Load an argument address onto the evaluation stack.
         /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void Ldarga(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>ldarga</c> - Load an argument address onto the evaluation stack.
+        /// </summary>
         /// <param name="index">The argument index.</param>
         public static void Ldarga(ushort index)
+            => IL.Throw();
+
+        /// <summary>
+        /// <c>starg</c> - Stores the value on top of the evaluation stack in the argument slot at a specified index.
+        /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void Starg(string name)
             => IL.Throw();
 
         /// <summary>

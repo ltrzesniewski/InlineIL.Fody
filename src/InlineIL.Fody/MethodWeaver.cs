@@ -246,6 +246,9 @@ namespace InlineIL.Fody
                 switch (opCode.OperandType)
                 {
                     case OperandType.InlineNone:
+                        if (args.Length != 0)
+                            throw new InstructionWeavingException(emitCallInstruction, "Unexpected operand argument");
+
                         return _il.Create(opCode);
 
                     case OperandType.InlineI:
@@ -268,6 +271,7 @@ namespace InlineIL.Fody
                         return _il.Create(opCode, ConsumeArgFieldRef(args.Single()));
 
                     case OperandType.InlineTok:
+                    {
                         switch (method.Parameters[0].ParameterType.FullName)
                         {
                             case KnownNames.Full.TypeRefType:
@@ -282,6 +286,7 @@ namespace InlineIL.Fody
                             default:
                                 throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}");
                         }
+                    }
 
                     case OperandType.InlineBrTarget:
                     case OperandType.ShortInlineBrTarget:
@@ -322,7 +327,20 @@ namespace InlineIL.Fody
 
                     case OperandType.InlineArg:
                     case OperandType.ShortInlineArg:
-                        return _il.CreateConst(opCode, ConsumeArgConst(args.Single()));
+                    {
+                        switch (method.Parameters[0].ParameterType.FullName)
+                        {
+                            case "System.String":
+                                return _il.CreateConst(opCode, ConsumeArgParamName(args.Single()));
+
+                            case "System.Byte":
+                            case "System.UInt16":
+                                return _il.CreateConst(opCode, ConsumeArgConst(args.Single()));
+
+                            default:
+                                throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}");
+                        }
+                    }
 
                     case OperandType.InlineSig:
                         return _il.Create(opCode, ConsumeArgCallSite(args.Single()));
@@ -1050,6 +1068,20 @@ namespace InlineIL.Fody
                 throw new InstructionWeavingException(instruction, $"Local '{localName}' is not defined");
 
             return variableDef;
+        }
+
+        private int ConsumeArgParamName(Instruction instruction)
+        {
+            var paramName = ConsumeArgString(instruction);
+
+            var paramIndex = _method.Parameters.IndexOfFirst(p => p.Name == paramName);
+            if (paramIndex < 0)
+                throw new InstructionWeavingException(instruction, $"Parameter '{paramName}' is not defined");
+
+            if (_method.HasThis && !_method.ExplicitThis)
+                ++paramIndex;
+
+            return paramIndex;
         }
 
         [NotNull]

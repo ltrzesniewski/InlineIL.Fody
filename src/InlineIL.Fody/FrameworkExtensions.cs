@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -37,5 +38,20 @@ namespace InlineIL.Fody
 
         public static void AddRange<T>(this ICollection<T> collection, params T[] items)
             => AddRange(collection, items.AsEnumerable());
+
+        public static int IndexOfFirst<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+        {
+            var index = 0;
+
+            foreach (var item in items)
+            {
+                if (predicate(item))
+                    return index;
+
+                ++index;
+            }
+
+            return -1;
+        }
     }
 }

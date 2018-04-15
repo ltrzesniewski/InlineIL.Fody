@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using InlineIL;
+using static InlineIL.ILEmit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class BasicTestCases
@@ -26,5 +27,10 @@ public class BasicTestCases
 
         IL.Push(42);
         IL.Push(guid);
+    }
+
+    public void NonExistingParameter()
+    {
+        Ldarg("foo");
     }
 }

@@ -300,6 +300,13 @@ namespace InlineIL
         /// <summary>
         /// <#= summary #>
         /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void <#= item.fieldName #>(string name)
+            => IL.Throw();
+
+        /// <summary>
+        /// <#= summary #>
+        /// </summary>
         /// <param name="index">The argument index.</param>
         public static void <#= item.fieldName #>(ushort index)
             => IL.Throw();
@@ -308,6 +315,13 @@ namespace InlineIL
 
             case OperandType.ShortInlineArg:
 #>
+        /// <summary>
+        /// <#= summary #>
+        /// </summary>
+        /// <param name="name">The parameter name.</param>
+        public static void <#= item.fieldName #>(string name)
+            => IL.Throw();
+
         /// <summary>
         /// <#= summary #>
         /// </summary>

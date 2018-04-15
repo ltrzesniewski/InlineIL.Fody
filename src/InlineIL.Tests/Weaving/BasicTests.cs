@@ -40,6 +40,14 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_push_value_by_ref_alt()
+        {
+            var a = 42;
+            GetInstance().AddAssignAlt(ref a, 8);
+            a.ShouldEqual(50);
+        }
+
+        [Fact]
         public void should_handle_const_operand_int()
         {
             var result = (int)GetInstance().TwoPlusTwo();
@@ -164,6 +172,12 @@ namespace InlineIL.Tests.Weaving
         {
             ((float)GetInstance().ReturnWithConversion1()).ShouldEqual(42.0f);
             ((int?)GetInstance().ReturnWithConversion2()).ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_report_non_existing_paremeter_reference()
+        {
+            ShouldHaveError("NonExistingParameter").ShouldContain("foo");
         }
     }
 }

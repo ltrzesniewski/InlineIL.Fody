@@ -39,6 +39,16 @@ public class BasicTestCases
         IL.Emit(OpCodes.Stind_I4);
     }
 
+    public void AddAssignAlt(ref int a, int b)
+    {
+        Ldarg(nameof(a));
+        Ldarg(nameof(a));
+        Ldind_I4();
+        Ldarg(nameof(b));
+        Add();
+        Stind_I4();
+    }
+
     public int TwoPlusTwo()
     {
         IL.Emit(OpCodes.Ldc_I4, 2);
