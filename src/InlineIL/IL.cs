@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 
 namespace InlineIL
 {
@@ -10,106 +9,8 @@ namespace InlineIL
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    public static class IL
+    public static partial class IL
     {
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        public static void Emit(OpCode opCode)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand.</param>
-        public static void Emit(OpCode opCode, string arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand.</param>
-        public static void Emit(OpCode opCode, int arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand.</param>
-        public static void Emit(OpCode opCode, long arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand.</param>
-        public static void Emit(OpCode opCode, double arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">
-        /// The instruction operand representing a type.
-        /// Note that <see cref="Type" /> is implicitly convertible to <see cref="TypeRef"/>.
-        /// </param>
-        public static void Emit(OpCode opCode, TypeRef arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand representing a method.</param>
-        public static void Emit(OpCode opCode, MethodRef arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand representing a field.</param>
-        public static void Emit(OpCode opCode, FieldRef arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand representing a label declared with <see cref="MarkLabel"/>.</param>
-        public static void Emit(OpCode opCode, LabelRef arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits an IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit.</param>
-        /// <param name="arg">The instruction operand representing a local variable decalred with <see cref="DeclareLocals(InlineIL.LocalVar[])"/>.</param>
-        public static void Emit(OpCode opCode, LocalRef arg)
-            => Throw();
-
-        /// <summary>
-        /// Emits a switch IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit, must be <see cref="OpCodes.Switch"/>.</param>
-        /// <param name="args">The instruction operand representing the targets of the switch declared with <see cref="MarkLabel"/>.</param>
-        public static void Emit(OpCode opCode, params LabelRef[] args)
-            => Throw();
-
-        /// <summary>
-        /// Emits a calli IL instruction.
-        /// </summary>
-        /// <param name="opCode">The instruction opcode to emit, must be <see cref="OpCodes.Calli"/>.</param>
-        /// <param name="arg">The instruction operand representing the call signature.</param>
-        public static void Emit(OpCode opCode, StandAloneMethodSig arg)
-            => Throw();
-
         /// <summary>
         /// Declares local variables.
         /// These variables are appended to the ones already declared by the compiler, but indexes of emitted ldloc/stloc instructions are adjusted to account for that.

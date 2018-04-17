@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
-using static InlineIL.ILEmit;
+using static InlineIL.IL.Emit;
 
 namespace InlineIL.Examples
 {
@@ -12,9 +12,6 @@ namespace InlineIL.Examples
     {
         // This is the InlineIL equivalent of System.Runtime.CompilerServices.Unsafe
         // https://github.com/dotnet/corefx/blob/master/src/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
-
-        // This version uses the friendlier ILEmit API
-        // Note the using static InlineIL.ILEmit;
 
         [NonVersionable]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -249,7 +246,7 @@ namespace InlineIL.Examples
             Sizeof(typeof(T));
             Conv_I();
             Mul();
-            ILEmit.Add();
+            IL.Emit.Add();
             Ret();
             throw IL.Unreachable();
         }
@@ -263,7 +260,7 @@ namespace InlineIL.Examples
             Sizeof(typeof(T));
             Conv_I();
             Mul();
-            ILEmit.Add();
+            IL.Emit.Add();
             Ret();
             throw IL.Unreachable();
         }
@@ -276,7 +273,7 @@ namespace InlineIL.Examples
             Ldarg(nameof(elementOffset));
             Sizeof(typeof(T));
             Mul();
-            ILEmit.Add();
+            IL.Emit.Add();
             Ret();
             throw IL.Unreachable();
         }
@@ -287,7 +284,7 @@ namespace InlineIL.Examples
         {
             Ldarg(nameof(source));
             Ldarg(nameof(byteOffset));
-            ILEmit.Add();
+            IL.Emit.Add();
             Ret();
             throw IL.Unreachable();
         }

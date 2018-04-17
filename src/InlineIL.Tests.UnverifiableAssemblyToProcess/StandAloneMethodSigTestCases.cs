@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using InlineIL;
-using static InlineIL.ILEmit;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
@@ -21,8 +20,8 @@ public unsafe class StandAloneMethodSigTestCases
     public int CallIndirectStaticAlt()
     {
         IL.Push(42);
-        IL.Emit(OpCodes.Ldftn, new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
-        IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+        Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
         return IL.Return<int>();
     }
 
@@ -30,8 +29,8 @@ public unsafe class StandAloneMethodSigTestCases
     {
         IL.Push(this);
         IL.Push(42);
-        IL.Emit(OpCodes.Ldftn, new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallInstanceTargetMethod)));
-        IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConventions.Standard | CallingConventions.HasThis, typeof(int), typeof(int)));
+        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallInstanceTargetMethod)));
+        Calli(new StandAloneMethodSig(CallingConventions.Standard | CallingConventions.HasThis, typeof(int), typeof(int)));
         return IL.Return<int>();
     }
 
@@ -41,8 +40,8 @@ public unsafe class StandAloneMethodSigTestCases
         IL.Push(40);
         IL.Push(10);
         IL.Push(20);
-        IL.Emit(OpCodes.Ldftn, new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallVarArgTargetMethod)));
-        IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConventions.VarArgs, typeof(int), typeof(int)).WithOptionalParameters(typeof(int), typeof(int)));
+        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallVarArgTargetMethod)));
+        Calli(new StandAloneMethodSig(CallingConventions.VarArgs, typeof(int), typeof(int)).WithOptionalParameters(typeof(int), typeof(int)));
         return IL.Return<int>();
     }
 #endif
@@ -60,7 +59,7 @@ public unsafe class StandAloneMethodSigTestCases
         IL.Push(5);
         IL.Push(15);
         IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
-        IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConvention.StdCall, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
+        Calli(new StandAloneMethodSig(CallingConvention.StdCall, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
 
         GC.KeepAlive(fn);
         return IL.Return<int>();
@@ -79,7 +78,7 @@ public unsafe class StandAloneMethodSigTestCases
         IL.Push(5);
         IL.Push(15);
         IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
-        IL.Emit(OpCodes.Calli, new StandAloneMethodSig(CallingConvention.Cdecl, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
+        Calli(new StandAloneMethodSig(CallingConvention.Cdecl, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
 
         GC.KeepAlive(fn);
         return IL.Return<int>();

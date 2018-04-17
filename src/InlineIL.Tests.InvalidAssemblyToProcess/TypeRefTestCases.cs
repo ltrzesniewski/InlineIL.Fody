@@ -1,35 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using InlineIL;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class TypeRefTestCases
 {
     public void LoadNullType()
     {
-        IL.Emit(OpCodes.Ldtoken, new TypeRef(null));
+        Ldtoken(new TypeRef(null));
     }
 
     public void LoadNullTypeRef()
     {
-        IL.Emit(OpCodes.Ldtoken, (TypeRef)null);
+        Ldtoken((TypeRef)null);
     }
 
     public void InvalidAssembly()
     {
-        IL.Emit(OpCodes.Ldtoken, new TypeRef("AssemblyThatDonestExist", "TypeThatDoesntExist"));
+        Ldtoken(new TypeRef("AssemblyThatDonestExist", "TypeThatDoesntExist"));
     }
 
     public void InvalidType()
     {
-        IL.Emit(OpCodes.Ldtoken, new TypeRef("System", "TypeThatDoesntExist"));
+        Ldtoken(new TypeRef("System", "TypeThatDoesntExist"));
     }
 
     public void InvalidArrayRank()
     {
-        IL.Emit(OpCodes.Ldtoken, typeof(int).MakeArrayType(-1));
+        Ldtoken(typeof(int).MakeArrayType(-1));
     }
 
     public void UnusedInstance()
@@ -39,16 +39,16 @@ public class TypeRefTestCases
 
     public void NotAGenericType()
     {
-        IL.Emit(OpCodes.Ldtoken, typeof(string).MakeGenericType(typeof(int)));
+        Ldtoken(typeof(string).MakeGenericType(typeof(int)));
     }
 
     public void NoGenericTypeArgs()
     {
-        IL.Emit(OpCodes.Ldtoken, typeof(Dictionary<,>).MakeGenericType());
+        Ldtoken(typeof(Dictionary<,>).MakeGenericType());
     }
 
     public void InvalidGenericArgsCount()
     {
-        IL.Emit(OpCodes.Ldtoken, typeof(Dictionary<,>).MakeGenericType(typeof(int), typeof(double), typeof(string)));
+        Ldtoken(typeof(Dictionary<,>).MakeGenericType(typeof(int), typeof(double), typeof(string)));
     }
 }

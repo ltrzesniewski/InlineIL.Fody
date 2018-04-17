@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using InlineIL;
-using static InlineIL.ILEmit;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class BasicTestCases
@@ -24,12 +23,12 @@ public class BasicTestCases
     {
         IL.Push(ref value);
 
-        IL.Emit(OpCodes.Ldc_I4_0);
-        IL.Emit(OpCodes.Conv_U1);
+        Ldc_I4_0();
+        Conv_U1();
 
-        IL.Emit(OpCodes.Sizeof, typeof(Guid));
+        Sizeof(typeof(Guid));
 
-        IL.Emit(OpCodes.Unaligned, 1);
-        IL.Emit(OpCodes.Initblk);
+        Unaligned(1);
+        Initblk();
     }
 }

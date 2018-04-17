@@ -121,13 +121,6 @@ namespace InlineIL.Tests.Weaving
         public void should_report_null_local_reference()
         {
             ShouldHaveError("NullLocalRefName").ShouldContain("ldnull");
-            ShouldHaveError("NullLocalRef").ShouldContain("ldnull");
-        }
-
-        [Fact]
-        public void should_report_unconsumed_reference()
-        {
-            ShouldHaveError("UnusedInstance");
         }
 
         [Fact]

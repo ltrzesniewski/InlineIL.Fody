@@ -7,11 +7,12 @@ namespace InlineIL
     /// Represents a local variable declaration, for use with <see cref="IL.DeclareLocals(InlineIL.LocalVar[])" />.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
     public sealed class LocalVar
     {
         /// <summary>
-        /// Constructs a named local variable, which can either be accessed by name through <see cref="LocalRef"/> or by index.
+        /// Constructs a named local variable, which can be accessed by name or by index.
         /// </summary>
         /// <param name="localName">The local variable name.</param>
         /// <param name="type">The local variable type.</param>

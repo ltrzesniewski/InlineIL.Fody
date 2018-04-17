@@ -29,11 +29,9 @@ Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fo
 
 ## Usage
 
-Two ways of generating IL instructions are available:
+Call static methods of the [the `InlineIL.IL.Emit` class](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.Emit.cs) to emit IL instructions. That's it.
 
- - The recommended usage is to import static members of [the `InlineIL.ILEmit` class](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/ILEmit.cs) by declaring `using static InlineIL.ILEmit;`. This will let you call methods corresponding to IL opcodes. These method calls will be replaced by the IL instructions they represent at compile time.
-
- - An alternate approach is available: The [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class exposes an `Emit` method which is similar to [`System.Reflection.Emit.ILGenerator`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator)'s [`Emit`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator.emit) method.
+You can also declare `using static InlineIL.IL.Emit;` to get rid of the `IL.Emit` prefix.
 
 The [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class also exposes various utility methods for handling labels and local variables (see below).
 
@@ -41,11 +39,8 @@ You can combine InlineIL instructions with existing C# code: a given method does
 
 ### Methods
 
- - `ILEmit.*`  
-   Every method call on the `ILEmit` class will be replaced by the IL instruction it represents.
-
- - `IL.Emit`  
-   This is an alternate method to generate IL instructions, it is similar to [`ILGenerator.Emit`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.ilgenerator.emit). Using `ILEmit` is recommended though.
+ - `IL.Emit.*`  
+   Every method call on the `IL.Emit` class will be replaced by the IL instruction it represents.
 
  - `IL.DeclareLocals`  
    Declares local variables. Supports changing the [`init`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.methodbuilder.initlocals) flag and pinned variables. Local variables can be referenced by name or by index.
@@ -74,12 +69,6 @@ You can combine InlineIL instructions with existing C# code: a given method does
 
  - `FieldRef`  
    A field reference.
-
- - `LocalRef`  
-   A reference to a named local variable, which was previously declared with `IL.DeclareLocals`. Note that local variables can also be referenced by index.
-
- - `LabelRef`  
-   A reference to a label, for use as a branching instruction target.
 
  - `StandAloneMethodSig`  
    Method signature for use as an operand for the `calli` opcode.

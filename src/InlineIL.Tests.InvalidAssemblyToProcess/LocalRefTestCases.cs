@@ -1,20 +1,19 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
+﻿using System.Diagnostics.CodeAnalysis;
 using InlineIL;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class LocalRefTestCases
 {
     public void UndefinedLocal()
     {
-        IL.Emit(OpCodes.Ldloc, new LocalRef("foo"));
+        Ldloc("foo");
     }
 
     public void UndefinedLocal2()
     {
         IL.DeclareLocals(new LocalVar("bar", typeof(int)));
-        IL.Emit(OpCodes.Ldloc, new LocalRef("foo"));
+        Ldloc("foo");
     }
 
     public void RedefinedLocal()
@@ -52,38 +51,28 @@ public class LocalRefTestCases
 
     public void NullLocalRefName()
     {
-        IL.Emit(OpCodes.Ldloc, new LocalRef(null));
-    }
-
-    public void NullLocalRef()
-    {
-        IL.Emit(OpCodes.Ldloc, (LocalRef)null);
-    }
-
-    public void UnusedInstance()
-    {
-        GC.KeepAlive(new LocalRef("foo"));
+        Ldloc(null);
     }
 
     public void UndefinedLocalByIndexMacro()
     {
-        IL.Emit(OpCodes.Ldloc_0);
+        Ldloc_0();
     }
 
     public void UndefinedLocalByIndex()
     {
-        IL.Emit(OpCodes.Ldloc, 0);
+        Ldloc(0);
     }
 
     public void LocalOutOfRangeMacro()
     {
         IL.DeclareLocals(new LocalVar("foo", typeof(int)));
-        IL.Emit(OpCodes.Ldloc_1);
+        Ldloc_1();
     }
 
     public void LocalOutOfRange()
     {
         IL.DeclareLocals(new LocalVar("foo", typeof(int)));
-        IL.Emit(OpCodes.Ldloc, 1);
+        Ldloc(1);
     }
 }

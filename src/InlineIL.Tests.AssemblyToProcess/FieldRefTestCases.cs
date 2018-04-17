@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using InlineIL;
-using static InlineIL.ILEmit;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnassignedField.Global")]
@@ -20,8 +19,8 @@ public class FieldRefTestCases
 
     public int ReturnIntFieldAlt()
     {
-        IL.Emit(OpCodes.Ldarg_0);
-        IL.Emit(OpCodes.Ldfld, new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
+        Ldarg_0();
+        Ldfld(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
         return IL.Return<int>();
     }
 

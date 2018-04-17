@@ -3,7 +3,7 @@
 namespace InlineIL
 {
     /// <summary>
-    /// Represents a method reference, for use with <see cref="IL.Emit(System.Reflection.Emit.OpCode, MethodRef)" />.
+    /// Represents a method reference.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]

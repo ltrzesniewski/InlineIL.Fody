@@ -66,7 +66,6 @@ namespace InlineIL.Tests.Weaving
         public void should_report_null_label_reference()
         {
             ShouldHaveError("NullLabelName").ShouldContain("ldnull");
-            ShouldHaveError("NullLabelRef").ShouldContain("ldnull");
         }
 
         [Fact]
@@ -85,12 +84,6 @@ namespace InlineIL.Tests.Weaving
         public void should_report_redefined_label()
         {
             ShouldHaveError("RedefinedLabel").ShouldContain("already defined");
-        }
-
-        [Fact]
-        public void should_report_unconsumed_reference()
-        {
-            ShouldHaveError("UnusedInstance");
         }
     }
 }

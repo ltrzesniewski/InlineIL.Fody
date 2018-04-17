@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using InlineIL;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class LocalRefTestCases
@@ -12,16 +12,16 @@ public class LocalRefTestCases
         );
 
         IL.Push(buf);
-        IL.Emit(OpCodes.Ldc_I4_0);
-        IL.Emit(OpCodes.Ldelema, typeof(byte));
-        IL.Emit(OpCodes.Stloc, new LocalRef("buf"));
+        Ldc_I4_0();
+        Ldelema(typeof(byte));
+        Stloc("buf");
 
-        IL.Emit(OpCodes.Ldloc, new LocalRef("buf"));
-        IL.Emit(OpCodes.Conv_I);
+        Ldloc("buf");
+        Conv_I();
 
         IL.Push(offset);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Ldind_U1);
+        Add();
+        Ldind_U1();
 
         return IL.Return<byte>();
     }
@@ -35,14 +35,14 @@ public class LocalRefTestCases
         );
 
         IL.Push(value);
-        IL.Emit(OpCodes.Stloc, new LocalRef("foo"));
+        Stloc("foo");
 
-        IL.Emit(OpCodes.Ldc_I4, 42);
-        IL.Emit(OpCodes.Stloc, new LocalRef("bar"));
+        Ldc_I4(42);
+        Stloc("bar");
 
-        IL.Emit(OpCodes.Ldloc, new LocalRef("foo"));
-        IL.Emit(OpCodes.Ldloc, new LocalRef("bar"));
-        IL.Emit(OpCodes.Add);
+        Ldloc("foo");
+        Ldloc("bar");
+        Add();
 
         return IL.Return<int>();
     }

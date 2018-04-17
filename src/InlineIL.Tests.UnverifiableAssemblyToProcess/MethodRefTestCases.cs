@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using InlineIL;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
@@ -14,49 +14,49 @@ public unsafe class MethodRefTestCases
         var result = new int[7];
 
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_0);
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), new TypeRef[0]));
-        IL.Emit(OpCodes.Stelem_I4);
+        Ldc_I4_0();
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), new TypeRef[0]));
+        Stelem_I4();
 
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_1);
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), Array.Empty<TypeRef>()));
-        IL.Emit(OpCodes.Stelem_I4);
+        Ldc_I4_1();
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), Array.Empty<TypeRef>()));
+        Stelem_I4();
 
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_2);
-        IL.Emit(OpCodes.Ldc_I4, 42);
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(int)));
-        IL.Emit(OpCodes.Stelem_I4);
+        Ldc_I4_2();
+        Ldc_I4(42);
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(int)));
+        Stelem_I4();
 
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_3);
-        IL.Emit(OpCodes.Ldc_I4_0);
-        IL.Emit(OpCodes.Conv_U);
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), new TypeRef(typeof(int*)).MakePointerType()));
-        IL.Emit(OpCodes.Stelem_I4);
+        Ldc_I4_3();
+        Ldc_I4_0();
+        Conv_U();
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), new TypeRef(typeof(int*)).MakePointerType()));
+        Stelem_I4();
 
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_4);
-        IL.Emit(OpCodes.Ldnull);
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(int[])));
-        IL.Emit(OpCodes.Stelem_I4);
+        Ldc_I4_4();
+        Ldnull();
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(int[])));
+        Stelem_I4();
 
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_5);
-        IL.Emit(OpCodes.Ldc_R8, 42.0);
+        Ldc_I4_5();
+        Ldc_R8(42.0);
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_0);
-        IL.Emit(OpCodes.Ldelema, typeof(int));
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(double), new TypeRef(typeof(int)).MakeByRefType()));
-        IL.Emit(OpCodes.Stelem_I4);
+        Ldc_I4_0();
+        Ldelema(typeof(int));
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(double), new TypeRef(typeof(int)).MakeByRefType()));
+        Stelem_I4();
 
         IL.Push(result);
-        IL.Emit(OpCodes.Ldc_I4_6);
-        IL.Emit(OpCodes.Ldc_R8, 42.0);
-        IL.Emit(OpCodes.Ldc_I4, 42);
-        IL.Emit(OpCodes.Call, new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(double), typeof(int)));
-        IL.Emit(OpCodes.Stelem_I4);
+        Ldc_I4_6();
+        Ldc_R8(42.0);
+        Ldc_I4(42);
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(double), typeof(int)));
+        Stelem_I4();
 
         IL.Push(result);
         return IL.Return<int[]>();

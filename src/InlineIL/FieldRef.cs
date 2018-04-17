@@ -3,7 +3,7 @@
 namespace InlineIL
 {
     /// <summary>
-    /// Represents a field reference, for use with <see cref="IL.Emit(System.Reflection.Emit.OpCode, FieldRef)" />.
+    /// Represents a field reference.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     public sealed class FieldRef

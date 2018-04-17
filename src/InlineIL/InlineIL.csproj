@@ -26,14 +26,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ILEmit.tt">
+    <None Update="IL.Emit.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ILEmit.cs</LastGenOutput>
+      <LastGenOutput>IL.Emit.cs</LastGenOutput>
     </None>
-    <Compile Update="ILEmit.cs">
+    <Compile Update="IL.Emit.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>ILEmit.tt</DependentUpon>
+      <DependentUpon>IL.Emit.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using InlineIL;
-using static InlineIL.ILEmit;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class LabelRefTestCases
@@ -21,9 +20,9 @@ public class LabelRefTestCases
     public int BranchAlt(bool returnOne)
     {
         IL.Push(returnOne);
-        IL.Emit(OpCodes.Brtrue, new LabelRef("one"));
+        Brtrue("one");
         IL.Push(42);
-        IL.Emit(OpCodes.Br, new LabelRef("end"));
+        Br("end");
         IL.MarkLabel("one");
         IL.Push(1);
         IL.MarkLabel("end");
@@ -56,18 +55,18 @@ public class LabelRefTestCases
     public int JumpTableAlt(uint value)
     {
         IL.Push(value);
-        IL.Emit(OpCodes.Switch, new LabelRef("one"), new LabelRef("two"), new LabelRef("three"));
+        Switch("one", "two", "three");
 
         IL.Push(42);
-        IL.Emit(OpCodes.Br, new LabelRef("end"));
+        Br("end");
 
         IL.MarkLabel("one");
         IL.Push(1);
-        IL.Emit(OpCodes.Br, new LabelRef("end"));
+        Br("end");
 
         IL.MarkLabel("two");
         IL.Push(2);
-        IL.Emit(OpCodes.Br, new LabelRef("end"));
+        Br("end");
 
         IL.MarkLabel("three");
         IL.Push(3);

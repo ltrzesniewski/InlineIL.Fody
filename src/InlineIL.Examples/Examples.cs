@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using static InlineIL.ILEmit;
+﻿using static InlineIL.IL.Emit;
 
 namespace InlineIL.Examples
 {
@@ -20,9 +19,9 @@ namespace InlineIL.Examples
         {
             IL.Push(ref value);
             IL.Push(0);
-            IL.Emit(OpCodes.Sizeof, typeof(T));
-            IL.Emit(OpCodes.Unaligned, 1);
-            IL.Emit(OpCodes.Initblk);
+            Sizeof(typeof(T));
+            Unaligned(1);
+            Initblk();
         }
     }
 }

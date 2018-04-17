@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Emit;
 using InlineIL;
-using static InlineIL.ILEmit;
+using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
@@ -22,11 +21,11 @@ public class BasicTestCases
     public int MultiplyBy3Alt(int value)
     {
         IL.Push(value);
-        IL.Emit(OpCodes.Dup);
-        IL.Emit(OpCodes.Dup);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Ret);
+        Dup();
+        Dup();
+        Add();
+        Add();
+        Ret();
         throw IL.Unreachable();
     }
 
@@ -45,8 +44,8 @@ public class BasicTestCases
         IL.Push(ref a);
         IL.Push(a);
         IL.Push(b);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Stind_I4);
+        Add();
+        Stind_I4();
     }
 
     public int TwoPlusTwo()
@@ -62,12 +61,12 @@ public class BasicTestCases
 
     public int TwoPlusTwoAlt()
     {
-        IL.Emit(OpCodes.Ldc_I4, 2);
-        IL.Emit(OpCodes.Conv_I8);
-        IL.Emit(OpCodes.Ldc_I8, 2L);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Conv_I4);
-        IL.Emit(OpCodes.Ret);
+        Ldc_I4(2);
+        Conv_I8();
+        Ldc_I8(2L);
+        Add();
+        Conv_I4();
+        Ret();
         throw IL.Unreachable();
     }
 
@@ -82,10 +81,10 @@ public class BasicTestCases
 
     public double TwoPlusTwoFloatAlt()
     {
-        IL.Emit(OpCodes.Ldc_R4, 2.0f);
-        IL.Emit(OpCodes.Ldc_R8, 2.0);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Ret);
+        Ldc_R4(2.0f);
+        Ldc_R8(2.0);
+        Add();
+        Ret();
         throw IL.Unreachable();
     }
 
@@ -100,10 +99,10 @@ public class BasicTestCases
 
     public int TwoPlusTwoByteAlt()
     {
-        IL.Emit(OpCodes.Ldc_I4_S, 2);
-        IL.Emit(OpCodes.Ldc_I4_S, 2);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Ret);
+        Ldc_I4_S(2);
+        Ldc_I4_S(2);
+        Add();
+        Ret();
         throw IL.Unreachable();
     }
 
@@ -116,65 +115,65 @@ public class BasicTestCases
 
     public string SayHiAlt()
     {
-        IL.Emit(OpCodes.Ldstr, "Hello!");
-        IL.Emit(OpCodes.Ret);
+        Ldstr("Hello!");
+        Ret();
         throw IL.Unreachable();
     }
 
     public int ReturnArg(int value)
     {
-        IL.Emit(OpCodes.Ldarg, 1);
+        Ldarg(1);
         return IL.Return<int>();
     }
 
     public int HandleExceptionBlocks()
     {
-        IL.Emit(OpCodes.Ldc_I4, 1);
-        IL.Emit(OpCodes.Ldc_I4, 2);
-        IL.Emit(OpCodes.Add);
-        IL.Emit(OpCodes.Pop);
+        Ldc_I4(1);
+        Ldc_I4(2);
+        Add();
+        Pop();
 
         try
         {
-            IL.Emit(OpCodes.Ldc_I4, 3);
-            IL.Emit(OpCodes.Ldc_I4, 4);
-            IL.Emit(OpCodes.Add);
+            Ldc_I4(3);
+            Ldc_I4(4);
+            Add();
             IL.Push(new InvalidOperationException("foo"));
-            IL.Emit(OpCodes.Throw);
+            Throw();
             throw IL.Unreachable();
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("foo"))
         {
             IL.Push(ex);
-            IL.Emit(OpCodes.Pop);
-            IL.Emit(OpCodes.Ldc_I4, 5);
-            IL.Emit(OpCodes.Ldc_I4, 6);
-            IL.Emit(OpCodes.Add);
-            IL.Emit(OpCodes.Pop);
+            Pop();
+            Ldc_I4(5);
+            Ldc_I4(6);
+            Add();
+            Pop();
         }
         finally
         {
-            IL.Emit(OpCodes.Ldc_I4, 7);
-            IL.Emit(OpCodes.Ldc_I4, 8);
-            IL.Emit(OpCodes.Add);
-            IL.Emit(OpCodes.Pop);
+            Ldc_I4(7);
+            Ldc_I4(8);
+            Add();
+            Pop();
         }
 
-        IL.Emit(OpCodes.Ldc_I4, 9);
-        IL.Emit(OpCodes.Ldc_I4, 10);
-        IL.Emit(OpCodes.Add);
+        Ldc_I4(9);
+        Ldc_I4(10);
+        Add();
         return IL.Return<int>();
     }
 
     public float ReturnWithConversion1()
     {
-        IL.Emit(OpCodes.Ldc_I4, 42);
+        Ldc_I4(42);
         return IL.Return<int>();
     }
 
     public int? ReturnWithConversion2()
     {
-        IL.Emit(OpCodes.Ldc_I4, 42);
+        Ldc_I4(42);
         return IL.Return<int>();
     }
 
@@ -187,9 +186,9 @@ public class BasicTestCases
         {
             public static int Call()
             {
-                IL.Emit(OpCodes.Ldc_I4_1);
-                IL.Emit(OpCodes.Ldc_I4_2);
-                IL.Emit(OpCodes.Add);
+                Ldc_I4_1();
+                Ldc_I4_2();
+                Add();
                 return IL.Return<int>();
             }
         }

@@ -7,7 +7,7 @@ namespace InlineIL.Fody
         public static class Short
         {
             public const string IlType = "IL";
-            public const string IlEmitType = "ILEmit";
+            public const string IlEmitType = "IL/Emit";
             public const string TypeRefType = "TypeRef";
             public const string MethodRefType = "MethodRef";
             public const string FieldRefType = "FieldRef";
