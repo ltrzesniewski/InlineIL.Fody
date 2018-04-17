@@ -2,10 +2,6 @@
 
 namespace InlineIL
 {
-    /// <summary>
-    /// Injects IL code to the calling method, using InlineIL.Fody.
-    /// All method calls are replaced at weaving time.
-    /// </summary>
     partial class IL
     {
         /// <summary>
