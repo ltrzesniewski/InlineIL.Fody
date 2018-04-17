@@ -13,15 +13,5 @@ namespace InlineIL.Examples
             Unaligned(1);
             Initblk();
         }
-
-        public static void ZeroInitGenericEmit<T>(ref T value)
-            where T : struct
-        {
-            IL.Push(ref value);
-            IL.Push(0);
-            Sizeof(typeof(T));
-            Unaligned(1);
-            Initblk();
-        }
     }
 }

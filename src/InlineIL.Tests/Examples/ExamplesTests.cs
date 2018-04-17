@@ -20,21 +20,6 @@ namespace InlineIL.Tests.Examples
             Assert.Equal(Guid.Empty, item.Guid);
         }
 
-        [Fact]
-        public void InitStructGenericEmit()
-        {
-            var item = new MyStruct
-            {
-                Int = 42,
-                Guid = Guid.NewGuid()
-            };
-
-            InlineIL.Examples.Examples.ZeroInitGenericEmit(ref item);
-
-            Assert.Equal(0, item.Int);
-            Assert.Equal(Guid.Empty, item.Guid);
-        }
-
         private struct MyStruct
         {
             public int Int;
