@@ -3,10 +3,10 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class LabelRefTests : ClassTestsBase
+    public class LabelTests : ClassTestsBase
     {
-        public LabelRefTests()
-            : base("LabelRefTestCases")
+        public LabelTests()
+            : base("LabelTestCases")
         {
         }
 

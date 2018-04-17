@@ -3,7 +3,7 @@ using InlineIL;
 using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
-public class LocalRefTestCases
+public class LocalVarsTestCases
 {
     public void UndefinedLocal()
     {

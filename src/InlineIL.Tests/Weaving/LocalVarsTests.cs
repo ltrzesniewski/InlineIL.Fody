@@ -3,10 +3,10 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class LocalRefTests : ClassTestsBase
+    public class LocalVarsTests : ClassTestsBase
     {
-        public LocalRefTests()
-            : base("LocalRefTestCases")
+        public LocalVarsTests()
+            : base("LocalVarsTestCases")
         {
         }
 

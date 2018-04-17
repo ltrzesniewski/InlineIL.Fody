@@ -5,7 +5,7 @@ using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-public class LocalRefTestCases
+public class LocalVarsTestCases
 {
     public int UseLocalVariables(int value)
     {
