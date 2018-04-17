@@ -29,13 +29,19 @@ Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fo
 
 ## Usage
 
-Call static methods of the [the `InlineIL.IL.Emit` class](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.Emit.cs) to emit IL instructions. That's it.
+Call static methods of the [the `InlineIL.IL.Emit` class](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.Emit.cs) to emit IL instructions. That's it. :wink:
 
-You can also declare `using static InlineIL.IL.Emit;` to get rid of the `IL.Emit` prefix.
+A few more things which are good to know:
 
-The [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class also exposes various utility methods for handling labels and local variables (see below).
+ - The [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class exposes methods for handling labels and local variables, and some utilities (see below).
 
-You can combine InlineIL instructions with existing C# code: a given method doesn't have to be *entirely* written in IL. After weaving, the reference to the `InlineIL` assembly is removed from your project.
+ - `System.Type` is implicitly convertible to `InlineIL.TypeRef`: when you see a `TypeRef` parameter, you can use the `typeof` keyword.
+
+ - You can add the `using static InlineIL.IL.Emit;` directive to get rid of the `IL.Emit` prefix.
+
+ - Most types used as operands declare instance methods which change their meaning and can be chained, for instance: `new TypeRef(...).MakeArrayType().MakeByRefType()`.
+
+ - You can combine InlineIL instructions with existing C# code: a given method doesn't have to be *entirely* written in IL. After weaving, the reference to the `InlineIL` assembly is removed from your project.
 
 ### Methods
 
@@ -72,6 +78,9 @@ You can combine InlineIL instructions with existing C# code: a given method does
 
  - `StandAloneMethodSig`  
    Method signature for use as an operand for the `calli` opcode.
+
+ - `LocalVar`  
+   Declares a local variable (with an optional name), for use with `IL.DeclareLocals`. Implicitly convertible from `System.Type` if you don't want to use named locals.
 
 ## Examples
 
