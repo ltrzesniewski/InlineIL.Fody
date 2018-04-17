@@ -11,12 +11,9 @@ namespace InlineIL.Fody
             public const string TypeRefType = "TypeRef";
             public const string MethodRefType = "MethodRef";
             public const string FieldRefType = "FieldRef";
-            public const string LabelRefType = "LabelRef";
             public const string LocalVarType = "LocalVar";
-            public const string LocalRefType = "LocalRef";
             public const string StandAloneMethodSigType = "StandAloneMethodSig";
 
-            public const string EmitMethod = "Emit";
             public const string PushMethod = "Push";
             public const string UnreachableMethod = "Unreachable";
             public const string ReturnMethod = "Return";
@@ -33,9 +30,7 @@ namespace InlineIL.Fody
             public const string TypeRefType = _nsPrefix + Short.TypeRefType;
             public const string MethodRefType = _nsPrefix + Short.MethodRefType;
             public const string FieldRefType = _nsPrefix + Short.FieldRefType;
-            public const string LabelRefType = _nsPrefix + Short.LabelRefType;
             public const string LocalVarType = _nsPrefix + Short.LocalVarType;
-            public const string LocalRefType = _nsPrefix + Short.LocalRefType;
             public const string StandAloneMethodSigType = _nsPrefix + Short.StandAloneMethodSigType;
 
             public static readonly HashSet<string> AllTypes = new HashSet<string>
@@ -45,9 +40,7 @@ namespace InlineIL.Fody
                 TypeRefType,
                 MethodRefType,
                 FieldRefType,
-                LabelRefType,
                 LocalVarType,
-                LocalRefType,
                 StandAloneMethodSigType
             };
         }

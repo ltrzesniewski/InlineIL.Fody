@@ -318,7 +318,7 @@ namespace InlineIL.Fody
 
                 case OperandType.InlineBrTarget:
                 case OperandType.ShortInlineBrTarget:
-                    return ExpectedOperand(KnownNames.Short.LabelRefType);
+                    return ExpectedOperand("label name");
 
                 case OperandType.InlineField:
                     return ExpectedOperand(KnownNames.Short.FieldRefType);
@@ -346,14 +346,14 @@ namespace InlineIL.Fody
                     return ExpectedOperand(nameof(String));
 
                 case OperandType.InlineSwitch:
-                    return ExpectedOperand($"{KnownNames.Short.LabelRefType}[]");
+                    return ExpectedOperand("array of label names");
 
                 case OperandType.InlineType:
                     return ExpectedOperand($"{KnownNames.Short.TypeRefType} or {nameof(Type)}");
 
                 case OperandType.InlineVar:
                 case OperandType.ShortInlineVar:
-                    return ExpectedOperand($"{KnownNames.Short.LocalRefType} or {nameof(Int32)}");
+                    return ExpectedOperand("local variable name or index");
 
                 default:
                     return ExpectedOperand(opCode.OperandType.ToString());

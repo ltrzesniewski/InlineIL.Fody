@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using InlineIL.Fody;
-using InlineIL.Tests.Support;
 using Mono.Cecil.Cil;
 using Xunit;
 using Xunit.Abstractions;
@@ -45,15 +42,6 @@ namespace InlineIL.Tests
 
                 _output.WriteLine($"{value:X4}: {reflectionEmitCode,-15} {cecilCode,-15}");
             }
-        }
-
-        [Fact]
-        public void should_map_opcodes()
-        {
-            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Nop).ShouldEqual(OpCodes.Nop);
-            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Dup).ShouldEqual(OpCodes.Dup);
-            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Leave).ShouldEqual(OpCodes.Leave);
-            OpCodeMap.FromReflectionEmit(System.Reflection.Emit.OpCodes.Sizeof).ShouldEqual(OpCodes.Sizeof);
         }
     }
 }

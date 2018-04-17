@@ -114,7 +114,7 @@ namespace InlineIL.Fody
                 Definition = definition;
             }
 
-            public override string ToString() => Name;
+            public override string ToString() => Name ?? $"#{Definition.Index}";
         }
     }
 }

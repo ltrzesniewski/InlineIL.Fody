@@ -169,6 +169,30 @@ namespace InlineIL.Fody
             }
         }
 
+        private void ProcessLabels()
+        {
+            foreach (var (name, info) in _labels)
+            {
+                if (!info.IsDefined)
+                    throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: '{name}'");
+
+                _il.Remove(info.PlaceholderTarget);
+            }
+
+            _labels.Clear();
+        }
+
+        private void ValidateAfterProcessing()
+        {
+            var libReferencingInstruction = GetLibReferencingInstruction(_method);
+            if (libReferencingInstruction != null)
+                throw new InstructionWeavingException(libReferencingInstruction, "Unconsumed reference to InlineIL");
+
+            var invalidRefs = _il.GetAllReferencedInstructions().Except(Instructions).ToList();
+            if (invalidRefs.Any())
+                throw new WeavingException($"Found invalid references to instructions:{Environment.NewLine}{string.Join(Environment.NewLine, invalidRefs)}");
+        }
+
         private void ProcessIlMethodCall(Instruction instruction, out Instruction nextInstruction)
         {
             var calledMethod = (MethodReference)instruction.Operand;
@@ -176,10 +200,6 @@ namespace InlineIL.Fody
 
             switch (calledMethod.Name)
             {
-                case KnownNames.Short.EmitMethod:
-                    ProcessGenericEmitMethod(instruction, out nextInstruction);
-                    break;
-
                 case KnownNames.Short.PushMethod:
                     ProcessPushMethod(instruction);
                     break;
@@ -205,36 +225,14 @@ namespace InlineIL.Fody
             }
         }
 
-        private void ProcessLabels()
-        {
-            foreach (var (name, info) in _labels)
-            {
-                if (!info.IsDefined)
-                    throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: '{name}'");
-
-                _il.Remove(info.PlaceholderTarget);
-            }
-
-            _labels.Clear();
-        }
-
-        private void ValidateAfterProcessing()
-        {
-            var libReferencingInstruction = GetLibReferencingInstruction(_method);
-            if (libReferencingInstruction != null)
-                throw new InstructionWeavingException(libReferencingInstruction, "Unconsumed reference to InlineIL");
-
-            var invalidRefs = _il.GetAllReferencedInstructions().Except(Instructions).ToList();
-            if (invalidRefs.Any())
-                throw new WeavingException($"Found invalid references to instructions:{Environment.NewLine}{string.Join(Environment.NewLine, invalidRefs)}");
-        }
-
         private void ProcessIlEmitMethodCall(Instruction emitCallInstruction, out Instruction nextInstruction)
         {
             var emittedInstruction = CreateInstructionToEmit();
             _il.Replace(emitCallInstruction, emittedInstruction);
 
-            ProcessEmittedInstruction(emittedInstruction);
+            if (emittedInstruction.OpCode.OpCodeType == OpCodeType.Prefix)
+                _il.RemoveNopsAfter(emittedInstruction);
+
             nextInstruction = emittedInstruction.Next;
 
             Instruction CreateInstructionToEmit()
@@ -291,7 +289,7 @@ namespace InlineIL.Fody
                     case OperandType.InlineBrTarget:
                     case OperandType.ShortInlineBrTarget:
                     {
-                        var labelInfo = ConsumeArgLabelRefString(args.Single());
+                        var labelInfo = ConsumeArgLabelRef(args.Single());
                         var resultInstruction = _il.Create(opCode, labelInfo.PlaceholderTarget);
                         labelInfo.References.Add(resultInstruction);
                         return resultInstruction;
@@ -299,7 +297,7 @@ namespace InlineIL.Fody
 
                     case OperandType.InlineSwitch:
                     {
-                        var labelInfos = ConsumeArgArray(args.Single(), ConsumeArgLabelRefString).ToList();
+                        var labelInfos = ConsumeArgArray(args.Single(), ConsumeArgLabelRef).ToList();
                         var resultInstruction = _il.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
 
                         foreach (var info in labelInfos)
@@ -314,7 +312,7 @@ namespace InlineIL.Fody
                         switch (method.Parameters[0].ParameterType.FullName)
                         {
                             case "System.String":
-                                return _il.Create(opCode, ConsumeArgLocalRefString(args.Single()));
+                                return _il.Create(opCode, ConsumeArgLocalRef(args.Single()));
 
                             case "System.UInt16":
                             case "System.UInt32":
@@ -349,102 +347,6 @@ namespace InlineIL.Fody
                         throw new NotSupportedException($"Unsupported operand type: {opCode.OperandType}");
                 }
             }
-        }
-
-        private void ProcessGenericEmitMethod(Instruction emitCallInstruction, out Instruction nextInstruction)
-        {
-            var emittedInstruction = CreateInstructionToEmit();
-            _il.Replace(emitCallInstruction, emittedInstruction);
-
-            ProcessEmittedInstruction(emittedInstruction);
-            nextInstruction = emittedInstruction.Next;
-
-            Instruction CreateInstructionToEmit()
-            {
-                var method = (MethodReference)emitCallInstruction.Operand;
-                var methodParams = method.Parameters;
-
-                var args = emitCallInstruction.GetArgumentPushInstructions();
-                var opCode = ConsumeArgOpCode(args[0]);
-
-                if (methodParams.Count == 1)
-                    return _il.Create(opCode);
-
-                var operandType = methodParams[1].ParameterType;
-
-                switch (operandType.FullName)
-                {
-                    case var _ when operandType.IsPrimitive:
-                    {
-                        var operandValue = ConsumeArgConst(args[1]);
-                        return _il.CreateConst(opCode, operandValue);
-                    }
-
-                    case "System.String":
-                    {
-                        var operandValue = ConsumeArgString(args[1]);
-                        return _il.CreateConst(opCode, operandValue);
-                    }
-
-                    case KnownNames.Full.TypeRefType:
-                    {
-                        var typeRef = ConsumeArgTypeRef(args[1]);
-                        return _il.Create(opCode, typeRef);
-                    }
-
-                    case KnownNames.Full.MethodRefType:
-                    {
-                        var methodRef = ConsumeArgMethodRef(args[1]);
-                        return _il.Create(opCode, methodRef);
-                    }
-
-                    case KnownNames.Full.FieldRefType:
-                    {
-                        var fieldRef = ConsumeArgFieldRef(args[1]);
-                        return _il.Create(opCode, fieldRef);
-                    }
-
-                    case KnownNames.Full.LabelRefType:
-                    {
-                        var labelInfo = ConsumeArgLabelRef(args[1]);
-                        var resultInstruction = _il.Create(opCode, labelInfo.PlaceholderTarget);
-                        labelInfo.References.Add(resultInstruction);
-                        return resultInstruction;
-                    }
-
-                    case KnownNames.Full.LabelRefType + "[]":
-                    {
-                        var labelInfos = ConsumeArgArray(args[1], ConsumeArgLabelRef).ToList();
-                        var resultInstruction = _il.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
-
-                        foreach (var info in labelInfos)
-                            info.References.Add(resultInstruction);
-
-                        return resultInstruction;
-                    }
-
-                    case KnownNames.Full.LocalRefType:
-                    {
-                        var variableDef = ConsumeArgLocalRef(args[1]);
-                        return _il.Create(opCode, variableDef);
-                    }
-
-                    case KnownNames.Full.StandAloneMethodSigType:
-                    {
-                        var callSite = ConsumeArgCallSite(args[1]);
-                        return _il.Create(opCode, callSite);
-                    }
-
-                    default:
-                        throw new InvalidOperationException($"Unsupported IL.Emit overload: {method.FullName}");
-                }
-            }
-        }
-
-        private void ProcessEmittedInstruction(Instruction emittedInstruction)
-        {
-            if (emittedInstruction.OpCode.OpCodeType == OpCodeType.Prefix)
-                _il.RemoveNopsAfter(emittedInstruction);
         }
 
         private void ValidatePushMethod(Instruction instruction)
@@ -579,12 +481,6 @@ namespace InlineIL.Fody
                 default:
                     throw UnexpectedInstruction(instruction, "a InlineIL.DeclareLocals method call");
             }
-        }
-
-        private OpCode ConsumeArgOpCode(Instruction instruction)
-        {
-            _il.Remove(instruction);
-            return OpCodeMap.FromLdsfld(instruction);
         }
 
         [NotNull]
@@ -984,17 +880,6 @@ namespace InlineIL.Fody
 
         [NotNull]
         private LabelInfo ConsumeArgLabelRef(Instruction instruction)
-        {
-            if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LabelRef::.ctor(System.String)")
-                throw UnexpectedInstruction(instruction, "newobj LabelRef");
-
-            var label = ConsumeArgLabelRefString(instruction.GetArgumentPushInstructions().Single());
-            _il.Remove(instruction);
-            return label;
-        }
-
-        [NotNull]
-        private LabelInfo ConsumeArgLabelRefString(Instruction instruction)
             => _labels.GetOrAddNew(ConsumeArgString(instruction));
 
         [NotNull]
@@ -1046,17 +931,6 @@ namespace InlineIL.Fody
 
         [NotNull]
         private VariableDefinition ConsumeArgLocalRef(Instruction instruction)
-        {
-            if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.LocalRef::.ctor(System.String)")
-                throw UnexpectedInstruction(instruction, "newobj LocalRef");
-
-            var variableDef = ConsumeArgLocalRefString(instruction.GetArgumentPushInstructions().Single());
-            _il.Remove(instruction);
-            return variableDef;
-        }
-
-        [NotNull]
-        private VariableDefinition ConsumeArgLocalRefString(Instruction instruction)
         {
             var localName = ConsumeArgString(instruction);
 
