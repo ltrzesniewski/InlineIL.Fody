@@ -17,13 +17,6 @@ public class FieldRefTestCases
         return IL.Return<int>();
     }
 
-    public int ReturnIntFieldAlt()
-    {
-        Ldarg_0();
-        Ldfld(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
-        return IL.Return<int>();
-    }
-
     public RuntimeFieldHandle ReturnFieldHandle()
     {
         Ldtoken(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));

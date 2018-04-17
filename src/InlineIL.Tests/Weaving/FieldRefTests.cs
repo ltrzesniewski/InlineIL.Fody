@@ -22,15 +22,6 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_handle_field_references_alt()
-        {
-            var instance = GetInstance();
-            instance.IntField = 42;
-            var result = (int)instance.ReturnIntFieldAlt();
-            result.ShouldEqual(42);
-        }
-
-        [Fact]
         public void should_report_null_field()
         {
             ShouldHaveError("NullField").ShouldContain("ldnull");

@@ -21,16 +21,6 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_handle_labels_alt()
-        {
-            var result = (int)GetInstance().BranchAlt(false);
-            result.ShouldEqual(42);
-
-            result = (int)GetInstance().BranchAlt(true);
-            result.ShouldEqual(1);
-        }
-
-        [Fact]
         public void should_handle_switch()
         {
             var result = (int)GetInstance().JumpTable(0);
@@ -43,22 +33,6 @@ namespace InlineIL.Tests.Weaving
             result.ShouldEqual(3);
 
             result = (int)GetInstance().JumpTable(3);
-            result.ShouldEqual(42);
-        }
-
-        [Fact]
-        public void should_handle_switch_alt()
-        {
-            var result = (int)GetInstance().JumpTableAlt(0);
-            result.ShouldEqual(1);
-
-            result = (int)GetInstance().JumpTableAlt(1);
-            result.ShouldEqual(2);
-
-            result = (int)GetInstance().JumpTableAlt(2);
-            result.ShouldEqual(3);
-
-            result = (int)GetInstance().JumpTableAlt(3);
             result.ShouldEqual(42);
         }
 

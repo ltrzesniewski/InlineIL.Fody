@@ -18,17 +18,6 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
-    public int MultiplyBy3Alt(int value)
-    {
-        IL.Push(value);
-        Dup();
-        Dup();
-        Add();
-        Add();
-        Ret();
-        throw IL.Unreachable();
-    }
-
     public void AddAssign(ref int a, int b)
     {
         Ldarg(nameof(a));
@@ -39,27 +28,7 @@ public class BasicTestCases
         Stind_I4();
     }
 
-    public void AddAssignAlt(ref int a, int b)
-    {
-        IL.Push(ref a);
-        IL.Push(a);
-        IL.Push(b);
-        Add();
-        Stind_I4();
-    }
-
     public int TwoPlusTwo()
-    {
-        Ldc_I4(2);
-        Conv_I8();
-        Ldc_I8(2L);
-        Add();
-        Conv_I4();
-        Ret();
-        throw IL.Unreachable();
-    }
-
-    public int TwoPlusTwoAlt()
     {
         Ldc_I4(2);
         Conv_I8();
@@ -79,15 +48,6 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
-    public double TwoPlusTwoFloatAlt()
-    {
-        Ldc_R4(2.0f);
-        Ldc_R8(2.0);
-        Add();
-        Ret();
-        throw IL.Unreachable();
-    }
-
     public int TwoPlusTwoByte()
     {
         Ldc_I4_S(2);
@@ -97,23 +57,7 @@ public class BasicTestCases
         throw IL.Unreachable();
     }
 
-    public int TwoPlusTwoByteAlt()
-    {
-        Ldc_I4_S(2);
-        Ldc_I4_S(2);
-        Add();
-        Ret();
-        throw IL.Unreachable();
-    }
-
     public string SayHi()
-    {
-        Ldstr("Hello!");
-        Ret();
-        throw IL.Unreachable();
-    }
-
-    public string SayHiAlt()
     {
         Ldstr("Hello!");
         Ret();

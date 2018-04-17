@@ -18,17 +18,4 @@ public class BasicTestCases
         Unaligned(1);
         Initblk();
     }
-
-    public void HandlePrefixesInDebugModeAlt(ref Guid value)
-    {
-        IL.Push(ref value);
-
-        Ldc_I4_0();
-        Conv_U1();
-
-        Sizeof(typeof(Guid));
-
-        Unaligned(1);
-        Initblk();
-    }
 }

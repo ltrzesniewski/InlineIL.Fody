@@ -24,26 +24,10 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_push_value_alt()
-        {
-            var result = (int)GetInstance().MultiplyBy3Alt(42);
-
-            result.ShouldEqual(42 * 3);
-        }
-
-        [Fact]
         public void should_push_value_by_ref()
         {
             var a = 42;
             GetInstance().AddAssign(ref a, 8);
-            a.ShouldEqual(50);
-        }
-
-        [Fact]
-        public void should_push_value_by_ref_alt()
-        {
-            var a = 42;
-            GetInstance().AddAssignAlt(ref a, 8);
             a.ShouldEqual(50);
         }
 
@@ -55,23 +39,9 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_handle_const_operand_int_alt()
-        {
-            var result = (int)GetInstance().TwoPlusTwoAlt();
-            result.ShouldEqual(4);
-        }
-
-        [Fact]
         public void should_handle_const_operand_float()
         {
             var result = (double)GetInstance().TwoPlusTwoFloat();
-            result.ShouldEqual(4.0);
-        }
-
-        [Fact]
-        public void should_handle_const_operand_float_alt()
-        {
-            var result = (double)GetInstance().TwoPlusTwoFloatAlt();
             result.ShouldEqual(4.0);
         }
 
@@ -83,23 +53,9 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_handle_const_operand_byte_alt()
-        {
-            var result = (int)GetInstance().TwoPlusTwoByteAlt();
-            result.ShouldEqual(4);
-        }
-
-        [Fact]
         public void should_handle_const_operand_string()
         {
             var result = (string)GetInstance().SayHi();
-            result.ShouldEqual("Hello!");
-        }
-
-        [Fact]
-        public void should_handle_const_operand_string_alt()
-        {
-            var result = (string)GetInstance().SayHiAlt();
             result.ShouldEqual("Hello!");
         }
 
@@ -149,14 +105,6 @@ namespace InlineIL.Tests.Weaving
         {
             var guid = Guid.NewGuid();
             GetUnverifiableInstance().HandlePrefixesInDebugMode(ref guid);
-            guid.ShouldEqual(Guid.Empty);
-        }
-
-        [Fact]
-        public void should_handle_prefix_instructions_in_debug_mode_alt()
-        {
-            var guid = Guid.NewGuid();
-            GetUnverifiableInstance().HandlePrefixesInDebugModeAlt(ref guid);
             guid.ShouldEqual(Guid.Empty);
         }
 

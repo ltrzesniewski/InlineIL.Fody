@@ -17,14 +17,6 @@ public unsafe class StandAloneMethodSigTestCases
         return IL.Return<int>();
     }
 
-    public int CallIndirectStaticAlt()
-    {
-        IL.Push(42);
-        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
-        Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
-        return IL.Return<int>();
-    }
-
     public int CallIndirectInstance()
     {
         IL.Push(this);
