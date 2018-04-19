@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Fody;
 using Mono.Cecil;
@@ -22,6 +23,12 @@ namespace InlineIL.Fody
                 // TypeRefs from different assemblies get imported as MetadataType.Class
                 // since this information is not stored in the assembly metadata.
                 typeRef = typeRef.ResolveRequiredType();
+            }
+
+            if (typeRef.FullName == _module.TypeSystem.TypedReference.FullName)
+            {
+                _typeRef = _module.TypeSystem.TypedReference;
+                return;
             }
 
             _typeRef = _module.ImportReference(typeRef);
@@ -66,6 +73,8 @@ namespace InlineIL.Fody
 
         public void MakePointerType()
         {
+            EnsureCanWrapType();
+
             if (_typeRef.IsByReference)
                 throw new WeavingException("Cannot make a pointer to a ByRef type");
 
@@ -74,6 +83,8 @@ namespace InlineIL.Fody
 
         public void MakeByRefType()
         {
+            EnsureCanWrapType();
+
             if (_typeRef.IsByReference)
                 throw new WeavingException("Type is already a ByRef type");
 
@@ -82,6 +93,8 @@ namespace InlineIL.Fody
 
         public void MakeArrayType(int rank)
         {
+            EnsureCanWrapType();
+
             if (_typeRef.IsByReference)
                 throw new WeavingException("Cannot make an array of a ByRef type");
 
@@ -121,6 +134,12 @@ namespace InlineIL.Fody
         public void AddRequiredModifier(TypeReference modifierType)
         {
             _requiredModifiers.Add(modifierType);
+        }
+
+        private void EnsureCanWrapType()
+        {
+            if (_typeRef == _module.TypeSystem.TypedReference)
+                throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
         }
 
         public override string ToString() => _typeRef.ToString();

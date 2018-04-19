@@ -128,4 +128,11 @@ public class LocalVarsTestCases
             new LocalVar(new TypeRef(typeof(int)).WithRequiredModifier(typeof(IsConst)))
         );
     }
+
+    public void TypedReference()
+    {
+        IL.DeclareLocals(
+            new LocalVar(typeof(TypedReference))
+        );
+    }
 }

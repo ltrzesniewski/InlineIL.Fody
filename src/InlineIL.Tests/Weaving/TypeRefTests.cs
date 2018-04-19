@@ -197,5 +197,23 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("GenericOfByRef").ShouldContain("Cannot make a generic instance");
         }
+
+        [Fact]
+        public void should_report_incorrect_usage_of_byref_on_typedbyref()
+        {
+            ShouldHaveError("ByRefOfTypedReference").ShouldContain("Cannot create an array, pointer or ByRef to TypedReference");
+        }
+
+        [Fact]
+        public void should_report_incorrect_usage_of_pointer_to_typedbyref()
+        {
+            ShouldHaveError("PointerToTypedReference").ShouldContain("Cannot create an array, pointer or ByRef to TypedReference");
+        }
+
+        [Fact]
+        public void should_report_incorrect_usage_of_array_of_typedbyref()
+        {
+            ShouldHaveError("ArrayOfTypedReference").ShouldContain("Cannot create an array, pointer or ByRef to TypedReference");
+        }
     }
 }

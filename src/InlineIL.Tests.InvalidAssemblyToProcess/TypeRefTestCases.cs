@@ -76,4 +76,19 @@ public class TypeRefTestCases
     {
         Ldtoken(typeof(List<>).MakeByRefType().MakeGenericType(typeof(int)));
     }
+
+    public void ByRefOfTypedReference()
+    {
+        Ldtoken(typeof(TypedReference).MakeByRefType());
+    }
+
+    public void PointerToTypedReference()
+    {
+        Ldtoken(typeof(TypedReference).MakeByRefType());
+    }
+
+    public void ArrayOfTypedReference()
+    {
+        Ldtoken(typeof(TypedReference).MakeByRefType());
+    }
 }
