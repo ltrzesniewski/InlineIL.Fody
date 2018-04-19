@@ -66,33 +66,43 @@ namespace InlineIL.Fody
 
         public void MakePointerType()
         {
+            if (_typeRef.IsByReference)
+                throw new WeavingException("Cannot make a pointer to a ByRef type");
+
             _typeRef = _module.ImportReference(_typeRef.MakePointerType());
         }
 
         public void MakeByRefType()
         {
-            _typeRef = _module.ImportReference(_typeRef.MakeByReferenceType());
-        }
+            if (_typeRef.IsByReference)
+                throw new WeavingException("Type is already a ByRef type");
 
-        public void MakeArrayType()
-        {
-            _typeRef = _module.ImportReference(_typeRef.MakeArrayType());
+            _typeRef = _module.ImportReference(_typeRef.MakeByReferenceType());
         }
 
         public void MakeArrayType(int rank)
         {
+            if (_typeRef.IsByReference)
+                throw new WeavingException("Cannot make an array of a ByRef type");
+
             if (rank < 1)
                 throw new WeavingException($"Invalid array rank: {rank}, must be at least 1");
 
-            _typeRef = _module.ImportReference(_typeRef.MakeArrayType(rank));
+            _typeRef = _module.ImportReference(rank == 1 ? _typeRef.MakeArrayType() : _typeRef.MakeArrayType(rank));
         }
 
         public void MakeGenericType(TypeReference[] genericArgs)
         {
+            if (_typeRef.IsGenericInstance)
+                throw new WeavingException($"Type is already a generic instance: {_typeRef.FullName}");
+
+            if (_typeRef.IsByReference || _typeRef.IsPointer || _typeRef.IsArray)
+                throw new WeavingException("Cannot make a generic instance of a ByRef, pointer or array type");
+
             var typeDef = _typeRef.ResolveRequiredType();
 
             if (!typeDef.HasGenericParameters)
-                throw new WeavingException($"Not a generic type: {typeDef.FullName}");
+                throw new WeavingException($"Not a generic type definition: {typeDef.FullName}");
 
             if (genericArgs.Length == 0)
                 throw new WeavingException("No generic arguments supplied");

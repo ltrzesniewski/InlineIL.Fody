@@ -51,4 +51,29 @@ public class TypeRefTestCases
     {
         Ldtoken(typeof(Dictionary<,>).MakeGenericType(typeof(int), typeof(double), typeof(string)));
     }
+
+    public void GenericParamsOnGenericInstance()
+    {
+        Ldtoken(typeof(List<>).MakeGenericType(typeof(int)).MakeGenericType(typeof(int)));
+    }
+
+    public void ByRefOfByRef()
+    {
+        Ldtoken(typeof(int).MakeByRefType().MakeByRefType());
+    }
+
+    public void PointerToByRef()
+    {
+        Ldtoken(typeof(int).MakeByRefType().MakePointerType());
+    }
+
+    public void ArrayOfByRef()
+    {
+        Ldtoken(typeof(int).MakeByRefType().MakeArrayType());
+    }
+
+    public void GenericOfByRef()
+    {
+        Ldtoken(typeof(List<>).MakeByRefType().MakeGenericType(typeof(int)));
+    }
 }

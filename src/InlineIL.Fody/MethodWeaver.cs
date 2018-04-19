@@ -622,7 +622,7 @@ namespace InlineIL.Fody
                 case "System.Type System.Type::MakeArrayType()":
                 {
                     var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
-                    builder.MakeArrayType();
+                    builder.MakeArrayType(1);
 
                     _il.Remove(instruction);
                     return builder;

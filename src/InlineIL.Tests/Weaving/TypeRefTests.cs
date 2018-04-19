@@ -167,5 +167,35 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("InvalidGenericArgsCount").ShouldContain("Incorrect number of generic arguments");
         }
+
+        [Fact]
+        public void should_report_generic_params_on_generic_instance()
+        {
+            ShouldHaveError("GenericParamsOnGenericInstance").ShouldContain("Type is already a generic instance");
+        }
+
+        [Fact]
+        public void should_report_byref_of_byref()
+        {
+            ShouldHaveError("ByRefOfByRef").ShouldContain("Type is already a ByRef type");
+        }
+
+        [Fact]
+        public void should_report_pointer_to_byref()
+        {
+            ShouldHaveError("PointerToByRef").ShouldContain("Cannot make a pointer to a ByRef type");
+        }
+
+        [Fact]
+        public void should_report_array_of_byref()
+        {
+            ShouldHaveError("ArrayOfByRef").ShouldContain("Cannot make an array of a ByRef type");
+        }
+
+        [Fact]
+        public void should_report_incorrect_use_of_generics_and_byref()
+        {
+            ShouldHaveError("GenericOfByRef").ShouldContain("Cannot make a generic instance");
+        }
     }
 }
