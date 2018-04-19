@@ -555,6 +555,10 @@ namespace InlineIL.Fody
 
         [NotNull]
         private TypeReference ConsumeArgTypeRef(Instruction instruction)
+            => ConsumeArgTypeRefBuilder(instruction).Build();
+
+        [NotNull]
+        private TypeRefBuilder ConsumeArgTypeRefBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
                 throw UnexpectedInstruction(instruction, "a method call");
@@ -567,26 +571,20 @@ namespace InlineIL.Fody
                     if (ldToken.OpCode != OpCodes.Ldtoken)
                         throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
-                    var typeRef = (TypeReference)ldToken.Operand;
-
-                    if (typeRef.MetadataType == MetadataType.Class && !(typeRef is TypeDefinition))
-                    {
-                        // TypeRefs from different assemblies get imported as MetadataType.Class
-                        // since this information is not stored in the assembly metadata.
-                        typeRef = _module.ImportReference(typeRef.ResolveRequiredType());
-                    }
+                    var builder = new TypeRefBuilder(_module, (TypeReference)ldToken.Operand);
 
                     _il.Remove(ldToken);
                     _il.Remove(instruction);
-                    return typeRef;
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::op_Implicit(System.Type)":
                 case "System.Void InlineIL.TypeRef::.ctor(System.Type)":
                 {
-                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+
                     _il.Remove(instruction);
-                    return innerTypeRef;
+                    return builder;
                 }
 
                 case "System.Void InlineIL.TypeRef::.ctor(System.String,System.String)":
@@ -594,101 +592,86 @@ namespace InlineIL.Fody
                     var args = instruction.GetArgumentPushInstructions();
                     var assemblyName = ConsumeArgString(args[0]);
                     var typeName = ConsumeArgString(args[1]);
-
-                    var assembly = assemblyName == _module.Assembly.Name.Name
-                        ? _module.Assembly
-                        : _module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
-
-                    if (assembly == null)
-                        throw new InstructionWeavingException(instruction, $"Could not resolve assembly '{assemblyName}'");
-
-                    var typeReference = assembly.Modules
-                                                .Select(module => module.GetType(typeName, true))
-                                                .FirstOrDefault(t => t != null);
-
-                    if (typeReference == null)
-                        throw new InstructionWeavingException(instruction, $"Could not find type '{typeName}' in assembly '{assemblyName}'");
+                    var builder = new TypeRefBuilder(_module, assemblyName, typeName);
 
                     _il.Remove(instruction);
-                    return _module.ImportReference(typeReference);
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
                 case "System.Type System.Type::MakePointerType()":
                 {
-                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                    builder.MakePointerType();
+
                     _il.Remove(instruction);
-                    return _module.ImportReference(innerTypeRef.MakePointerType());
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
                 case "System.Type System.Type::MakeByRefType()":
                 {
-                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                    builder.MakeByRefType();
+
                     _il.Remove(instruction);
-                    return _module.ImportReference(innerTypeRef.MakeByReferenceType());
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
                 case "System.Type System.Type::MakeArrayType()":
                 {
-                    var innerTypeRef = ConsumeArgTypeRef(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                    builder.MakeArrayType();
+
                     _il.Remove(instruction);
-                    return _module.ImportReference(innerTypeRef.MakeArrayType());
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType(System.Int32)":
                 case "System.Type System.Type::MakeArrayType(System.Int32)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var innerTypeRef = ConsumeArgTypeRef(args[0]);
+                    var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var rank = ConsumeArgInt32(args[1]);
-                    if (rank < 1)
-                        throw new InstructionWeavingException(args[1], $"Invalid array rank: {rank}, must be at least 1");
+                    builder.MakeArrayType(rank);
 
                     _il.Remove(instruction);
-                    return _module.ImportReference(innerTypeRef.MakeArrayType(rank));
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeGenericType(InlineIL.TypeRef[])":
                 case "System.Type System.Type::MakeGenericType(System.Type[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var typeRef = ConsumeArgTypeRef(args[0]);
-                    var typeDef = typeRef.ResolveRequiredType();
+                    var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
-
-                    if (!typeDef.HasGenericParameters)
-                        throw new InstructionWeavingException(instruction, $"Not a generic type: {typeDef.FullName}");
-
-                    if (genericArgs.Length == 0)
-                        throw new InstructionWeavingException(instruction, "No generic arguments supplied");
-
-                    if (typeDef.GenericParameters.Count != genericArgs.Length)
-                        throw new InstructionWeavingException(instruction, $"Incorrect number of generic arguments supplied for type {typeDef.FullName} - expected {typeDef.GenericParameters.Count}, but got {genericArgs.Length}");
+                    builder.MakeGenericType(genericArgs);
 
                     _il.Remove(instruction);
-                    return _module.ImportReference(typeDef.MakeGenericInstanceType(genericArgs));
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::WithOptionalModifier(InlineIL.TypeRef)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var innerTypeRef = ConsumeArgTypeRef(args[0]);
+                    var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var modifierType = ConsumeArgTypeRef(args[1]);
+                    builder.AddOptionalModifier(modifierType);
 
                     _il.Remove(instruction);
-                    return innerTypeRef.MakeOptionalModifierType(modifierType);
+                    return builder;
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::WithRequiredModifier(InlineIL.TypeRef)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var innerTypeRef = ConsumeArgTypeRef(args[0]);
+                    var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var modifierType = ConsumeArgTypeRef(args[1]);
+                    builder.AddRequiredModifier(modifierType);
 
                     _il.Remove(instruction);
-                    return innerTypeRef.MakeRequiredModifierType(modifierType);
+                    return builder;
                 }
 
                 default:
