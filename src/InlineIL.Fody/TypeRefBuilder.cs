@@ -25,12 +25,6 @@ namespace InlineIL.Fody
                 typeRef = typeRef.ResolveRequiredType();
             }
 
-            if (typeRef.FullName == _module.TypeSystem.TypedReference.FullName)
-            {
-                _typeRef = _module.TypeSystem.TypedReference;
-                return;
-            }
-
             _typeRef = _module.ImportReference(typeRef);
         }
 
@@ -138,7 +132,7 @@ namespace InlineIL.Fody
 
         private void EnsureCanWrapType()
         {
-            if (_typeRef == _module.TypeSystem.TypedReference)
+            if (_typeRef.MetadataType == MetadataType.TypedByReference)
                 throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
         }
 
