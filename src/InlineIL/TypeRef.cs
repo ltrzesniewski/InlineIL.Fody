@@ -75,5 +75,21 @@ namespace InlineIL
         /// <returns>A <see cref="TypeRef"/> that represents a constructed generic type.</returns>
         public TypeRef MakeGenericType(params TypeRef[] typeArguments)
             => throw IL.Throw();
+
+        /// <summary>
+        /// Returns a type with an applied custom optional modifier (<c>modopt</c>).
+        /// </summary>
+        /// <param name="modifierType">The custom modifier type.</param>
+        /// <returns>A <see cref="TypeRef"/> with the custom modifier applied.</returns>
+        public TypeRef WithOptionalModifier(TypeRef modifierType)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Returns a type with an applied custom required modifier (<c>modreq</c>).
+        /// </summary>
+        /// <param name="modifierType">The custom modifier type.</param>
+        /// <returns>A <see cref="TypeRef"/> with the custom modifier applied.</returns>
+        public TypeRef WithRequiredModifier(TypeRef modifierType)
+            => throw IL.Throw();
     }
 }

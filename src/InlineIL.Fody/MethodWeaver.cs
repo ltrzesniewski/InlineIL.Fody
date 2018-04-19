@@ -671,6 +671,26 @@ namespace InlineIL.Fody
                     return _module.ImportReference(typeDef.MakeGenericInstanceType(genericArgs));
                 }
 
+                case "InlineIL.TypeRef InlineIL.TypeRef::WithOptionalModifier(InlineIL.TypeRef)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var innerTypeRef = ConsumeArgTypeRef(args[0]);
+                    var modifierType = ConsumeArgTypeRef(args[1]);
+
+                    _il.Remove(instruction);
+                    return innerTypeRef.MakeOptionalModifierType(modifierType);
+                }
+
+                case "InlineIL.TypeRef InlineIL.TypeRef::WithRequiredModifier(InlineIL.TypeRef)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var innerTypeRef = ConsumeArgTypeRef(args[0]);
+                    var modifierType = ConsumeArgTypeRef(args[1]);
+
+                    _il.Remove(instruction);
+                    return innerTypeRef.MakeRequiredModifierType(modifierType);
+                }
+
                 default:
                     throw UnexpectedInstruction(instruction, "a type reference");
             }

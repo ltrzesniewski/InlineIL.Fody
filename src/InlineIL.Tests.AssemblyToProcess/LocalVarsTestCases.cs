@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using InlineIL;
 using static InlineIL.IL.Emit;
 
@@ -112,5 +113,19 @@ public class LocalVarsTestCases
         Add();
 
         return IL.Return<int>();
+    }
+
+    public void WithOptionalModifier()
+    {
+        IL.DeclareLocals(
+            new LocalVar(new TypeRef(typeof(int)).WithOptionalModifier(typeof(IsConst)))
+        );
+    }
+
+    public void WithRequiredModifier()
+    {
+        IL.DeclareLocals(
+            new LocalVar(new TypeRef(typeof(int)).WithRequiredModifier(typeof(IsConst)))
+        );
     }
 }
