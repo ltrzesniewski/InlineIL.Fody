@@ -103,9 +103,16 @@ public class TypeRefTestCases
         return IL.Return<RuntimeTypeHandle>();
     }
 
-    public Type ReturnNestedType()
+    public Type ReturnNestedTypeUsingRuntimeSyntax()
     {
         Ldtoken(new TypeRef("InlineIL.Tests.AssemblyToProcess", nameof(TypeRefTestCases) + "+" + nameof(NestedType)));
+        Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        return IL.Return<Type>();
+    }
+
+    public Type ReturnNestedTypeUsingEcmaSyntax()
+    {
+        Ldtoken(new TypeRef("InlineIL.Tests.AssemblyToProcess", nameof(TypeRefTestCases) + "/" + nameof(NestedType)));
         Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
         return IL.Return<Type>();
     }

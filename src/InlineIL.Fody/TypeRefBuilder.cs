@@ -42,7 +42,7 @@ namespace InlineIL.Fody
                 throw new WeavingException($"Could not resolve assembly '{assemblyName}'");
 
             var typeRef = assembly.Modules
-                                  .Select(m => m.GetType(typeName, true))
+                                  .Select(m => m.GetType(typeName, false) ?? m.GetType(typeName, true))
                                   .FirstOrDefault(t => t != null);
 
             if (typeRef == null)
