@@ -554,190 +554,192 @@ namespace InlineIL.Fody
         }
 
         [NotNull]
-        private TypeReference ConsumeArgTypeRef(Instruction instruction)
-            => ConsumeArgTypeRefBuilder(instruction).Build();
-
-        [NotNull]
-        private TypeRefBuilder ConsumeArgTypeRefBuilder(Instruction instruction)
+        private TypeReference ConsumeArgTypeRef(Instruction typeRefInstruction)
         {
-            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
-                throw UnexpectedInstruction(instruction, "a method call");
+            return ConsumeArgTypeRefBuilder(typeRefInstruction).Build();
 
-            switch (method.FullName)
+            TypeRefBuilder ConsumeArgTypeRefBuilder(Instruction instruction)
             {
-                case "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)":
+                if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                    throw UnexpectedInstruction(instruction, "a method call");
+
+                switch (method.FullName)
                 {
-                    var ldToken = instruction.GetArgumentPushInstructions().Single();
-                    if (ldToken.OpCode != OpCodes.Ldtoken)
-                        throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
+                    case "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)":
+                    {
+                        var ldToken = instruction.GetArgumentPushInstructions().Single();
+                        if (ldToken.OpCode != OpCodes.Ldtoken)
+                            throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
-                    var builder = new TypeRefBuilder(_module, (TypeReference)ldToken.Operand);
+                        var builder = new TypeRefBuilder(_module, (TypeReference)ldToken.Operand);
 
-                    _il.Remove(ldToken);
-                    _il.Remove(instruction);
-                    return builder;
+                        _il.Remove(ldToken);
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::op_Implicit(System.Type)":
+                    case "System.Void InlineIL.TypeRef::.ctor(System.Type)":
+                    {
+                        var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "System.Void InlineIL.TypeRef::.ctor(System.String,System.String)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var assemblyName = ConsumeArgString(args[0]);
+                        var typeName = ConsumeArgString(args[1]);
+                        var builder = new TypeRefBuilder(_module, assemblyName, typeName);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
+                    case "System.Type System.Type::MakePointerType()":
+                    {
+                        var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                        builder.MakePointerType();
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
+                    case "System.Type System.Type::MakeByRefType()":
+                    {
+                        var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                        builder.MakeByRefType();
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
+                    case "System.Type System.Type::MakeArrayType()":
+                    {
+                        var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                        builder.MakeArrayType(1);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType(System.Int32)":
+                    case "System.Type System.Type::MakeArrayType(System.Int32)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var builder = ConsumeArgTypeRefBuilder(args[0]);
+                        var rank = ConsumeArgInt32(args[1]);
+                        builder.MakeArrayType(rank);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::MakeGenericType(InlineIL.TypeRef[])":
+                    case "System.Type System.Type::MakeGenericType(System.Type[])":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var builder = ConsumeArgTypeRefBuilder(args[0]);
+                        var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                        builder.MakeGenericType(genericArgs);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::WithOptionalModifier(InlineIL.TypeRef)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var builder = ConsumeArgTypeRefBuilder(args[0]);
+                        var modifierType = ConsumeArgTypeRef(args[1]);
+                        builder.AddOptionalModifier(modifierType);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.TypeRef InlineIL.TypeRef::WithRequiredModifier(InlineIL.TypeRef)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var builder = ConsumeArgTypeRefBuilder(args[0]);
+                        var modifierType = ConsumeArgTypeRef(args[1]);
+                        builder.AddRequiredModifier(modifierType);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    default:
+                        throw UnexpectedInstruction(instruction, "a type reference");
                 }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::op_Implicit(System.Type)":
-                case "System.Void InlineIL.TypeRef::.ctor(System.Type)":
-                {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "System.Void InlineIL.TypeRef::.ctor(System.String,System.String)":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var assemblyName = ConsumeArgString(args[0]);
-                    var typeName = ConsumeArgString(args[1]);
-                    var builder = new TypeRefBuilder(_module, assemblyName, typeName);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
-                case "System.Type System.Type::MakePointerType()":
-                {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
-                    builder.MakePointerType();
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
-                case "System.Type System.Type::MakeByRefType()":
-                {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
-                    builder.MakeByRefType();
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
-                case "System.Type System.Type::MakeArrayType()":
-                {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
-                    builder.MakeArrayType(1);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType(System.Int32)":
-                case "System.Type System.Type::MakeArrayType(System.Int32)":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var builder = ConsumeArgTypeRefBuilder(args[0]);
-                    var rank = ConsumeArgInt32(args[1]);
-                    builder.MakeArrayType(rank);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::MakeGenericType(InlineIL.TypeRef[])":
-                case "System.Type System.Type::MakeGenericType(System.Type[])":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var builder = ConsumeArgTypeRefBuilder(args[0]);
-                    var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
-                    builder.MakeGenericType(genericArgs);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::WithOptionalModifier(InlineIL.TypeRef)":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var builder = ConsumeArgTypeRefBuilder(args[0]);
-                    var modifierType = ConsumeArgTypeRef(args[1]);
-                    builder.AddOptionalModifier(modifierType);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.TypeRef InlineIL.TypeRef::WithRequiredModifier(InlineIL.TypeRef)":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var builder = ConsumeArgTypeRefBuilder(args[0]);
-                    var modifierType = ConsumeArgTypeRef(args[1]);
-                    builder.AddRequiredModifier(modifierType);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                default:
-                    throw UnexpectedInstruction(instruction, "a type reference");
             }
         }
 
         [NotNull]
-        private MethodReference ConsumeArgMethodRef(Instruction instruction)
-            => ConsumeArgMethodRefBuilder(instruction).Build();
-
-        [NotNull]
-        private MethodRefBuilder ConsumeArgMethodRefBuilder(Instruction instruction)
+        private MethodReference ConsumeArgMethodRef(Instruction methodRefInstruction)
         {
-            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
-                throw UnexpectedInstruction(instruction, "a method call");
+            return ConsumeArgMethodRefBuilder(methodRefInstruction).Build();
 
-            switch (method.FullName)
+            MethodRefBuilder ConsumeArgMethodRefBuilder(Instruction instruction)
             {
-                case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
+                if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                    throw UnexpectedInstruction(instruction, "a method call");
+
+                switch (method.FullName)
                 {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var typeRef = ConsumeArgTypeRef(args[0]);
-                    var methodName = ConsumeArgString(args[1]);
-                    var builder = new MethodRefBuilder(_module, typeRef, methodName);
+                    case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var methodName = ConsumeArgString(args[1]);
+                        var builder = new MethodRefBuilder(_module, typeRef, methodName);
 
-                    _il.Remove(instruction);
-                    return builder;
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var methodName = ConsumeArgString(args[1]);
+                        var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
+                        var builder = new MethodRefBuilder(_module, typeRef, methodName, paramTypes);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var builder = ConsumeArgMethodRefBuilder(args[0]);
+                        var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                        builder.MakeGenericMethod(genericArgs);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.MethodRef InlineIL.MethodRef::WithOptionalParameters(InlineIL.TypeRef[])":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var builder = ConsumeArgMethodRefBuilder(args[0]);
+                        var optionalParamTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                        builder.SetOptionalParameters(optionalParamTypes);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    default:
+                        throw UnexpectedInstruction(instruction, "a method reference");
                 }
-
-                case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var typeRef = ConsumeArgTypeRef(args[0]);
-                    var methodName = ConsumeArgString(args[1]);
-                    var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
-                    var builder = new MethodRefBuilder(_module, typeRef, methodName, paramTypes);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var builder = ConsumeArgMethodRefBuilder(args[0]);
-                    var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
-                    builder.MakeGenericMethod(genericArgs);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                case "InlineIL.MethodRef InlineIL.MethodRef::WithOptionalParameters(InlineIL.TypeRef[])":
-                {
-                    var args = instruction.GetArgumentPushInstructions();
-                    var builder = ConsumeArgMethodRefBuilder(args[0]);
-                    var optionalParamTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
-                    builder.SetOptionalParameters(optionalParamTypes);
-
-                    _il.Remove(instruction);
-                    return builder;
-                }
-
-                default:
-                    throw UnexpectedInstruction(instruction, "a method reference");
             }
         }
 
