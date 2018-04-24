@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using InlineIL.Fody;
+using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;

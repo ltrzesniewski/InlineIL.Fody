@@ -1,6 +1,6 @@
 ﻿using Mono.Cecil.Cil;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Support
 {
     internal class Logger
     {

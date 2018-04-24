@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Fody;
+using InlineIL.Fody.Extensions;
+using InlineIL.Fody.Processing;
+using InlineIL.Fody.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 

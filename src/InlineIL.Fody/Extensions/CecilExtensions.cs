@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Fody;
+using InlineIL.Fody.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Extensions
 {
     internal static class CecilExtensions
     {

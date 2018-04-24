@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Processing
 {
     internal static class KnownNames
     {

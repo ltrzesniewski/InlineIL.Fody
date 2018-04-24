@@ -3,10 +3,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Fody;
+using InlineIL.Fody.Extensions;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Model
 {
     internal class StandAloneMethodSigBuilder
     {

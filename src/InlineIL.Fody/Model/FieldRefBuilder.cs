@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using Fody;
+using InlineIL.Fody.Extensions;
 using Mono.Cecil;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Model
 {
     internal class FieldRefBuilder
     {

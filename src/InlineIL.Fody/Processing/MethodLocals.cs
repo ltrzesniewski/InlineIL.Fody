@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using Fody;
+using InlineIL.Fody.Extensions;
 using JetBrains.Annotations;
 using Mono.Cecil.Cil;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Processing
 {
     internal class MethodLocals
     {

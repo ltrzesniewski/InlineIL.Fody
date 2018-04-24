@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Extensions
 {
     internal static class FrameworkExtensions
     {

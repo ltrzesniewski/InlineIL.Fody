@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using Fody;
+using InlineIL.Fody.Extensions;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Model
 {
     internal class MethodRefBuilder
     {

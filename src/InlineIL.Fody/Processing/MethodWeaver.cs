@@ -4,12 +4,15 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Fody;
+using InlineIL.Fody.Extensions;
+using InlineIL.Fody.Model;
+using InlineIL.Fody.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody.Processing
 {
     internal class MethodWeaver
     {
