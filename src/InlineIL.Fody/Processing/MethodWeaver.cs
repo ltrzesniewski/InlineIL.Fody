@@ -467,7 +467,7 @@ namespace InlineIL.Fody.Processing
                 case "System.Void InlineIL.IL::DeclareLocals(InlineIL.LocalVar[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    _il.DeclareLocals(ConsumeArgArray(args[0], ConsumeArgLocalVar));
+                    _il.DeclareLocals(ConsumeArgArray(args[0], ConsumeArgLocalVarBuilder));
                     _il.Remove(instruction);
                     return;
                 }
@@ -476,7 +476,7 @@ namespace InlineIL.Fody.Processing
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     _method.Body.InitLocals = ConsumeArgBool(args[0]);
-                    _il.DeclareLocals(ConsumeArgArray(args[1], ConsumeArgLocalVar));
+                    _il.DeclareLocals(ConsumeArgArray(args[1], ConsumeArgLocalVarBuilder));
                     _il.Remove(instruction);
                     return;
                 }
@@ -829,7 +829,7 @@ namespace InlineIL.Fody.Processing
             => _labels.GetOrAddNew(ConsumeArgString(instruction));
 
         [NotNull]
-        private MethodLocals.NamedLocal ConsumeArgLocalVar(Instruction instruction)
+        private LocalVarBuilder ConsumeArgLocalVarBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
                 throw UnexpectedInstruction(instruction, "a call on LocalVar");
@@ -840,34 +840,32 @@ namespace InlineIL.Fody.Processing
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var name = ConsumeArgString(args[0]);
-                    var type = ConsumeArgTypeRef(args[1]);
+                    var typeRef = ConsumeArgTypeRef(args[1]);
+                    var builder = new LocalVarBuilder(typeRef, name);
 
                     _il.Remove(instruction);
-                    return new MethodLocals.NamedLocal(name, new VariableDefinition(type));
+                    return builder;
                 }
 
                 case "System.Void InlineIL.LocalVar::.ctor(InlineIL.TypeRef)":
                 case "InlineIL.LocalVar InlineIL.LocalVar::op_Implicit(System.Type)":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var type = ConsumeArgTypeRef(args[0]);
+                    var typeRef = ConsumeArgTypeRef(args[0]);
+                    var builder = new LocalVarBuilder(typeRef);
 
                     _il.Remove(instruction);
-                    return new MethodLocals.NamedLocal(null, new VariableDefinition(type));
+                    return builder;
                 }
 
                 case "InlineIL.LocalVar InlineIL.LocalVar::Pinned()":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var innerDefinition = ConsumeArgLocalVar(args[0]);
-
-                    if (innerDefinition.Definition.IsPinned)
-                        throw new InstructionWeavingException(instruction, $"Local '{innerDefinition.Name}' is already pinned");
-
-                    innerDefinition.Definition.VariableType = innerDefinition.Definition.VariableType.MakePinnedType();
+                    var builder = ConsumeArgLocalVarBuilder(args[0]);
+                    builder.MakePinned();
 
                     _il.Remove(instruction);
-                    return innerDefinition;
+                    return builder;
                 }
 
                 default:

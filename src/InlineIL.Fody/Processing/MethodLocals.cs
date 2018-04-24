@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Fody;
 using InlineIL.Fody.Extensions;
+using InlineIL.Fody.Model;
 using JetBrains.Annotations;
 using Mono.Cecil.Cil;
 
@@ -11,20 +12,22 @@ namespace InlineIL.Fody.Processing
         private readonly Dictionary<string, VariableDefinition> _localsByName = new Dictionary<string, VariableDefinition>();
         private readonly List<VariableDefinition> _localsByIndex = new List<VariableDefinition>();
 
-        public MethodLocals(MethodBody methodBody, IEnumerable<NamedLocal> locals)
+        public MethodLocals(MethodBody methodBody, IEnumerable<LocalVarBuilder> locals)
         {
             foreach (var local in locals)
             {
+                var localVar = local.Build();
+
                 if (local.Name != null)
                 {
                     if (_localsByName.ContainsKey(local.Name))
                         throw new WeavingException($"Local {local.Name} is already defined");
 
-                    _localsByName.Add(local.Name, local.Definition);
+                    _localsByName.Add(local.Name, localVar);
                 }
 
-                _localsByIndex.Add(local.Definition);
-                methodBody.Variables.Add(local.Definition);
+                _localsByIndex.Add(localVar);
+                methodBody.Variables.Add(localVar);
             }
         }
 
@@ -100,22 +103,6 @@ namespace InlineIL.Fody.Processing
                 throw new WeavingException($"Local index {index} is out of range");
 
             return locals._localsByIndex[index];
-        }
-
-        public class NamedLocal
-        {
-            [CanBeNull]
-            public string Name { get; }
-
-            public VariableDefinition Definition { get; }
-
-            public NamedLocal([CanBeNull] string name, VariableDefinition definition)
-            {
-                Name = name;
-                Definition = definition;
-            }
-
-            public override string ToString() => Name ?? $"#{Definition.Index}";
         }
     }
 }

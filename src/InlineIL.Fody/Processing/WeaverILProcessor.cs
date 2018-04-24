@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
+using InlineIL.Fody.Model;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -36,7 +37,7 @@ namespace InlineIL.Fody.Processing
             UpdateReferences(oldInstruction, newInstruction);
         }
 
-        public void DeclareLocals(IEnumerable<MethodLocals.NamedLocal> locals)
+        public void DeclareLocals(IEnumerable<LocalVarBuilder> locals)
         {
             if (Locals != null)
                 throw new WeavingException("Local variables have already been declared for this method");
