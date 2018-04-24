@@ -681,6 +681,10 @@ namespace InlineIL.Fody
 
         [NotNull]
         private MethodReference ConsumeArgMethodRef(Instruction instruction)
+            => ConsumeArgMethodRefBuilder(instruction).Build();
+
+        [NotNull]
+        private MethodRefBuilder ConsumeArgMethodRefBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
                 throw UnexpectedInstruction(instruction, "a method call");
@@ -691,104 +695,45 @@ namespace InlineIL.Fody
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var typeRef = ConsumeArgTypeRef(args[0]);
-                    var typeDef = typeRef.ResolveRequiredType();
                     var methodName = ConsumeArgString(args[1]);
+                    var builder = new MethodRefBuilder(_module, typeRef, methodName);
 
-                    var methods = typeDef.Methods.Where(m => m.Name == methodName).ToList();
-                    switch (methods.Count)
-                    {
-                        case 0:
-                            throw new InstructionWeavingException(instruction, $"Method '{methodName}' not found in type {typeDef.FullName}");
-
-                        case 1:
-                            _il.Remove(instruction);
-                            return _module.ImportReference(_module.ImportReference(methods.Single()).MakeGeneric(typeRef));
-
-                        default:
-                            throw new InstructionWeavingException(instruction, $"Ambiguous method '{methodName}' in type {typeDef.FullName}");
-                    }
+                    _il.Remove(instruction);
+                    return builder;
                 }
 
                 case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var typeRef = ConsumeArgTypeRef(args[0]);
-                    var typeDef = typeRef.ResolveRequiredType();
                     var methodName = ConsumeArgString(args[1]);
                     var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
+                    var builder = new MethodRefBuilder(_module, typeRef, methodName, paramTypes);
 
-                    var methods = typeDef.Methods
-                                         .Where(m => m.Name == methodName
-                                                     && m.Parameters.Count == paramTypes.Length
-                                                     && m.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(paramTypes.Select(p => p.FullName)))
-                                         .ToList();
-
-                    switch (methods.Count)
-                    {
-                        case 0:
-                            throw new InstructionWeavingException(instruction, $"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
-
-                        case 1:
-                            _il.Remove(instruction);
-                            return _module.ImportReference(_module.ImportReference(methods.Single()).MakeGeneric(typeRef));
-
-                        default:
-                            // This should never happen
-                            throw new InstructionWeavingException(instruction, $"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
-                    }
+                    _il.Remove(instruction);
+                    return builder;
                 }
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var genericMethod = ConsumeArgMethodRef(args[0]);
+                    var builder = ConsumeArgMethodRefBuilder(args[0]);
                     var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
-
-                    if (!genericMethod.HasGenericParameters)
-                        throw new InstructionWeavingException(instruction, $"Not a generic method: {genericMethod.FullName}");
-
-                    if (genericArgs.Length == 0)
-                        throw new InstructionWeavingException(instruction, "No generic arguments supplied");
-
-                    if (genericMethod.GenericParameters.Count != genericArgs.Length)
-                        throw new InstructionWeavingException(instruction, $"Incorrect number of generic arguments supplied for method {genericMethod.FullName} - expected {genericMethod.GenericParameters.Count}, but got {genericArgs.Length}");
-
-                    var genericInstance = new GenericInstanceMethod(genericMethod);
-                    genericInstance.GenericArguments.AddRange(genericArgs);
+                    builder.MakeGenericMethod(genericArgs);
 
                     _il.Remove(instruction);
-                    return _module.ImportReference(genericInstance);
+                    return builder;
                 }
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::WithOptionalParameters(InlineIL.TypeRef[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
-                    var baseMethod = ConsumeArgMethodRef(args[0]);
+                    var builder = ConsumeArgMethodRefBuilder(args[0]);
                     var optionalParamTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
-
-                    if (baseMethod.CallingConvention != MethodCallingConvention.VarArg)
-                        throw new InstructionWeavingException(instruction, $"Not a vararg method: {baseMethod.FullName}");
-
-                    if (baseMethod.Parameters.Any(p => p.ParameterType.IsSentinel))
-                        throw new InstructionWeavingException(instruction, "Optional parameters for vararg call have already been supplied");
-
-                    if (optionalParamTypes.Length == 0)
-                        throw new InstructionWeavingException(instruction, "No optional parameter type supplied for vararg method call");
-
-                    var methodRef = baseMethod.Clone();
-                    methodRef.CallingConvention = MethodCallingConvention.VarArg;
-
-                    for (var i = 0; i < optionalParamTypes.Length; ++i)
-                    {
-                        var paramType = optionalParamTypes[i];
-                        if (i == 0)
-                            paramType = paramType.MakeSentinelType();
-
-                        methodRef.Parameters.Add(new ParameterDefinition(paramType));
-                    }
+                    builder.SetOptionalParameters(optionalParamTypes);
 
                     _il.Remove(instruction);
-                    return _module.ImportReference(methodRef);
+                    return builder;
                 }
 
                 default:
