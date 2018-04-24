@@ -744,29 +744,22 @@ namespace InlineIL.Fody
         }
 
         [NotNull]
-        private FieldReference ConsumeArgFieldRef(Instruction instruction)
+        private FieldReference ConsumeArgFieldRef(Instruction fieldRefInstruction)
         {
-            if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)")
-                throw UnexpectedInstruction(instruction, "newobj FieldRef");
+            return ConsumeArgFieldRefBuilder(fieldRefInstruction).Build();
 
-            var args = instruction.GetArgumentPushInstructions();
-            var typeDef = ConsumeArgTypeRef(args[0]).ResolveRequiredType();
-            var fieldName = ConsumeArgString(args[1]);
-
-            var fields = typeDef.Fields.Where(f => f.Name == fieldName).ToList();
-
-            switch (fields.Count)
+            FieldRefBuilder ConsumeArgFieldRefBuilder(Instruction instruction)
             {
-                case 0:
-                    throw new InstructionWeavingException(instruction, $"Field '{fieldName}' not found in type {typeDef.FullName}");
+                if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)")
+                    throw UnexpectedInstruction(instruction, "newobj FieldRef");
 
-                case 1:
-                    _il.Remove(instruction);
-                    return fields.Single();
+                var args = instruction.GetArgumentPushInstructions();
+                var typeRef = ConsumeArgTypeRef(args[0]);
+                var fieldName = ConsumeArgString(args[1]);
+                var builder = new FieldRefBuilder(typeRef, fieldName);
 
-                default:
-                    // This should never happen
-                    throw new InstructionWeavingException(instruction, $"Ambiguous field '{fieldName}' in type {typeDef.FullName}");
+                _il.Remove(instruction);
+                return builder;
             }
         }
 
