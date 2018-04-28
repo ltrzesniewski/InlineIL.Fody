@@ -9,8 +9,6 @@ This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject
 
 ## Installation
 
-See [Fody usage](https://github.com/Fody/Fody#usage) for general guidelines.
-
 Install the NuGet package [`InlineIL.Fody`](https://www.nuget.org/packages/InlineIL.Fody), and ensure Fody is up to date:
 
 ```
@@ -18,7 +16,7 @@ PM> Install-Package InlineIL.Fody
 PM> Update-Package Fody
 ```
 
-Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fody#add-fodyweaversxml) file of your project.
+Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fody#add-fodyweaversxml) file in the root directory of your project. Create the file with the following contents if it doesn't exist:
 
 ```XML
 <?xml version="1.0" encoding="utf-8" ?>
@@ -27,13 +25,15 @@ Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fo
 </Weavers>
 ```
 
+See [Fody usage](https://github.com/Fody/Fody#usage) for general guidelines.
+
 ## Usage
 
-Call static methods of the [the `InlineIL.IL.Emit` class](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.Emit.cs) to emit IL instructions. That's it. :wink:
+Call static methods of the [the `InlineIL.IL.Emit` class](src/InlineIL/IL.Emit.cs) to emit IL instructions. That's it. :wink:
 
 A few more things which are good to know:
 
- - The [`InlineIL.IL`](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL/IL.cs) class exposes methods for handling labels and local variables, and some utilities (see below).
+ - The [`InlineIL.IL`](src/InlineIL/IL.cs) class exposes methods for handling labels and local variables, and some utilities (see below).
 
  - `System.Type` is implicitly convertible to `InlineIL.TypeRef`: when you see a `TypeRef` parameter, you can use the `typeof` keyword.
 
@@ -67,28 +67,28 @@ A few more things which are good to know:
 
 ### Types
 
- - `TypeRef`  
+ - [`TypeRef`](src/InlineIL/TypeRef.cs)  
    A class which represents a type. Note that `System.Type` is implicitly convertible to `TypeRef`, so you can directly write `typeof(int)` for instance where a `TypeRef` parameter is expected.
 
- - `MethodRef`  
-   A method reference. Exposes a simple constructor for methods without overloads, and a more detailed one for overload disambiguation.
+ - [`MethodRef`](src/InlineIL/MethodRef.cs)  
+   A method reference. Exposes a simple constructor for methods without overloads, and a more detailed one for overload disambiguation. Additional static factory methods for referencing underlying methods of properties and events are provided for convenience.
 
- - `FieldRef`  
+ - [`FieldRef`](src/InlineIL/FieldRef.cs)  
    A field reference.
 
- - `StandAloneMethodSig`  
+ - [`StandAloneMethodSig`](src/InlineIL/StandAloneMethodSig.cs)  
    Method signature for use as an operand for the `calli` opcode.
 
- - `LocalVar`  
+ - [`LocalVar`](src/InlineIL/LocalVar.cs)  
    Declares a local variable (with an optional name), for use with `IL.DeclareLocals`. Implicitly convertible from `System.Type` if you don't want to use named locals.
 
 ## Examples
 
-- A [reimplementation of the `System.Runtime.CompilerServices.Unsafe` class](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL.Examples/Unsafe.cs) using InlineIL is provided as an example (compare to [the original IL code](https://github.com/dotnet/corefx/blob/master/src/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il)).
+- A [reimplementation of the `System.Runtime.CompilerServices.Unsafe` class](src/InlineIL.Examples/Unsafe.cs) using InlineIL is provided as an example (compare to [the original IL code](https://github.com/dotnet/corefx/blob/master/src/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il)).
 
 - Unit tests can also serve as examples of API usage. See [verifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.AssemblyToProcess) and [unverifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.UnverifiableAssemblyToProcess) test cases.
 
- - [Simple example](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/src/InlineIL.Examples/Examples.cs):
+ - [Simple example](src/InlineIL.Examples/Examples.cs):
 
     ```C#
     public static void ZeroInit<T>(ref T value)
