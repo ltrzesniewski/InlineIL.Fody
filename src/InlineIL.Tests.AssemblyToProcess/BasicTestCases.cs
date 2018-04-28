@@ -140,6 +140,17 @@ public class BasicTestCases
         IL.MarkLabel("target");
     }
 
+    public void ExplicitEndFinally()
+    {
+        try
+        {
+        }
+        finally
+        {
+            Endfinally();
+        }
+    }
+
     public void NoLeaveAfterThrowOrRethrow()
     {
         try

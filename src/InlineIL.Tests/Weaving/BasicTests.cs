@@ -132,6 +132,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_explicit_endfinally()
+        {
+            GetInstance().ExplicitEndFinally();
+            GetMethodDefinition("ExplicitEndFinally").Body.Instructions.Count(i => i.OpCode == OpCodes.Endfinally).ShouldEqual(1);
+        }
+
+        [Fact]
         public void should_handle_explicit_leave()
         {
             GetInstance().ExplicitLeave();

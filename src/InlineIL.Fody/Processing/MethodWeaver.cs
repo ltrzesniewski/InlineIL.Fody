@@ -241,8 +241,10 @@ namespace InlineIL.Fody.Processing
             switch (emittedInstruction.OpCode.Code)
             {
                 case Code.Ret:
+                case Code.Endfinally:
+                case Code.Endfilter:
                 {
-                    if (nextInstruction?.OpCode == OpCodes.Ret)
+                    if (nextInstruction?.OpCode == emittedInstruction.OpCode)
                         _il.Remove(emittedInstruction);
 
                     break;
