@@ -238,8 +238,32 @@ namespace InlineIL.Fody.Processing
 
             nextInstruction = emittedInstruction.NextSkipNops();
 
-            if (emittedInstruction.OpCode == OpCodes.Ret && nextInstruction?.OpCode == OpCodes.Ret)
-                _il.Remove(emittedInstruction);
+            switch (emittedInstruction.OpCode.Code)
+            {
+                case Code.Ret:
+                {
+                    if (nextInstruction?.OpCode == OpCodes.Ret)
+                        _il.Remove(emittedInstruction);
+
+                    break;
+                }
+
+                case Code.Leave:
+                case Code.Leave_S:
+                case Code.Throw:
+                case Code.Rethrow:
+                {
+                    if (nextInstruction?.OpCode == OpCodes.Leave || nextInstruction?.OpCode == OpCodes.Leave_S)
+                    {
+                        _il.RemoveNopsAfter(emittedInstruction);
+                        _il.Remove(emittedInstruction);
+                        _il.Replace(nextInstruction, emittedInstruction);
+                        nextInstruction = emittedInstruction.NextSkipNops();
+                    }
+
+                    break;
+                }
+            }
 
             Instruction CreateInstructionToEmit()
             {

@@ -126,6 +126,34 @@ public class BasicTestCases
         Ret();
     }
 
+    public void ExplicitLeave()
+    {
+        try
+        {
+            Leave("target");
+        }
+        catch
+        {
+            Leave_S("target");
+        }
+
+        IL.MarkLabel("target");
+    }
+
+    public void NoLeaveAfterThrowOrRethrow()
+    {
+        try
+        {
+            IL.Push(new InvalidOperationException());
+            Throw();
+        }
+        catch (InvalidOperationException)
+        {
+            Nop();
+            throw;
+        }
+    }
+
     public int NestedClass()
         => NestedClassA.NestedClassB.Call();
 

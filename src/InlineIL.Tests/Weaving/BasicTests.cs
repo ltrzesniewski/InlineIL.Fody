@@ -127,7 +127,22 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public void should_handle_explicit_ret()
         {
+            GetInstance().ExplicitRet();
             GetMethodDefinition("ExplicitRet").Body.Instructions.Count(i => i.OpCode == OpCodes.Ret).ShouldEqual(1);
+        }
+
+        [Fact]
+        public void should_handle_explicit_leave()
+        {
+            GetInstance().ExplicitLeave();
+            GetMethodDefinition("ExplicitLeave").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldEqual(2);
+        }
+
+        [Fact]
+        public void should_remove_leave_after_throw_or_rethrow()
+        {
+            Assert.Throws<InvalidOperationException>(new Action(() => GetInstance().NoLeaveAfterThrowOrRethrow()));
+            GetMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldEqual(0);
         }
 
         [Fact]
