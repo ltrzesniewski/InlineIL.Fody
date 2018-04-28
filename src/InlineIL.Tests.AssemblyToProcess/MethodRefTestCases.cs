@@ -139,7 +139,7 @@ public class MethodRefTestCases
     public int GetValue()
     {
         Ldarg_0();
-        Call(MethodRef.PropertyGetter(typeof(MethodRefTestCases), nameof(Value)));
+        Call(MethodRef.PropertyGet(typeof(MethodRefTestCases), nameof(Value)));
         return IL.Return<int>();
     }
 
@@ -147,7 +147,7 @@ public class MethodRefTestCases
     {
         Ldarg_0();
         Ldarg(nameof(value));
-        Call(MethodRef.PropertySetter(typeof(MethodRefTestCases), nameof(Value)));
+        Call(MethodRef.PropertySet(typeof(MethodRefTestCases), nameof(Value)));
     }
 
 #if NETFWK

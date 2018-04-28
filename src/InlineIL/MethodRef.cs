@@ -32,7 +32,7 @@ namespace InlineIL
         /// </summary>
         /// <param name="type">The type declaring the property.</param>
         /// <param name="propertyName">The property name.</param>
-        public static MethodRef PropertyGetter(TypeRef type, string propertyName)
+        public static MethodRef PropertyGet(TypeRef type, string propertyName)
             => throw IL.Throw();
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace InlineIL
         /// </summary>
         /// <param name="type">The type declaring the property.</param>
         /// <param name="propertyName">The property name.</param>
-        public static MethodRef PropertySetter(TypeRef type, string propertyName)
+        public static MethodRef PropertySet(TypeRef type, string propertyName)
             => throw IL.Throw();
 
         /// <summary>

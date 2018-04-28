@@ -78,17 +78,17 @@ public class MethodRefTestCases
 
     public void UnknownProperty()
     {
-        Call(MethodRef.PropertyGetter(typeof(MethodRefTestCases), "Nope"));
+        Call(MethodRef.PropertyGet(typeof(MethodRefTestCases), "Nope"));
     }
 
     public void PropertyWithoutGetter()
     {
-        Call(MethodRef.PropertyGetter(typeof(MethodRefTestCases), nameof(ValueSetOnly)));
+        Call(MethodRef.PropertyGet(typeof(MethodRefTestCases), nameof(ValueSetOnly)));
     }
 
     public void PropertyWithoutSetter()
     {
-        Call(MethodRef.PropertySetter(typeof(MethodRefTestCases), nameof(ValueGetOnly)));
+        Call(MethodRef.PropertySet(typeof(MethodRefTestCases), nameof(ValueGetOnly)));
     }
 
     private static void Foo()

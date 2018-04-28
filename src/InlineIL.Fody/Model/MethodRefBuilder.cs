@@ -57,7 +57,7 @@ namespace InlineIL.Fody.Model
             }
         }
 
-        public static MethodRefBuilder PropertyGetter(ModuleDefinition module, TypeReference typeRef, string propertyName)
+        public static MethodRefBuilder PropertyGet(ModuleDefinition module, TypeReference typeRef, string propertyName)
         {
             var property = FindProperty(typeRef, propertyName);
 
@@ -67,7 +67,7 @@ namespace InlineIL.Fody.Model
             return new MethodRefBuilder(module, typeRef, property.GetMethod);
         }
 
-        public static MethodRefBuilder PropertySetter(ModuleDefinition module, TypeReference typeRef, string propertyName)
+        public static MethodRefBuilder PropertySet(ModuleDefinition module, TypeReference typeRef, string propertyName)
         {
             var property = FindProperty(typeRef, propertyName);
 
