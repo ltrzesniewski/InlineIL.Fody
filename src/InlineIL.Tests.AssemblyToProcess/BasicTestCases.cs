@@ -121,6 +121,11 @@ public class BasicTestCases
         return IL.Return<int>();
     }
 
+    public void ExplicitRet()
+    {
+        Ret();
+    }
+
     public int NestedClass()
         => NestedClassA.NestedClassB.Call();
 

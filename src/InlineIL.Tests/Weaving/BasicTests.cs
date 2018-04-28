@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using InlineIL.Tests.Support;
+using Mono.Cecil.Cil;
 using Xunit;
 
 #pragma warning disable 618
@@ -120,6 +122,12 @@ namespace InlineIL.Tests.Weaving
         {
             ((float)GetInstance().ReturnWithConversion1()).ShouldEqual(42.0f);
             ((int?)GetInstance().ReturnWithConversion2()).ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_handle_explicit_ret()
+        {
+            GetMethodDefinition("ExplicitRet").Body.Instructions.Count(i => i.OpCode == OpCodes.Ret).ShouldEqual(1);
         }
 
         [Fact]

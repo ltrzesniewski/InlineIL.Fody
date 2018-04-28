@@ -236,7 +236,10 @@ namespace InlineIL.Fody.Processing
             if (emittedInstruction.OpCode.OpCodeType == OpCodeType.Prefix)
                 _il.RemoveNopsAfter(emittedInstruction);
 
-            nextInstruction = emittedInstruction.Next;
+            nextInstruction = emittedInstruction.NextSkipNops();
+
+            if (emittedInstruction.OpCode == OpCodes.Ret && nextInstruction?.OpCode == OpCodes.Ret)
+                _il.Remove(emittedInstruction);
 
             Instruction CreateInstructionToEmit()
             {
