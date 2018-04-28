@@ -1,4 +1,5 @@
-﻿using InlineIL.Tests.Support;
+﻿using System.Linq;
+using InlineIL.Tests.Support;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving
@@ -63,6 +64,27 @@ namespace InlineIL.Tests.Weaving
             var instance = GetInstance();
             var result = (int)instance.MapLocalIndexesLong(38, 4);
             result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_handle_optional_modifiers()
+        {
+            var localType = GetMethodDefinition("WithOptionalModifier").Body.Variables.Single().VariableType;
+            localType.FullName.ShouldEqual("System.Int32 modopt(System.Runtime.CompilerServices.IsConst)");
+        }
+
+        [Fact]
+        public void should_handle_required_modifiers()
+        {
+            var localType = GetMethodDefinition("WithRequiredModifier").Body.Variables.Single().VariableType;
+            localType.FullName.ShouldEqual("System.Int32 modreq(System.Runtime.CompilerServices.IsConst)");
+        }
+
+        [Fact]
+        public void should_handle_typedbyref()
+        {
+            var localType = GetMethodDefinition("TypedReference").Body.Variables.Single().VariableType;
+            localType.FullName.ShouldEqual("System.TypedReference");
         }
 
         [Fact]

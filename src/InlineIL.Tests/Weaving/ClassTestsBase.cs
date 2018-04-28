@@ -18,6 +18,9 @@ namespace InlineIL.Tests.Weaving
         protected MethodDefinition GetMethodDefinition(string methodName)
             => GetMethodDefinition(AssemblyToProcessFixture.ResultModule, methodName);
 
+        protected MethodDefinition GetOriginalMethodDefinition(string methodName)
+            => GetMethodDefinition(AssemblyToProcessFixture.OriginalModule, methodName);
+
         protected dynamic GetUnverifiableInstance()
             => UnverifiableAssemblyToProcessFixture.TestResult.GetInstance(ClassName);
 

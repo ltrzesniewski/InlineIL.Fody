@@ -142,6 +142,7 @@ namespace InlineIL.Tests.Weaving
         public void should_remove_leave_after_throw_or_rethrow()
         {
             Assert.Throws<InvalidOperationException>(new Action(() => GetInstance().NoLeaveAfterThrowOrRethrow()));
+            GetOriginalMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldEqual(1);
             GetMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldEqual(0);
         }
 

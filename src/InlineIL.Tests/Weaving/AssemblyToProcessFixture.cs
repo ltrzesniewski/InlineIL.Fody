@@ -14,20 +14,24 @@ namespace InlineIL.Tests.Weaving
     {
         public static TestResult TestResult { get; }
 
+        public static ModuleDefinition OriginalModule { get; }
         public static ModuleDefinition ResultModule { get; }
 
         static AssemblyToProcessFixture()
         {
+            const string assemblyPath = "InlineIL.Tests.AssemblyToProcess.dll";
+
             var weavingTask = new GuardedWeaver();
 
             TestResult = weavingTask.ExecuteTestRun(
-                "InlineIL.Tests.AssemblyToProcess.dll",
+                assemblyPath,
                 ignoreCodes: new[]
                 {
                     "0x801312da" // VLDTR_E_MR_VARARGCALLINGCONV
                 }
             );
 
+            OriginalModule = ModuleDefinition.ReadModule(assemblyPath, new ReaderParameters(ReadingMode.Immediate));
             ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate));
         }
 
