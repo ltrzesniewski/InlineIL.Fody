@@ -9,6 +9,8 @@ public class MethodRefTestCases
 {
     public int Value { get; set; }
 
+    public event Action Event;
+
     public Type ReturnType<T>()
     {
         Ldtoken(typeof(T));
@@ -149,6 +151,23 @@ public class MethodRefTestCases
         Ldarg(nameof(value));
         Call(MethodRef.PropertySet(typeof(MethodRefTestCases), nameof(Value)));
     }
+
+    public void AddEvent(Action callback)
+    {
+        Ldarg_0();
+        Ldarg(nameof(callback));
+        Call(MethodRef.EventAdd(typeof(MethodRefTestCases), nameof(Event)));
+    }
+
+    public void RemoveEvent(Action callback)
+    {
+        Ldarg_0();
+        Ldarg(nameof(callback));
+        Call(MethodRef.EventRemove(typeof(MethodRefTestCases), nameof(Event)));
+    }
+
+    public void RaiseEvent()
+        => Event?.Invoke();
 
 #if NETFWK
     public int[] CallVarArgMethod()

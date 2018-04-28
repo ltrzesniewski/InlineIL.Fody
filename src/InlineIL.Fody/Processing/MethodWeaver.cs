@@ -695,17 +695,6 @@ namespace InlineIL.Fody.Processing
 
                 switch (method.FullName)
                 {
-                    case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
-                    {
-                        var args = instruction.GetArgumentPushInstructions();
-                        var typeRef = ConsumeArgTypeRef(args[0]);
-                        var methodName = ConsumeArgString(args[1]);
-                        var builder = new MethodRefBuilder(_module, typeRef, methodName);
-
-                        _il.Remove(instruction);
-                        return builder;
-                    }
-
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
                     {
                         var args = instruction.GetArgumentPushInstructions();
@@ -718,27 +707,23 @@ namespace InlineIL.Fody.Processing
                         return builder;
                     }
 
-                    case "InlineIL.MethodRef InlineIL.MethodRef::PropertyGet(InlineIL.TypeRef,System.String)":
-                    {
-                        var args = instruction.GetArgumentPushInstructions();
-                        var typeRef = ConsumeArgTypeRef(args[0]);
-                        var propertyName = ConsumeArgString(args[1]);
-                        var builder = MethodRefBuilder.PropertyGet(_module, typeRef, propertyName);
+                    case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
+                        return FromNamedMember((typeRef, methodName) => new MethodRefBuilder(_module, typeRef, methodName));
 
-                        _il.Remove(instruction);
-                        return builder;
-                    }
+                    case "InlineIL.MethodRef InlineIL.MethodRef::PropertyGet(InlineIL.TypeRef,System.String)":
+                        return FromNamedMember((typeRef, propertyName) => MethodRefBuilder.PropertyGet(_module, typeRef, propertyName));
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::PropertySet(InlineIL.TypeRef,System.String)":
-                    {
-                        var args = instruction.GetArgumentPushInstructions();
-                        var typeRef = ConsumeArgTypeRef(args[0]);
-                        var propertyName = ConsumeArgString(args[1]);
-                        var builder = MethodRefBuilder.PropertySet(_module, typeRef, propertyName);
+                        return FromNamedMember((typeRef, propertyName) => MethodRefBuilder.PropertySet(_module, typeRef, propertyName));
 
-                        _il.Remove(instruction);
-                        return builder;
-                    }
+                    case "InlineIL.MethodRef InlineIL.MethodRef::EventAdd(InlineIL.TypeRef,System.String)":
+                        return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventAdd(_module, typeRef, eventName));
+
+                    case "InlineIL.MethodRef InlineIL.MethodRef::EventRemove(InlineIL.TypeRef,System.String)":
+                        return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventRemove(_module, typeRef, eventName));
+
+                    case "InlineIL.MethodRef InlineIL.MethodRef::EventRaise(InlineIL.TypeRef,System.String)":
+                        return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventRaise(_module, typeRef, eventName));
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                     {
@@ -764,6 +749,17 @@ namespace InlineIL.Fody.Processing
 
                     default:
                         throw UnexpectedInstruction(instruction, "a method reference");
+                }
+
+                MethodRefBuilder FromNamedMember(Func<TypeReference, string, MethodRefBuilder> resolver)
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var typeRef = ConsumeArgTypeRef(args[0]);
+                    var memberName = ConsumeArgString(args[1]);
+                    var builder = resolver(typeRef, memberName);
+
+                    _il.Remove(instruction);
+                    return builder;
                 }
             }
         }

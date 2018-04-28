@@ -44,6 +44,30 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
+        /// Constructs a method reference to the add method of an event.
+        /// </summary>
+        /// <param name="type">The type declaring the event.</param>
+        /// <param name="eventName">The event name.</param>
+        public static MethodRef EventAdd(TypeRef type, string eventName)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference to the remove method of an event.
+        /// </summary>
+        /// <param name="type">The type declaring the event.</param>
+        /// <param name="eventName">The event name.</param>
+        public static MethodRef EventRemove(TypeRef type, string eventName)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference to the raise method of an event.
+        /// </summary>
+        /// <param name="type">The type declaring the event.</param>
+        /// <param name="eventName">The event name.</param>
+        public static MethodRef EventRaise(TypeRef type, string eventName)
+            => throw IL.Throw();
+
+        /// <summary>
         /// Returns a reference to a constructed generic method, using the supplied generic parameter types.
         /// </summary>
         /// <param name="genericParameterTypes">An array of type references to be substituted for the type parameters of the current generic method.</param>

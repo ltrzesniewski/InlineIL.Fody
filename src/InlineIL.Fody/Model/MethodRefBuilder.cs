@@ -96,6 +96,55 @@ namespace InlineIL.Fody.Model
             }
         }
 
+        public static MethodRefBuilder EventAdd(ModuleDefinition module, TypeReference typeRef, string eventName)
+        {
+            var property = FindEvent(typeRef, eventName);
+
+            if (property.AddMethod == null)
+                throw new WeavingException($"Event '{eventName}' in type {typeRef.FullName} has no add method");
+
+            return new MethodRefBuilder(module, typeRef, property.AddMethod);
+        }
+
+        public static MethodRefBuilder EventRemove(ModuleDefinition module, TypeReference typeRef, string eventName)
+        {
+            var property = FindEvent(typeRef, eventName);
+
+            if (property.RemoveMethod == null)
+                throw new WeavingException($"Event '{eventName}' in type {typeRef.FullName} has no remove method");
+
+            return new MethodRefBuilder(module, typeRef, property.RemoveMethod);
+        }
+
+        public static MethodRefBuilder EventRaise(ModuleDefinition module, TypeReference typeRef, string eventName)
+        {
+            var property = FindEvent(typeRef, eventName);
+
+            if (property.InvokeMethod == null)
+                throw new WeavingException($"Event '{eventName}' in type {typeRef.FullName} has no raise method");
+
+            return new MethodRefBuilder(module, typeRef, property.InvokeMethod);
+        }
+
+        private static EventDefinition FindEvent(TypeReference typeRef, string eventName)
+        {
+            var typeDef = typeRef.ResolveRequiredType();
+
+            var events = typeDef.Events.Where(e => e.Name == eventName).ToList();
+
+            switch (events.Count)
+            {
+                case 1:
+                    return events.Single();
+
+                case 0:
+                    throw new WeavingException($"Event '{eventName}' not found in type {typeDef.FullName}");
+
+                default:
+                    throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}");
+            }
+        }
+
         public MethodReference Build()
             => _method;
 

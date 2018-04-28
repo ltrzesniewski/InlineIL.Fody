@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using InlineIL.Tests.Support;
 using Xunit;
@@ -123,7 +124,7 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_call_poroperty_getter()
+        public void should_call_property_getter()
         {
             var instance = GetInstance();
             instance.Value = 42;
@@ -132,12 +133,38 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_call_poroperty_setter()
+        public void should_call_property_setter()
         {
             var instance = GetInstance();
             instance.SetValue(42);
             var result = (int)instance.Value;
             result.ShouldEqual(42);
+        }
+
+        [Fact]
+        [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
+        public void should_subscribe_to_event()
+        {
+            var callCount = 0;
+            Action callback = () => ++callCount;
+            var instance = GetInstance();
+            instance.AddEvent(callback);
+            instance.RaiseEvent();
+            callCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
+        public void should_unsubscribe_from_event()
+        {
+            var callCount = 0;
+            Action callback = () => ++callCount;
+            var instance = GetInstance();
+            instance.Event += callback;
+            instance.RaiseEvent();
+            instance.RemoveEvent(callback);
+            instance.RaiseEvent();
+            callCount.ShouldEqual(1);
         }
 
         [Fact]
@@ -201,6 +228,12 @@ namespace InlineIL.Tests.Weaving
         public void should_report_property_without_setter()
         {
             ShouldHaveError("PropertyWithoutSetter").ShouldContain("has no setter");
+        }
+
+        [Fact]
+        public void should_report_event_without_invoker()
+        {
+            ShouldHaveError("EventWithoutInvoker").ShouldContain("has no raise method");
         }
     }
 }

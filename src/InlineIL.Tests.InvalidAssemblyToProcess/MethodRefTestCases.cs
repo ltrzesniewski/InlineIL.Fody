@@ -16,6 +16,8 @@ public class MethodRefTestCases
         set => Value = value;
     }
 
+    public event Action Event;
+
     public void UnknownMethodWithoutParams()
     {
         Call(new MethodRef(typeof(object), "Nope"));
@@ -89,6 +91,11 @@ public class MethodRefTestCases
     public void PropertyWithoutSetter()
     {
         Call(MethodRef.PropertySet(typeof(MethodRefTestCases), nameof(ValueGetOnly)));
+    }
+
+    public void EventWithoutInvoker()
+    {
+        Call(MethodRef.EventRaise(typeof(MethodRefTestCases), nameof(Event)));
     }
 
     private static void Foo()
