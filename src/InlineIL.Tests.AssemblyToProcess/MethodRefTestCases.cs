@@ -7,6 +7,8 @@ using static InlineIL.IL.Emit;
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
 public class MethodRefTestCases
 {
+    public int Value { get; set; }
+
     public Type ReturnType<T>()
     {
         Ldtoken(typeof(T));
@@ -132,6 +134,20 @@ public class MethodRefTestCases
     {
         Ldtoken(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
         return IL.Return<RuntimeMethodHandle>();
+    }
+
+    public int GetValue()
+    {
+        Ldarg_0();
+        Call(MethodRef.PropertyGetter(typeof(MethodRefTestCases), nameof(Value)));
+        return IL.Return<int>();
+    }
+
+    public void SetValue(int value)
+    {
+        Ldarg_0();
+        Ldarg(nameof(value));
+        Call(MethodRef.PropertySetter(typeof(MethodRefTestCases), nameof(Value)));
     }
 
 #if NETFWK

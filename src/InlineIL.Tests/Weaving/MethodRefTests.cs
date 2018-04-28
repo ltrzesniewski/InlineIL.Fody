@@ -123,6 +123,24 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_poroperty_getter()
+        {
+            var instance = GetInstance();
+            instance.Value = 42;
+            var result = (int)instance.GetValue();
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_call_poroperty_setter()
+        {
+            var instance = GetInstance();
+            instance.SetValue(42);
+            var result = (int)instance.Value;
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -165,6 +183,24 @@ namespace InlineIL.Tests.Weaving
         public void should_report_empty_vararg_params()
         {
             ShouldHaveError("EmptyVarArgParams").ShouldContain("No optional parameter type supplied");
+        }
+
+        [Fact]
+        public void should_report_unknown_property()
+        {
+            ShouldHaveError("UnknownProperty").ShouldContain("Property 'Nope' not found");
+        }
+
+        [Fact]
+        public void should_report_property_without_getter()
+        {
+            ShouldHaveError("PropertyWithoutGetter").ShouldContain("has no getter");
+        }
+
+        [Fact]
+        public void should_report_property_without_setter()
+        {
+            ShouldHaveError("PropertyWithoutSetter").ShouldContain("has no setter");
         }
     }
 }

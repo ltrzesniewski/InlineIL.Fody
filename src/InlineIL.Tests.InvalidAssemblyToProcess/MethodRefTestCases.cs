@@ -7,6 +7,15 @@ using static InlineIL.IL.Emit;
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
 public class MethodRefTestCases
 {
+    public int Value { get; set; }
+
+    public int ValueGetOnly => Value;
+
+    public int ValueSetOnly
+    {
+        set => Value = value;
+    }
+
     public void UnknownMethodWithoutParams()
     {
         Call(new MethodRef(typeof(object), "Nope"));
@@ -65,6 +74,21 @@ public class MethodRefTestCases
     public void EmptyVarArgParams()
     {
         Call(new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters());
+    }
+
+    public void UnknownProperty()
+    {
+        Call(MethodRef.PropertyGetter(typeof(MethodRefTestCases), "Nope"));
+    }
+
+    public void PropertyWithoutGetter()
+    {
+        Call(MethodRef.PropertyGetter(typeof(MethodRefTestCases), nameof(ValueSetOnly)));
+    }
+
+    public void PropertyWithoutSetter()
+    {
+        Call(MethodRef.PropertySetter(typeof(MethodRefTestCases), nameof(ValueGetOnly)));
     }
 
     private static void Foo()

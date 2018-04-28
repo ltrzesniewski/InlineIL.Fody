@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
+using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 
@@ -11,51 +13,86 @@ namespace InlineIL.Fody.Model
         private readonly ModuleDefinition _module;
         private MethodReference _method;
 
-        public MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, string methodName)
+        private MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, MethodReference method)
         {
             _module = module;
-
-            var typeDef = typeRef.ResolveRequiredType();
-
-            var methods = typeDef.Methods.Where(m => m.Name == methodName).ToList();
-            switch (methods.Count)
-            {
-                case 0:
-                    throw new WeavingException($"Method '{methodName}' not found in type {typeDef.FullName}");
-
-                case 1:
-                    _method = _module.ImportReference(_module.ImportReference(methods.Single()).MakeGeneric(typeRef));
-                    break;
-
-                default:
-                    throw new WeavingException($"Ambiguous method '{methodName}' in type {typeDef.FullName}");
-            }
+            _method = _module.ImportReference(_module.ImportReference(method).MakeGeneric(typeRef));
         }
 
-        public MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, string methodName, TypeReference[] paramTypes)
+        public MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, string methodName)
+            : this(module, typeRef, FindMethod(typeRef, methodName, null))
         {
-            _module = module;
+        }
 
+        public MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, string methodName, IReadOnlyCollection<TypeReference> paramTypes)
+            : this(module, typeRef, FindMethod(typeRef, methodName, paramTypes))
+        {
+        }
+
+        private static MethodReference FindMethod(TypeReference typeRef, string methodName, [CanBeNull] IReadOnlyCollection<TypeReference> paramTypes)
+        {
             var typeDef = typeRef.ResolveRequiredType();
 
             var methods = typeDef.Methods
-                                 .Where(m => m.Name == methodName
-                                             && m.Parameters.Count == paramTypes.Length
+                                 .Where(m => m.Name == methodName)
+                                 .Where(m => paramTypes == null
+                                             || m.Parameters.Count == paramTypes.Count
                                              && m.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(paramTypes.Select(p => p.FullName)))
                                  .ToList();
 
             switch (methods.Count)
             {
-                case 0:
-                    throw new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
-
                 case 1:
-                    _method = _module.ImportReference(_module.ImportReference(methods.Single()).MakeGeneric(typeRef));
-                    break;
+                    return methods.Single();
+
+                case 0:
+                    throw paramTypes == null
+                        ? throw new WeavingException($"Method '{methodName}' not found in type {typeDef.FullName}")
+                        : new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
 
                 default:
-                    // This should never happen
-                    throw new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
+                    throw paramTypes == null
+                        ? throw new WeavingException($"Ambiguous method '{methodName}' in type {typeDef.FullName}")
+                        : new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
+            }
+        }
+
+        public static MethodRefBuilder PropertyGetter(ModuleDefinition module, TypeReference typeRef, string propertyName)
+        {
+            var property = FindProperty(typeRef, propertyName);
+
+            if (property.GetMethod == null)
+                throw new WeavingException($"Property '{propertyName}' in type {typeRef.FullName} has no getter");
+
+            return new MethodRefBuilder(module, typeRef, property.GetMethod);
+        }
+
+        public static MethodRefBuilder PropertySetter(ModuleDefinition module, TypeReference typeRef, string propertyName)
+        {
+            var property = FindProperty(typeRef, propertyName);
+
+            if (property.SetMethod == null)
+                throw new WeavingException($"Property '{propertyName}' in type {typeRef.FullName} has no setter");
+
+            return new MethodRefBuilder(module, typeRef, property.SetMethod);
+        }
+
+        private static PropertyDefinition FindProperty(TypeReference typeRef, string propertyName)
+        {
+            var typeDef = typeRef.ResolveRequiredType();
+
+            var properties = typeDef.Properties.Where(p => p.Name == propertyName).ToList();
+
+            switch (properties.Count)
+            {
+                case 1:
+                    return properties.Single();
+
+                case 0:
+                    throw new WeavingException($"Property '{propertyName}' not found in type {typeDef.FullName}");
+
+                default:
+                    throw new WeavingException($"Ambiguous property '{propertyName}' in type {typeDef.FullName}");
             }
         }
 

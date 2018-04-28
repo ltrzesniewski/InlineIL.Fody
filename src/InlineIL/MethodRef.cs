@@ -28,6 +28,22 @@ namespace InlineIL
             => IL.Throw();
 
         /// <summary>
+        /// Constructs a method reference to a property getter.
+        /// </summary>
+        /// <param name="type">The type declaring the property.</param>
+        /// <param name="propertyName">The property name.</param>
+        public static MethodRef PropertyGetter(TypeRef type, string propertyName)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference to a property setter.
+        /// </summary>
+        /// <param name="type">The type declaring the property.</param>
+        /// <param name="propertyName">The property name.</param>
+        public static MethodRef PropertySetter(TypeRef type, string propertyName)
+            => throw IL.Throw();
+
+        /// <summary>
         /// Returns a reference to a constructed generic method, using the supplied generic parameter types.
         /// </summary>
         /// <param name="genericParameterTypes">An array of type references to be substituted for the type parameters of the current generic method.</param>

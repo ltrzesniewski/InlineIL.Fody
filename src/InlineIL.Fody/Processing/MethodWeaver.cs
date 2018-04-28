@@ -718,6 +718,28 @@ namespace InlineIL.Fody.Processing
                         return builder;
                     }
 
+                    case "InlineIL.MethodRef InlineIL.MethodRef::PropertyGetter(InlineIL.TypeRef,System.String)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var propertyName = ConsumeArgString(args[1]);
+                        var builder = MethodRefBuilder.PropertyGetter(_module, typeRef, propertyName);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.MethodRef InlineIL.MethodRef::PropertySetter(InlineIL.TypeRef,System.String)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var propertyName = ConsumeArgString(args[1]);
+                        var builder = MethodRefBuilder.PropertySetter(_module, typeRef, propertyName);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
                     case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                     {
                         var args = instruction.GetArgumentPushInstructions();
