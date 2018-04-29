@@ -207,6 +207,10 @@ namespace InlineIL.Fody.Processing
                     ProcessPushMethod(instruction);
                     break;
 
+                case KnownNames.Short.PopMethod:
+                    ProcessPopMethod(instruction);
+                    break;
+
                 case KnownNames.Short.UnreachableMethod:
                     ProcessUnreachableMethod(instruction, out nextInstruction);
                     break;
@@ -397,6 +401,50 @@ namespace InlineIL.Fody.Processing
         private void ProcessPushMethod(Instruction instruction)
         {
             _il.Remove(instruction);
+        }
+
+        private void ProcessPopMethod(Instruction instruction)
+        {
+            var target = instruction.GetArgumentPushInstructions().Single();
+
+            switch (target.OpCode.Code)
+            {
+                case Code.Ldloca when target.Operand is VariableDefinition operandVar:
+                {
+                    _il.Remove(target);
+                    _il.Replace(instruction, Instruction.Create(OpCodes.Stloc, operandVar));
+                    break;
+                }
+
+                case Code.Ldarga when target.Operand is ParameterDefinition operandParam:
+                {
+                    _il.Remove(target);
+                    _il.Replace(instruction, Instruction.Create(OpCodes.Starg, operandParam));
+                    break;
+                }
+
+                case Code.Ldsflda when target.Operand is FieldDefinition operandField:
+                {
+                    _il.Remove(target);
+                    _il.Replace(instruction, Instruction.Create(OpCodes.Stsfld, operandField));
+                    break;
+                }
+
+                case Code.Ldflda:
+                    throw new InstructionWeavingException(instruction, "IL.Pop does not support instance field references. Emit a stfld instruction instead.");
+
+                case Code.Ldelema:
+                    throw new InstructionWeavingException(instruction, "IL.Pop does not support array references. Emit a stelem instruction instead.");
+
+                case Code.Ldarg:
+                    throw new InstructionWeavingException(instruction, "IL.Pop does not support ref method arguments. Emit ldarg/stind instructions instead.");
+
+                case Code.Ldloc:
+                    throw new InstructionWeavingException(instruction, "IL.Pop does not support ref locals.");
+
+                default:
+                    throw new InstructionWeavingException(instruction, $"IL.Pop does not support this kind of argument: {target.OpCode}");
+            }
         }
 
         private void ProcessUnreachableMethod(Instruction instruction, out Instruction nextInstruction)

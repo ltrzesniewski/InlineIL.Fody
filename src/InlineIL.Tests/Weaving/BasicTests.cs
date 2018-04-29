@@ -69,6 +69,27 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_pop_to_locals()
+        {
+            var result = (int)GetInstance().PopLocals();
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_pop_to_arguments()
+        {
+            var result = (int)GetInstance().PopArgs(21);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_pop_to_static_field()
+        {
+            var result = (int)GetInstance().PopStaticField(21);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
         public void should_report_unvalid_use_of_Unreachable()
         {
             ShouldHaveError("InvalidUnreachable");
@@ -157,6 +178,18 @@ namespace InlineIL.Tests.Weaving
         public void should_report_non_existing_paremeter_reference()
         {
             ShouldHaveError("NonExistingParameter").ShouldContain("foo");
+        }
+
+        [Fact]
+        public void should_report_pop_to_field()
+        {
+            ShouldHaveError("PopToField").ShouldContain("IL.Pop");
+        }
+
+        [Fact]
+        public void should_report_pop_to_array()
+        {
+            ShouldHaveError("PopToArray").ShouldContain("IL.Pop");
         }
     }
 }

@@ -68,6 +68,14 @@ namespace InlineIL
             => Throw();
 
         /// <summary>
+        /// Pops a value from the top of the evaluation stack into a local variable.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to pop.</typeparam>
+        /// <param name="value">A reference to a local variable receiving the value.</param>
+        public static void Pop<T>(out T value)
+            => throw Throw();
+
+        /// <summary>
         /// Marks the given region of code as unreachable, for example just after a <c>ret</c> instruction.
         /// This method returns an <see cref="Exception"/> which should be immediately thrown by the caller.
         /// It enables writing code with a valid control flow for compile-time.

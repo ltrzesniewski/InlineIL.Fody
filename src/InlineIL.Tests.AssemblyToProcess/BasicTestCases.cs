@@ -7,6 +7,8 @@ using static InlineIL.IL.Emit;
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
 public class BasicTestCases
 {
+    public static int StaticIntField;
+
     public int MultiplyBy3(int value)
     {
         Ldarg(1);
@@ -167,6 +169,36 @@ public class BasicTestCases
 
     public int NestedClass()
         => NestedClassA.NestedClassB.Call();
+
+    public int PopLocals()
+    {
+        Ldc_I4_2();
+        Ldc_I4(10);
+        Ldc_I4_4();
+        IL.Pop(out int a);
+        IL.Pop(out int b);
+        IL.Pop(out int c);
+
+        return a * b + c;
+    }
+
+    public int PopArgs(int arg)
+    {
+        IL.Push(arg);
+        Dup();
+        Add();
+        IL.Pop(out arg);
+        return arg;
+    }
+
+    public int PopStaticField(int arg)
+    {
+        IL.Push(arg);
+        Dup();
+        Add();
+        IL.Pop(out StaticIntField);
+        return StaticIntField;
+    }
 
     private static class NestedClassA
     {

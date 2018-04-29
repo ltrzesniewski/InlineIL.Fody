@@ -57,6 +57,9 @@ A few more things which are good to know:
  - `IL.Push`  
    A helper method to push a value onto the evaluation stack.
 
+ - `IL.Pop`  
+   A helper method to pop a value from the evaluation stack into a local variable.
+
  - `IL.Unreachable`  
    A method used to mark an unreachable code region, for instance just after a `ret` instruction. Necessary when the compiler's control flow analysis requires a code statement.  
    Usage: `throw IL.Unreachable();`
