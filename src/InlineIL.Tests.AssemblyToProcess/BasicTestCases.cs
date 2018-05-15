@@ -206,6 +206,12 @@ public class BasicTestCases
         Pop();
     }
 
+    public sbyte LdcI4S()
+    {
+        Ldc_I4_S(-42);
+        return IL.Return<sbyte>();
+    }
+
     private static class NestedClassA
     {
         public static class NestedClassB

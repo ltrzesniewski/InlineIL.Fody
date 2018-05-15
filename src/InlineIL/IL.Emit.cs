@@ -1432,7 +1432,7 @@ namespace InlineIL
             /// <c>unaligned.</c> - Indicates that an address currently atop the evaluation stack might not be aligned to the natural size of the immediately following ldind, stind, ldfld, stfld, ldobj, stobj, initblk, or cpblk instruction.
             /// </summary>
             /// <param name="operand">The operand.</param>
-            public static void Unaligned(sbyte operand)
+            public static void Unaligned(byte operand)
                 => IL.Throw();
 
             /// <summary>
@@ -1477,7 +1477,7 @@ namespace InlineIL
             /// <c>no.</c>
             /// </summary>
             /// <param name="operand">The operand.</param>
-            public static void No(sbyte operand)
+            public static void No(byte operand)
                 => IL.Throw();
 
             /// <summary>

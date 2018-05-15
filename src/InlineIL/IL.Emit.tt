@@ -118,15 +118,18 @@ namespace InlineIL
                 break;
 
             case OperandType.ShortInlineI:
+            {
+                var operandType = item.opCode == OpCodes.Ldc_I4_S ? "sbyte" : "byte";
 #>
             /// <summary>
             /// <#= summary #>
             /// </summary>
             /// <param name="operand">The operand.</param>
-            public static void <#= item.fieldName #>(sbyte operand)
+            public static void <#= item.fieldName #>(<#= operandType #> operand)
                 => IL.Throw();
 <#
                 break;
+            }
 
             case OperandType.InlineI8:
 #>
