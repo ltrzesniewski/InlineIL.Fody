@@ -350,8 +350,8 @@ namespace InlineIL.Fody.Processing
                             case "System.String":
                                 return _il.Create(opCode, ConsumeArgLocalRef(args.Single()));
 
+                            case "System.Byte":
                             case "System.UInt16":
-                            case "System.UInt32":
                                 return _il.CreateConst(opCode, ConsumeArgConst(args.Single()));
 
                             default:

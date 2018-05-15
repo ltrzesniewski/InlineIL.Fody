@@ -252,8 +252,6 @@ namespace InlineIL.Fody.Processing
                 switch (opCode.OperandType)
                 {
                     case OperandType.InlineI:
-                    case OperandType.InlineVar:
-                    case OperandType.ShortInlineVar:
                         operand = Convert.ToInt32(operand);
                         break;
 
@@ -265,14 +263,25 @@ namespace InlineIL.Fody.Processing
                         operand = Convert.ToDouble(operand);
                         break;
 
+                    case OperandType.InlineVar:
+                    case OperandType.InlineArg:
+                        // It's an uint16 but Cecil expects int32
+                        operand = Convert.ToInt32(operand);
+                        break;
+
                     case OperandType.ShortInlineI:
-                        operand = opCode != OpCodes.Ldc_I4_S
-                            ? (object)Convert.ToByte(operand)
-                            : Convert.ToSByte(operand);
+                        operand = opCode == OpCodes.Ldc_I4_S
+                            ? Convert.ToSByte(operand)
+                            : (object)Convert.ToByte(operand);
                         break;
 
                     case OperandType.ShortInlineR:
                         operand = Convert.ToSingle(operand);
+                        break;
+
+                    case OperandType.ShortInlineVar:
+                    case OperandType.ShortInlineArg:
+                        operand = Convert.ToByte(operand);
                         break;
                 }
 
@@ -287,7 +296,13 @@ namespace InlineIL.Fody.Processing
                     }
 
                     case byte value:
+                    {
+                        if (MethodLocals.MapIndexInstruction(Locals, ref opCode, value, out var localVar))
+                            return Create(opCode, localVar);
+
                         return _il.Create(opCode, value);
+                    }
+
                     case sbyte value:
                         return _il.Create(opCode, value);
                     case long value:

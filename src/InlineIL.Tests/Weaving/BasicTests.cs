@@ -175,6 +175,12 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_support_ldarga_s()
+        {
+            GetInstance().LdargaS(new object());
+        }
+
+        [Fact]
         public void should_report_non_existing_paremeter_reference()
         {
             ShouldHaveError("NonExistingParameter").ShouldContain("foo");

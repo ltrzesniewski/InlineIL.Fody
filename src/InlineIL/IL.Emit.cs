@@ -150,7 +150,7 @@ namespace InlineIL
             /// <c>ldloc.s</c> - Loads the local variable at a specific index onto the evaluation stack, short form.
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void Ldloc_S(ushort index)
+            public static void Ldloc_S(byte index)
                 => IL.Throw();
 
             /// <summary>
@@ -164,7 +164,7 @@ namespace InlineIL
             /// <c>ldloca.s</c> - Loads the address of the local variable at a specific index onto the evaluation stack, short form.
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void Ldloca_S(ushort index)
+            public static void Ldloca_S(byte index)
                 => IL.Throw();
 
             /// <summary>
@@ -178,7 +178,7 @@ namespace InlineIL
             /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void Stloc_S(ushort index)
+            public static void Stloc_S(byte index)
                 => IL.Throw();
 
             /// <summary>
@@ -1385,7 +1385,7 @@ namespace InlineIL
             /// <c>ldloc</c> - Loads the local variable at a specific index onto the evaluation stack.
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void Ldloc(uint index)
+            public static void Ldloc(ushort index)
                 => IL.Throw();
 
             /// <summary>
@@ -1399,7 +1399,7 @@ namespace InlineIL
             /// <c>ldloca</c> - Loads the address of the local variable at a specific index onto the evaluation stack.
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void Ldloca(uint index)
+            public static void Ldloca(ushort index)
                 => IL.Throw();
 
             /// <summary>
@@ -1413,7 +1413,7 @@ namespace InlineIL
             /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at a specified index.
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void Stloc(uint index)
+            public static void Stloc(ushort index)
                 => IL.Throw();
 
             /// <summary>

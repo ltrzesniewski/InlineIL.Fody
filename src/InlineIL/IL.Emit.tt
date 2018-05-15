@@ -272,7 +272,7 @@ namespace InlineIL
             /// <#= summary #>
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void <#= item.fieldName #>(uint index)
+            public static void <#= item.fieldName #>(ushort index)
                 => IL.Throw();
 <#
                 break;
@@ -290,7 +290,7 @@ namespace InlineIL
             /// <#= summary #>
             /// </summary>
             /// <param name="index">The local variable index.</param>
-            public static void <#= item.fieldName #>(ushort index)
+            public static void <#= item.fieldName #>(byte index)
                 => IL.Throw();
 <#
                 break;

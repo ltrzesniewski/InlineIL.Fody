@@ -200,6 +200,12 @@ public class BasicTestCases
         return StaticIntField;
     }
 
+    public void LdargaS(object obj)
+    {
+        Ldarga_S(nameof(obj));
+        Pop();
+    }
+
     private static class NestedClassA
     {
         public static class NestedClassB
