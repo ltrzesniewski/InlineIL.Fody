@@ -39,6 +39,8 @@ A few more things which are good to know:
 
  - You can add the `using static InlineIL.IL.Emit;` directive to get rid of the `IL.Emit` prefix.
 
+ - You don't *have* to emit instructions in their short form, they will be shortened automatically (*e.g.* `ldarg.0` will be emitted instead of `ldarg 0`).
+
  - Most types used as operands declare instance methods which change their meaning and can be chained, for instance: `new TypeRef(...).MakeArrayType().MakeByRefType()`.
 
  - You can combine InlineIL instructions with existing C# code: a given method doesn't have to be *entirely* written in IL. After weaving, the reference to the `InlineIL` assembly is removed from your project.
