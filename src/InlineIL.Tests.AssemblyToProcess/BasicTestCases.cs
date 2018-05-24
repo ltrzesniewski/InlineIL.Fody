@@ -212,6 +212,24 @@ public class BasicTestCases
         return IL.Return<sbyte>();
     }
 
+    public void ShortenInstructions(int arg)
+    {
+        Ldarg_1();
+        Pop();
+
+        Ldarg(1);
+        Pop();
+
+        Ldarg(nameof(arg));
+        Pop();
+
+        Ldarg_S(1);
+        Pop();
+
+        Ldarg_S(nameof(arg));
+        Pop();
+    }
+
     private static class NestedClassA
     {
         public static class NestedClassB

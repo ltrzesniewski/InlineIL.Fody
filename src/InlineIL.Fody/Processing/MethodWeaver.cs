@@ -95,6 +95,7 @@ namespace InlineIL.Fody.Processing
             ProcessLabels();
             ValidateAfterProcessing();
 
+            _method.Body.SimplifyMacros();
             _method.Body.OptimizeMacros();
         }
 

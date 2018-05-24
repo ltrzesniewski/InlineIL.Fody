@@ -179,12 +179,21 @@ namespace InlineIL.Tests.Weaving
         {
             GetInstance().LdargaS(new object());
         }
-
+        
         [Fact]
         public void should_support_ldc_i4_s()
         {
             var result = (int)(sbyte)GetInstance().LdcI4S();
             result.ShouldEqual(-42);
+        }
+
+        [Fact]
+        public void should_shorten_instructions()
+        {
+            var instructions = GetMethodDefinition("ShortenInstructions").Body.Instructions;
+            
+            instructions.Where(i => i.OpCode != OpCodes.Pop && i.OpCode != OpCodes.Ret && i.OpCode != OpCodes.Nop)
+                        .ShouldAll(i => i.OpCode == OpCodes.Ldarg_1);
         }
 
         [Fact]
