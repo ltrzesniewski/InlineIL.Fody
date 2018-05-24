@@ -17,7 +17,7 @@
     <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE</PackageLicenseUrl>
     <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\output</PackageOutputPath>
-    <PackageIconUrl></PackageIconUrl>
+    <PackageIconUrl>https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>

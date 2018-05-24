@@ -5,6 +5,8 @@
 [![GitHub release](https://img.shields.io/github/release/ltrzesniewski/InlineIL.Fody.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE)
 
+![Icon](https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png)
+
 This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject arbitrary IL into your assembly at compile time.
 
 ## Installation
