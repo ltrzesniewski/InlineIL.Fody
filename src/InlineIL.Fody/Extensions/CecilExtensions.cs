@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+using TypeSystem = Mono.Cecil.TypeSystem;
 
 namespace InlineIL.Fody.Extensions
 {
@@ -313,6 +314,15 @@ namespace InlineIL.Fody.Extensions
 
             if (handler.HandlerEnd != null)
                 yield return handler.HandlerEnd;
+        }
+
+        public static TypeSystem GetTypeSystem(this ModuleDefinition module)
+        {
+            // No way, I really need *that* one
+
+#pragma warning disable 618
+            return module.TypeSystem;
+#pragma warning restore 618
         }
     }
 }

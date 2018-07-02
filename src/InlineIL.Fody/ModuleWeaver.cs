@@ -51,14 +51,14 @@ namespace InlineIL.Fody
             method.Body.Instructions.Clear();
             method.Body.Variables.Clear();
             method.Body.ExceptionHandlers.Clear();
-
-            var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.TypeSystem.CoreLibrary)
+            
+            var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.GetTypeSystem().CoreLibrary)
                                 .Resolve()?
                                 .Methods
                                 .FirstOrDefault(m => m.IsRuntimeSpecialName
                                                      && m.Name == ".ctor"
                                                      && m.Parameters.Count == 1
-                                                     && m.Parameters[0].ParameterType.FullName == ModuleDefinition.TypeSystem.String.FullName
+                                                     && m.Parameters[0].ParameterType.FullName == "System.String"
                                 );
 
             if (exceptionCtor != null)

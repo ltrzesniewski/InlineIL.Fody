@@ -580,7 +580,7 @@ namespace InlineIL.Fody.Processing
                     case "System.String InlineIL.TypeRef::get_CoreLibrary()":
                     {
                         _il.Remove(instruction);
-                        return _module.TypeSystem.CoreLibrary.Name;
+                        return _module.GetTypeSystem().CoreLibrary.Name;
                     }
                 }
             }
