@@ -975,11 +975,11 @@ namespace InlineIL.Fody.Processing
             var localName = ConsumeArgString(instruction);
 
             if (_il.Locals == null)
-                throw new InstructionWeavingException(instruction, $"Local '{localName}' is not defined, call IL.DeclareLocals");
+                throw new InstructionWeavingException(instruction, $"IL local '{localName}' is not defined, call IL.DeclareLocals to declare IL locals, or IL.Push/IL.Pop to reference locals declared in the source code.");
 
             var variableDef = _il.Locals.TryGetByName(localName);
             if (variableDef == null)
-                throw new InstructionWeavingException(instruction, $"Local '{localName}' is not defined");
+                throw new InstructionWeavingException(instruction, $"IL local '{localName}' is not defined. If it is a local declared in the source code, use IL.Push/IL.Pop to reference it.");
 
             return variableDef;
         }

@@ -85,6 +85,8 @@ namespace InlineIL
         [SuppressMessage("ReSharper", "UnusedParameter.Global")]
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
+        [SuppressMessage("ReSharper", "IdentifierTypo")]
+        [SuppressMessage("ReSharper", "CommentTypo")]
         public static class Emit
         {
 <#
@@ -285,7 +287,7 @@ namespace InlineIL
             /// <summary>
             /// <#= summary #>
             /// </summary>
-            /// <param name="name">The local variable name.</param>
+            /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void <#= item.fieldName #>(string name)
                 => IL.Throw();
 

@@ -11,6 +11,8 @@ namespace InlineIL
         [SuppressMessage("ReSharper", "UnusedParameter.Global")]
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
+        [SuppressMessage("ReSharper", "IdentifierTypo")]
+        [SuppressMessage("ReSharper", "CommentTypo")]
         public static class Emit
         {
             /// <summary>
@@ -142,7 +144,7 @@ namespace InlineIL
             /// <summary>
             /// <c>ldloc.s</c> - Loads the local variable at a specific index onto the evaluation stack, short form.
             /// </summary>
-            /// <param name="name">The local variable name.</param>
+            /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void Ldloc_S(string name)
                 => IL.Throw();
 
@@ -156,7 +158,7 @@ namespace InlineIL
             /// <summary>
             /// <c>ldloca.s</c> - Loads the address of the local variable at a specific index onto the evaluation stack, short form.
             /// </summary>
-            /// <param name="name">The local variable name.</param>
+            /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void Ldloca_S(string name)
                 => IL.Throw();
 
@@ -170,7 +172,7 @@ namespace InlineIL
             /// <summary>
             /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
             /// </summary>
-            /// <param name="name">The local variable name.</param>
+            /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void Stloc_S(string name)
                 => IL.Throw();
 
