@@ -26,6 +26,9 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
+            var configOptions = new WeaverConfigOptions(Config);
+            var config = new WeaverConfig(configOptions, ModuleDefinition);
+
             foreach (var method in ModuleDefinition.GetTypes().SelectMany(t => t.Methods))
             {
                 try
@@ -34,7 +37,7 @@ namespace InlineIL.Fody
                         continue;
 
                     _log.Debug($"Processing: {method.FullName}");
-                    new MethodWeaver(ModuleDefinition, method).Process();
+                    new MethodWeaver(ModuleDefinition, config, method).Process();
                 }
                 catch (WeavingException ex)
                 {
@@ -51,7 +54,7 @@ namespace InlineIL.Fody
             method.Body.Instructions.Clear();
             method.Body.Variables.Clear();
             method.Body.ExceptionHandlers.Clear();
-            
+
             var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.GetTypeSystem().CoreLibrary)
                                 .Resolve()?
                                 .Methods

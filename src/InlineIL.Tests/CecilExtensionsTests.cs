@@ -116,5 +116,20 @@ namespace InlineIL.Tests
             var result = callInstruction.GetArgumentPushInstructions();
             result.ShouldEqual(new[] { p0, p1, p2 });
         }
+
+        [Fact]
+        public void should_detect_debug_builds()
+        {
+            var module = ModuleDefinition.ReadModule(typeof(CecilExtensionsTests).Assembly.Location);
+
+            const bool isDebug =
+#if DEBUG
+                true;
+#else
+                false;
+#endif
+
+            module.IsDebugBuild().ShouldEqual(isDebug);
+        }
     }
 }

@@ -17,6 +17,7 @@ namespace InlineIL.Fody.Processing
     internal class MethodWeaver
     {
         private readonly ModuleDefinition _module;
+        private readonly WeaverConfig _config;
         private readonly MethodDefinition _method;
         private readonly WeaverILProcessor _il;
         private readonly List<SequencePoint> _inputSequencePoints;
@@ -24,9 +25,10 @@ namespace InlineIL.Fody.Processing
 
         private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
 
-        public MethodWeaver(ModuleDefinition module, MethodDefinition method)
+        public MethodWeaver(ModuleDefinition module, WeaverConfig config, MethodDefinition method)
         {
             _module = module;
+            _config = config;
             _method = method;
             _il = new WeaverILProcessor(_method);
             _inputSequencePoints = _method.DebugInformation.SequencePoints.ToList();
@@ -1076,6 +1078,9 @@ namespace InlineIL.Fody.Processing
         private SequencePoint MapSequencePoint([CanBeNull] Instruction inputInstruction, [CanBeNull] Instruction outputInstruction)
         {
             if (inputInstruction == null || outputInstruction == null)
+                return null;
+
+            if (!_config.GenerateSequencePoints)
                 return null;
 
             var inputSequencePoint = GetInputSequencePoint(inputInstruction);
