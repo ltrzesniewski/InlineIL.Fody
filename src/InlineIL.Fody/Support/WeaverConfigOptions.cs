@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Xml.Linq;
 using Fody;
 using JetBrains.Annotations;
@@ -28,13 +29,20 @@ namespace InlineIL.Fody.Support
                         break;
 
                     default:
-                        throw new WeavingException($"Unknown configuration attribute: {attributeName}");
+                    {
+                        var knownAttributes = new[]
+                        {
+                            nameof(SequencePoints)
+                        };
+
+                        throw new WeavingException($"Unknown configuration attribute: '{attributeName}'. Known attributes: {string.Join(", ", knownAttributes.OrderBy(i => i, StringComparer.OrdinalIgnoreCase))}");
+                    }
                 }
             }
 
             foreach (var element in config.Elements())
             {
-                throw new WeavingException($"Unknown configuration element: {element.Name.LocalName}");
+                throw new WeavingException($"Unknown configuration element: '{element.Name.LocalName}'");
             }
         }
 
