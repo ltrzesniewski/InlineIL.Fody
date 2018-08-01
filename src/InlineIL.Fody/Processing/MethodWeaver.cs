@@ -43,16 +43,22 @@ namespace InlineIL.Fody.Processing
             if (!method.HasBody)
                 return null;
 
-            return method.Body
-                         .Instructions
-                         .FirstOrDefault(
-                             i => i.OpCode.FlowControl == FlowControl.Call
-                                  && i.Operand is MethodReference opMethod
-                                  && KnownNames.Full.AllTypes.Contains(opMethod.DeclaringType.FullName)
-                                  ||
-                                  i.Operand is TypeReference typeRef
-                                  && KnownNames.Full.AllTypes.Contains(typeRef.FullName)
-                         );
+            foreach (var instruction in method.Body.Instructions)
+            {
+                switch (instruction.Operand)
+                {
+                    case MethodReference methodRef when KnownNames.Full.AllTypes.Contains(methodRef.DeclaringType.FullName):
+                        return instruction;
+
+                    case TypeReference typeRef when KnownNames.Full.AllTypes.Contains(typeRef.FullName):
+                        return instruction;
+
+                    case FieldReference fieldRef when KnownNames.Full.AllTypes.Contains(fieldRef.DeclaringType.FullName):
+                        return instruction;
+                }
+            }
+
+            return null;
         }
 
         public void Process()
