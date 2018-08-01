@@ -89,6 +89,13 @@ A few more things which are good to know:
  - [`LocalVar`](src/InlineIL/LocalVar.cs)  
    Declares a local variable (with an optional name), for use with `IL.DeclareLocals`. Implicitly convertible from `System.Type` if you don't want to use named locals.
 
+## Configuration
+
+The `<InlineIL />` element in `FodyWeavers.xml` accepts the following attribute:
+
+ - `SequencePoints="True|False|Debug|Release"`, default value: `Debug`  
+   Defines if sequence points should be generated for each emitted IL instruction.
+
 ## Examples
 
 - A [reimplementation of the `System.Runtime.CompilerServices.Unsafe` class](src/InlineIL.Examples/Unsafe.cs) using InlineIL is provided as an example (compare to [the original IL code](https://github.com/dotnet/corefx/blob/master/src/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il)).
