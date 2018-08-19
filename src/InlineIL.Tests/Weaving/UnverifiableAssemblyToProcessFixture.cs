@@ -14,7 +14,7 @@ namespace InlineIL.Tests.Weaving
         static UnverifiableAssemblyToProcessFixture()
         {
             var weavingTask = new AssemblyToProcessFixture.GuardedWeaver();
-            TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.UnverifiableAssemblyToProcess.dll", false);
+            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly("InlineIL.Tests.UnverifiableAssemblyToProcess.dll"), false);
             ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate));
         }
     }

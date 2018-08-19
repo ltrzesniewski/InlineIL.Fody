@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using Fody;
 using InlineIL.Fody;
 using Mono.Cecil;
@@ -19,7 +20,7 @@ namespace InlineIL.Tests.Weaving
 
         static AssemblyToProcessFixture()
         {
-            const string assemblyPath = "InlineIL.Tests.AssemblyToProcess.dll";
+            var assemblyPath = FixtureHelper.IsolateAssembly("InlineIL.Tests.AssemblyToProcess.dll");
 
             var weavingTask = new GuardedWeaver();
 
