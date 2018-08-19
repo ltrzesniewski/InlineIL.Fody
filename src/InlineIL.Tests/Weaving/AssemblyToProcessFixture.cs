@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using Fody;
 using InlineIL.Fody;
 using Mono.Cecil;
@@ -32,8 +31,13 @@ namespace InlineIL.Tests.Weaving
                 }
             );
 
-            OriginalModule = ModuleDefinition.ReadModule(assemblyPath, new ReaderParameters(ReadingMode.Immediate));
-            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate));
+            var readerParams = new ReaderParameters(ReadingMode.Immediate)
+            {
+                ReadSymbols = true
+            };
+
+            OriginalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
+            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, readerParams);
         }
 
         internal class GuardedWeaver : ModuleWeaver

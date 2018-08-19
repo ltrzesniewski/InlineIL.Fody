@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Support;
 using Mono.Cecil.Cil;
 using Xunit;
@@ -179,7 +180,7 @@ namespace InlineIL.Tests.Weaving
         {
             GetInstance().LdargaS(new object());
         }
-        
+
         [Fact]
         public void should_support_ldc_i4_s()
         {
@@ -191,7 +192,7 @@ namespace InlineIL.Tests.Weaving
         public void should_shorten_instructions()
         {
             var instructions = GetMethodDefinition("ShortenInstructions").Body.Instructions;
-            
+
             instructions.Where(i => i.OpCode != OpCodes.Pop && i.OpCode != OpCodes.Ret && i.OpCode != OpCodes.Nop)
                         .ShouldAll(i => i.OpCode == OpCodes.Ldarg_1);
         }
@@ -212,6 +213,16 @@ namespace InlineIL.Tests.Weaving
         public void should_report_pop_to_array()
         {
             ShouldHaveError("PopToArray").ShouldContain("IL.Pop");
+        }
+
+        [Fact]
+        public void should_add_sequence_points()
+        {
+            var method = GetMethodDefinition("MultiplyBy3");
+
+            var expectedCount = method.Module.IsDebugBuild() ? 7 : 0;
+
+            method.DebugInformation.SequencePoints.Count.ShouldEqual(expectedCount);
         }
     }
 }

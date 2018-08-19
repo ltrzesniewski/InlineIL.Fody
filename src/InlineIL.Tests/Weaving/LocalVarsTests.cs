@@ -88,6 +88,16 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_add_debug_info()
+        {
+            var method = GetMethodDefinition("MixedNamedAndUnnamed");
+            method.DebugInformation.Scope.Variables.Count.ShouldEqual(3);
+            method.DebugInformation.Scope.Variables[0].Name.ShouldEqual("InlineIL_0");
+            method.DebugInformation.Scope.Variables[1].Name.ShouldEqual("foo");
+            method.DebugInformation.Scope.Variables[2].Name.ShouldEqual("InlineIL_2");
+        }
+
+        [Fact]
         public void should_report_undefined_local()
         {
             ShouldHaveError("UndefinedLocal").ShouldContain("is not defined");

@@ -135,4 +135,13 @@ public class LocalVarsTestCases
             new LocalVar(typeof(TypedReference))
         );
     }
+
+    public void MixedNamedAndUnnamed()
+    {
+        IL.DeclareLocals(
+            typeof(int),
+            new LocalVar("foo", typeof(int)),
+            typeof(int)
+        );
+    }
 }
