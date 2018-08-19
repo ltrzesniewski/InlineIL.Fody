@@ -26,7 +26,10 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
-            foreach (var method in ModuleDefinition.GetTypes().SelectMany(t => t.Methods))
+            var configOptions = new WeaverConfigOptions(Config);
+            var config = new WeaverConfig(configOptions, ModuleDefinition);
+
+            foreach (var method in GetAllMethods())
             {
                 try
                 {
@@ -34,7 +37,7 @@ namespace InlineIL.Fody
                         continue;
 
                     _log.Debug($"Processing: {method.FullName}");
-                    new MethodWeaver(ModuleDefinition, method).Process();
+                    new MethodWeaver(ModuleDefinition, config, method).Process();
                 }
                 catch (WeavingException ex)
                 {
@@ -46,12 +49,15 @@ namespace InlineIL.Fody
             RemoveLibReference();
         }
 
+        private IEnumerable<MethodDefinition> GetAllMethods()
+            => ModuleDefinition.GetTypes().SelectMany(t => t.Methods);
+
         private void InvalidateMethod(MethodDefinition method, string message)
         {
             method.Body.Instructions.Clear();
             method.Body.Variables.Clear();
             method.Body.ExceptionHandlers.Clear();
-            
+
             var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.GetTypeSystem().CoreLibrary)
                                 .Resolve()?
                                 .Methods
@@ -80,11 +86,39 @@ namespace InlineIL.Fody
 
         private void RemoveLibReference()
         {
-            var libRef = ModuleDefinition.AssemblyReferences.FirstOrDefault(i => i.Name == "InlineIL");
-            if (libRef != null)
+            var libRef = ModuleDefinition.AssemblyReferences.FirstOrDefault(i => i.IsInlineILAssembly());
+            if (libRef == null)
+                return;
+
+            var importScopes = new HashSet<ImportDebugInformation>();
+
+            foreach (var method in GetAllMethods())
             {
-                ModuleDefinition.AssemblyReferences.Remove(libRef);
-                _log.Debug("Removed reference to InlineIL");
+                foreach (var scope in method.DebugInformation.GetScopes())
+                    ProcessScope(scope);
+            }
+
+            ModuleDefinition.AssemblyReferences.Remove(libRef);
+            _log.Debug("Removed reference to InlineIL");
+
+            void ProcessScope(ScopeDebugInformation scope)
+            {
+                ProcessImportScope(scope.Import);
+
+                if (scope.HasScopes)
+                {
+                    foreach (var childScope in scope.Scopes)
+                        ProcessScope(childScope);
+                }
+            }
+
+            void ProcessImportScope(ImportDebugInformation importScope)
+            {
+                if (importScope == null || !importScopes.Add(importScope))
+                    return;
+
+                importScope.Targets.RemoveWhere(t => t.AssemblyReference.IsInlineILAssembly() || t.Type.IsInlineILType());
+                ProcessImportScope(importScope.Parent);
             }
         }
 

@@ -17,19 +17,21 @@ namespace InlineIL.Fody.Processing
     internal class MethodWeaver
     {
         private readonly ModuleDefinition _module;
+        private readonly WeaverConfig _config;
         private readonly MethodDefinition _method;
         private readonly WeaverILProcessor _il;
-        private readonly List<SequencePoint> _sequencePoints;
+        private readonly List<SequencePoint> _inputSequencePoints;
         private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
 
         private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
 
-        public MethodWeaver(ModuleDefinition module, MethodDefinition method)
+        public MethodWeaver(ModuleDefinition module, WeaverConfig config, MethodDefinition method)
         {
             _module = module;
+            _config = config;
             _method = method;
             _il = new WeaverILProcessor(_method);
-            _sequencePoints = _method.DebugInformation.SequencePoints.ToList();
+            _inputSequencePoints = _method.DebugInformation.SequencePoints.ToList();
         }
 
         public static bool NeedsProcessing(MethodDefinition method)
@@ -41,16 +43,22 @@ namespace InlineIL.Fody.Processing
             if (!method.HasBody)
                 return null;
 
-            return method.Body
-                         .Instructions
-                         .FirstOrDefault(
-                             i => i.OpCode.FlowControl == FlowControl.Call
-                                  && i.Operand is MethodReference opMethod
-                                  && KnownNames.Full.AllTypes.Contains(opMethod.DeclaringType.FullName)
-                                  ||
-                                  i.Operand is TypeReference typeRef
-                                  && KnownNames.Full.AllTypes.Contains(typeRef.FullName)
-                         );
+            foreach (var instruction in method.Body.Instructions)
+            {
+                switch (instruction.Operand)
+                {
+                    case MethodReference methodRef when methodRef.DeclaringType.IsInlineILType():
+                        return instruction;
+
+                    case TypeReference typeRef when typeRef.IsInlineILType():
+                        return instruction;
+
+                    case FieldReference fieldRef when fieldRef.DeclaringType.IsInlineILType():
+                        return instruction;
+                }
+            }
+
+            return null;
         }
 
         public void Process()
@@ -69,7 +77,7 @@ namespace InlineIL.Fody.Processing
 
                 throw new WeavingException(message)
                 {
-                    SequencePoint = _sequencePoints.LastOrDefault(sp => sp.Offset <= ex.Instruction?.Offset)
+                    SequencePoint = GetInputSequencePoint(ex.Instruction)
                 };
             }
             catch (WeavingException ex)
@@ -240,6 +248,11 @@ namespace InlineIL.Fody.Processing
 
             if (emittedInstruction.OpCode.OpCodeType == OpCodeType.Prefix)
                 _il.RemoveNopsAfter(emittedInstruction);
+
+            var sequencePoint = MapSequencePoint(emitCallInstruction, emittedInstruction);
+
+            if (emittedInstruction.Previous?.OpCode.OpCodeType == OpCodeType.Prefix)
+                MergeWithPreviousSequencePoint(sequencePoint);
 
             nextInstruction = emittedInstruction.NextSkipNops();
 
@@ -465,6 +478,7 @@ namespace InlineIL.Fody.Processing
             ValidateReturnMethod();
 
             _il.Remove(instruction);
+            MapSequencePoint(instruction, instruction.Next);
 
             void ValidateReturnMethod()
             {
@@ -1056,6 +1070,68 @@ namespace InlineIL.Fody.Processing
 
         private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
             => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction}");
+
+        [CanBeNull]
+        private SequencePoint GetInputSequencePoint([CanBeNull] Instruction instruction)
+        {
+            if (instruction == null)
+                return null;
+
+            return _inputSequencePoints.LastOrDefault(sp => sp.Offset <= instruction.Offset);
+        }
+
+        [CanBeNull]
+        private SequencePoint MapSequencePoint([CanBeNull] Instruction inputInstruction, [CanBeNull] Instruction outputInstruction)
+        {
+            if (inputInstruction == null || outputInstruction == null)
+                return null;
+
+            if (!_config.GenerateSequencePoints)
+                return null;
+
+            var inputSequencePoint = GetInputSequencePoint(inputInstruction);
+            if (inputSequencePoint == null)
+                return null;
+
+            var sequencePoints = _method.DebugInformation.SequencePoints;
+
+            var indexOfOutputSequencePoint = sequencePoints.IndexOfFirst(i => i.Offset > inputSequencePoint.Offset);
+            if (indexOfOutputSequencePoint < 0)
+                indexOfOutputSequencePoint = sequencePoints.Count;
+
+            var outputSequencePoint = new SequencePoint(outputInstruction, inputSequencePoint.Document)
+            {
+                StartLine = inputSequencePoint.StartLine,
+                StartColumn = inputSequencePoint.StartColumn,
+                EndLine = inputSequencePoint.EndLine,
+                EndColumn = inputSequencePoint.EndColumn
+            };
+
+            sequencePoints.Insert(indexOfOutputSequencePoint, outputSequencePoint);
+
+            return outputSequencePoint;
+        }
+
+        private void MergeWithPreviousSequencePoint(SequencePoint sequencePoint)
+        {
+            if (sequencePoint == null)
+                return;
+
+            var sequencePoints = _method.DebugInformation.SequencePoints;
+
+            var index = sequencePoints.IndexOf(sequencePoint);
+            if (index <= 0)
+                return;
+
+            var previousSequencePoint = sequencePoints[index - 1];
+            if (previousSequencePoint.Document.Url != sequencePoint.Document.Url)
+                return;
+
+            previousSequencePoint.EndLine = sequencePoint.EndLine;
+            previousSequencePoint.EndColumn = sequencePoint.EndColumn;
+
+            sequencePoints.RemoveAt(index);
+        }
 
         private class LabelInfo
         {

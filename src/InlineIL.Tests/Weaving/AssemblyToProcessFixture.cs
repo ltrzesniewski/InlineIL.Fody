@@ -19,7 +19,7 @@ namespace InlineIL.Tests.Weaving
 
         static AssemblyToProcessFixture()
         {
-            const string assemblyPath = "InlineIL.Tests.AssemblyToProcess.dll";
+            var assemblyPath = FixtureHelper.IsolateAssembly("InlineIL.Tests.AssemblyToProcess.dll");
 
             var weavingTask = new GuardedWeaver();
 
@@ -31,8 +31,13 @@ namespace InlineIL.Tests.Weaving
                 }
             );
 
-            OriginalModule = ModuleDefinition.ReadModule(assemblyPath, new ReaderParameters(ReadingMode.Immediate));
-            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate));
+            var readerParams = new ReaderParameters(ReadingMode.Immediate)
+            {
+                ReadSymbols = true
+            };
+
+            OriginalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
+            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, readerParams);
         }
 
         internal class GuardedWeaver : ModuleWeaver

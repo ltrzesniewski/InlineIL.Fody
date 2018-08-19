@@ -1,4 +1,5 @@
 ﻿using System;
+using InlineIL.Examples;
 using Xunit;
 
 namespace InlineIL.Tests.Examples
@@ -24,6 +25,12 @@ namespace InlineIL.Tests.Examples
         {
             public int Int;
             public Guid Guid;
+        }
+
+        [Fact]
+        public void DebugInfo()
+        {
+            DebugInfoExamples.LocalVariables();
         }
     }
 }

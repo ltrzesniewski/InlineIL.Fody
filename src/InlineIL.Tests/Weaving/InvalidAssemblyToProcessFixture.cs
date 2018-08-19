@@ -14,7 +14,7 @@ namespace InlineIL.Tests.Weaving
         static InvalidAssemblyToProcessFixture()
         {
             var weavingTask = new ModuleWeaver();
-            TestResult = weavingTask.ExecuteTestRun("InlineIL.Tests.InvalidAssemblyToProcess.dll", false);
+            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly("InlineIL.Tests.InvalidAssemblyToProcess.dll"), false);
         }
 
         public static string ShouldHaveError(string className, string methodName)

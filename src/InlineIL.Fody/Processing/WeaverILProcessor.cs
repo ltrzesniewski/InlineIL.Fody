@@ -42,7 +42,7 @@ namespace InlineIL.Fody.Processing
             if (Locals != null)
                 throw new WeavingException("Local variables have already been declared for this method");
 
-            Locals = new MethodLocals(_il.Body, locals);
+            Locals = new MethodLocals(_il.Body.Method, locals);
         }
 
         public HashSet<Instruction> GetAllReferencedInstructions()

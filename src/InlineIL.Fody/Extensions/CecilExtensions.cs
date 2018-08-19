@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Fody;
+using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
@@ -324,5 +327,37 @@ namespace InlineIL.Fody.Extensions
             return module.TypeSystem;
 #pragma warning restore 618
         }
+
+        public static bool IsDebugBuild(this ModuleDefinition module)
+        {
+            const string attributeName = "System.Diagnostics.DebuggableAttribute";
+            const string enumName = attributeName + "/DebuggingModes";
+
+            var debuggableAttribute = module.Assembly.CustomAttributes.FirstOrDefault(i => i.AttributeType.FullName == attributeName)
+                                      ?? module.CustomAttributes.FirstOrDefault(i => i.AttributeType.FullName == attributeName);
+
+            if (debuggableAttribute == null)
+                return false;
+
+            var args = debuggableAttribute.ConstructorArguments;
+
+            switch (args.Count)
+            {
+                case 1 when args[0].Type.FullName == enumName && args[0].Value is int intValue:
+                    return ((DebuggableAttribute.DebuggingModes)intValue & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0;
+
+                case 2 when args[0].Value is bool && args[1].Value is bool isJitOptimizerDisabled:
+                    return isJitOptimizerDisabled;
+
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsInlineILType([CanBeNull] this TypeReference type)
+            => type != null && KnownNames.Full.AllTypes.Contains(type.FullName);
+
+        public static bool IsInlineILAssembly([CanBeNull] this AssemblyNameReference assembly)
+            => assembly?.Name == "InlineIL";
     }
 }
