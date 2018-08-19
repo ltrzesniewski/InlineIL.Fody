@@ -197,7 +197,7 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_report_non_existing_paremeter_reference()
+        public void should_report_non_existing_parameter_reference()
         {
             ShouldHaveError("NonExistingParameter").ShouldContain("foo");
         }

@@ -3,6 +3,7 @@ using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
 using JetBrains.Annotations;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace InlineIL.Fody.Processing
@@ -12,7 +13,7 @@ namespace InlineIL.Fody.Processing
         private readonly Dictionary<string, VariableDefinition> _localsByName = new Dictionary<string, VariableDefinition>();
         private readonly List<VariableDefinition> _localsByIndex = new List<VariableDefinition>();
 
-        public MethodLocals(MethodBody methodBody, IEnumerable<LocalVarBuilder> locals)
+        public MethodLocals(MethodDefinition method, IEnumerable<LocalVarBuilder> locals)
         {
             foreach (var local in locals)
             {
@@ -27,7 +28,9 @@ namespace InlineIL.Fody.Processing
                 }
 
                 _localsByIndex.Add(localVar);
-                methodBody.Variables.Add(localVar);
+                method.Body.Variables.Add(localVar);
+
+                method.DebugInformation.Scope?.Variables.Add(new VariableDebugInformation(localVar, local.Name ?? $"InlineIL_{_localsByIndex.Count - 1}"));
             }
         }
 
