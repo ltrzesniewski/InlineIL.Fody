@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Fody;
+using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
@@ -349,8 +350,14 @@ namespace InlineIL.Fody.Extensions
                     return isJitOptimizerDisabled;
 
                 default:
-                        return false;
+                    return false;
             }
         }
+
+        public static bool IsInlineILType([CanBeNull] this TypeReference type)
+            => type != null && KnownNames.Full.AllTypes.Contains(type.FullName);
+
+        public static bool IsInlineILAssembly([CanBeNull] this AssemblyNameReference assembly)
+            => assembly?.Name == "InlineIL";
     }
 }

@@ -47,13 +47,13 @@ namespace InlineIL.Fody.Processing
             {
                 switch (instruction.Operand)
                 {
-                    case MethodReference methodRef when KnownNames.Full.AllTypes.Contains(methodRef.DeclaringType.FullName):
+                    case MethodReference methodRef when methodRef.DeclaringType.IsInlineILType():
                         return instruction;
 
-                    case TypeReference typeRef when KnownNames.Full.AllTypes.Contains(typeRef.FullName):
+                    case TypeReference typeRef when typeRef.IsInlineILType():
                         return instruction;
 
-                    case FieldReference fieldRef when KnownNames.Full.AllTypes.Contains(fieldRef.DeclaringType.FullName):
+                    case FieldReference fieldRef when fieldRef.DeclaringType.IsInlineILType():
                         return instruction;
                 }
             }
