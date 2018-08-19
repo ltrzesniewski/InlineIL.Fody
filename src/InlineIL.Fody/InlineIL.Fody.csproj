@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="3.1.4" />
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
   </ItemGroup>
 
 </Project>
