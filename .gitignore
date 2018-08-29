@@ -1,52 +1,15 @@
 
-*.obj
-*.pdb
-*.user
-*.suo
+local-*
 
 .vs/
 .vscode/
 .idea/
-[Bb]in/
-[Oo]bj/
+output/
+bin/
+obj/
 
 Thumbs.db
 
-
-#Ignore files build by Visual Studio
-*.obj
-*.pdb
 *.user
-*.aps
-*.pch
-*.vspscc
-*_i.c
-*_p.c
-*.ncb
-*.suo
-*.tlb
-*.tlh
-*.bak
-*.cache
-*.ilk
 *.log
-[Bb]in
-[Dd]ebug*/
-*.lib
-*.sbr
-*.ncrunchproject
-*.ncrunchsolution
-obj/
-[Rr]elease*/
-_ReSharper*/
-[Tt]est[Rr]esult*
-output/**
-.vs/
-
-src/_NCrunch_Abc.Zebus/**
-lib/packages/**
-tools/cake/tools/Cake/*
-tools/cake/tools/nuget.exe
-build/tools/*
-
-src/Abc.Zebus.Tests/Properties/launchSettings.json
+*.orig
