@@ -265,5 +265,59 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveErrorNoSeqPoint("LibRefAttributeParam");
             ShouldHaveErrorNoSeqPoint("LibRefAttributeMethodParam");
         }
+
+        [Fact]
+        public void should_report_lib_ref_in_type_attributes()
+        {
+            ShouldHaveErrorInType("LibRefTypeAttr");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_field_attributes()
+        {
+            ShouldHaveErrorInType("LibRefFieldAttr");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_property_attributes()
+        {
+            ShouldHaveErrorInType("LibRefPropAttr");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_event_attributes()
+        {
+            ShouldHaveErrorInType("LibRefEventAttr");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_field_type()
+        {
+            ShouldHaveErrorInType("LibRefFieldType");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_property_type()
+        {
+            ShouldHaveErrorInType("LibRefPropType");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_event_type()
+        {
+            ShouldHaveErrorInType("LibRefEventType");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_base_type()
+        {
+            ShouldHaveErrorInType("LibRefBaseType");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_interface_type()
+        {
+            ShouldHaveErrorInType("LibRefIfaceType");
+        }
     }
 }

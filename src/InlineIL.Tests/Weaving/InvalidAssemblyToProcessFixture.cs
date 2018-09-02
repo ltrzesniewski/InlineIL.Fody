@@ -28,5 +28,11 @@ namespace InlineIL.Tests.Weaving
 
             return errorMessage.Text;
         }
+
+        public static void ShouldHaveErrorInType(string className, string nestedTypeName)
+        {
+            var expectedMessagePart = $" {className}/{nestedTypeName}";
+            TestResult.Errors.ShouldAny(err => err.Text.Contains(expectedMessagePart));
+        }
     }
 }

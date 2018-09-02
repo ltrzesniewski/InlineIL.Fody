@@ -23,6 +23,9 @@ namespace InlineIL.Tests.Support
         public static void ShouldAll<T>(this IEnumerable<T> items, Func<T, bool> test)
             => Assert.All(items, item => Assert.True(test(item)));
 
+        public static void ShouldAny<T>(this IEnumerable<T> items, Func<T, bool> test)
+            => Assert.Contains(items, item => test(item));
+
         public static void ShouldContain<T>(this IEnumerable<T> items, Func<T, bool> predicate)
             => Assert.Contains(items, item => predicate(item));
 

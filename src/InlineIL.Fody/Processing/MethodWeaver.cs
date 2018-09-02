@@ -50,9 +50,6 @@ namespace InlineIL.Fody.Processing
             if (method.Body.Variables.Any(i => i.VariableType.IsInlineILTypeUsage()))
                 return true;
 
-            if (method.HasCustomAttributes && method.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
-                return true;
-
             foreach (var instruction in method.Body.Instructions)
             {
                 refInstruction = instruction;

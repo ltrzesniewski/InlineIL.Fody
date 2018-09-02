@@ -121,6 +121,11 @@ public class BasicTestCases
     {
     }
 
+    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+    public interface IFoo<T>
+    {
+    }
+
     private class SomeAttributeAttribute : Attribute
     {
         public Type Type { get; set; }
@@ -133,5 +138,54 @@ public class BasicTestCases
         {
             Type = type;
         }
+    }
+
+    [SomeAttribute(typeof(TypeRef))]
+    public class LibRefTypeAttr
+    {
+    }
+
+    public class LibRefFieldAttr
+    {
+        [SomeAttribute(typeof(TypeRef))] public int Item;
+    }
+
+    public class LibRefPropAttr
+    {
+        [SomeAttribute(typeof(TypeRef))]
+        public int Item { get; set; }
+    }
+
+    public class LibRefEventAttr
+    {
+#pragma warning disable 67
+        [SomeAttribute(typeof(TypeRef))]
+        public event Action Item;
+#pragma warning restore 67
+    }
+
+    public class LibRefFieldType
+    {
+        public TypeRef Item;
+    }
+
+    public class LibRefPropType
+    {
+        public TypeRef Item { get; set; }
+    }
+
+    public class LibRefEventType
+    {
+#pragma warning disable 67
+        public event Action<TypeRef> Item;
+#pragma warning restore 67
+    }
+
+    public class LibRefBaseType : Foo<TypeRef>
+    {
+    }
+
+    public class LibRefIfaceType : IFoo<TypeRef>
+    {
     }
 }

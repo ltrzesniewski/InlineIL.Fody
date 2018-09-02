@@ -29,28 +29,31 @@ namespace InlineIL.Fody
             var configOptions = new WeaverConfigOptions(Config);
             var config = new WeaverConfig(configOptions, ModuleDefinition);
 
-            foreach (var method in GetAllMethods())
+            foreach (var type in ModuleDefinition.GetTypes())
             {
-                try
+                foreach (var method in type.Methods)
                 {
-                    if (!MethodWeaver.NeedsProcessing(method))
-                        continue;
+                    try
+                    {
+                        if (!MethodWeaver.NeedsProcessing(method))
+                            continue;
 
-                    _log.Debug($"Processing: {method.FullName}");
-                    new MethodWeaver(ModuleDefinition, config, method).Process();
+                        _log.Debug($"Processing: {method.FullName}");
+                        new MethodWeaver(ModuleDefinition, config, method).Process();
+                    }
+                    catch (WeavingException ex)
+                    {
+                        AddError(ex.Message, ex.SequencePoint);
+                        InvalidateMethod(method, ex.Message);
+                    }
                 }
-                catch (WeavingException ex)
-                {
-                    AddError(ex.Message, ex.SequencePoint);
-                    InvalidateMethod(method, ex.Message);
-                }
+
+                if (type.IsInlineILTypeUsage())
+                    AddError($"Reference to InlineIL found in type {type.FullName}. InlineIL should not be referenced in attributes/constraints, as its assembly reference will be removed.", null);
             }
 
             RemoveLibReference();
         }
-
-        private IEnumerable<MethodDefinition> GetAllMethods()
-            => ModuleDefinition.GetTypes().SelectMany(t => t.Methods);
 
         private void InvalidateMethod(MethodDefinition method, string message)
         {
@@ -92,7 +95,7 @@ namespace InlineIL.Fody
 
             var importScopes = new HashSet<ImportDebugInformation>();
 
-            foreach (var method in GetAllMethods())
+            foreach (var method in ModuleDefinition.GetTypes().SelectMany(t => t.Methods))
             {
                 foreach (var scope in method.DebugInformation.GetScopes())
                     ProcessScope(scope);

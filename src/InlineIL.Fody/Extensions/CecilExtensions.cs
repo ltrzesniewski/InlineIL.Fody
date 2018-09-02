@@ -381,6 +381,16 @@ namespace InlineIL.Fody.Extensions
                 case TypeSpecification t:
                     return t.ElementType.IsInlineILTypeUsage();
 
+                case TypeDefinition t:
+                    return t.BaseType.IsInlineILTypeUsage()
+                           || t.HasInterfaces && t.Interfaces.Any(i => i.IsInlineILTypeUsage())
+                           || t.HasGenericParameters && t.GenericParameters.Any(i => i.IsInlineILTypeUsage())
+                           || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage())
+                           || t.HasMethods && t.Methods.Any(i => i.IsInlineILTypeUsage())
+                           || t.HasFields && t.Fields.Any(i => i.IsInlineILTypeUsage())
+                           || t.HasProperties && t.Properties.Any(i => i.IsInlineILTypeUsage())
+                           || t.HasEvents && t.Events.Any(i => i.IsInlineILTypeUsage());
+
                 default:
                     return KnownNames.Full.AllTypes.Contains(type.FullName);
             }
@@ -395,14 +405,25 @@ namespace InlineIL.Fody.Extensions
             if (method.ReturnType.IsInlineILTypeUsage() || method.HasParameters && method.Parameters.Any(i => i.IsInlineILTypeUsage()))
                 return true;
 
-            if (method is MethodReference methodRef && methodRef.DeclaringType.IsInlineILTypeUsage())
-                return true;
-
             if (method is IGenericInstance genericInstance && genericInstance.HasGenericArguments && genericInstance.GenericArguments.Any(i => i.IsInlineILTypeUsage()))
                 return true;
 
             if (method is IGenericParameterProvider generic && generic.HasGenericParameters && generic.GenericParameters.Any(i => i.IsInlineILTypeUsage()))
                 return true;
+
+            if (method is MethodReference methodRef)
+            {
+                if (methodRef is MethodDefinition methodDef)
+                {
+                    if (methodDef.HasCustomAttributes && methodDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                        return true;
+                }
+                else
+                {
+                    if (methodRef.DeclaringType.IsInlineILTypeUsage())
+                        return true;
+                }
+            }
 
             return false;
         }
@@ -413,7 +434,66 @@ namespace InlineIL.Fody.Extensions
             if (fieldRef == null)
                 return false;
 
-            return fieldRef.DeclaringType.IsInlineILTypeUsage() || fieldRef.FieldType.IsInlineILTypeUsage();
+            if (fieldRef.FieldType.IsInlineILTypeUsage())
+                return true;
+
+            if (fieldRef is FieldDefinition fieldDef)
+            {
+                if (fieldDef.HasCustomAttributes && fieldDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                    return true;
+            }
+            else
+            {
+                if (fieldRef.DeclaringType.IsInlineILTypeUsage())
+                    return true;
+            }
+
+            return false;
+        }
+
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this PropertyReference propRef)
+        {
+            if (propRef == null)
+                return false;
+
+            if (propRef.PropertyType.IsInlineILTypeUsage())
+                return true;
+
+            if (propRef is PropertyDefinition propDef)
+            {
+                if (propDef.HasCustomAttributes && propDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                    return true;
+            }
+            else
+            {
+                if (propRef.DeclaringType.IsInlineILTypeUsage())
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool IsInlineILTypeUsage(this EventReference eventRef)
+        {
+            if (eventRef == null)
+                return false;
+
+            if (eventRef.EventType.IsInlineILTypeUsage())
+                return true;
+
+            if (eventRef is EventDefinition eventDef)
+            {
+                if (eventDef.HasCustomAttributes && eventDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                    return true;
+            }
+            else
+            {
+                if (eventRef.DeclaringType.IsInlineILTypeUsage())
+                    return true;
+            }
+
+            return false;
         }
 
         [ContractAnnotation("null => false")]
@@ -447,6 +527,16 @@ namespace InlineIL.Fody.Extensions
                 return true;
 
             return false;
+        }
+
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this InterfaceImplementation ifaceImpl)
+        {
+            if (ifaceImpl == null)
+                return false;
+
+            return ifaceImpl.InterfaceType.IsInlineILTypeUsage()
+                   || ifaceImpl.HasCustomAttributes && ifaceImpl.CustomAttributes.Any(i => i.IsInlineILTypeUsage());
         }
 
         [ContractAnnotation("null => false")]

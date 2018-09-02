@@ -33,6 +33,9 @@ namespace InlineIL.Tests.Weaving
         protected string ShouldHaveErrorNoSeqPoint(string methodName)
             => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName, false);
 
+        protected void ShouldHaveErrorInType(string nestedTypeName)
+            => InvalidAssemblyToProcessFixture.ShouldHaveErrorInType(ClassName, nestedTypeName);
+
         private MethodDefinition GetMethodDefinition(ModuleDefinition module, string methodName)
             => module.GetType(ClassName).Methods.Single(m => m.Name == methodName);
     }
