@@ -48,7 +48,7 @@ namespace InlineIL.Fody
                     }
                 }
 
-                if (type.IsInlineILTypeUsage())
+                if (type.IsInlineILTypeUsageDeep())
                     AddError($"Reference to InlineIL found in type {type.FullName}. InlineIL should not be referenced in attributes/constraints, as its assembly reference will be removed.", null);
             }
 

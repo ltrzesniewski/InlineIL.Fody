@@ -381,19 +381,26 @@ namespace InlineIL.Fody.Extensions
                 case TypeSpecification t:
                     return t.ElementType.IsInlineILTypeUsage();
 
-                case TypeDefinition t:
-                    return t.BaseType.IsInlineILTypeUsage()
-                           || t.HasInterfaces && t.Interfaces.Any(i => i.IsInlineILTypeUsage())
-                           || t.HasGenericParameters && t.GenericParameters.Any(i => i.IsInlineILTypeUsage())
-                           || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage())
-                           || t.HasMethods && t.Methods.Any(i => i.IsInlineILTypeUsage())
-                           || t.HasFields && t.Fields.Any(i => i.IsInlineILTypeUsage())
-                           || t.HasProperties && t.Properties.Any(i => i.IsInlineILTypeUsage())
-                           || t.HasEvents && t.Events.Any(i => i.IsInlineILTypeUsage());
-
                 default:
                     return KnownNames.Full.AllTypes.Contains(type.FullName);
             }
+        }
+
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsageDeep([CanBeNull] this TypeDefinition typeDef)
+        {
+            if (typeDef == null)
+                return false;
+
+            return typeDef.IsInlineILTypeUsage()
+                   || typeDef.BaseType.IsInlineILTypeUsage()
+                   || typeDef.HasInterfaces && typeDef.Interfaces.Any(i => i.IsInlineILTypeUsage())
+                   || typeDef.HasGenericParameters && typeDef.GenericParameters.Any(i => i.IsInlineILTypeUsage())
+                   || typeDef.HasCustomAttributes && typeDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage())
+                   || typeDef.HasMethods && typeDef.Methods.Any(i => i.IsInlineILTypeUsage())
+                   || typeDef.HasFields && typeDef.Fields.Any(i => i.IsInlineILTypeUsage())
+                   || typeDef.HasProperties && typeDef.Properties.Any(i => i.IsInlineILTypeUsage())
+                   || typeDef.HasEvents && typeDef.Events.Any(i => i.IsInlineILTypeUsage());
         }
 
         [ContractAnnotation("null => false")]

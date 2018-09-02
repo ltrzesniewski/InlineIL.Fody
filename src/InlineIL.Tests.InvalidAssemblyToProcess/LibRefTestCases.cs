@@ -27,6 +27,21 @@ public class LibRefTestCases
         DoNothing<Foo<TypeRef>>();
     }
 
+    public void BadFieldRef()
+    {
+        FieldType.Item = null;
+    }
+
+    public void BadPropRef()
+    {
+        PropType.Item = null;
+    }
+
+    public void BadEventRef()
+    {
+        EventType.Item += delegate { };
+    }
+
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public void Param(TypeRef typeRef)
     {
@@ -124,18 +139,18 @@ public class LibRefTestCases
 
     public class FieldType
     {
-        public TypeRef Item;
+        public static TypeRef Item;
     }
 
     public class PropType
     {
-        public TypeRef Item { get; set; }
+        public static TypeRef Item { get; set; }
     }
 
     public class EventType
     {
 #pragma warning disable 67
-        public event Action<TypeRef> Item;
+        public static event Action<TypeRef> Item;
 #pragma warning restore 67
     }
 

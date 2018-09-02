@@ -24,6 +24,24 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_report_lib_ref_to_bad_field()
+        {
+            ShouldHaveError("BadFieldRef");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_to_bad_property()
+        {
+            ShouldHaveError("BadPropRef");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_to_bad_event()
+        {
+            ShouldHaveError("BadEventRef");
+        }
+
+        [Fact]
         public void should_report_lib_ref_generic_constraint()
         {
             ShouldHaveErrorNoSeqPoint("GenericConstraint");
