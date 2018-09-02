@@ -224,5 +224,46 @@ namespace InlineIL.Tests.Weaving
 
             method.DebugInformation.SequencePoints.Count.ShouldEqual(expectedCount);
         }
+
+        [Fact]
+        public void should_report_lib_ref_local()
+        {
+            ShouldHaveErrorNoSeqPoint("LibRefLocal");
+            ShouldHaveErrorNoSeqPoint("LibRefLocal2");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_param()
+        {
+            ShouldHaveErrorNoSeqPoint("LibRefParam");
+            ShouldHaveErrorNoSeqPoint("LibRefParam2");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_generic_constraint()
+        {
+            ShouldHaveErrorNoSeqPoint("LibRefGenericConstraint");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_generic_param_attributes()
+        {
+            ShouldHaveErrorNoSeqPoint("LibRefGenericParamAttribute");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_generic_call()
+        {
+            ShouldHaveErrorNoSeqPoint("LibRefGenericCall");
+            ShouldHaveErrorNoSeqPoint("LibRefGenericCall2");
+        }
+
+        [Fact]
+        public void should_report_lib_ref_in_attributes()
+        {
+            ShouldHaveErrorNoSeqPoint("LibRefAttributeCtor");
+            ShouldHaveErrorNoSeqPoint("LibRefAttributeParam");
+            ShouldHaveErrorNoSeqPoint("LibRefAttributeMethodParam");
+        }
     }
 }

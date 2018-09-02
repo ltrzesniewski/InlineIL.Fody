@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Support;
@@ -130,6 +131,18 @@ namespace InlineIL.Tests
 #endif
 
             module.IsDebugBuild().ShouldEqual(isDebug);
+        }
+
+        [Fact]
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
+        [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
+        public void should_return_false_on_null()
+        {
+            CecilExtensions.IsInlineILTypeUsage(default(CustomAttribute)).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(FieldReference)).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(IMethodSignature)).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(ParameterDefinition)).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(TypeReference)).ShouldBeFalse();
         }
     }
 }

@@ -35,30 +35,40 @@ namespace InlineIL.Fody.Processing
         }
 
         public static bool NeedsProcessing(MethodDefinition method)
-            => GetLibReferencingInstruction(method) != null;
+            => HasLibReference(method, out _);
 
-        [CanBeNull]
-        private static Instruction GetLibReferencingInstruction(MethodDefinition method)
+        private static bool HasLibReference(MethodDefinition method, out Instruction refInstruction)
         {
+            refInstruction = null;
+
+            if (method.IsInlineILTypeUsage())
+                return true;
+
             if (!method.HasBody)
-                return null;
+                return false;
+
+            if (method.Body.Variables.Any(i => i.VariableType.IsInlineILTypeUsage()))
+                return true;
+
+            if (method.HasCustomAttributes && method.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                return true;
 
             foreach (var instruction in method.Body.Instructions)
             {
+                refInstruction = instruction;
+
                 switch (instruction.Operand)
                 {
-                    case MethodReference methodRef when methodRef.DeclaringType.IsInlineILType():
-                        return instruction;
-
-                    case TypeReference typeRef when typeRef.IsInlineILType():
-                        return instruction;
-
-                    case FieldReference fieldRef when fieldRef.DeclaringType.IsInlineILType():
-                        return instruction;
+                    case MethodReference methodRef when methodRef.IsInlineILTypeUsage():
+                    case TypeReference typeRef when typeRef.IsInlineILTypeUsage():
+                    case FieldReference fieldRef when fieldRef.IsInlineILTypeUsage():
+                    case CallSite callSite when callSite.IsInlineILTypeUsage():
+                        return true;
                 }
             }
 
-            return null;
+            refInstruction = null;
+            return false;
         }
 
         public void Process()
@@ -196,8 +206,7 @@ namespace InlineIL.Fody.Processing
 
         private void ValidateAfterProcessing()
         {
-            var libReferencingInstruction = GetLibReferencingInstruction(_method);
-            if (libReferencingInstruction != null)
+            if (HasLibReference(_method, out var libReferencingInstruction))
                 throw new InstructionWeavingException(libReferencingInstruction, "Unconsumed reference to InlineIL");
 
             var invalidRefs = _il.GetAllReferencedInstructions().Except(Instructions).ToList();

@@ -117,7 +117,7 @@ namespace InlineIL.Fody
                 if (importScope == null || !importScopes.Add(importScope))
                     return;
 
-                importScope.Targets.RemoveWhere(t => t.AssemblyReference.IsInlineILAssembly() || t.Type.IsInlineILType());
+                importScope.Targets.RemoveWhere(t => t.AssemblyReference.IsInlineILAssembly() || t.Type.IsInlineILTypeUsage());
                 ProcessImportScope(importScope.Parent);
             }
         }

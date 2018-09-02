@@ -28,7 +28,10 @@ namespace InlineIL.Tests.Weaving
             => GetMethodDefinition(UnverifiableAssemblyToProcessFixture.ResultModule, methodName);
 
         protected string ShouldHaveError(string methodName)
-            => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName);
+            => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName, true);
+
+        protected string ShouldHaveErrorNoSeqPoint(string methodName)
+            => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName, false);
 
         private MethodDefinition GetMethodDefinition(ModuleDefinition module, string methodName)
             => module.GetType(ClassName).Methods.Single(m => m.Name == methodName);

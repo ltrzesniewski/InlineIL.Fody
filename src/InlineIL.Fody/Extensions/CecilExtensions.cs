@@ -354,9 +354,102 @@ namespace InlineIL.Fody.Extensions
             }
         }
 
-        public static bool IsInlineILType([CanBeNull] this TypeReference type)
-            => type != null && KnownNames.Full.AllTypes.Contains(type.FullName);
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this TypeReference type)
+        {
+            switch (type)
+            {
+                case null:
+                    return false;
 
+                case GenericInstanceType t:
+                    return t.ElementType.IsInlineILTypeUsage()
+                           || t.GenericParameters.Any(i => i.IsInlineILTypeUsage())
+                           || t.GenericArguments.Any(i => i.IsInlineILTypeUsage());
+
+                case GenericParameter t:
+                    return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage())
+                           || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage());
+
+                case IModifierType t:
+                    return t.ElementType.IsInlineILTypeUsage()
+                           || t.ModifierType.IsInlineILTypeUsage();
+
+                case FunctionPointerType t:
+                    return ((IMethodSignature)t).IsInlineILTypeUsage();
+
+                case TypeSpecification t:
+                    return t.ElementType.IsInlineILTypeUsage();
+
+                default:
+                    return KnownNames.Full.AllTypes.Contains(type.FullName);
+            }
+        }
+
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this IMethodSignature method)
+        {
+            if (method == null)
+                return false;
+
+            if (method.ReturnType.IsInlineILTypeUsage() || method.HasParameters && method.Parameters.Any(i => i.IsInlineILTypeUsage()))
+                return true;
+
+            if (method is MethodReference methodRef && methodRef.DeclaringType.IsInlineILTypeUsage())
+                return true;
+
+            if (method is IGenericInstance genericInstance && genericInstance.HasGenericArguments && genericInstance.GenericArguments.Any(i => i.IsInlineILTypeUsage()))
+                return true;
+
+            if (method is IGenericParameterProvider generic && generic.HasGenericParameters && generic.GenericParameters.Any(i => i.IsInlineILTypeUsage()))
+                return true;
+
+            return false;
+        }
+
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this FieldReference fieldRef)
+        {
+            if (fieldRef == null)
+                return false;
+
+            return fieldRef.DeclaringType.IsInlineILTypeUsage() || fieldRef.FieldType.IsInlineILTypeUsage();
+        }
+
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this ParameterDefinition paramDef)
+        {
+            if (paramDef == null)
+                return false;
+
+            if (paramDef.ParameterType.IsInlineILTypeUsage())
+                return true;
+
+            if (paramDef.HasCustomAttributes && paramDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                return true;
+
+            return false;
+        }
+
+        [ContractAnnotation("null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this CustomAttribute attr)
+        {
+            if (attr == null)
+                return false;
+
+            if (attr.AttributeType.IsInlineILTypeUsage())
+                return true;
+
+            if (attr.HasConstructorArguments && attr.ConstructorArguments.Any(i => i.Value is TypeReference typeRef && typeRef.IsInlineILTypeUsage()))
+                return true;
+
+            if (attr.HasProperties && attr.Properties.Any(i => i.Argument.Value is TypeReference typeRef && typeRef.IsInlineILTypeUsage()))
+                return true;
+
+            return false;
+        }
+
+        [ContractAnnotation("null => false")]
         public static bool IsInlineILAssembly([CanBeNull] this AssemblyNameReference assembly)
             => assembly?.Name == "InlineIL";
     }

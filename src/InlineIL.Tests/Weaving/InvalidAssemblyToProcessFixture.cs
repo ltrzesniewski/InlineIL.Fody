@@ -17,12 +17,15 @@ namespace InlineIL.Tests.Weaving
             TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly("InlineIL.Tests.InvalidAssemblyToProcess.dll"), false);
         }
 
-        public static string ShouldHaveError(string className, string methodName)
+        public static string ShouldHaveError(string className, string methodName, bool sequencePointRequired)
         {
             var expectedMessagePart = $" {className}::{methodName}(";
             var errorMessage = TestResult.Errors.SingleOrDefault(err => err.Text.Contains(expectedMessagePart));
             errorMessage.ShouldNotBeNull();
-            errorMessage.SequencePoint.ShouldNotBeNull();
+
+            if (sequencePointRequired)
+                errorMessage.SequencePoint.ShouldNotBeNull();
+
             return errorMessage.Text;
         }
     }
