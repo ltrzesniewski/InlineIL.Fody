@@ -9,6 +9,15 @@
 
 This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject arbitrary IL into your assembly at compile time.
 
+---
+
+ - [Installation](#installation)
+ - [Usage](#usage)
+ - [Configuration](#configuration)
+ - [Examples](#examples)
+
+---
+
 ## Installation
 
 Install the NuGet package [`InlineIL.Fody`](https://www.nuget.org/packages/InlineIL.Fody), and ensure Fody is up to date:
