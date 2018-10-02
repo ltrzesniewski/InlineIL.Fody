@@ -11,8 +11,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Authors>Lucas Trzesniewski</Authors>
-    <Description>Inject arbitrary IL code at compile time.</Description>
     <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
     <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE</PackageLicenseUrl>
@@ -21,8 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="3.2.7" />
-    <PackageReference Include="FodyPackaging" Version="3.2.7" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="$(FodyVersion)" />
+    <PackageReference Include="FodyPackaging" Version="$(FodyVersion)" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

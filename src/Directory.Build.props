@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
+
   <PropertyGroup>
     <Version>0.7.1</Version>
+    <FodyVersion>3.2.7</FodyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Lucas Trzesniewski</Authors>
+    <Description>Inject arbitrary IL code at compile time.</Description>
+  </PropertyGroup>
+
 </Project>
