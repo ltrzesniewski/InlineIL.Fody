@@ -20,17 +20,17 @@ namespace InlineIL.Tests
         {
             _assembly = AssemblyDefinition.CreateAssembly(new AssemblyNameDefinition("Test", new Version()), "Test", ModuleKind.Dll);
 
-            var method = new MethodDefinition("Test", MethodAttributes.Public | MethodAttributes.Static, _assembly.MainModule.GetTypeSystem().Void);
+            var method = new MethodDefinition("Test", MethodAttributes.Public | MethodAttributes.Static, _assembly.MainModule.TypeSystem.Void);
             _il = method.Body.GetILProcessor();
 
-            _methodPop3Push0 = new MethodReference("Test", _assembly.MainModule.GetTypeSystem().Void);
-            _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.GetTypeSystem().Int32));
-            _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.GetTypeSystem().Int32));
-            _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.GetTypeSystem().Int32));
+            _methodPop3Push0 = new MethodReference("Test", _assembly.MainModule.TypeSystem.Void);
+            _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
+            _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
+            _methodPop3Push0.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
 
-            _methodPop2Push1 = new MethodReference("Test", _assembly.MainModule.GetTypeSystem().Int32);
-            _methodPop2Push1.Parameters.Add(new ParameterDefinition(_assembly.MainModule.GetTypeSystem().Int32));
-            _methodPop2Push1.Parameters.Add(new ParameterDefinition(_assembly.MainModule.GetTypeSystem().Int32));
+            _methodPop2Push1 = new MethodReference("Test", _assembly.MainModule.TypeSystem.Int32);
+            _methodPop2Push1.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
+            _methodPop2Push1.Parameters.Add(new ParameterDefinition(_assembly.MainModule.TypeSystem.Int32));
         }
 
         public void Dispose()

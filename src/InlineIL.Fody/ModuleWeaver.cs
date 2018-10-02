@@ -61,7 +61,7 @@ namespace InlineIL.Fody
             method.Body.Variables.Clear();
             method.Body.ExceptionHandlers.Clear();
 
-            var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.GetTypeSystem().CoreLibrary)
+            var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.GetCoreLibrary())
                                 .Resolve()?
                                 .Methods
                                 .FirstOrDefault(m => m.IsRuntimeSpecialName

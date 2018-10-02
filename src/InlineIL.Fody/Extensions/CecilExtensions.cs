@@ -318,12 +318,10 @@ namespace InlineIL.Fody.Extensions
                 yield return handler.HandlerEnd;
         }
 
-        public static TypeSystem GetTypeSystem(this ModuleDefinition module)
+        public static IMetadataScope GetCoreLibrary(this ModuleDefinition module)
         {
-            // No way, I really need *that* one
-
 #pragma warning disable 618
-            return module.TypeSystem;
+            return module.TypeSystem.CoreLibrary;
 #pragma warning restore 618
         }
 
