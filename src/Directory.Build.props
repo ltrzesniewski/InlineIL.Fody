@@ -2,8 +2,8 @@
 <Project>
 
   <PropertyGroup>
-    <Version>0.7.1</Version>
-    <FodyVersion>3.2.7</FodyVersion>
+    <Version>0.7.2</Version>
+    <FodyVersion>3.2.8</FodyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
