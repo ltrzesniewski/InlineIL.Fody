@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
@@ -19,15 +20,11 @@ namespace InlineIL.Fody.Model
             _method = _module.ImportReference(_module.ImportReference(method).MakeGeneric(typeRef));
         }
 
-        public MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, string methodName)
-            : this(module, typeRef, FindMethod(typeRef, methodName, null))
-        {
-        }
+        public static MethodRefBuilder MethodByName(ModuleDefinition module, TypeReference typeRef, string methodName)
+            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null));
 
-        public MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, string methodName, IReadOnlyCollection<TypeReference> paramTypes)
-            : this(module, typeRef, FindMethod(typeRef, methodName, paramTypes))
-        {
-        }
+        public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, IReadOnlyCollection<TypeReference> paramTypes)
+            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
 
         private static MethodReference FindMethod(TypeReference typeRef, string methodName, [CanBeNull] IReadOnlyCollection<TypeReference> paramTypes)
         {

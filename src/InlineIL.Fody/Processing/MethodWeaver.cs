@@ -799,14 +799,14 @@ namespace InlineIL.Fody.Processing
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var methodName = ConsumeArgString(args[1]);
                         var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
-                        var builder = new MethodRefBuilder(_module, typeRef, methodName, paramTypes);
+                        var builder = MethodRefBuilder.MethodByNameAndSignature(_module, typeRef, methodName, paramTypes);
 
                         _il.Remove(instruction);
                         return builder;
                     }
 
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
-                        return FromNamedMember((typeRef, methodName) => new MethodRefBuilder(_module, typeRef, methodName));
+                        return FromNamedMember((typeRef, methodName) => MethodRefBuilder.MethodByName(_module, typeRef, methodName));
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::PropertyGet(InlineIL.TypeRef,System.String)":
                         return FromNamedMember((typeRef, propertyName) => MethodRefBuilder.PropertyGet(_module, typeRef, propertyName));
