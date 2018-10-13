@@ -98,6 +98,11 @@ public class MethodRefTestCases
         Call(MethodRef.EventRaise(typeof(MethodRefTestCases), nameof(Event)));
     }
 
+    public void UnknownConstructor()
+    {
+        Call(MethodRef.Constructor(typeof(MethodRefTestCases), typeof(Guid), typeof(Guid)));
+    }
+
     private static void Foo()
     {
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using InlineIL;
 using static InlineIL.IL.Emit;
 
@@ -164,6 +165,19 @@ public class MethodRefTestCases
         Ldarg_0();
         Ldarg(nameof(callback));
         Call(MethodRef.EventRemove(typeof(MethodRefTestCases), nameof(Event)));
+    }
+
+    public StringBuilder CallDefaultConstructor()
+    {
+        Newobj(MethodRef.Constructor(typeof(StringBuilder)));
+        return IL.Return<StringBuilder>();
+    }
+
+    public StringBuilder CallNonDefaultConstructor()
+    {
+        Ldc_I4(42);
+        Newobj(MethodRef.Constructor(typeof(StringBuilder), typeof(int)));
+        return IL.Return<StringBuilder>();
     }
 
     public void RaiseEvent()

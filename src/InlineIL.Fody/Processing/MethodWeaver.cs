@@ -823,6 +823,17 @@ namespace InlineIL.Fody.Processing
                     case "InlineIL.MethodRef InlineIL.MethodRef::EventRaise(InlineIL.TypeRef,System.String)":
                         return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventRaise(_module, typeRef, eventName));
 
+                    case "InlineIL.MethodRef InlineIL.MethodRef::Constructor(InlineIL.TypeRef,InlineIL.TypeRef[])":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var paramTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                        var builder = MethodRefBuilder.Constructor(_module, typeRef, paramTypes);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
                     case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                     {
                         var args = instruction.GetArgumentPushInstructions();

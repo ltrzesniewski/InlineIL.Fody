@@ -68,6 +68,14 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
+        /// Constructs a method reference to a constructor.
+        /// </summary>
+        /// <param name="type">The type declaring the constructor.</param>
+        /// <param name="parameterTypes">The types of the constructor parameters.</param>
+        public static MethodRef Constructor(TypeRef type, params TypeRef[] parameterTypes)
+            => throw IL.Throw();
+
+        /// <summary>
         /// Returns a reference to a constructed generic method, using the supplied generic parameter types.
         /// </summary>
         /// <param name="genericParameterTypes">An array of type references to be substituted for the type parameters of the current generic method.</param>

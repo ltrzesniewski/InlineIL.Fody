@@ -47,12 +47,12 @@ namespace InlineIL.Fody.Model
 
                 case 0:
                     throw paramTypes == null
-                        ? throw new WeavingException($"Method '{methodName}' not found in type {typeDef.FullName}")
+                        ? new WeavingException($"Method '{methodName}' not found in type {typeDef.FullName}")
                         : new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
 
                 default:
                     throw paramTypes == null
-                        ? throw new WeavingException($"Ambiguous method '{methodName}' in type {typeDef.FullName}")
+                        ? new WeavingException($"Ambiguous method '{methodName}' in type {typeDef.FullName}")
                         : new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
             }
         }
@@ -144,6 +144,9 @@ namespace InlineIL.Fody.Model
                     throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}");
             }
         }
+
+        public static MethodRefBuilder Constructor(ModuleDefinition module, TypeReference typeRef, IReadOnlyCollection<TypeReference> paramTypes)
+            => new MethodRefBuilder(module, typeRef, ".ctor", paramTypes);
 
         public MethodReference Build()
             => _method;

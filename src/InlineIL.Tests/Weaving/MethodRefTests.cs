@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text;
 using InlineIL.Tests.Support;
 using Xunit;
 
@@ -168,6 +169,22 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_default_constructor()
+        {
+            var result = (StringBuilder)GetInstance().CallDefaultConstructor();
+            result.ShouldNotBeNull();
+            result.Capacity.ShouldEqual(new StringBuilder().Capacity);
+        }
+
+        [Fact]
+        public void should_call_non_default_constructor()
+        {
+            var result = (StringBuilder)GetInstance().CallNonDefaultConstructor();
+            result.ShouldNotBeNull();
+            result.Capacity.ShouldEqual(42);
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -234,6 +251,12 @@ namespace InlineIL.Tests.Weaving
         public void should_report_event_without_invoker()
         {
             ShouldHaveError("EventWithoutInvoker").ShouldContain("has no raise method");
+        }
+
+        [Fact]
+        public void should_report_unknown_constructor()
+        {
+            ShouldHaveError("UnknownConstructor").ShouldContain("not found");
         }
     }
 }
