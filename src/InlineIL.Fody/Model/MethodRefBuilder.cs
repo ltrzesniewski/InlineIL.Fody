@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
@@ -165,7 +164,18 @@ namespace InlineIL.Fody.Model
         }
 
         public static MethodRefBuilder TypeInitializer(ModuleDefinition module, TypeReference typeRef)
-            => new MethodRefBuilder(module, typeRef, ".cctor", Array.Empty<TypeReference>());
+        {
+            var typeDef = typeRef.ResolveRequiredType();
+
+            var cctors = typeDef.GetConstructors()
+                                .Where(i => i.IsStatic && i.Name == ".cctor" && i.Parameters.Count == 0)
+                                .ToList();
+
+            if (cctors.Count == 1)
+                return new MethodRefBuilder(module, typeRef, cctors.Single());
+
+            throw new WeavingException($"Type {typeDef.FullName} has no type initializer");
+        }
 
         public MethodReference Build()
             => _method;

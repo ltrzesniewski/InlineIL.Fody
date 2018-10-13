@@ -275,7 +275,7 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public void should_report_no_type_initializer()
         {
-            ShouldHaveError("NoTypeInitializer").ShouldContain("not found");
+            ShouldHaveError("NoTypeInitializer").ShouldContain("has no type initializer");
         }
     }
 }
