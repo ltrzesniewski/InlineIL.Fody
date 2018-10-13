@@ -62,5 +62,8 @@ namespace InlineIL.Fody.Extensions
                     list.RemoveAt(i);
             }
         }
+
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> items)
+            => new HashSet<T>(items);
     }
 }
