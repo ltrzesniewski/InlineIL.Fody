@@ -20,7 +20,7 @@ namespace InlineIL.Fody.Processing
         private readonly MethodDefinition _method;
         private readonly WeaverILProcessor _il;
         private readonly SequencePointMapper _sequencePoints;
-        private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
+        private readonly LabelMapper _labels;
 
         private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
 
@@ -29,6 +29,7 @@ namespace InlineIL.Fody.Processing
             _module = module;
             _method = method;
             _il = new WeaverILProcessor(_method);
+            _labels = new LabelMapper(_il);
             _sequencePoints = new SequencePointMapper(_method, config);
         }
 
@@ -105,7 +106,7 @@ namespace InlineIL.Fody.Processing
 
             ValidateBeforeProcessing();
             ProcessMethodCalls();
-            ProcessLabels();
+            _labels.PostProcess();
             _sequencePoints.PostProcess();
             ValidateAfterProcessing();
 
@@ -189,19 +190,6 @@ namespace InlineIL.Fody.Processing
 
                 instruction = nextInstruction;
             }
-        }
-
-        private void ProcessLabels()
-        {
-            foreach (var (name, info) in _labels)
-            {
-                if (!info.IsDefined)
-                    throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: '{name}'");
-
-                _il.Remove(info.PlaceholderTarget);
-            }
-
-            _labels.Clear();
         }
 
         private void ValidateAfterProcessing()
@@ -348,21 +336,14 @@ namespace InlineIL.Fody.Processing
                     case OperandType.InlineBrTarget:
                     case OperandType.ShortInlineBrTarget:
                     {
-                        var labelInfo = ConsumeArgLabelRef(args.Single());
-                        var resultInstruction = _il.Create(opCode, labelInfo.PlaceholderTarget);
-                        labelInfo.References.Add(resultInstruction);
-                        return resultInstruction;
+                        var labelName = ConsumeArgString(args.Single());
+                        return _labels.CreateBranchInstruction(opCode, labelName);
                     }
 
                     case OperandType.InlineSwitch:
                     {
-                        var labelInfos = ConsumeArgArray(args.Single(), ConsumeArgLabelRef).ToList();
-                        var resultInstruction = _il.Create(opCode, labelInfos.Select(i => i.PlaceholderTarget).ToArray());
-
-                        foreach (var info in labelInfos)
-                            info.References.Add(resultInstruction);
-
-                        return resultInstruction;
+                        var labelNames = ConsumeArgArray(args.Single(), ConsumeArgString).ToList();
+                        return _labels.CreateSwitchInstruction(labelNames);
                     }
 
                     case OperandType.InlineVar:
@@ -568,12 +549,7 @@ namespace InlineIL.Fody.Processing
         private void ProcessMarkLabelMethod(Instruction instruction)
         {
             var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
-            var labelInfo = _labels.GetOrAddNew(labelName);
-
-            if (labelInfo.IsDefined)
-                throw new InstructionWeavingException(instruction, $"Label '{labelName}' is already defined");
-
-            _il.Replace(instruction, labelInfo.PlaceholderTarget);
+            _il.Replace(instruction, _labels.MarkLabel(labelName));
         }
 
         private void ProcessDeclareLocalsMethod(Instruction instruction)
@@ -970,10 +946,6 @@ namespace InlineIL.Fody.Processing
         }
 
         [NotNull]
-        private LabelInfo ConsumeArgLabelRef(Instruction instruction)
-            => _labels.GetOrAddNew(ConsumeArgString(instruction));
-
-        [NotNull]
         private LocalVarBuilder ConsumeArgLocalVarBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -1105,17 +1077,5 @@ namespace InlineIL.Fody.Processing
 
         private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
             => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction}");
-
-        private static InstructionWeavingException InvalidUsage([CanBeNull] Instruction instruction)
-            => new InstructionWeavingException(instruction, "Invalid InlineIL usage");
-
-
-        private class LabelInfo
-        {
-            public Instruction PlaceholderTarget { get; } = Instruction.Create(OpCodes.Nop);
-            public ICollection<Instruction> References { get; } = new List<Instruction>();
-
-            public bool IsDefined => PlaceholderTarget.Next != null;
-        }
     }
 }
