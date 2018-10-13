@@ -120,6 +120,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_use_corelib_as_a_standalone_property()
+        {
+            var result = (string)GetInstance().ReturnCoreLibrary();
+            result.ShouldNotBeNull();
+        }
+
+        [Fact]
         public void should_report_null_type()
         {
             ShouldHaveError("LoadNullType").ShouldContain("ldnull");

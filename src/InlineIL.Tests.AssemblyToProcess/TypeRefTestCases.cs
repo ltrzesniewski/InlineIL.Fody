@@ -117,6 +117,11 @@ public class TypeRefTestCases
         return IL.Return<Type>();
     }
 
+    public string ReturnCoreLibrary()
+    {
+        return TypeRef.CoreLibrary;
+    }
+
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     private class NestedType
     {

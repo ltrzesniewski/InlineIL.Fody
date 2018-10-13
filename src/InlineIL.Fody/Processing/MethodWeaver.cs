@@ -168,6 +168,10 @@ namespace InlineIL.Fody.Processing
                             case KnownNames.Full.IlEmitType:
                                 ProcessIlEmitMethodCall(instruction, out nextInstruction);
                                 break;
+
+                            case KnownNames.Full.TypeRefType:
+                                ProcessTypeRefCall(instruction, out nextInstruction);
+                                break;
                         }
                     }
                     catch (InstructionWeavingException)
@@ -405,6 +409,19 @@ namespace InlineIL.Fody.Processing
             }
         }
 
+        private void ProcessTypeRefCall(Instruction instruction, out Instruction nextInstruction)
+        {
+            var calledMethod = (MethodReference)instruction.Operand;
+            nextInstruction = instruction.Next;
+
+            switch (calledMethod.Name)
+            {
+                case "get_CoreLibrary":
+                    _il.Replace(instruction, Instruction.Create(OpCodes.Ldstr, _module.GetCoreLibrary().Name));
+                    break;
+            }
+        }
+
         private void ValidatePushMethod(Instruction instruction)
         {
             if (_method.Body.ExceptionHandlers.Any(h => h.HandlerType == ExceptionHandlerType.Catch && h.HandlerStart == instruction
@@ -591,18 +608,6 @@ namespace InlineIL.Fody.Processing
             {
                 _il.Remove(instruction);
                 return (string)instruction.Operand;
-            }
-
-            if (instruction.OpCode.FlowControl == FlowControl.Call && instruction.Operand is MethodReference method)
-            {
-                switch (method.FullName)
-                {
-                    case "System.String InlineIL.TypeRef::get_CoreLibrary()":
-                    {
-                        _il.Remove(instruction);
-                        return _module.GetCoreLibrary().Name;
-                    }
-                }
             }
 
             throw UnexpectedInstruction(instruction, OpCodes.Ldstr);
@@ -1097,6 +1102,9 @@ namespace InlineIL.Fody.Processing
 
         private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
             => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction}");
+
+        private static InstructionWeavingException InvalidUsage([CanBeNull] Instruction instruction)
+            => new InstructionWeavingException(instruction, "Invalid InlineIL usage");
 
         [CanBeNull]
         private SequencePoint GetInputSequencePoint([CanBeNull] Instruction instruction)
