@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
@@ -147,6 +148,9 @@ namespace InlineIL.Fody.Model
 
         public static MethodRefBuilder Constructor(ModuleDefinition module, TypeReference typeRef, IReadOnlyCollection<TypeReference> paramTypes)
             => new MethodRefBuilder(module, typeRef, ".ctor", paramTypes);
+
+        public static MethodRefBuilder TypeInitializer(ModuleDefinition module, TypeReference typeRef)
+            => new MethodRefBuilder(module, typeRef, ".cctor", Array.Empty<TypeReference>());
 
         public MethodReference Build()
             => _method;

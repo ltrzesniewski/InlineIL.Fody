@@ -103,6 +103,11 @@ public class MethodRefTestCases
         Call(MethodRef.Constructor(typeof(MethodRefTestCases), typeof(Guid), typeof(Guid)));
     }
 
+    public void NoTypeInitializer()
+    {
+        Call(MethodRef.TypeInitializer(typeof(ClassWithoutInitializer)));
+    }
+
     private static void Foo()
     {
     }
@@ -114,4 +119,8 @@ public class MethodRefTestCases
     private static T GenericMethod<T>(T value) => value;
 
     private static int[] VarArgMethod(int count, __arglist) => null;
+
+    private class ClassWithoutInitializer
+    {
+    }
 }

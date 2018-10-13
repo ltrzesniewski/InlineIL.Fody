@@ -834,6 +834,16 @@ namespace InlineIL.Fody.Processing
                         return builder;
                     }
 
+                    case "InlineIL.MethodRef InlineIL.MethodRef::TypeInitializer(InlineIL.TypeRef)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var builder = MethodRefBuilder.TypeInitializer(_module, typeRef);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
                     case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                     {
                         var args = instruction.GetArgumentPushInstructions();

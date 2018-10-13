@@ -68,11 +68,18 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
-        /// Constructs a method reference to a constructor.
+        /// Constructs a method reference to a constructor (<c>.ctor</c> method).
         /// </summary>
         /// <param name="type">The type declaring the constructor.</param>
         /// <param name="parameterTypes">The types of the constructor parameters.</param>
         public static MethodRef Constructor(TypeRef type, params TypeRef[] parameterTypes)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference to a type initializer (<c>.cctor</c> method).
+        /// </summary>
+        /// <param name="type">The type declaring the constructor.</param>
+        public static MethodRef TypeInitializer(TypeRef type)
             => throw IL.Throw();
 
         /// <summary>

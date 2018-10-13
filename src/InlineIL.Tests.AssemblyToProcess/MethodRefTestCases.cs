@@ -180,6 +180,12 @@ public class MethodRefTestCases
         return IL.Return<StringBuilder>();
     }
 
+    public RuntimeMethodHandle GetTypeInitializer()
+    {
+        Ldtoken(MethodRef.TypeInitializer(typeof(TypeWithInitializer)));
+        return IL.Return<RuntimeMethodHandle>();
+    }
+
     public void RaiseEvent()
         => Event?.Invoke();
 
@@ -225,4 +231,12 @@ public class MethodRefTestCases
         return result;
     }
 #endif
+
+    private class TypeWithInitializer
+    {
+        static TypeWithInitializer()
+        {
+            GC.KeepAlive(null);
+        }
+    }
 }

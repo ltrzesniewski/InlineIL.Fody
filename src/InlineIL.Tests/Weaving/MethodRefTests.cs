@@ -185,6 +185,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_access_type_initializer()
+        {
+            var result = (RuntimeMethodHandle)GetInstance().GetTypeInitializer();
+            MethodBase.GetMethodFromHandle(result).Name.ShouldEqual(".cctor");
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -257,6 +264,12 @@ namespace InlineIL.Tests.Weaving
         public void should_report_unknown_constructor()
         {
             ShouldHaveError("UnknownConstructor").ShouldContain("not found");
+        }
+
+        [Fact]
+        public void should_report_no_type_initializer()
+        {
+            ShouldHaveError("NoTypeInitializer").ShouldContain("not found");
         }
     }
 }
