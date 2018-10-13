@@ -263,7 +263,13 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public void should_report_unknown_constructor()
         {
-            ShouldHaveError("UnknownConstructor").ShouldContain("not found");
+            ShouldHaveError("UnknownConstructor").ShouldContain("has no constructor with signature");
+        }
+
+        [Fact]
+        public void should_report_no_default_constructor()
+        {
+            ShouldHaveError("NoDefaultConstructor").ShouldContain("has no default constructor");
         }
 
         [Fact]

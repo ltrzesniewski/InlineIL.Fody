@@ -147,7 +147,22 @@ namespace InlineIL.Fody.Model
         }
 
         public static MethodRefBuilder Constructor(ModuleDefinition module, TypeReference typeRef, IReadOnlyCollection<TypeReference> paramTypes)
-            => new MethodRefBuilder(module, typeRef, ".ctor", paramTypes);
+        {
+            var typeDef = typeRef.ResolveRequiredType();
+
+            var ctors = typeDef.GetConstructors()
+                               .Where(i => !i.IsStatic && i.Name == ".ctor")
+                               .Where(i => i.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(paramTypes.Select(p => p.FullName)))
+                               .ToList();
+
+            if (ctors.Count == 1)
+                return new MethodRefBuilder(module, typeRef, ctors.Single());
+
+            if (paramTypes.Count == 0)
+                throw new WeavingException($"Type {typeDef.FullName} has no default constructor");
+
+            throw new WeavingException($"Type {typeDef.FullName} has no constructor with signature ({string.Join(", ", paramTypes.Select(p => p.FullName))})");
+        }
 
         public static MethodRefBuilder TypeInitializer(ModuleDefinition module, TypeReference typeRef)
             => new MethodRefBuilder(module, typeRef, ".cctor", Array.Empty<TypeReference>());

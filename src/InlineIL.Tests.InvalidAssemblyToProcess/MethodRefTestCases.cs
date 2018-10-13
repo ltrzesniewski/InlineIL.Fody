@@ -103,6 +103,11 @@ public class MethodRefTestCases
         Call(MethodRef.Constructor(typeof(MethodRefTestCases), typeof(Guid), typeof(Guid)));
     }
 
+    public void NoDefaultConstructor()
+    {
+        Call(MethodRef.Constructor(typeof(ClassWithNoDefaultConstructor)));
+    }
+
     public void NoTypeInitializer()
     {
         Call(MethodRef.TypeInitializer(typeof(ClassWithoutInitializer)));
@@ -122,5 +127,12 @@ public class MethodRefTestCases
 
     private class ClassWithoutInitializer
     {
+    }
+
+    private class ClassWithNoDefaultConstructor
+    {
+        public ClassWithNoDefaultConstructor(int foo)
+        {
+        }
     }
 }
