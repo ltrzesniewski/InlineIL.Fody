@@ -20,12 +20,14 @@ This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject
 
 ## Installation
 
-Install the NuGet package [`InlineIL.Fody`](https://www.nuget.org/packages/InlineIL.Fody), and ensure Fody is up to date:
+Install the NuGet packages [`Fody`](https://www.nuget.org/packages/Fody) and [`InlineIL.Fody`](https://www.nuget.org/packages/InlineIL.Fody). Installing `Fody` explicitly ensures the latest version is used:
 
 ```
+PM> Install-Package Fody
 PM> Install-Package InlineIL.Fody
-PM> Update-Package Fody
 ```
+
+If you're building a NuGet package from your project file, add the `PrivateAssets="All"` metadata attribute to the `<PackageReference />` items of `Fody` and `InlineIL.Fody`, so they won't be listed as dependencies.
 
 Add the `<InlineIL />` tag to the [`FodyWeavers.xml`](https://github.com/Fody/Fody#add-fodyweaversxml) file in the root directory of your project. Create the file with the following contents if it doesn't exist:
 
