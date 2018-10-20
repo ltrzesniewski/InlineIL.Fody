@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
@@ -102,6 +103,7 @@ namespace InlineIL.Fody
             }
 
             ModuleDefinition.AssemblyReferences.Remove(libRef);
+            ReferenceCopyLocalPaths.RemoveAll(i => string.Equals(Path.GetFileNameWithoutExtension(i), libRef.Name, StringComparison.OrdinalIgnoreCase));
             _log.Debug("Removed reference to InlineIL");
 
             void ProcessScope(ScopeDebugInformation scope)
