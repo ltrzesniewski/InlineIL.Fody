@@ -42,31 +42,7 @@
         if (reflectionEmitCodes.TryGetValue(opCode.Value, out var reflectionEmitCode))
         {
             sb.Append(" - ");
-
-            var summary = xmlDocs["F:System.Reflection.Emit.OpCodes." + reflectionEmitCode.fieldName].Element("summary");
-            foreach (var node in summary.Nodes())
-            {
-                switch (node)
-                {
-                    case XText text:
-                        sb.Append(EscapeXml(text.Value));
-                        break;
-
-                    case XElement elem when elem.Name == "see" && elem.Attribute("cref") != null:
-                        sb.Append(@"<see cref=""");
-                        sb.Append(EscapeXml(elem.Attribute("cref").Value.Substring(2)));
-                        sb.Append(@""" />");
-                        break;
-
-                    case XElement elem when elem.Name == "see" || elem.Name == "paramref":
-                        sb.Append(EscapeXml(elem.Attributes().Single().Value));
-                        break;
-
-                    default:
-                        throw new InvalidOperationException($"Unsupported construct: {node}");
-                }
-            }
-
+            AppendXmlDoc(sb, "F:System.Reflection.Emit.OpCodes." + reflectionEmitCode.fieldName);
             sb.AppendLine();
         }
         else
@@ -84,7 +60,136 @@
             }
         }
 
+        if (opCode.OpCodeType == OpCodeType.Prefix)
+        {
+            sb.AppendLine("<para>This is a prefix instruction.</para>");
+        }
+        else
+        {
+            sb.AppendLine($"<para>Stack Transition: {GetStackTransition(opCode)}</para>");
+        }
+        
         return sb.ToString();
+    }
+
+    void AppendXmlDoc(StringBuilder sb, string elementId)
+    {
+        if (!xmlDocs.TryGetValue(elementId, out var elementNode))
+            throw new ArgumentException($"No docs found for {elementId}");
+
+        var summary = elementNode.Element("summary");
+
+        foreach (var node in summary.Nodes())
+        {
+            switch (node)
+            {
+                case XText text:
+                    sb.Append(EscapeXml(text.Value));
+                    break;
+
+                case XElement elem when elem.Name == "see" && elem.Attribute("cref") != null:
+                    sb.Append(@"<see cref=""");
+                    sb.Append(EscapeXml(elem.Attribute("cref").Value.Substring(2)));
+                    sb.Append(@""" />");
+                    break;
+
+                case XElement elem when elem.Name == "see" || elem.Name == "paramref":
+                    sb.Append(EscapeXml(elem.Attributes().Single().Value));
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unsupported construct: {node}");
+            }
+        }
+    }
+
+    string GetStackTransition(OpCode opCode)
+    {
+        if (opCode.StackBehaviourPop == StackBehaviour.Pop0 && opCode.StackBehaviourPush == StackBehaviour.Push0)
+            return "none";
+
+        if (opCode.StackBehaviourPop == StackBehaviour.PopAll && opCode.StackBehaviourPush == StackBehaviour.Push0)
+            return "clears the stack";
+
+        var pop = GetStackBehaviour(opCode, opCode.StackBehaviourPop);
+        var push = GetStackBehaviour(opCode, opCode.StackBehaviourPush);
+
+        if (opCode.StackBehaviourPop == StackBehaviour.Pop0)
+            return $"... -&gt; ..., {push}";
+
+        if (opCode.StackBehaviourPush == StackBehaviour.Push0)
+            return $"..., {pop} -&gt; ...";
+
+        return $"..., {pop} -&gt; ..., {push}";
+    }
+
+    string GetStackBehaviour(OpCode opCode, StackBehaviour behaviour)
+    {
+        switch (behaviour)
+        {
+            case StackBehaviour.Pop0:
+                return "(none)";
+            case StackBehaviour.Pop1:
+                return "value";
+            case StackBehaviour.Pop1_pop1:
+                return "value, value";
+            case StackBehaviour.Popi:
+                return "I";
+            case StackBehaviour.Popi_pop1:
+                return "I, value";
+            case StackBehaviour.Popi_popi:
+                return "I, I";
+            case StackBehaviour.Popi_popi8:
+                return "I, I8";
+            case StackBehaviour.Popi_popi_popi:
+                return "I, I, I";
+            case StackBehaviour.Popi_popr4:
+                return "I, R4";
+            case StackBehaviour.Popi_popr8:
+                return "I, R8";
+            case StackBehaviour.Popref:
+                return "O";
+            case StackBehaviour.Popref_pop1:
+                return "O, value";
+            case StackBehaviour.Popref_popi:
+                return "O, I";
+            case StackBehaviour.Popref_popi_popi:
+                return "O, I, I";
+            case StackBehaviour.Popref_popi_popi8:
+                return "O, I, I8";
+            case StackBehaviour.Popref_popi_popr4:
+                return "O, I, R4";
+            case StackBehaviour.Popref_popi_popr8:
+                return "O, I, R8";
+            case StackBehaviour.Popref_popi_popref:
+                return "O, I, O";
+            case StackBehaviour.PopAll:
+                return "(all)";
+            case StackBehaviour.Push0:
+                return "(none)";
+            case StackBehaviour.Push1:
+                return "value";
+            case StackBehaviour.Push1_push1:
+                return "value, value";
+            case StackBehaviour.Pushi:
+                return "I";
+            case StackBehaviour.Pushi8:
+                return "I8";
+            case StackBehaviour.Pushr4:
+                return "R4";
+            case StackBehaviour.Pushr8:
+                return "R8";
+            case StackBehaviour.Pushref:
+                return "O";
+            case StackBehaviour.Varpop:
+                if (opCode.Code == Code.Ret)
+                    return "return value (if method does not return <c>void</c>)";
+                return "arg0, arg1, ..., argN";
+            case StackBehaviour.Varpush:
+                return "return value (if callee does not return <c>void</c>)";
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
 #>
