@@ -1077,7 +1077,7 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
-            /// <c>ldelem.any</c> - Loads the element at a specified array index onto the top of the evaluation stack as the type specified in the instruction. 
+            /// <c>ldelem.any</c> - Loads the element at a specified array index onto the top of the evaluation stack as the type specified in the instruction.
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Ldelem_Any(TypeRef type)
@@ -1091,7 +1091,7 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
-            /// <c>unbox.any</c> - Converts the boxed representation of a type specified in the instruction to its unboxed form. 
+            /// <c>unbox.any</c> - Converts the boxed representation of a type specified in the instruction to its unboxed form.
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Unbox_Any(TypeRef type)
@@ -1476,7 +1476,10 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
-            /// <c>no.</c>
+            /// <c>no.</c> - Indicates that the subsequent instruction need not perform the specified fault check when it is executed. Currently not implemented in the CLR.
+            /// <para>0x01 = <c>typecheck</c> (<c>castclass</c>, <c> unbox</c>, <c> ldelema</c>, <c> stelem</c>, <c> stelem</c>)</para>
+            /// <para>0x02 = <c>rangecheck</c> (<c>ldelem.*</c>, <c> ldelema</c>, <c> stelem.*</c>)</para>
+            /// <para>0x04 = <c>nullcheck</c> (<c>ldfld</c>, <c> stfld</c>, <c> callvirt</c>, <c> ldvirtftn</c>, <c> ldelem.*</c>, <c> stelem.*</c>, <c> ldelema</c>)</para>
             /// </summary>
             /// <param name="operand">The operand.</param>
             public static void No(byte operand)
