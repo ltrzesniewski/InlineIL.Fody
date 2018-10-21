@@ -103,7 +103,16 @@ namespace InlineIL.Fody
             }
 
             ModuleDefinition.AssemblyReferences.Remove(libRef);
-            ReferenceCopyLocalPaths.RemoveAll(i => string.Equals(Path.GetFileNameWithoutExtension(i), libRef.Name, StringComparison.OrdinalIgnoreCase));
+
+            var copyLocalFilesToRemove = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                libRef.Name + ".dll",
+                libRef.Name + ".xml",
+                libRef.Name + ".pdb" // We don't ship this, but future-proof that ;)
+            };
+
+            ReferenceCopyLocalPaths.RemoveAll(i => copyLocalFilesToRemove.Contains(Path.GetFileName(i)));
+
             _log.Debug("Removed reference to InlineIL");
 
             void ProcessScope(ScopeDebugInformation scope)
