@@ -67,7 +67,7 @@ A few more things which are good to know:
    Declares local variables. Supports changing the [`init`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.methodbuilder.initlocals) flag and pinned variables. Local variables can be referenced by name or by index.
 
  - `IL.MarkLabel`  
-   Marks a label at a given poisition in the code.
+   Marks a label at a given position in the code.
    
  - `IL.Push`  
    A helper method to push a value onto the evaluation stack.
