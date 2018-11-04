@@ -12,4 +12,5 @@ Thumbs.db
 
 *.user
 *.log
+*.binlog
 *.orig
