@@ -1,0 +1,31 @@
+﻿<xs:complexType xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:attribute name="SequencePoints">
+    <xs:annotation>
+      <xs:documentation>Defines if sequence points should be generated for each emitted IL instruction. Default value: Debug</xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="Debug">
+          <xs:annotation>
+            <xs:documentation>Insert sequence points in Debug builds only (this is the default).</xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="Release">
+          <xs:annotation>
+            <xs:documentation>Insert sequence points in Release builds only.</xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="True">
+          <xs:annotation>
+            <xs:documentation>Always insert sequence points.</xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="False">
+          <xs:annotation>
+            <xs:documentation>Never insert sequence points.</xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:attribute>
+</xs:complexType>
