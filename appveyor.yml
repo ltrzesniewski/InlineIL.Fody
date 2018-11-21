@@ -3,17 +3,17 @@ image: Visual Studio 2017
 
 build_script:
 - cmd: |
-    msbuild src\InlineIL.sln             /t:Restore /v:m
-    msbuild src\InlineIL.sln             /t:Rebuild /v:m /p:Configuration=Debug
-    msbuild src\InlineIL.sln             /t:Rebuild /v:m /p:Configuration=Release
-    msbuild src\InlineIL\InlineIL.csproj /t:Pack    /v:m /p:Configuration=Release
+    msbuild src\InlineIL.sln /v:m /t:Restore
+    msbuild src\InlineIL.Fody\InlineIL.Fody.csproj /v:m /t:Build /p:Configuration=Debug
+    msbuild src\InlineIL.Fody\InlineIL.Fody.csproj /v:m /t:Build /p:Configuration=Release
+    msbuild src\InlineIL.sln /v:m /t:Build /p:Configuration=Debug
+    msbuild src\InlineIL.sln /v:m /t:Build /p:Configuration=Release
+    msbuild src\InlineIL\InlineIL.csproj /v:m /t:Pack /p:Configuration=Release
 
 test_script:
 - cmd: |
-    %xunit20%\xunit.console src\InlineIL.Tests\bin\Debug\net46\InlineIL.Tests.dll -appveyor
-    %xunit20%\xunit.console src\InlineIL.Tests\bin\Release\net46\InlineIL.Tests.dll -appveyor
-    dotnet test "src\InlineIL.Tests\InlineIL.Tests.csproj" --framework netcoreapp2.0 --no-build --configuration Debug
-    dotnet test "src\InlineIL.Tests\InlineIL.Tests.csproj" --framework netcoreapp2.0 --no-build --configuration Release
+    dotnet test src\InlineIL.Tests\InlineIL.Tests.csproj --no-build --configuration Debug
+    dotnet test src\InlineIL.Tests\InlineIL.Tests.csproj --no-build --configuration Release
 
 artifacts:
 - path: output\**\*.nupkg
