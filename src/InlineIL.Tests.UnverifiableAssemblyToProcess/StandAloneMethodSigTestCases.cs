@@ -26,7 +26,7 @@ public unsafe class StandAloneMethodSigTestCases
         return IL.Return<int>();
     }
 
-#if NETFWK
+#if NETFRAMEWORK
     public int CallIndirectVarArg()
     {
         IL.Push(40);
@@ -79,7 +79,7 @@ public unsafe class StandAloneMethodSigTestCases
     private static int IndirectCallStaticTargetMethod(int value) => value;
     private int IndirectCallInstanceTargetMethod(int value) => value;
 
-#if NETFWK
+#if NETFRAMEWORK
     private static int IndirectCallVarArgTargetMethod(int value, __arglist)
     {
         var it = new ArgIterator(__arglist);

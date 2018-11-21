@@ -24,7 +24,7 @@ namespace InlineIL.Tests.Weaving
             result.ShouldEqual(42);
         }
 
-#if NETFWK
+#if NETFRAMEWORK
         [Fact]
         public void should_call_indirect_vararg()
         {

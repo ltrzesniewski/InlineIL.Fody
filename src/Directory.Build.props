@@ -10,11 +10,23 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup>
     <Authors>Lucas Trzesniewski</Authors>
     <Description>Inject arbitrary IL code at compile time.</Description>
+    <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
+    <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\output</PackageOutputPath>
+    <PackageIconUrl>https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png</PackageIconUrl>
+    <PackageVersion Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version)-build$(APPVEYOR_BUILD_NUMBER)</PackageVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>
   </PropertyGroup>
 
 </Project>

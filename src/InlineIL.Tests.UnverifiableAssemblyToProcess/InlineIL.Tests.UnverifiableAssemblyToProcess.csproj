@@ -1,8 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
-    <DefineConstants Condition="'$(TargetFramework)'=='net46'">$(DefineConstants);NETFWK</DefineConstants>
     <RootNamespace />
     <DisableFody>true</DisableFody>
   </PropertyGroup>

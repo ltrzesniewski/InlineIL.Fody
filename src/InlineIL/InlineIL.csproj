@@ -2,21 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
-    <DefineConstants Condition="'$(TargetFramework)'=='net452'">$(DefineConstants);NETFWK</DefineConstants>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>none</DebugType>
-    <PackageVersion Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version)-build$(APPVEYOR_BUILD_NUMBER)</PackageVersion>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
-    <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\output</PackageOutputPath>
-    <PackageIconUrl>https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png</PackageIconUrl>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

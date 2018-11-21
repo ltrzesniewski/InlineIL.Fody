@@ -189,7 +189,7 @@ public class MethodRefTestCases
     public void RaiseEvent()
         => Event?.Invoke();
 
-#if NETFWK
+#if NETFRAMEWORK
     public int[] CallVarArgMethod()
     {
         IL.Push(5);
@@ -219,7 +219,7 @@ public class MethodRefTestCases
             => $"{typeof(TClass).FullName} {typeof(TMethod).FullName}";
     }
 
-#if NETFWK
+#if NETFRAMEWORK
     private static int[] VarArgMethod(int count, __arglist)
     {
         var it = new ArgIterator(__arglist);
