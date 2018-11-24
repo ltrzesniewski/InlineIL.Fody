@@ -3,12 +3,8 @@ image: Visual Studio 2017
 
 build_script:
 - cmd: |
-    msbuild src\InlineIL.sln /v:m /t:Restore
-    msbuild src\InlineIL.Fody\InlineIL.Fody.csproj /v:m /t:Build /p:Configuration=Debug
-    msbuild src\InlineIL.Fody\InlineIL.Fody.csproj /v:m /t:Build /p:Configuration=Release
-    msbuild src\InlineIL.sln /v:m /t:Build /p:Configuration=Debug
-    msbuild src\InlineIL.sln /v:m /t:Build /p:Configuration=Release
-    msbuild src\InlineIL\InlineIL.csproj /v:m /t:Pack /p:Configuration=Release
+    msbuild src\InlineIL.sln /v:m /t:Restore,Rebuild /p:Configuration=Debug
+    msbuild src\InlineIL.sln /v:m /t:Rebuild,Pack /p:Configuration=Release
 
 test_script:
 - cmd: |
