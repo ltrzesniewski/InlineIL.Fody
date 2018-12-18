@@ -9,7 +9,10 @@ using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+
+#pragma warning disable 618
 using TypeSystem = Mono.Cecil.TypeSystem;
+#pragma warning restore 618
 
 namespace InlineIL.Fody.Extensions
 {
