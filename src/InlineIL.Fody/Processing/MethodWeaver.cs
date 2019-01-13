@@ -102,7 +102,6 @@ namespace InlineIL.Fody.Processing
         private void ProcessImpl()
         {
             _method.Body.SimplifyMacros();
-            _method.Body.InitLocals = true; // Force fat method header
 
             ValidateBeforeProcessing();
             ProcessMethodCalls();
@@ -561,6 +560,7 @@ namespace InlineIL.Fody.Processing
                 case "System.Void InlineIL.IL::DeclareLocals(InlineIL.LocalVar[])":
                 {
                     var args = instruction.GetArgumentPushInstructions();
+                    _method.Body.InitLocals = true;
                     _il.DeclareLocals(ConsumeArgArray(args[0], ConsumeArgLocalVarBuilder));
                     _il.Remove(instruction);
                     return;

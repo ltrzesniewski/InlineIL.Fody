@@ -12,7 +12,7 @@ namespace InlineIL
     public static partial class IL
     {
         /// <summary>
-        /// Declares local variables.
+        /// Declares local variables, with the init flag set to true.
         /// These variables are appended to the ones already declared by the compiler, but indexes of emitted ldloc/stloc instructions are adjusted to account for that.
         /// </summary>
         /// <param name="locals">The list of local variable declarations.</param>
