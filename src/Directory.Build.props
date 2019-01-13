@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Version>1.0.3</Version>
-    <FodyVersion>3.3.2</FodyVersion>
+    <FodyVersion>3.3.5</FodyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,7 +18,7 @@
     <Description>Inject arbitrary IL code at compile time.</Description>
     <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
     <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>$(MSBuildThisFileDirectory)..\output</PackageOutputPath>
     <PackageIconUrl>https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png</PackageIconUrl>
     <PackageVersion Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version)-build$(APPVEYOR_BUILD_NUMBER)</PackageVersion>
