@@ -53,5 +53,26 @@ namespace InlineIL.Tests.Weaving
             var result = (int)GetInstance().GetValueFromGenericType();
             result.ShouldEqual(10);
         }
+
+        [Fact]
+        public void should_get_static_generic_field_from_generic_type()
+        {
+            var result = (int)GetInstance().GetValueFromGenericType2();
+            result.ShouldEqual(10);
+        }
+
+        [Fact]
+        public void should_get_field_from_imported_generic_type()
+        {
+            var result = (int)GetInstance().GetValueFromImportedGenericType();
+            result.ShouldEqual(10);
+        }
+
+        [Fact]
+        public void should_get_generic_field_from_imported_generic_type()
+        {
+            var result = (int)GetInstance().GetValueFromImportedGenericType2<int>(10);
+            result.ShouldEqual(10);
+        }
     }
 }
