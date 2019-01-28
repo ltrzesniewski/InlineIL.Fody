@@ -46,5 +46,12 @@ namespace InlineIL.Tests.Weaving
             var handle = (RuntimeFieldHandle)GetInstance().ReturnFieldHandle();
             FieldInfo.GetFieldFromHandle(handle).Name.ShouldEqual("IntField");
         }
+
+        [Fact]
+        public void should_get_static_field_from_generic_type()
+        {
+            var result = (int)GetInstance().GetValueFromGenericType();
+            result.ShouldEqual(10);
+        }
     }
 }

@@ -22,4 +22,19 @@ public class FieldRefTestCases
         Ldtoken(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
         return IL.Return<RuntimeFieldHandle>();
     }
+
+    public int GetValueFromGenericType()
+        => GenericType<int>.GetValue();
+
+    private class GenericType<T>
+    {
+        [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
+        private static readonly int _value = 10;
+
+        public static int GetValue()
+        {
+            Ldsfld(new FieldRef(typeof(GenericType<T>), nameof(_value)));
+            return IL.Return<int>();
+        }
+    }
 }
