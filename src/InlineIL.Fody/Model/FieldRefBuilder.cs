@@ -20,7 +20,8 @@ namespace InlineIL.Fody.Model
                     throw new WeavingException($"Field '{fieldName}' not found in type {typeDef.FullName}");
 
                 case 1:
-                    _field = fields.Single();
+                    _field = fields.Single().Clone();
+                    _field.DeclaringType = typeRef;
                     break;
 
                 default:

@@ -54,6 +54,9 @@ namespace InlineIL.Fody.Extensions
             return clone;
         }
 
+        public static FieldReference Clone(this FieldReference field)
+            => new FieldReference(field.Name, field.FieldType, field.DeclaringType);
+
         public static MethodReference MakeGeneric(this MethodReference method, TypeReference declaringType)
         {
             if (!declaringType.IsGenericInstance || method.DeclaringType.IsGenericInstance)
