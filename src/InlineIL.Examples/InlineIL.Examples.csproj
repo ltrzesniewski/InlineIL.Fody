@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <WeaverFiles Include="..\Weavers\bin\$(Configuration)\$(WeaverTargetFramework)\Weavers.dll" WeaverClassNames="InlineILInSolution" />
+    <WeaverFiles Include="..\InlineIL.Examples.InSolutionWeaver\bin\$(Configuration)\$(WeaverTargetFramework)\InlineIL.Examples.InSolutionWeaver.dll" WeaverClassNames="InlineILInSolution" />
   </ItemGroup>
 
 </Project>
