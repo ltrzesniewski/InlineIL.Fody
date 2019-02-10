@@ -12,13 +12,6 @@
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <WeaverTargetFramework Condition="$(MSBuildRuntimeType) != 'Core'">net46</WeaverTargetFramework>
-    <WeaverTargetFramework Condition="$(MSBuildRuntimeType) == 'Core'">netstandard2.0</WeaverTargetFramework>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <WeaverFiles Include="..\InlineIL.Examples.InSolutionWeaver\bin\$(Configuration)\$(WeaverTargetFramework)\InlineIL.Examples.InSolutionWeaver.dll" WeaverClassNames="InlineILInSolution" />
-  </ItemGroup>
+  <Import Project="..\InlineIL.Examples.InSolutionWeaver\InlineIL.Examples.InSolutionWeaver.props" />
 
 </Project>
