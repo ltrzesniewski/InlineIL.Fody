@@ -135,7 +135,7 @@ The `<InlineIL />` element in `FodyWeavers.xml` accepts the following attribute:
         !!T& 'value'
       ) cil managed 
     {
-      .maxstack 3
+      .maxstack 8
 
       IL_0000: ldarg.0
       IL_0001: ldc.i4.0
