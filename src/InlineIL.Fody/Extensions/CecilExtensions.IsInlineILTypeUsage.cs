@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using InlineIL.Fody.Processing;
 using JetBrains.Annotations;
 using Mono.Cecil;
@@ -7,35 +8,51 @@ namespace InlineIL.Fody.Extensions
 {
     internal static partial class CecilExtensions
     {
+        private static readonly Dictionary<TypeReference, bool> _checkedTypes = new Dictionary<TypeReference, bool>();
+
         [ContractAnnotation("null => false")]
         public static bool IsInlineILTypeUsage([CanBeNull] this TypeReference type)
         {
-            switch (type)
+            if (type == null)
+                return false;
+
+            lock (_checkedTypes)
             {
-                case null:
-                    return false;
+                if (_checkedTypes.TryGetValue(type, out var result))
+                    return result;
 
-                case GenericInstanceType t:
-                    return t.ElementType.IsInlineILTypeUsage()
-                           || t.GenericParameters.Any(i => i.IsInlineILTypeUsage())
-                           || t.GenericArguments.Any(i => i.IsInlineILTypeUsage());
+                _checkedTypes[type] = false;
+                result = DoCheck();
+                _checkedTypes[type] = result;
+                return result;
+            }
 
-                case GenericParameter t:
-                    return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage())
-                           || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage());
+            bool DoCheck()
+            {
+                switch (type)
+                {
+                    case GenericInstanceType t:
+                        return t.ElementType.IsInlineILTypeUsage()
+                               || t.GenericParameters.Any(i => i.IsInlineILTypeUsage())
+                               || t.GenericArguments.Any(i => i.IsInlineILTypeUsage());
 
-                case IModifierType t:
-                    return t.ElementType.IsInlineILTypeUsage()
-                           || t.ModifierType.IsInlineILTypeUsage();
+                    case GenericParameter t:
+                        return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage())
+                               || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage());
 
-                case FunctionPointerType t:
-                    return ((IMethodSignature)t).IsInlineILTypeUsage();
+                    case IModifierType t:
+                        return t.ElementType.IsInlineILTypeUsage()
+                               || t.ModifierType.IsInlineILTypeUsage();
 
-                case TypeSpecification t:
-                    return t.ElementType.IsInlineILTypeUsage();
+                    case FunctionPointerType t:
+                        return ((IMethodSignature)t).IsInlineILTypeUsage();
 
-                default:
-                    return KnownNames.Full.AllTypes.Contains(type.FullName);
+                    case TypeSpecification t:
+                        return t.ElementType.IsInlineILTypeUsage();
+
+                    default:
+                        return KnownNames.Full.AllTypes.Contains(type.FullName);
+                }
             }
         }
 
