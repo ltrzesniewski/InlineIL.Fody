@@ -11,6 +11,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
     public unsafe class BasicTestCases : IUnverifiableBasicTestCases
     {
         public static int* StaticIntPtrField;
+        public static void* StaticVoidPtrField;
 
         public void HandlePrefixesInDebugMode(ref Guid value)
         {
@@ -59,6 +60,42 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             Add();
             IL.Pop(out StaticIntPtrField);
             return *StaticIntPtrField;
+        }
+
+        public int PopVoidPointerLocal(int* arg, int offset)
+        {
+            Ldarg(nameof(arg));
+            Ldarg(nameof(offset));
+            Conv_I();
+            Ldc_I4(sizeof(int));
+            Mul();
+            Add();
+            IL.Pop(out void* value);
+            return *(int*)value;
+        }
+
+        public int PopVoidPointerArg(void* arg, int offset)
+        {
+            Ldarg(nameof(arg));
+            Ldarg(nameof(offset));
+            Conv_I();
+            Ldc_I4(sizeof(int));
+            Mul();
+            Add();
+            IL.Pop(out arg);
+            return *(int*)arg;
+        }
+
+        public int PopVoidPointerStatic(int* arg, int offset)
+        {
+            Ldarg(nameof(arg));
+            Ldarg(nameof(offset));
+            Conv_I();
+            Ldc_I4(sizeof(int));
+            Mul();
+            Add();
+            IL.Pop(out StaticVoidPtrField);
+            return *(int*)StaticVoidPtrField;
         }
 
         public ref int ReturnRef(int[] values, int offset)

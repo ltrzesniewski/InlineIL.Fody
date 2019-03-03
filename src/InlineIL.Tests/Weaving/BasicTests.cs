@@ -116,6 +116,30 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public unsafe void should_pop_void_pointer_to_local()
+        {
+            var values = stackalloc int[2] { 24, 42 };
+            var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopVoidPointerLocal(values, 1);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public unsafe void should_pop_void_pointer_to_arg()
+        {
+            var values = stackalloc int[2] { 24, 42 };
+            var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopVoidPointerArg(values, 1);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public unsafe void should_pop_void_pointer_to_static()
+        {
+            var values = stackalloc int[2] { 24, 42 };
+            var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopVoidPointerStatic(values, 1);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
         public void should_report_unvalid_use_of_Unreachable()
         {
             ShouldHaveError("InvalidUnreachable");

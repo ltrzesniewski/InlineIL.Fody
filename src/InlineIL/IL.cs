@@ -9,7 +9,7 @@ namespace InlineIL
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    public static partial class IL
+    public static unsafe partial class IL
     {
         /// <summary>
         /// Declares local variables, with the init flag set to true.
@@ -64,7 +64,7 @@ namespace InlineIL
         /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
         /// </summary>
         /// <param name="value">The pointer to push.</param>
-        public static unsafe void Push(void* value)
+        public static void Push(void* value)
             => Throw();
 
         /// <summary>
@@ -80,8 +80,15 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The type of the pointer to pop.</typeparam>
         /// <param name="value">A reference to a local variable receiving the pointer.</param>
-        public static unsafe void Pop<T>(out T* value)
+        public static void Pop<T>(out T* value)
             where T : unmanaged
+            => throw Throw();
+
+        /// <summary>
+        /// Pops a pointer from the top of the evaluation stack into a local variable.
+        /// </summary>
+        /// <param name="value">A reference to a local variable receiving the pointer.</param>
+        public static void Pop(out void* value)
             => throw Throw();
 
         /// <summary>
@@ -116,8 +123,8 @@ namespace InlineIL
         /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
         /// </summary>
         /// <typeparam name="T">The returned pointer type</typeparam>
-        /// <returns>The reference on top of the evaluation stack, which should be immediately returned from the method.</returns>
-        public static unsafe T* ReturnPointer<T>()
+        /// <returns>The pointer on top of the evaluation stack, which should be immediately returned from the method.</returns>
+        public static T* ReturnPointer<T>()
             where T : unmanaged
             => throw Throw();
 
@@ -125,8 +132,8 @@ namespace InlineIL
         /// Returns the pointer on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
         /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
         /// </summary>
-        /// <returns>The reference on top of the evaluation stack, which should be immediately returned from the method.</returns>
-        public static unsafe void* ReturnPointer()
+        /// <returns>The pointer on top of the evaluation stack, which should be immediately returned from the method.</returns>
+        public static void* ReturnPointer()
             => throw Throw();
 
         internal static Exception Throw()
