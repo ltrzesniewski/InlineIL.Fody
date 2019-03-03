@@ -205,6 +205,12 @@ namespace InlineIL.Examples
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AsRef<T>(void* source)
         {
+            // For .NET Core the roundtrip via a local is no longer needed (update the constant as needed)
+#if NETCOREAPP
+
+            IL.Push(source);
+            return ref IL.ReturnRef<T>();
+#else
             // Roundtrip via a local to avoid type mismatch on return that the JIT inliner chokes on.
             IL.DeclareLocals(
                 false,
@@ -215,6 +221,7 @@ namespace InlineIL.Examples
             Stloc("local");
             Ldloc("local");
             return ref IL.ReturnRef<T>();
+#endif
         }
 
         [NonVersionable]
@@ -231,6 +238,16 @@ namespace InlineIL.Examples
         {
             Ldarg(nameof(source));
             return ref IL.ReturnRef<TTo>();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T Unbox<T>(object box)
+            where T : struct
+        {
+            IL.Push(box);
+            IL.Emit.Unbox(typeof(T));
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
