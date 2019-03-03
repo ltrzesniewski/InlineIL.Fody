@@ -150,7 +150,7 @@ namespace InlineIL.Tests.Weaving
         public void should_handle_return_ref()
         {
             var array = new int[2];
-            var instance = (IBasicTestCases)GetInstance();
+            var instance = (IBasicTestCases)(object)GetUnverifiableInstance();
             ref var valueRef = ref instance.ReturnRef(array, 1);
             valueRef = 42;
             array[1].ShouldEqual(42);
@@ -162,7 +162,7 @@ namespace InlineIL.Tests.Weaving
             var array = new[] { 24, 42 };
             fixed (int* _ = &array[0])
             {
-                var instance = (IBasicTestCases)GetInstance();
+                var instance = (IBasicTestCases)GetUnverifiableInstance();
                 var valuePtr = instance.ReturnPointer(array, 1);
                 (*valuePtr).ShouldEqual(42);
             }
@@ -172,7 +172,7 @@ namespace InlineIL.Tests.Weaving
         public void should_handle_return_ref_with_dereference()
         {
             var array = new[] { 24, 42 };
-            var value = (int)GetInstance().ReturnRefWithDereference(array, 1);
+            var value = (int)GetUnverifiableInstance().ReturnRefWithDereference(array, 1);
             value.ShouldEqual(42);
         }
 
@@ -180,8 +180,19 @@ namespace InlineIL.Tests.Weaving
         public void should_handle_return_ref_with_dereference_and_conversion()
         {
             var array = new[] { 24, 42 };
-            var value = (double)GetInstance().ReturnRefWithDereferenceAndConversion(array, 1);
+            var value = (double)GetUnverifiableInstance().ReturnRefWithDereferenceAndConversion(array, 1);
             value.ShouldEqual(42.0);
+        }
+
+        [Fact]
+        public unsafe void should_handle_return_pointer_with_dereference()
+        {
+            var array = new[] { 24, 42 };
+            fixed (int* _ = &array[0])
+            {
+                var value = (int)(GetUnverifiableInstance().ReturnPointerWithDereference(array, 1));
+                value.ShouldEqual(42);
+            }
         }
 
         [Fact]
@@ -190,7 +201,7 @@ namespace InlineIL.Tests.Weaving
             var array = new[] { 24, 42 };
             fixed (int* _ = &array[0])
             {
-                var instance = (IBasicTestCases)GetInstance();
+                var instance = (IBasicTestCases)GetUnverifiableInstance();
                 var valuePtr = instance.ReturnPointerWithConversion(array, 1);
                 (*(int*)valuePtr).ShouldEqual(42);
             }

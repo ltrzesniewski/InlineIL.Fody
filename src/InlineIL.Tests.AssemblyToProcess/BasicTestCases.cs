@@ -5,7 +5,7 @@ using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-public class BasicTestCases : IBasicTestCases
+public class BasicTestCases
 {
     public static int StaticIntField;
 
@@ -121,46 +121,6 @@ public class BasicTestCases : IBasicTestCases
     {
         Ldc_I4(42);
         return IL.Return<int>();
-    }
-
-    public ref int ReturnRef(int[] values, int offset)
-    {
-        Ldarg(nameof(values));
-        Ldarg(nameof(offset));
-        Ldelema(typeof(int));
-        return ref IL.ReturnRef<int>();
-    }
-
-    public unsafe int* ReturnPointer(int[] values, int offset)
-    {
-        Ldarg(nameof(values));
-        Ldarg(nameof(offset));
-        Ldelema(typeof(int));
-        return IL.ReturnPointer<int>();
-    }
-
-    public int ReturnRefWithDereference(int[] values, int offset)
-    {
-        Ldarg(nameof(values));
-        Ldarg(nameof(offset));
-        Ldelema(typeof(int));
-        return IL.ReturnRef<int>();
-    }
-
-    public double ReturnRefWithDereferenceAndConversion(int[] values, int offset)
-    {
-        Ldarg(nameof(values));
-        Ldarg(nameof(offset));
-        Ldelema(typeof(int));
-        return IL.ReturnRef<int>();
-    }
-
-    public unsafe void* ReturnPointerWithConversion(int[] values, int offset)
-    {
-        Ldarg(nameof(values));
-        Ldarg(nameof(offset));
-        Ldelema(typeof(int));
-        return IL.ReturnPointer<int>();
     }
 
     public void ExplicitRet()

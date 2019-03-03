@@ -4,7 +4,8 @@ using InlineIL;
 using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
-public class BasicTestCases
+[SuppressMessage("ReSharper", "UnusedParameter.Global")]
+public class BasicTestCases : IBasicTestCases
 {
     public void HandlePrefixesInDebugMode(ref Guid value)
     {
@@ -17,5 +18,53 @@ public class BasicTestCases
 
         Unaligned(1);
         Initblk();
+    }
+
+    public ref int ReturnRef(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return ref IL.ReturnRef<int>();
+    }
+
+    public unsafe int* ReturnPointer(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return IL.ReturnPointer<int>();
+    }
+
+    public int ReturnRefWithDereference(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return IL.ReturnRef<int>();
+    }
+
+    public double ReturnRefWithDereferenceAndConversion(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return IL.ReturnRef<int>();
+    }
+
+    public unsafe void* ReturnPointerWithConversion(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return IL.ReturnPointer<int>();
+    }
+
+    public unsafe int ReturnPointerWithDereference(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return *IL.ReturnPointer<int>();
     }
 }
