@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using InlineIL.Fody.Extensions;
+using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
 using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using Mono.Cecil.Cil;
@@ -151,7 +152,7 @@ namespace InlineIL.Tests.Weaving
         public void should_handle_return_ref()
         {
             var array = new int[2];
-            var instance = (IBasicTestCases)(object)GetUnverifiableInstance();
+            var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
             ref var valueRef = ref instance.ReturnRef(array, 1);
             valueRef = 42;
             array[1].ShouldEqual(42);
@@ -163,7 +164,7 @@ namespace InlineIL.Tests.Weaving
             var array = new[] { 24, 42 };
             fixed (int* _ = &array[0])
             {
-                var instance = (IBasicTestCases)GetUnverifiableInstance();
+                var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
                 var valuePtr = instance.ReturnPointer(array, 1);
                 (*valuePtr).ShouldEqual(42);
             }
@@ -202,7 +203,7 @@ namespace InlineIL.Tests.Weaving
             var array = new[] { 24, 42 };
             fixed (int* _ = &array[0])
             {
-                var instance = (IBasicTestCases)GetUnverifiableInstance();
+                var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
                 var valuePtr = instance.ReturnPointerWithConversion(array, 1);
                 (*(int*)valuePtr).ShouldEqual(42);
             }

@@ -1,6 +1,6 @@
-﻿namespace InlineIL.Tests.UnverifiableAssemblyToProcess
+﻿namespace InlineIL.Tests.Common
 {
-    public unsafe interface IBasicTestCases
+    public unsafe interface IUnverifiableBasicTestCases
     {
         ref int ReturnRef(int[] values, int offset);
         int* ReturnPointer(int[] values, int offset);

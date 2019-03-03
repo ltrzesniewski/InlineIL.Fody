@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{0E0CF69E
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InlineIL.Tests.Common", "InlineIL.Tests.Common\InlineIL.Tests.Common.csproj", "{7998468F-7C8E-4457-8ECA-04401052159D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,12 @@ Global
 		{BE7E197A-5CE5-46DA-AB5E-50EB0EEDBCE4}.DebugWithReleaseTests|Any CPU.Build.0 = Debug|Any CPU
 		{BE7E197A-5CE5-46DA-AB5E-50EB0EEDBCE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE7E197A-5CE5-46DA-AB5E-50EB0EEDBCE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7998468F-7C8E-4457-8ECA-04401052159D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7998468F-7C8E-4457-8ECA-04401052159D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7998468F-7C8E-4457-8ECA-04401052159D}.DebugWithReleaseTests|Any CPU.ActiveCfg = Release|Any CPU
+		{7998468F-7C8E-4457-8ECA-04401052159D}.DebugWithReleaseTests|Any CPU.Build.0 = Release|Any CPU
+		{7998468F-7C8E-4457-8ECA-04401052159D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7998468F-7C8E-4457-8ECA-04401052159D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +107,7 @@ Global
 		{46E1DDB1-F117-4395-B72F-DD50FA2B2579} = {97C79009-9BDF-4796-882A-6703071B864F}
 		{D2E2F12D-F421-4E92-93E4-DAA7EF7B6F49} = {C7778B34-E9EB-44CC-9AFC-1DE5093F50FB}
 		{BE7E197A-5CE5-46DA-AB5E-50EB0EEDBCE4} = {C7778B34-E9EB-44CC-9AFC-1DE5093F50FB}
+		{7998468F-7C8E-4457-8ECA-04401052159D} = {97C79009-9BDF-4796-882A-6703071B864F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {025B8425-B5B7-4756-875C-E015456B7F4A}

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using InlineIL.Tests.Common;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    public class BasicTestCases : IBasicTestCases
+    public class BasicTestCases : IUnverifiableBasicTestCases
     {
         public void HandlePrefixesInDebugMode(ref Guid value)
         {
