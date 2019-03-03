@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using InlineIL.Fody.Extensions;
-using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
 using Mono.Cecil.Cil;
 using Xunit;
@@ -151,7 +150,7 @@ namespace InlineIL.Tests.Weaving
         public void should_handle_return_ref()
         {
             var array = new int[2];
-            var instance = (IReturnRef<int>)GetInstance();
+            var instance = (IBasicTestCases)GetInstance();
             ref var valueRef = ref instance.ReturnRef(array, 1);
             valueRef = 42;
             array[1].ShouldEqual(42);
@@ -160,13 +159,40 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public unsafe void should_handle_return_pointer()
         {
-            var array = new int[2];
+            var array = new[] { 24, 42 };
             fixed (int* _ = &array[0])
             {
-                var instance = (IReturnPointer<int>)GetInstance();
+                var instance = (IBasicTestCases)GetInstance();
                 var valuePtr = instance.ReturnPointer(array, 1);
-                *valuePtr = 42;
-                array[1].ShouldEqual(42);
+                (*valuePtr).ShouldEqual(42);
+            }
+        }
+
+        [Fact]
+        public void should_handle_return_ref_with_dereference()
+        {
+            var array = new[] { 24, 42 };
+            var value = (int)GetInstance().ReturnRefWithDereference(array, 1);
+            value.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_handle_return_ref_with_dereference_and_conversion()
+        {
+            var array = new[] { 24, 42 };
+            var value = (double)GetInstance().ReturnRefWithDereferenceAndConversion(array, 1);
+            value.ShouldEqual(42.0);
+        }
+
+        [Fact]
+        public unsafe void should_handle_return_pointer_with_conversion()
+        {
+            var array = new[] { 24, 42 };
+            fixed (int* _ = &array[0])
+            {
+                var instance = (IBasicTestCases)GetInstance();
+                var valuePtr = instance.ReturnPointerWithConversion(array, 1);
+                (*(int*)valuePtr).ShouldEqual(42);
             }
         }
 

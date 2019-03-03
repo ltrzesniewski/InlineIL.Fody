@@ -18,7 +18,6 @@
     <ProjectReference Include="..\InlineIL.Examples\InlineIL.Examples.csproj" />
     <ProjectReference Include="..\InlineIL.Fody\InlineIL.Fody.csproj" />
     <ProjectReference Include="..\InlineIL.Tests.AssemblyToProcess\InlineIL.Tests.AssemblyToProcess.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
     <ProjectReference Include="..\InlineIL.Tests.InvalidAssemblyToProcess\InlineIL.Tests.InvalidAssemblyToProcess.csproj" />
     <ProjectReference Include="..\InlineIL.Tests.UnverifiableAssemblyToProcess\InlineIL.Tests.UnverifiableAssemblyToProcess.csproj" />
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
