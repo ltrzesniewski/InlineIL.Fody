@@ -8,6 +8,7 @@
 
         ref int ReturnRef(int[] values, int offset);
         int* ReturnPointer(int[] values, int offset);
+        void* ReturnVoidPointer(int[] values, int offset);
         void* ReturnPointerWithConversion(int[] values, int offset);
     }
 }

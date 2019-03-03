@@ -77,6 +77,14 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             return IL.ReturnPointer<int>();
         }
 
+        public void* ReturnVoidPointer(int[] values, int offset)
+        {
+            Ldarg(nameof(values));
+            Ldarg(nameof(offset));
+            Ldelema(typeof(int));
+            return IL.ReturnPointer();
+        }
+
         public int ReturnRefWithDereference(int[] values, int offset)
         {
             Ldarg(nameof(values));

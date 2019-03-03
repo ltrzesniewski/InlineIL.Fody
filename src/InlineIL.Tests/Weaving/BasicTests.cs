@@ -194,6 +194,18 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public unsafe void should_handle_return_void_pointer()
+        {
+            var array = new[] { 24, 42 };
+            fixed (int* _ = &array[0])
+            {
+                var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
+                var valuePtr = instance.ReturnVoidPointer(array, 1);
+                (*(int*)valuePtr).ShouldEqual(42);
+            }
+        }
+
+        [Fact]
         public void should_handle_return_ref_with_dereference()
         {
             var array = new[] { 24, 42 };

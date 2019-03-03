@@ -545,12 +545,25 @@ namespace InlineIL.Fody.Processing
 
                 Exception InvalidReturnException()
                 {
-                    var calledMethodName = ((MethodReference)instruction.Operand).Name;
+                    var calledMethod = (MethodReference)instruction.Operand;
 
-                    if (calledMethodName == KnownNames.Short.ReturnRefMethod)
-                        return new InstructionWeavingException(instruction, $"The result of the IL.{calledMethodName} method should be immediately returned: return ref IL.{calledMethodName}<T>();");
+                    switch (calledMethod.Name)
+                    {
+                        case KnownNames.Short.ReturnMethod:
+                            return new InstructionWeavingException(instruction, $"The result of the IL.{calledMethod.Name} method should be immediately returned: return IL.{calledMethod.Name}<T>();");
 
-                    return new InstructionWeavingException(instruction, $"The result of the IL.{calledMethodName} method should be immediately returned: return IL.{calledMethodName}<T>();");
+                        case KnownNames.Short.ReturnRefMethod:
+                            return new InstructionWeavingException(instruction, $"The result of the IL.{calledMethod.Name} method should be immediately returned: return ref IL.{calledMethod.Name}<T>();");
+
+                        case KnownNames.Short.ReturnPointerMethod:
+                            if (!calledMethod.HasGenericParameters)
+                                return new InstructionWeavingException(instruction, $"The result of the IL.{calledMethod.Name} method should be immediately returned: return IL.{calledMethod.Name}();");
+
+                            goto case KnownNames.Short.ReturnMethod;
+
+                        default:
+                            return new InstructionWeavingException(instruction, $"Unexpected method call: IL.{calledMethod.Name}");
+                    }
                 }
             }
         }
