@@ -5,7 +5,6 @@ using System.Reflection;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
-using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using Mono.Cecil.Cil;
 using Xunit;
 
@@ -89,6 +88,30 @@ namespace InlineIL.Tests.Weaving
         public void should_pop_to_static_field()
         {
             var result = (int)GetInstance().PopStaticField(21);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public unsafe void should_pop_pointer_to_local()
+        {
+            var values = stackalloc int[2] { 24, 42 };
+            var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopPointerLocal(values, 1);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public unsafe void should_pop_pointer_to_arg()
+        {
+            var values = stackalloc int[2] { 24, 42 };
+            var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopPointerArg(values, 1);
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public unsafe void should_pop_pointer_to_static()
+        {
+            var values = stackalloc int[2] { 24, 42 };
+            var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopPointerStatic(values, 1);
             result.ShouldEqual(42);
         }
 

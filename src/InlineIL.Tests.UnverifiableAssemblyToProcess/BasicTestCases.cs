@@ -7,8 +7,11 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    public class BasicTestCases : IUnverifiableBasicTestCases
+    [SuppressMessage("ReSharper", "RedundantAssignment")]
+    public unsafe class BasicTestCases : IUnverifiableBasicTestCases
     {
+        public static int* StaticIntPtrField;
+
         public void HandlePrefixesInDebugMode(ref Guid value)
         {
             IL.Push(ref value);
@@ -22,6 +25,42 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             Initblk();
         }
 
+        public int PopPointerLocal(int* arg, int offset)
+        {
+            Ldarg(nameof(arg));
+            Ldarg(nameof(offset));
+            Conv_I();
+            Ldc_I4(sizeof(int));
+            Mul();
+            Add();
+            IL.Pop(out int* value);
+            return *value;
+        }
+
+        public int PopPointerArg(int* arg, int offset)
+        {
+            Ldarg(nameof(arg));
+            Ldarg(nameof(offset));
+            Conv_I();
+            Ldc_I4(sizeof(int));
+            Mul();
+            Add();
+            IL.Pop(out arg);
+            return *arg;
+        }
+
+        public int PopPointerStatic(int* arg, int offset)
+        {
+            Ldarg(nameof(arg));
+            Ldarg(nameof(offset));
+            Conv_I();
+            Ldc_I4(sizeof(int));
+            Mul();
+            Add();
+            IL.Pop(out StaticIntPtrField);
+            return *StaticIntPtrField;
+        }
+
         public ref int ReturnRef(int[] values, int offset)
         {
             Ldarg(nameof(values));
@@ -30,7 +69,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             return ref IL.ReturnRef<int>();
         }
 
-        public unsafe int* ReturnPointer(int[] values, int offset)
+        public int* ReturnPointer(int[] values, int offset)
         {
             Ldarg(nameof(values));
             Ldarg(nameof(offset));
@@ -54,7 +93,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             return IL.ReturnRef<int>();
         }
 
-        public unsafe void* ReturnPointerWithConversion(int[] values, int offset)
+        public void* ReturnPointerWithConversion(int[] values, int offset)
         {
             Ldarg(nameof(values));
             Ldarg(nameof(offset));
@@ -62,7 +101,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             return IL.ReturnPointer<int>();
         }
 
-        public unsafe int ReturnPointerWithDereference(int[] values, int offset)
+        public int ReturnPointerWithDereference(int[] values, int offset)
         {
             Ldarg(nameof(values));
             Ldarg(nameof(offset));
