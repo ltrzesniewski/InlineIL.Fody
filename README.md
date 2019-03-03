@@ -70,17 +70,17 @@ A few more things which are good to know:
    Marks a label at a given position in the code.
    
  - `IL.Push`  
-   A helper method to push a value onto the evaluation stack.
+   Pushes the provided argument onto the evaluation stack.
 
  - `IL.Pop`  
-   A helper method to pop a value from the evaluation stack into a local variable.
+   Pops a value from the evaluation stack into a local variable or static field.
 
  - `IL.Unreachable`  
-   A method used to mark an unreachable code region, for instance just after a `ret` instruction. Necessary when the compiler's control flow analysis requires a code statement.  
+   Marks an unreachable code region, for instance just after a `ret` instruction. Necessary when the compiler's control flow analysis requires a code statement.  
    Usage: `throw IL.Unreachable();`
 
- - `IL.Return`  
-   A helper method to return the value from the top of the evaluation stack.  
+ - `IL.Return`, `IL.ReturnRef`, `IL.ReturnPointer`  
+   Helper methods to return the value from the top of the evaluation stack.  
    Example usage: `return IL.Return<int>();`
 
 ### Types
