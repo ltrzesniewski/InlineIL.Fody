@@ -97,8 +97,7 @@ namespace InlineIL.Examples
         {
             Ldarg(nameof(value));
             Conv_U();
-            Ret();
-            throw IL.Unreachable();
+            return IL.ReturnPointer();
         }
 
         [NonVersionable]
@@ -215,8 +214,7 @@ namespace InlineIL.Examples
             IL.Push(source);
             Stloc("local");
             Ldloc("local");
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
@@ -224,8 +222,7 @@ namespace InlineIL.Examples
         public static ref T AsRef<T>(in T source)
         {
             Ldarg(nameof(source));
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
@@ -233,8 +230,7 @@ namespace InlineIL.Examples
         public static ref TTo As<TFrom, TTo>(ref TFrom source)
         {
             Ldarg(nameof(source));
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<TTo>();
         }
 
         [NonVersionable]
@@ -247,8 +243,7 @@ namespace InlineIL.Examples
             Conv_I();
             Mul();
             IL.Emit.Add();
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
@@ -261,8 +256,7 @@ namespace InlineIL.Examples
             Conv_I();
             Mul();
             IL.Emit.Add();
-            Ret();
-            throw IL.Unreachable();
+            return IL.ReturnPointer();
         }
 
         [NonVersionable]
@@ -274,8 +268,7 @@ namespace InlineIL.Examples
             Sizeof(typeof(T));
             Mul();
             IL.Emit.Add();
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
@@ -285,8 +278,7 @@ namespace InlineIL.Examples
             Ldarg(nameof(source));
             Ldarg(nameof(byteOffset));
             IL.Emit.Add();
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
@@ -299,8 +291,7 @@ namespace InlineIL.Examples
             Conv_I();
             Mul();
             Sub();
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
@@ -313,8 +304,7 @@ namespace InlineIL.Examples
             Conv_I();
             Mul();
             Sub();
-            Ret();
-            throw IL.Unreachable();
+            return IL.ReturnPointer();
         }
 
         [NonVersionable]
@@ -326,8 +316,7 @@ namespace InlineIL.Examples
             Sizeof(typeof(T));
             Mul();
             Sub();
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
@@ -337,8 +326,7 @@ namespace InlineIL.Examples
             Ldarg(nameof(source));
             Ldarg(nameof(byteOffset));
             Sub();
-            Ret();
-            throw IL.Unreachable();
+            return ref IL.ReturnRef<T>();
         }
 
         [NonVersionable]
