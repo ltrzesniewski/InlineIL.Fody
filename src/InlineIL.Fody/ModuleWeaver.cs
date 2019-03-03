@@ -27,6 +27,18 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
+            try
+            {
+                ProcessAssembly();
+            }
+            finally
+            {
+                CecilExtensions.CleanCache();
+            }
+        }
+
+        private void ProcessAssembly()
+        {
             var configOptions = new WeaverConfigOptions(Config);
             var config = new WeaverConfig(configOptions, ModuleDefinition);
 

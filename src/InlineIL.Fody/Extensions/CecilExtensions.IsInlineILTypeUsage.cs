@@ -10,6 +10,14 @@ namespace InlineIL.Fody.Extensions
     {
         private static readonly Dictionary<TypeReference, bool> _checkedTypes = new Dictionary<TypeReference, bool>();
 
+        public static void CleanCache()
+        {
+            lock (_checkedTypes)
+            {
+                _checkedTypes.Clear();
+            }
+        }
+
         [ContractAnnotation("null => false")]
         public static bool IsInlineILTypeUsage([CanBeNull] this TypeReference type)
         {
