@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using InlineIL.Fody.Extensions;
+using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
 using Mono.Cecil.Cil;
 using Xunit;
@@ -144,6 +145,29 @@ namespace InlineIL.Tests.Weaving
         {
             ((float)GetInstance().ReturnWithConversion1()).ShouldEqual(42.0f);
             ((int?)GetInstance().ReturnWithConversion2()).ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_handle_return_ref()
+        {
+            var array = new int[2];
+            var instance = (IReturnRef<int>)GetInstance();
+            ref var valueRef = ref instance.ReturnRef(array, 1);
+            valueRef = 42;
+            array[1].ShouldEqual(42);
+        }
+
+        [Fact]
+        public unsafe void should_handle_return_pointer()
+        {
+            var array = new int[2];
+            fixed (int* _ = &array[0])
+            {
+                var instance = (IReturnPointer<int>)GetInstance();
+                var valuePtr = instance.ReturnPointer(array, 1);
+                *valuePtr = 42;
+                array[1].ShouldEqual(42);
+            }
         }
 
         [Fact]

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using InlineIL;
+using InlineIL.Tests.Common;
 using static InlineIL.IL.Emit;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-public class BasicTestCases
+public class BasicTestCases : IReturnRef<int>, IReturnPointer<int>
 {
     public static int StaticIntField;
 
@@ -121,6 +122,22 @@ public class BasicTestCases
     {
         Ldc_I4(42);
         return IL.Return<int>();
+    }
+
+    public ref int ReturnRef(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return ref IL.ReturnRef<int>();
+    }
+
+    public unsafe int* ReturnPointer(int[] values, int offset)
+    {
+        Ldarg(nameof(values));
+        Ldarg(nameof(offset));
+        Ldelema(typeof(int));
+        return IL.ReturnPointer<int>();
     }
 
     public void ExplicitRet()

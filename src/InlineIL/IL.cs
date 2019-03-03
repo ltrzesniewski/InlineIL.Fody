@@ -93,6 +93,25 @@ namespace InlineIL
         public static T Return<T>()
             => throw Throw();
 
+        /// <summary>
+        /// Returns the reference on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
+        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// </summary>
+        /// <typeparam name="T">The returned reference type</typeparam>
+        /// <returns>The reference on top of the evaluation stack, which should be immediately returned from the method.</returns>
+        public static ref T ReturnRef<T>()
+            => throw Throw();
+
+        /// <summary>
+        /// Returns the pointer on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
+        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// </summary>
+        /// <typeparam name="T">The returned pointer type</typeparam>
+        /// <returns>The reference on top of the evaluation stack, which should be immediately returned from the method.</returns>
+        public static unsafe T* ReturnPointer<T>()
+            where T : unmanaged
+            => throw Throw();
+
         internal static Exception Throw()
             => throw new InvalidOperationException("This method is meant to be replaced at compile time by InlineIL.Fody, but the weaver has not been executed correctly.");
     }

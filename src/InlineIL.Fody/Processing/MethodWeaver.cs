@@ -221,6 +221,8 @@ namespace InlineIL.Fody.Processing
                     break;
 
                 case KnownNames.Short.ReturnMethod:
+                case KnownNames.Short.ReturnRefMethod:
+                case KnownNames.Short.ReturnPointerMethod:
                     ProcessReturnMethod(instruction);
                     break;
 
@@ -541,7 +543,15 @@ namespace InlineIL.Fody.Processing
                     }
                 }
 
-                Exception InvalidReturnException() => new InstructionWeavingException(instruction, "The result of the IL.Return method should be immediately returned: return IL.Return<T>();");
+                Exception InvalidReturnException()
+                {
+                    var calledMethodName = ((MethodReference)instruction.Operand).Name;
+
+                    if (calledMethodName == KnownNames.Short.ReturnRefMethod)
+                        return new InstructionWeavingException(instruction, $"The result of the IL.{calledMethodName} method should be immediately returned: return ref IL.{calledMethodName}<T>();");
+
+                    return new InstructionWeavingException(instruction, $"The result of the IL.{calledMethodName} method should be immediately returned: return IL.{calledMethodName}<T>();");
+                }
             }
         }
 

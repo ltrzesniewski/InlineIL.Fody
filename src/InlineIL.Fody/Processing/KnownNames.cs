@@ -18,6 +18,8 @@ namespace InlineIL.Fody.Processing
             public const string PopMethod = "Pop";
             public const string UnreachableMethod = "Unreachable";
             public const string ReturnMethod = "Return";
+            public const string ReturnRefMethod = "ReturnRef";
+            public const string ReturnPointerMethod = "ReturnPointer";
             public const string MarkLabelMethod = "MarkLabel";
             public const string DeclareLocalsMethod = "DeclareLocals";
         }

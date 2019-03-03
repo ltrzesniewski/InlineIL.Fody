@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
   </ItemGroup>
 
