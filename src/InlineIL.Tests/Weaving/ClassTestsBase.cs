@@ -5,6 +5,10 @@ namespace InlineIL.Tests.Weaving
 {
     public abstract class ClassTestsBase
     {
+        protected const string VerifiableAssembly = "InlineIL.Tests.AssemblyToProcess";
+        protected const string UnverifiableAssembly = "InlineIL.Tests.UnverifiableAssemblyToProcess";
+        protected const string InvalidAssembly = "InlineIL.Tests.InvalidAssemblyToProcess";
+
         private string ClassName { get; }
 
         protected ClassTestsBase(string className)
@@ -13,30 +17,30 @@ namespace InlineIL.Tests.Weaving
         }
 
         protected dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance(ClassName);
+            => AssemblyToProcessFixture.TestResult.GetInstance($"{VerifiableAssembly}.{ClassName}");
 
         protected MethodDefinition GetMethodDefinition(string methodName)
-            => GetMethodDefinition(AssemblyToProcessFixture.ResultModule, methodName);
+            => GetMethodDefinition(AssemblyToProcessFixture.ResultModule, VerifiableAssembly, methodName);
 
         protected MethodDefinition GetOriginalMethodDefinition(string methodName)
-            => GetMethodDefinition(AssemblyToProcessFixture.OriginalModule, methodName);
+            => GetMethodDefinition(AssemblyToProcessFixture.OriginalModule, VerifiableAssembly, methodName);
 
         protected dynamic GetUnverifiableInstance()
-            => UnverifiableAssemblyToProcessFixture.TestResult.GetInstance(ClassName);
+            => UnverifiableAssemblyToProcessFixture.TestResult.GetInstance($"{UnverifiableAssembly}.{ClassName}");
 
         protected MethodDefinition GetUnverifiableMethodDefinition(string methodName)
-            => GetMethodDefinition(UnverifiableAssemblyToProcessFixture.ResultModule, methodName);
+            => GetMethodDefinition(UnverifiableAssemblyToProcessFixture.ResultModule, UnverifiableAssembly, methodName);
 
         protected string ShouldHaveError(string methodName)
-            => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName, true);
+            => InvalidAssemblyToProcessFixture.ShouldHaveError($"{InvalidAssembly}.{ClassName}", methodName, true);
 
         protected string ShouldHaveErrorNoSeqPoint(string methodName)
-            => InvalidAssemblyToProcessFixture.ShouldHaveError(ClassName, methodName, false);
+            => InvalidAssemblyToProcessFixture.ShouldHaveError($"{InvalidAssembly}.{ClassName}", methodName, false);
 
         protected void ShouldHaveErrorInType(string nestedTypeName)
-            => InvalidAssemblyToProcessFixture.ShouldHaveErrorInType(ClassName, nestedTypeName);
+            => InvalidAssemblyToProcessFixture.ShouldHaveErrorInType($"{InvalidAssembly}.{ClassName}", nestedTypeName);
 
-        private MethodDefinition GetMethodDefinition(ModuleDefinition module, string methodName)
-            => module.GetType(ClassName).Methods.Single(m => m.Name == methodName);
+        private MethodDefinition GetMethodDefinition(ModuleDefinition module, string ns, string methodName)
+            => module.GetType($"{ns}.{ClassName}").Methods.Single(m => m.Name == methodName);
     }
 }

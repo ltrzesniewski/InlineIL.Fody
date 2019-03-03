@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Support;
+using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using Mono.Cecil.Cil;
 using Xunit;
 

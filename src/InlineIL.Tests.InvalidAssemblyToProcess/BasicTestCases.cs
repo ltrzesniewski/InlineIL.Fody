@@ -1,49 +1,51 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using InlineIL;
 using static InlineIL.IL.Emit;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-public class BasicTestCases
+namespace InlineIL.Tests.InvalidAssemblyToProcess
 {
-    private int _intField;
-
-    public void InvalidUnreachable()
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class BasicTestCases
     {
-        IL.Unreachable();
-    }
+        private int _intField;
 
-    public void InvalidReturn()
-    {
-        IL.Return<int>();
-    }
+        public void InvalidUnreachable()
+        {
+            IL.Unreachable();
+        }
 
-    public void UnusedInstance()
-    {
-        GC.KeepAlive(typeof(IL));
-    }
+        public void InvalidReturn()
+        {
+            IL.Return<int>();
+        }
 
-    public void InvalidPushUsage()
-    {
-        var guid = Guid.NewGuid();
+        public void UnusedInstance()
+        {
+            GC.KeepAlive(typeof(IL));
+        }
 
-        IL.Push(42);
-        IL.Push(guid);
-    }
+        public void InvalidPushUsage()
+        {
+            var guid = Guid.NewGuid();
 
-    public void NonExistingParameter()
-    {
-        Ldarg("foo");
-    }
+            IL.Push(42);
+            IL.Push(guid);
+        }
 
-    public void PopToField()
-    {
-        IL.Pop(out _intField);
-    }
+        public void NonExistingParameter()
+        {
+            Ldarg("foo");
+        }
 
-    public void PopToArray()
-    {
-        var array = new int[1];
-        IL.Pop(out array[0]);
+        public void PopToField()
+        {
+            IL.Pop(out _intField);
+        }
+
+        public void PopToArray()
+        {
+            var array = new int[1];
+            IL.Pop(out array[0]);
+        }
     }
 }

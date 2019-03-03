@@ -2,97 +2,99 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using InlineIL;
 using static InlineIL.IL.Emit;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
-public unsafe class StandAloneMethodSigTestCases
+namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 {
-    public int CallIndirectStatic()
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
+    public unsafe class StandAloneMethodSigTestCases
     {
-        Ldc_I4(42);
-        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
-        Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
-        return IL.Return<int>();
-    }
+        public int CallIndirectStatic()
+        {
+            Ldc_I4(42);
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+            return IL.Return<int>();
+        }
 
-    public int CallIndirectInstance()
-    {
-        IL.Push(this);
-        IL.Push(42);
-        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallInstanceTargetMethod)));
-        Calli(new StandAloneMethodSig(CallingConventions.Standard | CallingConventions.HasThis, typeof(int), typeof(int)));
-        return IL.Return<int>();
-    }
+        public int CallIndirectInstance()
+        {
+            IL.Push(this);
+            IL.Push(42);
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallInstanceTargetMethod)));
+            Calli(new StandAloneMethodSig(CallingConventions.Standard | CallingConventions.HasThis, typeof(int), typeof(int)));
+            return IL.Return<int>();
+        }
 
 #if NETFRAMEWORK
-    public int CallIndirectVarArg()
-    {
-        IL.Push(40);
-        IL.Push(10);
-        IL.Push(20);
-        Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallVarArgTargetMethod)));
-        Calli(new StandAloneMethodSig(CallingConventions.VarArgs, typeof(int), typeof(int)).WithOptionalParameters(typeof(int), typeof(int)));
-        return IL.Return<int>();
-    }
+        public int CallIndirectVarArg()
+        {
+            IL.Push(40);
+            IL.Push(10);
+            IL.Push(20);
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallVarArgTargetMethod)));
+            Calli(new StandAloneMethodSig(CallingConventions.VarArgs, typeof(int), typeof(int)).WithOptionalParameters(typeof(int), typeof(int)));
+            return IL.Return<int>();
+        }
 #endif
 
-    public int CallIndirectNativeStdcall()
-    {
-        var fn = new IntToIntStdcall(IndirectCallNativeTargetMethod);
+        public int CallIndirectNativeStdcall()
+        {
+            var fn = new IntToIntStdcall(IndirectCallNativeTargetMethod);
 
-        IL.Push(40);
-        IL.Push(2);
-        IL.Push(40);
-        IL.Push(-20);
-        IL.Push(-20);
-        IL.Push(-20);
-        IL.Push(5);
-        IL.Push(15);
-        IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
-        Calli(new StandAloneMethodSig(CallingConvention.StdCall, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
+            IL.Push(40);
+            IL.Push(2);
+            IL.Push(40);
+            IL.Push(-20);
+            IL.Push(-20);
+            IL.Push(-20);
+            IL.Push(5);
+            IL.Push(15);
+            IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
+            Calli(new StandAloneMethodSig(CallingConvention.StdCall, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
 
-        GC.KeepAlive(fn);
-        return IL.Return<int>();
-    }
+            GC.KeepAlive(fn);
+            return IL.Return<int>();
+        }
 
-    public int CallIndirectNativeCdecl()
-    {
-        var fn = new IntToIntCdecl(IndirectCallNativeTargetMethod);
+        public int CallIndirectNativeCdecl()
+        {
+            var fn = new IntToIntCdecl(IndirectCallNativeTargetMethod);
 
-        IL.Push(40);
-        IL.Push(2);
-        IL.Push(40);
-        IL.Push(-20);
-        IL.Push(-20);
-        IL.Push(-20);
-        IL.Push(5);
-        IL.Push(15);
-        IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
-        Calli(new StandAloneMethodSig(CallingConvention.Cdecl, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
+            IL.Push(40);
+            IL.Push(2);
+            IL.Push(40);
+            IL.Push(-20);
+            IL.Push(-20);
+            IL.Push(-20);
+            IL.Push(5);
+            IL.Push(15);
+            IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
+            Calli(new StandAloneMethodSig(CallingConvention.Cdecl, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
 
-        GC.KeepAlive(fn);
-        return IL.Return<int>();
-    }
+            GC.KeepAlive(fn);
+            return IL.Return<int>();
+        }
 
-    private static int IndirectCallStaticTargetMethod(int value) => value;
-    private int IndirectCallInstanceTargetMethod(int value) => value;
+        private static int IndirectCallStaticTargetMethod(int value) => value;
+        private int IndirectCallInstanceTargetMethod(int value) => value;
 
 #if NETFRAMEWORK
-    private static int IndirectCallVarArgTargetMethod(int value, __arglist)
-    {
-        var it = new ArgIterator(__arglist);
-        return value + it.GetRemainingCount();
-    }
+        private static int IndirectCallVarArgTargetMethod(int value, __arglist)
+        {
+            var it = new ArgIterator(__arglist);
+            return value + it.GetRemainingCount();
+        }
 #endif
 
-    private static int IndirectCallNativeTargetMethod(int a, int b, int c, int d, int e, int f, int g, int h)
-        => a + b + c + d + e + f + g + h;
+        private static int IndirectCallNativeTargetMethod(int a, int b, int c, int d, int e, int f, int g, int h)
+            => a + b + c + d + e + f + g + h;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    private delegate int IntToIntStdcall(int a, int b, int c, int d, int e, int f, int g, int h);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate int IntToIntStdcall(int a, int b, int c, int d, int e, int f, int g, int h);
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate int IntToIntCdecl(int a, int b, int c, int d, int e, int f, int g, int h);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int IntToIntCdecl(int a, int b, int c, int d, int e, int f, int g, int h);
+    }
 }

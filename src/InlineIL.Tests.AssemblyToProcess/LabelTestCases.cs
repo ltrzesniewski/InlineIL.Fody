@@ -1,42 +1,44 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using InlineIL;
 using static InlineIL.IL.Emit;
 
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-public class LabelTestCases
+namespace InlineIL.Tests.AssemblyToProcess
 {
-    public int Branch(bool returnOne)
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public class LabelTestCases
     {
-        IL.Push(returnOne);
-        Brtrue("one");
-        IL.Push(42);
-        Br("end");
-        IL.MarkLabel("one");
-        IL.Push(1);
-        IL.MarkLabel("end");
-        return IL.Return<int>();
-    }
+        public int Branch(bool returnOne)
+        {
+            IL.Push(returnOne);
+            Brtrue("one");
+            IL.Push(42);
+            Br("end");
+            IL.MarkLabel("one");
+            IL.Push(1);
+            IL.MarkLabel("end");
+            return IL.Return<int>();
+        }
 
-    public int JumpTable(uint value)
-    {
-        IL.Push(value);
-        Switch("one", "two", "three");
+        public int JumpTable(uint value)
+        {
+            IL.Push(value);
+            Switch("one", "two", "three");
 
-        IL.Push(42);
-        Br("end");
+            IL.Push(42);
+            Br("end");
 
-        IL.MarkLabel("one");
-        IL.Push(1);
-        Br("end");
+            IL.MarkLabel("one");
+            IL.Push(1);
+            Br("end");
 
-        IL.MarkLabel("two");
-        IL.Push(2);
-        Br("end");
+            IL.MarkLabel("two");
+            IL.Push(2);
+            Br("end");
 
-        IL.MarkLabel("three");
-        IL.Push(3);
+            IL.MarkLabel("three");
+            IL.Push(3);
 
-        IL.MarkLabel("end");
-        return IL.Return<int>();
+            IL.MarkLabel("end");
+            return IL.Return<int>();
+        }
     }
 }
