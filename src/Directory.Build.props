@@ -21,7 +21,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>$(MSBuildThisFileDirectory)..\output</PackageOutputPath>
     <PackageIconUrl>https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png</PackageIconUrl>
-    <PackageVersion Condition="'$(APPVEYOR_REPO_TAG)' == 'false'">$(Version)-build$(APPVEYOR_BUILD_NUMBER)</PackageVersion>
+    <PackageVersion Condition="'$(TF_BUILD)' != '' and '$(BUILD_SOURCEBRANCH)' != '' and !$(BUILD_SOURCEBRANCH.StartsWith('refs/tags/'))">$(PackageVersion)-build$(BUILD_BUILDID)</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">

@@ -1,7 +1,7 @@
 # InlineIL.Fody
 
+[![Build Status](https://dev.azure.com/Lucas-Trzesniewski/InlineIL/_apis/build/status/InlineIL.Fody?branchName=master)](https://dev.azure.com/Lucas-Trzesniewski/InlineIL/_build/latest?definitionId=2&branchName=master)
 [![NuGet package](https://img.shields.io/nuget/v/InlineIL.Fody.svg?logo=NuGet)](https://www.nuget.org/packages/InlineIL.Fody)
-[![Build status](https://ci.appveyor.com/api/projects/status/qs6051y6i3228afn/branch/master?svg=true)](https://ci.appveyor.com/project/ltrzesniewski/inlineil-fody/branch/master)
 [![GitHub release](https://img.shields.io/github/release/ltrzesniewski/InlineIL.Fody.svg?logo=GitHub)](https://github.com/ltrzesniewski/InlineIL.Fody/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE)
 

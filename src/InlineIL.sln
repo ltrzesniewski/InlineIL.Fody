@@ -28,7 +28,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Examples.InSolutio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{0E0CF69E-17A4-452B-A6CB-D720C103D473}"
 	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
 		Directory.Build.props = Directory.Build.props
 		..\README.md = ..\README.md
 	EndProjectSection
