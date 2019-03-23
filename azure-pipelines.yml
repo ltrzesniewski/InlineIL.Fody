@@ -1,0 +1,60 @@
+
+variables:
+  Solution: src/InlineIL.sln
+  TestProject: src/InlineIL.Tests/InlineIL.Tests.csproj
+
+jobs:
+  - job: Windows
+    pool:
+      vmImage: vs2017-win2016
+    steps:
+      - task: MSBuild@1
+        displayName: NuGet Restore
+        inputs:
+          solution: $(Solution)
+          msbuildArguments: /v:m /t:Restore
+
+      - task: MSBuild@1
+        displayName: Build Debug
+        inputs:
+          solution: $(Solution)
+          msbuildArguments: /v:m /t:Build
+          configuration: Debug
+          maximumCpuCount: true
+
+      - task: MSBuild@1
+        displayName: Build Release
+        inputs:
+          solution: $(Solution)
+          msbuildArguments: /v:m /t:Build
+          configuration: Release
+          maximumCpuCount: true
+
+      - task: MSBuild@1
+        displayName: NuGet Pack
+        inputs:
+          solution: $(Solution)
+          msbuildArguments: /v:m /t:Pack /p:PackageOutputPath=$(Build.ArtifactStagingDirectory)
+          configuration: Release
+          maximumCpuCount: true
+
+      - task: DotNetCoreCLI@2
+        displayName: Test Debug
+        inputs:
+          command: test
+          projects: $(TestProject)
+          arguments: --configuration Debug
+          nobuild: true
+          
+      - task: DotNetCoreCLI@2
+        displayName: Test Release
+        inputs:
+          command: test
+          projects: $(TestProject)
+          arguments: --configuration Release
+          nobuild: true
+
+      - task: PublishBuildArtifacts@1
+        displayName: Publish Artifacts
+        inputs:
+          ArtifactName: NuGet
