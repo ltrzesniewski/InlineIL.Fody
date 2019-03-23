@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using InlineIL.Fody.Extensions;
+using InlineIL.Fody.Processing;
 using InlineIL.Tests.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -138,15 +139,17 @@ namespace InlineIL.Tests
         [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
         public void should_return_false_on_null()
         {
-            CecilExtensions.IsInlineILTypeUsage(default(CustomAttribute)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsage(default(FieldReference)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsage(default(IMethodSignature)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsage(default(ParameterDefinition)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsage(default(TypeReference)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsage(default(EventReference)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsage(default(PropertyReference)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsage(default(InterfaceImplementation)).ShouldBeFalse();
-            CecilExtensions.IsInlineILTypeUsageDeep(null).ShouldBeFalse();
+            var context = new ModuleWeavingContext(null, null);
+
+            CecilExtensions.IsInlineILTypeUsage(default(CustomAttribute), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(FieldReference), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(IMethodSignature), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(ParameterDefinition), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(TypeReference), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(EventReference), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(PropertyReference), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(InterfaceImplementation), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsageDeep(null, context).ShouldBeFalse();
         }
     }
 }

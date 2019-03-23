@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using InlineIL.Fody.Processing;
 using JetBrains.Annotations;
 using Mono.Cecil;
@@ -8,55 +7,42 @@ namespace InlineIL.Fody.Extensions
 {
     internal static partial class CecilExtensions
     {
-        private static readonly Dictionary<TypeReference, bool> _checkedTypes = new Dictionary<TypeReference, bool>();
-
-        public static void CleanCache()
-        {
-            lock (_checkedTypes)
-            {
-                _checkedTypes.Clear();
-            }
-        }
-
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this TypeReference type)
+        [ContractAnnotation("type:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this TypeReference type, ModuleWeavingContext context)
         {
             if (type == null)
                 return false;
 
-            lock (_checkedTypes)
-            {
-                if (_checkedTypes.TryGetValue(type, out var result))
-                    return result;
-
-                _checkedTypes[type] = false;
-                result = DoCheck();
-                _checkedTypes[type] = result;
+            if (context.LibUsageTypeCache.TryGetValue(type, out var result))
                 return result;
-            }
+
+            context.LibUsageTypeCache[type] = false;
+            result = DoCheck();
+            context.LibUsageTypeCache[type] = result;
+            return result;
 
             bool DoCheck()
             {
                 switch (type)
                 {
                     case GenericInstanceType t:
-                        return t.ElementType.IsInlineILTypeUsage()
-                               || t.GenericParameters.Any(i => i.IsInlineILTypeUsage())
-                               || t.GenericArguments.Any(i => i.IsInlineILTypeUsage());
+                        return t.ElementType.IsInlineILTypeUsage(context)
+                               || t.GenericParameters.Any(i => i.IsInlineILTypeUsage(context))
+                               || t.GenericArguments.Any(i => i.IsInlineILTypeUsage(context));
 
                     case GenericParameter t:
-                        return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage())
-                               || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage());
+                        return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage(context))
+                               || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
 
                     case IModifierType t:
-                        return t.ElementType.IsInlineILTypeUsage()
-                               || t.ModifierType.IsInlineILTypeUsage();
+                        return t.ElementType.IsInlineILTypeUsage(context)
+                               || t.ModifierType.IsInlineILTypeUsage(context);
 
                     case FunctionPointerType t:
-                        return ((IMethodSignature)t).IsInlineILTypeUsage();
+                        return ((IMethodSignature)t).IsInlineILTypeUsage(context);
 
                     case TypeSpecification t:
-                        return t.ElementType.IsInlineILTypeUsage();
+                        return t.ElementType.IsInlineILTypeUsage(context);
 
                     default:
                         return KnownNames.Full.AllTypes.Contains(type.FullName);
@@ -64,48 +50,48 @@ namespace InlineIL.Fody.Extensions
             }
         }
 
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsageDeep([CanBeNull] this TypeDefinition typeDef)
+        [ContractAnnotation("typeDef:null => false")]
+        public static bool IsInlineILTypeUsageDeep([CanBeNull] this TypeDefinition typeDef, ModuleWeavingContext context)
         {
             if (typeDef == null)
                 return false;
 
-            return typeDef.IsInlineILTypeUsage()
-                   || typeDef.BaseType.IsInlineILTypeUsage()
-                   || typeDef.HasInterfaces && typeDef.Interfaces.Any(i => i.IsInlineILTypeUsage())
-                   || typeDef.HasGenericParameters && typeDef.GenericParameters.Any(i => i.IsInlineILTypeUsage())
-                   || typeDef.HasCustomAttributes && typeDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage())
-                   || typeDef.HasMethods && typeDef.Methods.Any(i => i.IsInlineILTypeUsage())
-                   || typeDef.HasFields && typeDef.Fields.Any(i => i.IsInlineILTypeUsage())
-                   || typeDef.HasProperties && typeDef.Properties.Any(i => i.IsInlineILTypeUsage())
-                   || typeDef.HasEvents && typeDef.Events.Any(i => i.IsInlineILTypeUsage());
+            return typeDef.IsInlineILTypeUsage(context)
+                   || typeDef.BaseType.IsInlineILTypeUsage(context)
+                   || typeDef.HasInterfaces && typeDef.Interfaces.Any(i => i.IsInlineILTypeUsage(context))
+                   || typeDef.HasGenericParameters && typeDef.GenericParameters.Any(i => i.IsInlineILTypeUsage(context))
+                   || typeDef.HasCustomAttributes && typeDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context))
+                   || typeDef.HasMethods && typeDef.Methods.Any(i => i.IsInlineILTypeUsage(context))
+                   || typeDef.HasFields && typeDef.Fields.Any(i => i.IsInlineILTypeUsage(context))
+                   || typeDef.HasProperties && typeDef.Properties.Any(i => i.IsInlineILTypeUsage(context))
+                   || typeDef.HasEvents && typeDef.Events.Any(i => i.IsInlineILTypeUsage(context));
         }
 
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this IMethodSignature method)
+        [ContractAnnotation("method:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this IMethodSignature method, ModuleWeavingContext context)
         {
             if (method == null)
                 return false;
 
-            if (method.ReturnType.IsInlineILTypeUsage() || method.HasParameters && method.Parameters.Any(i => i.IsInlineILTypeUsage()))
+            if (method.ReturnType.IsInlineILTypeUsage(context) || method.HasParameters && method.Parameters.Any(i => i.IsInlineILTypeUsage(context)))
                 return true;
 
-            if (method is IGenericInstance genericInstance && genericInstance.HasGenericArguments && genericInstance.GenericArguments.Any(i => i.IsInlineILTypeUsage()))
+            if (method is IGenericInstance genericInstance && genericInstance.HasGenericArguments && genericInstance.GenericArguments.Any(i => i.IsInlineILTypeUsage(context)))
                 return true;
 
-            if (method is IGenericParameterProvider generic && generic.HasGenericParameters && generic.GenericParameters.Any(i => i.IsInlineILTypeUsage()))
+            if (method is IGenericParameterProvider generic && generic.HasGenericParameters && generic.GenericParameters.Any(i => i.IsInlineILTypeUsage(context)))
                 return true;
 
             if (method is MethodReference methodRef)
             {
                 if (methodRef is MethodDefinition methodDef)
                 {
-                    if (methodDef.HasCustomAttributes && methodDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                    if (methodDef.HasCustomAttributes && methodDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context)))
                         return true;
                 }
                 else
                 {
-                    if (methodRef.DeclaringType.IsInlineILTypeUsage())
+                    if (methodRef.DeclaringType.IsInlineILTypeUsage(context))
                         return true;
                 }
             }
@@ -113,115 +99,115 @@ namespace InlineIL.Fody.Extensions
             return false;
         }
 
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this FieldReference fieldRef)
+        [ContractAnnotation("fieldRef:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this FieldReference fieldRef, ModuleWeavingContext context)
         {
             if (fieldRef == null)
                 return false;
 
-            if (fieldRef.FieldType.IsInlineILTypeUsage())
+            if (fieldRef.FieldType.IsInlineILTypeUsage(context))
                 return true;
 
             if (fieldRef is FieldDefinition fieldDef)
             {
-                if (fieldDef.HasCustomAttributes && fieldDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                if (fieldDef.HasCustomAttributes && fieldDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context)))
                     return true;
             }
             else
             {
-                if (fieldRef.DeclaringType.IsInlineILTypeUsage())
+                if (fieldRef.DeclaringType.IsInlineILTypeUsage(context))
                     return true;
             }
 
             return false;
         }
 
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this PropertyReference propRef)
+        [ContractAnnotation("propRef:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this PropertyReference propRef, ModuleWeavingContext context)
         {
             if (propRef == null)
                 return false;
 
-            if (propRef.PropertyType.IsInlineILTypeUsage())
+            if (propRef.PropertyType.IsInlineILTypeUsage(context))
                 return true;
 
             if (propRef is PropertyDefinition propDef)
             {
-                if (propDef.HasCustomAttributes && propDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                if (propDef.HasCustomAttributes && propDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context)))
                     return true;
             }
             else
             {
-                if (propRef.DeclaringType.IsInlineILTypeUsage())
+                if (propRef.DeclaringType.IsInlineILTypeUsage(context))
                     return true;
             }
 
             return false;
         }
 
-        public static bool IsInlineILTypeUsage(this EventReference eventRef)
+        public static bool IsInlineILTypeUsage(this EventReference eventRef, ModuleWeavingContext context)
         {
             if (eventRef == null)
                 return false;
 
-            if (eventRef.EventType.IsInlineILTypeUsage())
+            if (eventRef.EventType.IsInlineILTypeUsage(context))
                 return true;
 
             if (eventRef is EventDefinition eventDef)
             {
-                if (eventDef.HasCustomAttributes && eventDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+                if (eventDef.HasCustomAttributes && eventDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context)))
                     return true;
             }
             else
             {
-                if (eventRef.DeclaringType.IsInlineILTypeUsage())
+                if (eventRef.DeclaringType.IsInlineILTypeUsage(context))
                     return true;
             }
 
             return false;
         }
 
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this ParameterDefinition paramDef)
+        [ContractAnnotation("paramDef:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this ParameterDefinition paramDef, ModuleWeavingContext context)
         {
             if (paramDef == null)
                 return false;
 
-            if (paramDef.ParameterType.IsInlineILTypeUsage())
+            if (paramDef.ParameterType.IsInlineILTypeUsage(context))
                 return true;
 
-            if (paramDef.HasCustomAttributes && paramDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage()))
+            if (paramDef.HasCustomAttributes && paramDef.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context)))
                 return true;
 
             return false;
         }
 
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this CustomAttribute attr)
+        [ContractAnnotation("attr:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this CustomAttribute attr, ModuleWeavingContext context)
         {
             if (attr == null)
                 return false;
 
-            if (attr.AttributeType.IsInlineILTypeUsage())
+            if (attr.AttributeType.IsInlineILTypeUsage(context))
                 return true;
 
-            if (attr.HasConstructorArguments && attr.ConstructorArguments.Any(i => i.Value is TypeReference typeRef && typeRef.IsInlineILTypeUsage()))
+            if (attr.HasConstructorArguments && attr.ConstructorArguments.Any(i => i.Value is TypeReference typeRef && typeRef.IsInlineILTypeUsage(context)))
                 return true;
 
-            if (attr.HasProperties && attr.Properties.Any(i => i.Argument.Value is TypeReference typeRef && typeRef.IsInlineILTypeUsage()))
+            if (attr.HasProperties && attr.Properties.Any(i => i.Argument.Value is TypeReference typeRef && typeRef.IsInlineILTypeUsage(context)))
                 return true;
 
             return false;
         }
 
-        [ContractAnnotation("null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this InterfaceImplementation ifaceImpl)
+        [ContractAnnotation("interfaceImpl:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this InterfaceImplementation interfaceImpl, ModuleWeavingContext context)
         {
-            if (ifaceImpl == null)
+            if (interfaceImpl == null)
                 return false;
 
-            return ifaceImpl.InterfaceType.IsInlineILTypeUsage()
-                   || ifaceImpl.HasCustomAttributes && ifaceImpl.CustomAttributes.Any(i => i.IsInlineILTypeUsage());
+            return interfaceImpl.InterfaceType.IsInlineILTypeUsage(context)
+                   || interfaceImpl.HasCustomAttributes && interfaceImpl.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
         }
     }
 }

@@ -27,18 +27,6 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
-            try
-            {
-                ProcessAssembly();
-            }
-            finally
-            {
-                CecilExtensions.CleanCache();
-            }
-        }
-
-        private void ProcessAssembly()
-        {
             var configOptions = new WeaverConfigOptions(Config);
             var config = new WeaverConfig(configOptions, ModuleDefinition);
             var context = new ModuleWeavingContext(ModuleDefinition, config);
@@ -49,7 +37,7 @@ namespace InlineIL.Fody
                 {
                     try
                     {
-                        if (!MethodWeaver.NeedsProcessing(method))
+                        if (!MethodWeaver.NeedsProcessing(context, method))
                             continue;
 
                         _log.Debug($"Processing: {method.FullName}");
@@ -62,11 +50,11 @@ namespace InlineIL.Fody
                     }
                 }
 
-                if (type.IsInlineILTypeUsageDeep())
+                if (type.IsInlineILTypeUsageDeep(context))
                     AddError($"Reference to InlineIL found in type {type.FullName}. InlineIL should not be referenced in attributes/constraints, as its assembly reference will be removed.", null);
             }
 
-            RemoveLibReference();
+            RemoveLibReference(context);
         }
 
         private void InvalidateMethod(MethodDefinition method, string message)
@@ -101,7 +89,7 @@ namespace InlineIL.Fody
             }
         }
 
-        private void RemoveLibReference()
+        private void RemoveLibReference(ModuleWeavingContext context)
         {
             var libRef = ModuleDefinition.AssemblyReferences.FirstOrDefault(i => i.IsInlineILAssembly());
             if (libRef == null)
@@ -144,7 +132,7 @@ namespace InlineIL.Fody
                 if (importScope == null || !importScopes.Add(importScope))
                     return;
 
-                importScope.Targets.RemoveWhere(t => t.AssemblyReference.IsInlineILAssembly() || t.Type.IsInlineILTypeUsage());
+                importScope.Targets.RemoveWhere(t => t.AssemblyReference.IsInlineILAssembly() || t.Type.IsInlineILTypeUsage(context));
                 ProcessImportScope(importScope.Parent);
             }
         }
