@@ -1,0 +1,8 @@
+<Project>
+
+  <PropertyGroup>
+    <PackageVersion Condition="'$(PackageVersion)' == ''">$(Version)</PackageVersion>
+    <PackageVersion Condition="'$(TF_BUILD)' != '' and '$(BUILD_SOURCEBRANCH)' != '' and !$(BUILD_SOURCEBRANCH.StartsWith('refs/tags/'))">$(PackageVersion)-build$(BUILD_BUILDID)</PackageVersion>
+  </PropertyGroup>
+
+</Project>
