@@ -41,6 +41,7 @@ namespace InlineIL.Fody
         {
             var configOptions = new WeaverConfigOptions(Config);
             var config = new WeaverConfig(configOptions, ModuleDefinition);
+            var context = new ModuleWeavingContext(ModuleDefinition, config);
 
             foreach (var type in ModuleDefinition.GetTypes())
             {
@@ -52,7 +53,7 @@ namespace InlineIL.Fody
                             continue;
 
                         _log.Debug($"Processing: {method.FullName}");
-                        new MethodWeaver(ModuleDefinition, config, method).Process();
+                        new MethodWeaver(context, method).Process();
                     }
                     catch (WeavingException ex)
                     {
