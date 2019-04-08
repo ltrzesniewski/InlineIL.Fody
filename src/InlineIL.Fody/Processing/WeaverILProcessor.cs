@@ -24,12 +24,11 @@ namespace InlineIL.Fody.Processing
             _referencedInstructions = GetAllReferencedInstructions();
         }
 
-        public Instruction Remove(Instruction instruction)
+        public void Remove(Instruction instruction)
         {
             var newRef = instruction.Next ?? instruction.Previous;
             _il.Remove(instruction);
             UpdateReferences(instruction, newRef);
-            return newRef;
         }
 
         public void Replace(Instruction oldInstruction, Instruction newInstruction)

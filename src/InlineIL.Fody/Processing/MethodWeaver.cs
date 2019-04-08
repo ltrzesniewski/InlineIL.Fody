@@ -195,6 +195,11 @@ namespace InlineIL.Fody.Processing
 
         private void PostProcessTailCalls()
         {
+            if (Instructions.All(i => i.OpCode != OpCodes.Tail))
+                return;
+
+            SplitSinglePointOfReturn();
+
             for (var instruction = Instructions.FirstOrDefault(); instruction != null; instruction = instruction.Next)
             {
                 if (instruction.OpCode != OpCodes.Tail)
@@ -211,21 +216,58 @@ namespace InlineIL.Fody.Processing
                 _il.RemoveNopsAfter(callInstruction);
                 instruction = callInstruction.Next;
 
-                // End of non-void method in debug builds
-                if (instruction.OpCode == OpCodes.Stloc)
-                {
-                    var stlocInstruction = instruction;
-                    instruction = _il.Remove(instruction);
-
-                    if (instruction.OpCode == OpCodes.Br && instruction.Operand == instruction.Next)
-                        instruction = _il.Remove(instruction);
-
-                    if (instruction.OpCode == OpCodes.Ldloc && instruction.Operand == stlocInstruction.Operand)
-                        instruction = _il.Remove(instruction);
-                }
-
                 if (instruction.OpCode != OpCodes.Ret)
                     throw new InstructionWeavingException(callInstruction, "A tail call must be immediately followed by ret");
+            }
+        }
+
+        private void SplitSinglePointOfReturn()
+        {
+            if (!Module.IsDebugBuild())
+                return;
+
+            var lastRetInstruction = Instructions.LastOrDefault();
+            if (lastRetInstruction?.OpCode != OpCodes.Ret)
+                return;
+
+            var ldlocInstruction = lastRetInstruction.Previous;
+            if (ldlocInstruction?.OpCode != OpCodes.Ldloc)
+                return;
+
+            var refsToLdloc = Instructions.Where(i => i.Operand == ldlocInstruction).ToList();
+
+            var leaveOriginalReturnPoint = false;
+
+            foreach (var brInstruction in refsToLdloc)
+            {
+                var stlocInstruction = brInstruction.Previous;
+
+                if (brInstruction.OpCode == OpCodes.Br
+                    && stlocInstruction != null
+                    && stlocInstruction.OpCode == OpCodes.Stloc
+                    && stlocInstruction.Operand == ldlocInstruction.Operand)
+                {
+                    _il.Remove(stlocInstruction);
+                    _il.Replace(brInstruction, Instruction.Create(OpCodes.Ret));
+                }
+                else
+                {
+                    leaveOriginalReturnPoint = true;
+                }
+            }
+
+            if (!leaveOriginalReturnPoint)
+            {
+                // If the compiler ever stops emitting no-op branch instructions
+                var stlocInstruction = ldlocInstruction.PrevSkipNops();
+                if (stlocInstruction != null && stlocInstruction.OpCode == OpCodes.Stloc && stlocInstruction.Operand == ldlocInstruction.Operand)
+                    _il.Remove(stlocInstruction);
+
+                _il.RemoveNopsAround(ldlocInstruction);
+                _il.Remove(ldlocInstruction);
+
+                if (lastRetInstruction.Previous?.OpCode == OpCodes.Ret)
+                    _il.Remove(lastRetInstruction);
             }
         }
 

@@ -95,6 +95,32 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_multiple_tail_calls()
+        {
+            var result = (int)GetUnverifiableInstance().MultipleTailCalls(true);
+            result.ShouldEqual(1);
+
+            result = (int)GetUnverifiableInstance().MultipleTailCalls(false);
+            result.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void should_handle_mixed_non_tail_and_tail_calls()
+        {
+            var result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall(true);
+            result.ShouldEqual(1);
+
+            result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall(false);
+            result.ShouldEqual(2);
+
+            result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall2(true);
+            result.ShouldEqual(1);
+
+            result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall2(false);
+            result.ShouldEqual(2);
+        }
+
+        [Fact]
         public void should_report_invalid_tail_call_method()
         {
             ShouldHaveError("InvalidTailCallInstruction").ShouldContain("tail. must be followed by call or calli or callvirt");

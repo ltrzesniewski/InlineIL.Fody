@@ -110,6 +110,54 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             return IL.Return<int>();
         }
 
+        public int MultipleTailCalls(bool branch)
+        {
+            if (branch)
+            {
+                IL.Push(1);
+                Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+                Tail();
+                Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+                return IL.Return<int>();
+            }
+
+            IL.Push(2);
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+            Tail();
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+            return IL.Return<int>();
+        }
+
+        public int MixedNonTailAndTailCall(bool branch)
+        {
+            if (branch)
+            {
+                IL.Push(1);
+                Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+                Tail();
+                Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+                return IL.Return<int>();
+            }
+
+            IL.Push(2);
+            return IL.Return<int>();
+        }
+
+        public int MixedNonTailAndTailCall2(bool branch)
+        {
+            if (branch)
+            {
+                IL.Push(1);
+                return IL.Return<int>();
+            }
+
+            IL.Push(2);
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+            Tail();
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+            return IL.Return<int>();
+        }
+
         private static int IndirectCallStaticTargetMethod(int value) => value;
         private int IndirectCallInstanceTargetMethod(int value) => value;
 
