@@ -70,5 +70,40 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("VarArgParamsWithNativeCall").ShouldContain("Not a vararg calling convention");
         }
+
+        [Fact]
+        public void should_tail_call_indirect_static()
+        {
+            var result = (int)GetUnverifiableInstance().TailCallIndirectStatic();
+            result.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_tail_call_indirect_static_void()
+        {
+            GetUnverifiableInstance().TailCallIndirectStaticVoid();
+        }
+
+        [Fact]
+        public void should_branch_over_tail_call()
+        {
+            var result = (int)GetUnverifiableInstance().BranchOverTailCall(true);
+            result.ShouldEqual(42);
+
+            result = (int)GetUnverifiableInstance().BranchOverTailCall(false);
+            result.ShouldEqual(84);
+        }
+
+        [Fact]
+        public void should_report_invalid_tail_call_method()
+        {
+            ShouldHaveError("InvalidTailCallInstruction").ShouldContain("tail. must be followed by call or calli or callvirt");
+        }
+
+        [Fact]
+        public void should_report_invalid_tail_call_ret()
+        {
+            ShouldHaveError("InvalidTailCallRet").ShouldContain("A tail call must be immediately followed by ret");
+        }
     }
 }

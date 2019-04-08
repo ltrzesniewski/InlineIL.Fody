@@ -27,5 +27,26 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
             Calli(new StandAloneMethodSig(CallingConvention.StdCall, typeof(int), typeof(int)).WithOptionalParameters(typeof(int)));
         }
+
+        public void InvalidTailCallInstruction()
+        {
+            Tail();
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(VoidTargetMethod)));
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(void)));
+        }
+
+        public void InvalidTailCallRet()
+        {
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(VoidTargetMethod)));
+            Tail();
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(void)));
+
+            Ldc_I4(42);
+            Pop();
+        }
+
+        private static void VoidTargetMethod()
+        {
+        }
     }
 }

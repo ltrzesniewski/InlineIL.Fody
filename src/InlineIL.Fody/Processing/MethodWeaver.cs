@@ -107,6 +107,7 @@ namespace InlineIL.Fody.Processing
             ValidateBeforeProcessing();
             ProcessMethodCalls();
             _labels.PostProcess();
+            PostProcessTailCalls();
             _sequencePoints.PostProcess();
             ValidateAfterProcessing();
 
@@ -189,6 +190,42 @@ namespace InlineIL.Fody.Processing
                 }
 
                 instruction = nextInstruction;
+            }
+        }
+
+        private void PostProcessTailCalls()
+        {
+            for (var instruction = Instructions.FirstOrDefault(); instruction != null; instruction = instruction.Next)
+            {
+                if (instruction.OpCode != OpCodes.Tail)
+                    continue;
+
+                var tailInstruction = instruction;
+                var callInstruction = tailInstruction.Next;
+
+                var validTailOpCodes = new[] { OpCodes.Call, OpCodes.Calli, OpCodes.Callvirt };
+
+                if (callInstruction == null || !validTailOpCodes.Contains(callInstruction.OpCode))
+                    throw new InstructionWeavingException(tailInstruction, $"{OpCodes.Tail.Name} must be followed by {string.Join(" or ", validTailOpCodes.Select(i => i.Name))}");
+
+                _il.RemoveNopsAfter(callInstruction);
+                instruction = callInstruction.Next;
+
+                // End of non-void method in debug builds
+                if (instruction.OpCode == OpCodes.Stloc)
+                {
+                    var stlocInstruction = instruction;
+                    instruction = _il.Remove(instruction);
+
+                    if (instruction.OpCode == OpCodes.Br && instruction.Operand == instruction.Next)
+                        instruction = _il.Remove(instruction);
+
+                    if (instruction.OpCode == OpCodes.Ldloc && instruction.Operand == stlocInstruction.Operand)
+                        instruction = _il.Remove(instruction);
+                }
+
+                if (instruction.OpCode != OpCodes.Ret)
+                    throw new InstructionWeavingException(callInstruction, "A tail call must be immediately followed by ret");
             }
         }
 

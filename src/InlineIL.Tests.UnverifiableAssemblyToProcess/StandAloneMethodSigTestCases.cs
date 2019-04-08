@@ -77,8 +77,45 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             return IL.Return<int>();
         }
 
+        public int TailCallIndirectStatic()
+        {
+            IL.Push(42);
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+            Tail();
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+            return IL.Return<int>();
+        }
+
+        public void TailCallIndirectStaticVoid()
+        {
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticVoidTargetMethod)));
+            Tail();
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(void)));
+        }
+
+        public int BranchOverTailCall(bool branch)
+        {
+            IL.Push(42);
+
+            Ldarg(nameof(branch));
+            Brtrue("end");
+
+            Dup();
+            Add();
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+            Tail();
+            Calli(new StandAloneMethodSig(CallingConventions.Standard, typeof(int), typeof(int)));
+
+            IL.MarkLabel("end");
+            return IL.Return<int>();
+        }
+
         private static int IndirectCallStaticTargetMethod(int value) => value;
         private int IndirectCallInstanceTargetMethod(int value) => value;
+
+        private void IndirectCallStaticVoidTargetMethod()
+        {
+        }
 
 #if NETFRAMEWORK
         private static int IndirectCallVarArgTargetMethod(int value, __arglist)
