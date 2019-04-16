@@ -105,7 +105,7 @@ A few more things which are good to know:
 The `<InlineIL />` element in `FodyWeavers.xml` accepts the following attribute:
 
  - `SequencePoints="True|False|Debug|Release"`, default value: `Debug`  
-   Defines if sequence points should be generated for each emitted IL instruction.
+   Defines if sequence points should be generated for each emitted IL instruction. The default `Debug` value improves the debugging experience in Debug builds without impacting the JIT codegen in Release builds.
 
 ## Examples
 
