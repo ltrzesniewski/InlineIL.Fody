@@ -45,7 +45,8 @@ jobs:
           projects: $(TestProject)
           arguments: --configuration Debug
           nobuild: true
-          
+          testRunTitle: Debug
+
       - task: DotNetCoreCLI@2
         displayName: Test Release
         inputs:
@@ -53,6 +54,7 @@ jobs:
           projects: $(TestProject)
           arguments: --configuration Release
           nobuild: true
+          testRunTitle: Release
 
       - task: PublishBuildArtifacts@1
         displayName: Publish Artifacts
