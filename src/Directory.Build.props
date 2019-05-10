@@ -23,8 +23,4 @@
     <PackageIconUrl>https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png</PackageIconUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
-    <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>
-  </PropertyGroup>
-
 </Project>
