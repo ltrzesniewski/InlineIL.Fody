@@ -7,7 +7,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DebugType>none</DebugType>
     <IsPackable>true</IsPackable>
-	  <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>InlineIL.Fody</PackageId>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
