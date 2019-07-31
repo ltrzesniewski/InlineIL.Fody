@@ -21,26 +21,36 @@ namespace InlineIL.Fody.Model
         }
 
         public static MethodRefBuilder MethodByName(ModuleDefinition module, TypeReference typeRef, string methodName)
-            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null));
+            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null, null));
 
-        public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, IReadOnlyCollection<TypeReference> paramTypes)
-            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
+        public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, IReadOnlyCollection<TypeReference> paramTypes)
+            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
 
-        private static MethodReference FindMethod(TypeReference typeRef, string methodName, [CanBeNull] IReadOnlyCollection<TypeReference> paramTypes)
+        private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, [CanBeNull] IReadOnlyCollection<TypeReference> paramTypes)
         {
             var typeDef = typeRef.ResolveRequiredType();
 
-            var methods = typeDef.Methods
-                                 .Where(m => m.Name == methodName)
-                                 .Where(m => paramTypes == null
-                                             || m.Parameters.Count == paramTypes.Count
-                                             && m.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(paramTypes.Select(p => p.FullName)))
-                                 .ToList();
+            var methods = typeDef.Methods.Where(m => m.Name == methodName);
 
-            switch (methods.Count)
+            if (genericArity != null)
+            {
+                methods = genericArity == 0
+                    ? methods.Where(m => !m.HasGenericParameters)
+                    : methods.Where(m => m.HasGenericParameters && m.GenericParameters.Count == genericArity);
+            }
+
+            if (paramTypes != null)
+            {
+                methods = methods.Where(m => m.Parameters.Count == paramTypes.Count
+                                             && m.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(paramTypes.Select(p => p.FullName)));
+            }
+
+            var methodList = methods.ToList();
+
+            switch (methodList.Count)
             {
                 case 1:
-                    return methods.Single();
+                    return methodList.Single();
 
                 case 0:
                     throw paramTypes == null

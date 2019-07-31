@@ -886,7 +886,20 @@ namespace InlineIL.Fody.Processing
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var methodName = ConsumeArgString(args[1]);
                         var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
-                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, paramTypes);
+                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, null, paramTypes);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,System.Int32,InlineIL.TypeRef[])":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var methodName = ConsumeArgString(args[1]);
+                        var genericParameterCount = ConsumeArgInt32(args[2]);
+                        var paramTypes = ConsumeArgArray(args[3], ConsumeArgTypeRef);
+                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, genericParameterCount, paramTypes);
 
                         _il.Remove(instruction);
                         return builder;
