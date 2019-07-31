@@ -70,12 +70,12 @@ namespace InlineIL.Fody.Model
                 case 0:
                     throw paramTypes == null
                         ? new WeavingException($"Method '{methodName}' not found in type {typeDef.FullName}")
-                        : new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.TryBuild(null)?.FullName ?? "???"))}) not found in type {typeDef.FullName}");
+                        : new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.GetDisplayName()))}) not found in type {typeDef.FullName}");
 
                 default:
                     throw paramTypes == null
                         ? new WeavingException($"Ambiguous method '{methodName}' in type {typeDef.FullName}")
-                        : new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.TryBuild(null)?.FullName ?? "???"))}) in type {typeDef.FullName}");
+                        : new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.GetDisplayName()))}) in type {typeDef.FullName}");
             }
         }
 

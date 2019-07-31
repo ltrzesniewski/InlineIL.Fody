@@ -27,13 +27,67 @@ namespace InlineIL.Fody.Model
                 typeRef = typeRef.ResolveRequiredType();
             }
 
-            typeRef = _module.ImportReference(typeRef);
-            _typeRefProvider = _ => typeRef;
+            _typeRefProvider = _ => _module.ImportReference(typeRef);
         }
 
         public TypeRefBuilder(ModuleDefinition module, string assemblyName, string typeName)
             : this(module, FindType(module, assemblyName, typeName))
         {
+        }
+
+        public TypeRefBuilder(ModuleDefinition module, GenericParameterType genericParameterType, int genericParameterIndex)
+        {
+            _module = module;
+
+            if (genericParameterIndex < 0)
+                throw new WeavingException($"Invalid generic parameter index: {genericParameterIndex}");
+
+            switch (genericParameterType)
+            {
+                case GenericParameterType.Type:
+                    _typeRefProvider = context =>
+                    {
+                        if (context == null)
+                            return null;
+
+                        if (ReferenceEquals(context, DisplayTypeReference.Instance))
+                            return new DisplayTypeReference($"!{genericParameterIndex}");
+
+                        if (context is MethodReference method)
+                            context = method.DeclaringType;
+
+                        if (!context.HasGenericParameters)
+                            return null;
+
+                        if (genericParameterIndex >= context.GenericParameters.Count)
+                            return null;
+
+                        return context.GenericParameters[genericParameterIndex];
+                    };
+                    break;
+
+                case GenericParameterType.Method:
+                    _typeRefProvider = context =>
+                    {
+                        if (context == null)
+                            return null;
+
+                        if (ReferenceEquals(context, DisplayTypeReference.Instance))
+                            return new DisplayTypeReference($"!!{genericParameterIndex}");
+
+                        if (!context.HasGenericParameters || context.GenericParameterType != GenericParameterType.Method)
+                            return null;
+
+                        if (genericParameterIndex >= context.GenericParameters.Count)
+                            return null;
+
+                        return context.GenericParameters[genericParameterIndex];
+                    };
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(genericParameterType), genericParameterType, null);
+            }
         }
 
         private static TypeReference FindType(ModuleDefinition module, string assemblyName, string typeName)
@@ -73,6 +127,9 @@ namespace InlineIL.Fody.Model
 
         public TypeReference Build()
             => TryBuild(null) ?? throw new WeavingException("Cannot construct type reference");
+
+        public string GetDisplayName()
+            => TryBuild(DisplayTypeReference.Instance)?.FullName ?? "???";
 
         public void MakePointerType()
         {
@@ -165,6 +222,18 @@ namespace InlineIL.Fody.Model
         {
             if (typeRef.MetadataType == MetadataType.TypedByReference)
                 throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
+        }
+
+        public override string ToString() => GetDisplayName();
+
+        private class DisplayTypeReference : TypeReference
+        {
+            public static DisplayTypeReference Instance { get; } = new DisplayTypeReference(string.Empty);
+
+            public DisplayTypeReference(string name)
+                : base(string.Empty, name)
+            {
+            }
         }
     }
 }

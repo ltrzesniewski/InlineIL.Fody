@@ -786,6 +786,17 @@ namespace InlineIL.Fody.Processing
                     return builder;
                 }
 
+                case "InlineIL.TypeRef InlineIL.GenericParameters::get_Item(System.Int32)":
+                {
+                    var args = instruction.GetArgumentPushInstructions();
+                    var genericParameterType = ConsumeArgGenericParameterType(args[0]);
+                    var genericParameterIndex = ConsumeArgInt32(args[1]);
+                    var builder = new TypeRefBuilder(Module, genericParameterType, genericParameterIndex);
+
+                    _il.Remove(instruction);
+                    return builder;
+                }
+
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
                 case "System.Type System.Type::MakePointerType()":
                 {
@@ -864,6 +875,32 @@ namespace InlineIL.Fody.Processing
 
                 default:
                     throw UnexpectedInstruction(instruction, "a type reference");
+            }
+        }
+
+        private GenericParameterType ConsumeArgGenericParameterType(Instruction instruction)
+        {
+            const string expectation = "a call to TypeRef.TypeGenericParameters or TypeRef.MethodGenericParameters";
+
+            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                throw UnexpectedInstruction(instruction, expectation);
+
+            switch (method.FullName)
+            {
+                case "InlineIL.GenericParameters InlineIL.TypeRef::get_TypeGenericParameters()":
+                {
+                    _il.Remove(instruction);
+                    return GenericParameterType.Type;
+                }
+
+                case "InlineIL.GenericParameters InlineIL.TypeRef::get_MethodGenericParameters()":
+                {
+                    _il.Remove(instruction);
+                    return GenericParameterType.Method;
+                }
+
+                default:
+                    throw UnexpectedInstruction(instruction, expectation);
             }
         }
 
