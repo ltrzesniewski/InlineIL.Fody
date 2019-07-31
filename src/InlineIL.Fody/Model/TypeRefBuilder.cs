@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Fody;
 using InlineIL.Fody.Extensions;
 using JetBrains.Annotations;
@@ -14,20 +15,12 @@ namespace InlineIL.Fody.Model
         private readonly ModuleDefinition _module;
         private readonly List<TypeReference> _optionalModifiers = new List<TypeReference>();
         private readonly List<TypeReference> _requiredModifiers = new List<TypeReference>();
-        private Func<IGenericParameterProvider, TypeReference> _typeRefProvider;
+        private TypeRefResolver _resolver;
 
         public TypeRefBuilder(ModuleDefinition module, TypeReference typeRef)
         {
             _module = module;
-
-            if (typeRef.MetadataType == MetadataType.Class && !(typeRef is TypeDefinition))
-            {
-                // TypeRefs from different assemblies get imported as MetadataType.Class
-                // since this information is not stored in the assembly metadata.
-                typeRef = typeRef.ResolveRequiredType();
-            }
-
-            _typeRefProvider = _ => _module.ImportReference(typeRef);
+            _resolver = new TypeDefinitionResolver(typeRef);
         }
 
         public TypeRefBuilder(ModuleDefinition module, string assemblyName, string typeName)
@@ -38,56 +31,7 @@ namespace InlineIL.Fody.Model
         public TypeRefBuilder(ModuleDefinition module, GenericParameterType genericParameterType, int genericParameterIndex)
         {
             _module = module;
-
-            if (genericParameterIndex < 0)
-                throw new WeavingException($"Invalid generic parameter index: {genericParameterIndex}");
-
-            switch (genericParameterType)
-            {
-                case GenericParameterType.Type:
-                    _typeRefProvider = context =>
-                    {
-                        if (context == null)
-                            return null;
-
-                        if (ReferenceEquals(context, DisplayTypeReference.Instance))
-                            return new DisplayTypeReference($"!{genericParameterIndex}");
-
-                        if (context is MethodReference method)
-                            context = method.DeclaringType;
-
-                        if (!context.HasGenericParameters)
-                            return null;
-
-                        if (genericParameterIndex >= context.GenericParameters.Count)
-                            return null;
-
-                        return context.GenericParameters[genericParameterIndex];
-                    };
-                    break;
-
-                case GenericParameterType.Method:
-                    _typeRefProvider = context =>
-                    {
-                        if (context == null)
-                            return null;
-
-                        if (ReferenceEquals(context, DisplayTypeReference.Instance))
-                            return new DisplayTypeReference($"!!{genericParameterIndex}");
-
-                        if (!context.HasGenericParameters || context.GenericParameterType != GenericParameterType.Method)
-                            return null;
-
-                        if (genericParameterIndex >= context.GenericParameters.Count)
-                            return null;
-
-                        return context.GenericParameters[genericParameterIndex];
-                    };
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(genericParameterType), genericParameterType, null);
-            }
+            _resolver = new GenericParameterTypeRefResolver(genericParameterType, genericParameterIndex);
         }
 
         private static TypeReference FindType(ModuleDefinition module, string assemblyName, string typeName)
@@ -112,7 +56,7 @@ namespace InlineIL.Fody.Model
         [CanBeNull]
         public TypeReference TryBuild([CanBeNull] IGenericParameterProvider context)
         {
-            var type = _typeRefProvider(context);
+            var type = _resolver.TryResolve(_module, context);
             if (type == null)
                 return null;
 
@@ -129,54 +73,245 @@ namespace InlineIL.Fody.Model
             => TryBuild(null) ?? throw new WeavingException("Cannot construct type reference");
 
         public string GetDisplayName()
-            => TryBuild(DisplayTypeReference.Instance)?.FullName ?? "???";
+            => _resolver.GetDisplayName();
 
         public void MakePointerType()
-        {
-            WrapType(typeRef =>
-            {
-                EnsureCanWrapType(typeRef);
-
-                if (typeRef.IsByReference)
-                    throw new WeavingException("Cannot make a pointer to a ByRef type");
-
-                return typeRef.MakePointerType();
-            });
-        }
+            => _resolver = new PointerTypeRefResolver(_resolver);
 
         public void MakeByRefType()
-        {
-            WrapType(typeRef =>
-            {
-                EnsureCanWrapType(typeRef);
+            => _resolver = new ByRefTypeRefResolver(_resolver);
 
+        public void MakeArrayType(int rank)
+            => _resolver = new ArrayTypeRefResolver(_resolver, rank);
+
+        public void MakeGenericType(TypeRefBuilder[] genericArgs)
+            => _resolver = new GenericTyperRefResolver(_resolver, genericArgs);
+
+        public void AddOptionalModifier(TypeReference modifierType)
+            => _optionalModifiers.Add(modifierType);
+
+        public void AddRequiredModifier(TypeReference modifierType)
+            => _requiredModifiers.Add(modifierType);
+
+        public override string ToString() => GetDisplayName();
+
+        private abstract class TypeRefResolver
+        {
+            [CanBeNull]
+            public abstract TypeReference TryResolve(ModuleDefinition module, [CanBeNull] IGenericParameterProvider context);
+
+            public abstract string GetDisplayName();
+        }
+
+        private class TypeDefinitionResolver : TypeRefResolver
+        {
+            private readonly TypeReference _typeRef;
+
+            public TypeDefinitionResolver(TypeReference typeRef)
+            {
+                if (typeRef.MetadataType == MetadataType.Class && !(typeRef is TypeDefinition))
+                {
+                    // TypeRefs from different assemblies get imported as MetadataType.Class
+                    // since this information is not stored in the assembly metadata.
+                    typeRef = typeRef.ResolveRequiredType();
+                }
+
+                _typeRef = typeRef;
+            }
+
+            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+                => module.ImportReference(_typeRef);
+
+            public override string GetDisplayName()
+                => _typeRef.FullName;
+        }
+
+        private class GenericParameterTypeRefResolver : TypeRefResolver
+        {
+            private readonly GenericParameterType _type;
+            private readonly int _index;
+
+            public GenericParameterTypeRefResolver(GenericParameterType type, int index)
+            {
+                _type = type;
+                _index = index;
+
+                if (index < 0)
+                    throw new WeavingException($"Invalid generic parameter index: {index}");
+            }
+
+            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            {
+                if (context == null)
+                    return null;
+
+                switch (_type)
+                {
+                    case GenericParameterType.Type:
+                    {
+                        if (context is MethodReference method)
+                            context = method.DeclaringType;
+
+                        if (!context.HasGenericParameters)
+                            return null;
+
+                        if (_index >= context.GenericParameters.Count)
+                            return null;
+
+                        return context.GenericParameters[_index];
+                    }
+
+                    case GenericParameterType.Method:
+                    {
+                        if (!context.HasGenericParameters || context.GenericParameterType != GenericParameterType.Method)
+                            return null;
+
+                        if (_index >= context.GenericParameters.Count)
+                            return null;
+
+                        return context.GenericParameters[_index];
+                    }
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            public override string GetDisplayName()
+            {
+                switch (_type)
+                {
+                    case GenericParameterType.Type:
+                        return "!" + _index;
+
+                    case GenericParameterType.Method:
+                        return "!!" + _index;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        private abstract class WrappedTypeTypeRefResolver : TypeRefResolver
+        {
+            private readonly TypeRefResolver _baseResolver;
+
+            protected WrappedTypeTypeRefResolver(TypeRefResolver baseResolver)
+                => _baseResolver = baseResolver;
+
+            protected abstract TypeReference WrapTypeRef(TypeReference typeRef);
+
+            public sealed override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            {
+                var typeRef = _baseResolver.TryResolve(module, context);
+                if (typeRef == null)
+                    return null;
+
+                if (typeRef.MetadataType == MetadataType.TypedByReference)
+                    throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
+
+                typeRef = WrapTypeRef(typeRef);
+                if (typeRef == null)
+                    return null;
+
+                return module.ImportReference(typeRef);
+            }
+
+            public sealed override string GetDisplayName()
+                => GetDisplayName(_baseResolver.GetDisplayName());
+
+            protected abstract string GetDisplayName(string baseName);
+        }
+
+        private class ArrayTypeRefResolver : WrappedTypeTypeRefResolver
+        {
+            private readonly int _rank;
+
+            public ArrayTypeRefResolver(TypeRefResolver baseResolver, int rank)
+                : base(baseResolver)
+            {
+                _rank = rank;
+
+                if (rank < 1)
+                    throw new WeavingException($"Invalid array rank: {rank}, must be at least 1");
+            }
+
+            protected override TypeReference WrapTypeRef(TypeReference typeRef)
+            {
+                if (typeRef.IsByReference)
+                    throw new WeavingException("Cannot make an array of a ByRef type");
+
+                return _rank == 1 ? typeRef.MakeArrayType() : typeRef.MakeArrayType(_rank);
+            }
+
+            protected override string GetDisplayName(string baseName)
+            {
+                if (_rank == 1)
+                    return baseName + "[]";
+
+                return baseName + "[" + new string(',', _rank - 1) + "]";
+            }
+        }
+
+        private class ByRefTypeRefResolver : WrappedTypeTypeRefResolver
+        {
+            public ByRefTypeRefResolver(TypeRefResolver baseResolver)
+                : base(baseResolver)
+            {
+            }
+
+            protected override TypeReference WrapTypeRef(TypeReference typeRef)
+            {
                 if (typeRef.IsByReference)
                     throw new WeavingException("Type is already a ByRef type");
 
                 return typeRef.MakeByReferenceType();
-            });
+            }
+
+            protected override string GetDisplayName(string baseName)
+                => baseName + "&";
         }
 
-        public void MakeArrayType(int rank)
+        private class PointerTypeRefResolver : WrappedTypeTypeRefResolver
         {
-            WrapType(typeRef =>
+            public PointerTypeRefResolver(TypeRefResolver baseResolver)
+                : base(baseResolver)
             {
-                EnsureCanWrapType(typeRef);
+            }
 
+            protected override TypeReference WrapTypeRef(TypeReference typeRef)
+            {
                 if (typeRef.IsByReference)
-                    throw new WeavingException("Cannot make an array of a ByRef type");
+                    throw new WeavingException("Cannot make a pointer to a ByRef type");
 
-                if (rank < 1)
-                    throw new WeavingException($"Invalid array rank: {rank}, must be at least 1");
+                return typeRef.MakePointerType();
+            }
 
-                return rank == 1 ? typeRef.MakeArrayType() : typeRef.MakeArrayType(rank);
-            });
+            protected override string GetDisplayName(string baseName)
+                => baseName + "*";
         }
 
-        public void MakeGenericType(TypeReference[] genericArgs)
+        private class GenericTyperRefResolver : TypeRefResolver
         {
-            WrapType(typeRef =>
+            private readonly TypeRefResolver _baseResolver;
+            private readonly TypeRefBuilder[] _genericArgs;
+
+            public GenericTyperRefResolver(TypeRefResolver baseResolver, TypeRefBuilder[] genericArgs)
             {
+                _baseResolver = baseResolver;
+                _genericArgs = genericArgs;
+
+                if (genericArgs.Length == 0)
+                    throw new WeavingException("No generic arguments supplied");
+            }
+
+            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            {
+                var typeRef = _baseResolver.TryResolve(module, context);
+                if (typeRef == null)
+                    return null;
+
                 if (typeRef.IsGenericInstance)
                     throw new WeavingException($"Type is already a generic instance: {typeRef.FullName}");
 
@@ -188,51 +323,37 @@ namespace InlineIL.Fody.Model
                 if (!typeDef.HasGenericParameters)
                     throw new WeavingException($"Not a generic type definition: {typeDef.FullName}");
 
-                if (genericArgs.Length == 0)
-                    throw new WeavingException("No generic arguments supplied");
+                if (typeDef.GenericParameters.Count != _genericArgs.Length)
+                    throw new WeavingException($"Incorrect number of generic arguments supplied for type {typeDef.FullName} - expected {typeDef.GenericParameters.Count}, but got {_genericArgs.Length}");
 
-                if (typeDef.GenericParameters.Count != genericArgs.Length)
-                    throw new WeavingException($"Incorrect number of generic arguments supplied for type {typeDef.FullName} - expected {typeDef.GenericParameters.Count}, but got {genericArgs.Length}");
+                var argTypeRefs = new TypeReference[_genericArgs.Length];
 
-                return typeDef.MakeGenericInstanceType(genericArgs);
-            });
-        }
+                for (var i = 0; i < _genericArgs.Length; ++i)
+                {
+                    var argTypeBuilder = _genericArgs[i];
+                    var argTypeRef = argTypeBuilder.TryBuild(context);
+                    argTypeRefs[i] = argTypeRef ?? throw new WeavingException("Cannot instantiate a generic type with the supplied type parameter.");
+                }
 
-        public void AddOptionalModifier(TypeReference modifierType)
-        {
-            _optionalModifiers.Add(modifierType);
-        }
+                return module.ImportReference(typeDef.MakeGenericInstanceType(argTypeRefs));
+            }
 
-        public void AddRequiredModifier(TypeReference modifierType)
-        {
-            _requiredModifiers.Add(modifierType);
-        }
-
-        private void WrapType(Func<TypeReference, TypeReference> chainFunc)
-        {
-            var prevProvider = _typeRefProvider;
-            _typeRefProvider = context =>
+            public override string GetDisplayName()
             {
-                var typeRef = prevProvider(context);
-                return typeRef != null ? _module.ImportReference(chainFunc(typeRef)) : null;
-            };
-        }
+                var sb = new StringBuilder();
+                sb.Append(_baseResolver.GetDisplayName());
+                sb.Append("<");
 
-        private static void EnsureCanWrapType(TypeReference typeRef)
-        {
-            if (typeRef.MetadataType == MetadataType.TypedByReference)
-                throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
-        }
+                for (var i = 0; i < _genericArgs.Length; ++i)
+                {
+                    if (i != 0)
+                        sb.Append(",");
 
-        public override string ToString() => GetDisplayName();
+                    sb.Append(_genericArgs[i].GetDisplayName());
+                }
 
-        private class DisplayTypeReference : TypeReference
-        {
-            public static DisplayTypeReference Instance { get; } = new DisplayTypeReference(string.Empty);
-
-            public DisplayTypeReference(string name)
-                : base(string.Empty, name)
-            {
+                sb.Append(">");
+                return sb.ToString();
             }
         }
     }

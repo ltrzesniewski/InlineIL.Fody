@@ -844,7 +844,7 @@ namespace InlineIL.Fody.Processing
                 {
                     var args = instruction.GetArgumentPushInstructions();
                     var builder = ConsumeArgTypeRefBuilder(args[0]);
-                    var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                    var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRefBuilder);
                     builder.MakeGenericType(genericArgs);
 
                     _il.Remove(instruction);
