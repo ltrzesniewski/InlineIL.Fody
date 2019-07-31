@@ -13,6 +13,7 @@ namespace InlineIL.Fody.Processing
             public const string FieldRefType = "FieldRef";
             public const string LocalVarType = "LocalVar";
             public const string StandAloneMethodSigType = "StandAloneMethodSig";
+            public const string GenericParametersType = "GenericParameters";
 
             public const string PushMethod = "Push";
             public const string PopMethod = "Pop";
@@ -35,6 +36,7 @@ namespace InlineIL.Fody.Processing
             public const string FieldRefType = _nsPrefix + Short.FieldRefType;
             public const string LocalVarType = _nsPrefix + Short.LocalVarType;
             public const string StandAloneMethodSigType = _nsPrefix + Short.StandAloneMethodSigType;
+            public const string GenericParametersType = _nsPrefix + Short.GenericParametersType;
 
             public static readonly HashSet<string> AllTypes = new HashSet<string>
             {
@@ -44,7 +46,8 @@ namespace InlineIL.Fody.Processing
                 MethodRefType,
                 FieldRefType,
                 LocalVarType,
-                StandAloneMethodSigType
+                StandAloneMethodSigType,
+                GenericParametersType
             };
         }
     }
