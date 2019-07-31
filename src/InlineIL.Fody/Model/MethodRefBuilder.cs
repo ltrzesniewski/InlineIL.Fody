@@ -23,10 +23,10 @@ namespace InlineIL.Fody.Model
         public static MethodRefBuilder MethodByName(ModuleDefinition module, TypeReference typeRef, string methodName)
             => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null, null));
 
-        public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, IReadOnlyCollection<TypeReference> paramTypes)
+        public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder> paramTypes)
             => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
 
-        private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, [CanBeNull] IReadOnlyCollection<TypeReference> paramTypes)
+        private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, [CanBeNull] IReadOnlyList<TypeRefBuilder> paramTypes)
         {
             var typeDef = typeRef.ResolveRequiredType();
 
@@ -41,8 +41,23 @@ namespace InlineIL.Fody.Model
 
             if (paramTypes != null)
             {
-                methods = methods.Where(m => m.Parameters.Count == paramTypes.Count
-                                             && m.Parameters.Select(p => p.ParameterType.FullName).SequenceEqual(paramTypes.Select(p => p.FullName)));
+                methods = methods.Where(m =>
+                {
+                    if (m.Parameters.Count != paramTypes.Count)
+                        return false;
+
+                    for (var i = 0; i < paramTypes.Count; i++)
+                    {
+                        var paramType = paramTypes[i].TryBuild(m);
+                        if (paramType == null)
+                            return false;
+
+                        if (m.Parameters[i].ParameterType.FullName != paramType.FullName)
+                            return false;
+                    }
+
+                    return true;
+                });
             }
 
             var methodList = methods.ToList();
@@ -55,12 +70,12 @@ namespace InlineIL.Fody.Model
                 case 0:
                     throw paramTypes == null
                         ? new WeavingException($"Method '{methodName}' not found in type {typeDef.FullName}")
-                        : new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) not found in type {typeDef.FullName}");
+                        : new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.TryBuild(null)?.FullName ?? "???"))}) not found in type {typeDef.FullName}");
 
                 default:
                     throw paramTypes == null
                         ? new WeavingException($"Ambiguous method '{methodName}' in type {typeDef.FullName}")
-                        : new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.FullName))}) in type {typeDef.FullName}");
+                        : new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.TryBuild(null)?.FullName ?? "???"))}) in type {typeDef.FullName}");
             }
         }
 
