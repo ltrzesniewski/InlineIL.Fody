@@ -11,7 +11,7 @@ namespace InlineIL
     public sealed class MethodRef
     {
         /// <summary>
-        /// Constructs a method reference. If the method is overloaded, use <see cref="MethodRef(TypeRef, string, TypeRef[])" /> instead.
+        /// Constructs a method reference for a non-overloaded method.
         /// </summary>
         /// <param name="type">The type declaring the method.</param>
         /// <param name="methodName">The method name.</param>
@@ -19,12 +19,22 @@ namespace InlineIL
             => IL.Throw();
 
         /// <summary>
-        /// Constructs a method reference
+        /// Constructs a method reference.
         /// </summary>
         /// <param name="type">The type declaring the method.</param>
         /// <param name="methodName">The method name.</param>
         /// <param name="parameterTypes">The types of the method parameters.</param>
         public MethodRef(TypeRef type, string methodName, params TypeRef[] parameterTypes)
+            => IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference.
+        /// </summary>
+        /// <param name="type">The type declaring the method.</param>
+        /// <param name="methodName">The method name.</param>
+        /// <param name="genericParameterCount">The generic parameter count. Use 0 for a non-generic method.</param>
+        /// <param name="parameterTypes">The types of the method parameters.</param>
+        public MethodRef(TypeRef type, string methodName, int genericParameterCount, params TypeRef[] parameterTypes)
             => IL.Throw();
 
         /// <summary>
