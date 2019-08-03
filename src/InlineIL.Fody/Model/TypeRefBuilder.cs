@@ -20,7 +20,7 @@ namespace InlineIL.Fody.Model
         public TypeRefBuilder(ModuleDefinition module, TypeReference typeRef)
         {
             _module = module;
-            _resolver = new TypeDefinitionResolver(typeRef);
+            _resolver = new ConstantTypeRefResolver(typeRef);
         }
 
         public TypeRefBuilder(ModuleDefinition module, string assemblyName, string typeName)
@@ -53,13 +53,21 @@ namespace InlineIL.Fody.Model
             return typeRef;
         }
 
-        [CanBeNull]
-        public TypeReference TryBuild([CanBeNull] IGenericParameterProvider context)
+        public TypeReference Build()
         {
-            var type = _resolver.TryResolve(_module, context);
-            if (type == null)
-                return null;
+            var typeRef = _resolver.Resolve(_module);
+            return AddModifiers(typeRef);
+        }
 
+        [CanBeNull]
+        public TypeReference TryBuild(IGenericParameterProvider context)
+        {
+            var typeRef = _resolver.TryResolve(_module, context);
+            return typeRef != null ? AddModifiers(typeRef) : null;
+        }
+
+        private TypeReference AddModifiers(TypeReference type)
+        {
             foreach (var modifier in _optionalModifiers)
                 type = type.MakeOptionalModifierType(modifier);
 
@@ -68,9 +76,6 @@ namespace InlineIL.Fody.Model
 
             return type;
         }
-
-        public TypeReference Build()
-            => TryBuild(null) ?? throw new WeavingException("Cannot construct type reference");
 
         public string GetDisplayName()
             => _resolver.GetDisplayName();
@@ -85,7 +90,7 @@ namespace InlineIL.Fody.Model
             => _resolver = new ArrayTypeRefResolver(_resolver, rank);
 
         public void MakeGenericType(TypeRefBuilder[] genericArgs)
-            => _resolver = new GenericTyperRefResolver(_resolver, genericArgs);
+            => _resolver = new GenericTypeRefResolver(_resolver, genericArgs);
 
         public void AddOptionalModifier(TypeReference modifierType)
             => _optionalModifiers.Add(modifierType);
@@ -97,17 +102,20 @@ namespace InlineIL.Fody.Model
 
         private abstract class TypeRefResolver
         {
+            [NotNull]
+            public abstract TypeReference Resolve(ModuleDefinition module);
+
             [CanBeNull]
-            public abstract TypeReference TryResolve(ModuleDefinition module, [CanBeNull] IGenericParameterProvider context);
+            public abstract TypeReference TryResolve(ModuleDefinition module, [NotNull] IGenericParameterProvider context);
 
             public abstract string GetDisplayName();
         }
 
-        private class TypeDefinitionResolver : TypeRefResolver
+        private class ConstantTypeRefResolver : TypeRefResolver
         {
             private readonly TypeReference _typeRef;
 
-            public TypeDefinitionResolver(TypeReference typeRef)
+            public ConstantTypeRefResolver(TypeReference typeRef)
             {
                 if (typeRef.MetadataType == MetadataType.Class && !(typeRef is TypeDefinition))
                 {
@@ -119,8 +127,11 @@ namespace InlineIL.Fody.Model
                 _typeRef = typeRef;
             }
 
-            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            public override TypeReference Resolve(ModuleDefinition module)
                 => module.ImportReference(_typeRef);
+
+            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+                => Resolve(module);
 
             public override string GetDisplayName()
                 => _typeRef.FullName;
@@ -140,19 +151,19 @@ namespace InlineIL.Fody.Model
                     throw new WeavingException($"Invalid generic parameter index: {index}");
             }
 
+            public override TypeReference Resolve(ModuleDefinition module)
+                => throw new WeavingException($"TypeRef.{(_type == GenericParameterType.Method ? "MethodGenericParameters" : "TypeGenericParameters")} can only be used in MethodRef definitions for overload resolution");
+
             public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
             {
-                if (context == null)
-                    return null;
-
                 switch (_type)
                 {
                     case GenericParameterType.Type:
                     {
-                        if (context is MethodReference method)
-                            context = method.DeclaringType;
+                        if (context.GenericParameterType != GenericParameterType.Type && context is MemberReference member)
+                            context = member.DeclaringType;
 
-                        if (!context.HasGenericParameters)
+                        if (!context.HasGenericParameters || context.GenericParameterType != GenericParameterType.Type)
                             return null;
 
                         if (_index >= context.GenericParameters.Count)
@@ -193,28 +204,34 @@ namespace InlineIL.Fody.Model
             }
         }
 
-        private abstract class WrappedTypeTypeRefResolver : TypeRefResolver
+        private abstract class TypeSpecTypeRefResolver : TypeRefResolver
         {
             private readonly TypeRefResolver _baseResolver;
 
-            protected WrappedTypeTypeRefResolver(TypeRefResolver baseResolver)
+            protected TypeSpecTypeRefResolver(TypeRefResolver baseResolver)
                 => _baseResolver = baseResolver;
 
-            protected abstract TypeReference WrapTypeRef(TypeReference typeRef);
+            [NotNull]
+            protected abstract TypeReference WrapTypeRef([NotNull] TypeReference typeRef);
+
+            public sealed override TypeReference Resolve(ModuleDefinition module)
+            {
+                var typeRef = _baseResolver.Resolve(module);
+                return ResolveImpl(module, typeRef);
+            }
 
             public sealed override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
             {
                 var typeRef = _baseResolver.TryResolve(module, context);
-                if (typeRef == null)
-                    return null;
+                return typeRef != null ? ResolveImpl(module, typeRef) : null;
+            }
 
+            private TypeReference ResolveImpl(ModuleDefinition module, TypeReference typeRef)
+            {
                 if (typeRef.MetadataType == MetadataType.TypedByReference)
                     throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
 
                 typeRef = WrapTypeRef(typeRef);
-                if (typeRef == null)
-                    return null;
-
                 return module.ImportReference(typeRef);
             }
 
@@ -224,7 +241,7 @@ namespace InlineIL.Fody.Model
             protected abstract string GetDisplayName(string baseName);
         }
 
-        private class ArrayTypeRefResolver : WrappedTypeTypeRefResolver
+        private class ArrayTypeRefResolver : TypeSpecTypeRefResolver
         {
             private readonly int _rank;
 
@@ -254,7 +271,7 @@ namespace InlineIL.Fody.Model
             }
         }
 
-        private class ByRefTypeRefResolver : WrappedTypeTypeRefResolver
+        private class ByRefTypeRefResolver : TypeSpecTypeRefResolver
         {
             public ByRefTypeRefResolver(TypeRefResolver baseResolver)
                 : base(baseResolver)
@@ -273,7 +290,7 @@ namespace InlineIL.Fody.Model
                 => baseName + "&";
         }
 
-        private class PointerTypeRefResolver : WrappedTypeTypeRefResolver
+        private class PointerTypeRefResolver : TypeSpecTypeRefResolver
         {
             public PointerTypeRefResolver(TypeRefResolver baseResolver)
                 : base(baseResolver)
@@ -292,12 +309,12 @@ namespace InlineIL.Fody.Model
                 => baseName + "*";
         }
 
-        private class GenericTyperRefResolver : TypeRefResolver
+        private class GenericTypeRefResolver : TypeRefResolver
         {
             private readonly TypeRefResolver _baseResolver;
             private readonly TypeRefBuilder[] _genericArgs;
 
-            public GenericTyperRefResolver(TypeRefResolver baseResolver, TypeRefBuilder[] genericArgs)
+            public GenericTypeRefResolver(TypeRefResolver baseResolver, TypeRefBuilder[] genericArgs)
             {
                 _baseResolver = baseResolver;
                 _genericArgs = genericArgs;
@@ -306,12 +323,20 @@ namespace InlineIL.Fody.Model
                     throw new WeavingException("No generic arguments supplied");
             }
 
+            public override TypeReference Resolve(ModuleDefinition module)
+            {
+                var typeRef = _baseResolver.Resolve(module);
+                return ResolveImpl(module, null, typeRef);
+            }
+
             public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
             {
                 var typeRef = _baseResolver.TryResolve(module, context);
-                if (typeRef == null)
-                    return null;
+                return typeRef != null ? ResolveImpl(module, context, typeRef) : null;
+            }
 
+            private TypeReference ResolveImpl(ModuleDefinition module, [CanBeNull] IGenericParameterProvider context, TypeReference typeRef)
+            {
                 if (typeRef.IsGenericInstance)
                     throw new WeavingException($"Type is already a generic instance: {typeRef.FullName}");
 
@@ -331,8 +356,20 @@ namespace InlineIL.Fody.Model
                 for (var i = 0; i < _genericArgs.Length; ++i)
                 {
                     var argTypeBuilder = _genericArgs[i];
-                    var argTypeRef = argTypeBuilder.TryBuild(context);
-                    argTypeRefs[i] = argTypeRef ?? throw new WeavingException("Cannot instantiate a generic type with the supplied type parameter.");
+                    TypeReference argTypeRef;
+
+                    if (context != null)
+                    {
+                        argTypeRef = argTypeBuilder.TryBuild(context);
+                        if (argTypeRef == null)
+                            return null;
+                    }
+                    else
+                    {
+                        argTypeRef = argTypeBuilder.Build();
+                    }
+
+                    argTypeRefs[i] = argTypeRef;
                 }
 
                 return module.ImportReference(typeDef.MakeGenericInstanceType(argTypeRefs));
