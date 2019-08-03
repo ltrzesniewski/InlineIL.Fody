@@ -1,5 +1,8 @@
-﻿namespace InlineIL.Tests.Common
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace InlineIL.Tests.Common
 {
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public unsafe interface IUnverifiableBasicTestCases
     {
         int PopPointerLocal(int* arg, int offset);

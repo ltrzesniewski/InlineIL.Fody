@@ -20,7 +20,6 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<RuntimeTypeHandle>();
         }
 
-        [SuppressMessage("ReSharper", "RedundantCast")]
         public RuntimeTypeHandle[] LoadTypeDifferentWays()
         {
             var result = new RuntimeTypeHandle[3];

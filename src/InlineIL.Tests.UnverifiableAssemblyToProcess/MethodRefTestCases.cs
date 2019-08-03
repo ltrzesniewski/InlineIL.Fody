@@ -6,7 +6,6 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     public unsafe class MethodRefTestCases
     {

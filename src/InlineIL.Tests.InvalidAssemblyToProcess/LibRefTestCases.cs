@@ -4,6 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 namespace InlineIL.Tests.InvalidAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
+    [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
     public class LibRefTestCases
     {
         public void Local()
@@ -74,7 +81,6 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
         }
 
-        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
         public void GenericParamAttribute<[SomeAttribute(typeof(TypeRef))] T>()
         {
         }
@@ -88,7 +94,6 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
         }
 
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
         [SuppressMessage("ReSharper", "UnusedTypeParameter")]
         public class Foo<T>
@@ -96,6 +101,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         }
 
         [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+        [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
         public interface IFoo<T>
         {
         }

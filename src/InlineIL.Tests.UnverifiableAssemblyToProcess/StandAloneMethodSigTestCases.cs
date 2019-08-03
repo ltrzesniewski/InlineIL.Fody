@@ -8,6 +8,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public unsafe class StandAloneMethodSigTestCases
     {
         public int CallIndirectStatic()

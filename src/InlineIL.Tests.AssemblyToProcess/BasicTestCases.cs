@@ -6,6 +6,7 @@ namespace InlineIL.Tests.AssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class BasicTestCases
     {
         public static int StaticIntField;
@@ -201,6 +202,7 @@ namespace InlineIL.Tests.AssemblyToProcess
             return StaticIntField;
         }
 
+        [SuppressMessage("ReSharper", "IdentifierTypo")]
         public void LdargaS(object obj)
         {
             Ldarga_S(nameof(obj));

@@ -7,6 +7,11 @@ namespace InlineIL.Tests.AssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "InlineOutVariableDeclaration")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+    [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
     public class MethodRefTestCases
     {
         public int Value { get; set; }

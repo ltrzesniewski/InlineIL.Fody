@@ -5,6 +5,7 @@ using static InlineIL.IL.Emit;
 namespace InlineIL.Tests.InvalidAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     public class BasicTestCases
     {
         private int _intField;

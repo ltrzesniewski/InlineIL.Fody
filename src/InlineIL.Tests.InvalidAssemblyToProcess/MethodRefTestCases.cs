@@ -6,6 +6,8 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
     public class MethodRefTestCases
     {
         public int Value { get; set; }
