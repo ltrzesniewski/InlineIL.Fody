@@ -132,6 +132,12 @@ namespace InlineIL.Tests.AssemblyToProcess
             IL.Pop(out item);
             result.Add(item);
 
+            Ldnull();
+            Ldnull();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), TypeRef.MethodGenericParameters[0].MakeArrayType(), new TypeRef(typeof(List<>)).MakeGenericType(TypeRef.MethodGenericParameters[1])).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
             return result.ToArray();
         }
 
@@ -155,6 +161,18 @@ namespace InlineIL.Tests.AssemblyToProcess
             Ldc_I4_0();
             Ldc_I4_0();
             Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.TypeGenericParameters[0], TypeRef.MethodGenericParameters[0]).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldnull();
+            Ldnull();
+            Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.TypeGenericParameters[0].MakeArrayType(), new TypeRef(typeof(List<>)).MakeGenericType(TypeRef.TypeGenericParameters[1])).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldnull();
+            Ldnull();
+            Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.MethodGenericParameters[0].MakeArrayType(), new TypeRef(typeof(List<>)).MakeGenericType(TypeRef.MethodGenericParameters[0])).MakeGenericMethod(typeof(int)));
             IL.Pop(out item);
             result.Add(item);
 
@@ -295,6 +313,7 @@ namespace InlineIL.Tests.AssemblyToProcess
         private static int GenericOverload<T1, T2>(T1 a, T2 b) => 4;
         private static int GenericOverload<T1, T2>(T2 a, T1 b) => 5;
         private static int GenericOverload(int a, int b) => 6;
+        private static int GenericOverload<T1, T2>(T1[] a, List<T2> b) => 7;
 
         private class GenericType<TClass>
         {
@@ -309,6 +328,8 @@ namespace InlineIL.Tests.AssemblyToProcess
                 public static int GenericOverload<T>(TClass a, TOther b) => 1;
                 public static int GenericOverload<T>(TOther a, TClass b) => 2;
                 public static int GenericOverload<T>(TClass a, T b) => 3;
+                public static int GenericOverload<T>(TClass[] a, List<TOther> b) => 4;
+                public static int GenericOverload<T>(T[] a, List<T> b) => 5;
             }
         }
 

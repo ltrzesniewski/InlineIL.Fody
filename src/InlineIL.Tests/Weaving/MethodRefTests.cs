@@ -32,14 +32,14 @@ namespace InlineIL.Tests.Weaving
         public void should_resolve_generic_overloads()
         {
             var result = (int[])GetInstance().ResolveGenericOverloads();
-            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6 });
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
         }
 
         [Fact]
         public void should_resolve_generic_overloads_in_nested_generic_types()
         {
             var result = (int[])GetInstance().ResolveGenericOverloadsInGenericType();
-            result.ShouldEqual(new[] { 1, 2, 3 });
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5 });
         }
 
         [Fact]

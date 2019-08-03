@@ -169,7 +169,7 @@ namespace InlineIL.Fody.Model
                         if (_index >= context.GenericParameters.Count)
                             return null;
 
-                        return context.GenericParameters[_index];
+                        return module.ImportReference(context.GenericParameters[_index]);
                     }
 
                     case GenericParameterType.Method:
@@ -180,7 +180,7 @@ namespace InlineIL.Fody.Model
                         if (_index >= context.GenericParameters.Count)
                             return null;
 
-                        return context.GenericParameters[_index];
+                        return module.ImportReference(context.GenericParameters[_index]);
                     }
 
                     default:
@@ -372,7 +372,7 @@ namespace InlineIL.Fody.Model
                     argTypeRefs[i] = argTypeRef;
                 }
 
-                return module.ImportReference(typeDef.MakeGenericInstanceType(argTypeRefs));
+                return module.ImportReference(typeRef.MakeGenericInstanceType(argTypeRefs));
             }
 
             public override string GetDisplayName()
