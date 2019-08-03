@@ -963,7 +963,7 @@ namespace InlineIL.Fody.Processing
                     {
                         var args = instruction.GetArgumentPushInstructions();
                         var typeRef = ConsumeArgTypeRef(args[0]);
-                        var paramTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
+                        var paramTypes = ConsumeArgArray(args[1], ConsumeArgTypeRefBuilder);
                         var builder = MethodRefBuilder.Constructor(Module, typeRef, paramTypes);
 
                         _il.Remove(instruction);
