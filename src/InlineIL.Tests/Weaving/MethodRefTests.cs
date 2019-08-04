@@ -29,6 +29,20 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_resolve_generic_overloads()
+        {
+            var result = (int[])GetInstance().ResolveGenericOverloads();
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
+        }
+
+        [Fact]
+        public void should_resolve_generic_overloads_in_nested_generic_types()
+        {
+            var result = (int[])GetInstance().ResolveGenericOverloadsInGenericType();
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5 });
+        }
+
+        [Fact]
         public void should_resolve_overloads_unverifiable()
         {
             var result = (int[])GetUnverifiableInstance().ResolveOverloads();
@@ -43,14 +57,14 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_report_unknown_mehtod()
+        public void should_report_unknown_method()
         {
             ShouldHaveError("UnknownMethodWithoutParams").ShouldContain("Method 'Nope' not found");
             ShouldHaveError("UnknownMethodWithParams").ShouldContain("Method Nope(System.Int32) not found");
         }
 
         [Fact]
-        public void should_report_ambiguous_mehtod()
+        public void should_report_ambiguous_method()
         {
             ShouldHaveError("AmbiguousMethod").ShouldContain("Ambiguous method");
         }
@@ -207,6 +221,60 @@ namespace InlineIL.Tests.Weaving
         public void should_report_invalid_generic_args_count()
         {
             ShouldHaveError("TooManyGenericArgsProvided").ShouldContain("Incorrect number of generic arguments");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload()
+        {
+            ShouldHaveError("NoMatchingGenericOverload").ShouldContain("Method GenericMethod(System.String) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_type_generic_arg_outside_of_generic_type()
+        {
+            ShouldHaveError("TypeGenericArgOutsideOfGenericType").ShouldContain("Method GenericMethod(!42) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_type_generic_arg_out_of_bounds()
+        {
+            ShouldHaveError("TypeGenericArgOutOfBounds").ShouldContain("Method Method(!42) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_method_generic_arg_out_of_bounds()
+        {
+            ShouldHaveError("MethodGenericArgOutOfBounds").ShouldContain("Method GenericMethod(!!42) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_constructed_array_type()
+        {
+            ShouldHaveError("NoMatchingGenericOverloadArray").ShouldContain("Method GenericMethod(System.String[]) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_constructed_multi_dimensional_array_type()
+        {
+            ShouldHaveError("NoMatchingGenericOverloadArray2").ShouldContain("Method GenericMethod(System.String[,]) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_constructed_by_ref_type()
+        {
+            ShouldHaveError("NoMatchingGenericOverloadByRef").ShouldContain("Method GenericMethod(System.String&) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_constructed_pointer_type()
+        {
+            ShouldHaveError("NoMatchingGenericOverloadPointer").ShouldContain("Method GenericMethod(System.Int32*) not found");
+        }
+
+        [Fact]
+        public void should_report_no_matching_generic_overload_with_constructed_generic_type()
+        {
+            ShouldHaveError("NoMatchingGenericOverloadGeneric").ShouldContain("Method GenericMethod(System.Collections.Generic.Dictionary`2<System.Int32,System.String>) not found");
         }
 
 #if NETFRAMEWORK

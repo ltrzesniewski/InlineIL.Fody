@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using static InlineIL.IL.Emit;
@@ -7,6 +8,7 @@ namespace InlineIL.Tests.AssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     [SuppressMessage("ReSharper", "InlineOutVariableDeclaration")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
@@ -86,6 +88,100 @@ namespace InlineIL.Tests.AssemblyToProcess
 
             IL.Push(result);
             return IL.Return<int[]>();
+        }
+
+        public int[] ResolveGenericOverloads()
+        {
+            var result = new List<int>();
+            int item;
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), TypeRef.MethodGenericParameters[0], typeof(int)).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), 1, TypeRef.MethodGenericParameters[0], typeof(uint)).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), 2, TypeRef.MethodGenericParameters[0], typeof(uint)).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), TypeRef.MethodGenericParameters[0], TypeRef.MethodGenericParameters[1]).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), TypeRef.MethodGenericParameters[1], TypeRef.MethodGenericParameters[0]).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), 0, typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldnull();
+            Ldnull();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), TypeRef.MethodGenericParameters[0].MakeArrayType(), new TypeRef(typeof(List<>)).MakeGenericType(TypeRef.MethodGenericParameters[1])).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            return result.ToArray();
+        }
+
+        public int[] ResolveGenericOverloadsInGenericType()
+        {
+            var result = new List<int>();
+            int item;
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.TypeGenericParameters[0], TypeRef.TypeGenericParameters[1]).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.TypeGenericParameters[1], TypeRef.TypeGenericParameters[0]).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.TypeGenericParameters[0], TypeRef.MethodGenericParameters[0]).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldnull();
+            Ldnull();
+            Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.TypeGenericParameters[0].MakeArrayType(), new TypeRef(typeof(List<>)).MakeGenericType(TypeRef.TypeGenericParameters[1])).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldnull();
+            Ldnull();
+            Call(new MethodRef(typeof(GenericType<int>.NestedGenericType<int>), nameof(GenericType<int>.NestedGenericType<int>.GenericOverload), TypeRef.MethodGenericParameters[0].MakeArrayType(), new TypeRef(typeof(List<>)).MakeGenericType(TypeRef.MethodGenericParameters[0])).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            return result.ToArray();
         }
 
         public int CallGenericMethod()
@@ -196,15 +292,15 @@ namespace InlineIL.Tests.AssemblyToProcess
             => Event?.Invoke();
 
 #if NETFRAMEWORK
-    public int[] CallVarArgMethod()
-    {
-        IL.Push(5);
-        IL.Push(1);
-        IL.Push(2);
-        IL.Push(3);
-        IL.Emit.Call(new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters(typeof(int), typeof(int), typeof(int)));
-        return IL.Return<int[]>();
-    }
+        public int[] CallVarArgMethod()
+        {
+            IL.Push(5);
+            IL.Push(1);
+            IL.Push(2);
+            IL.Push(3);
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters(typeof(int), typeof(int), typeof(int)));
+            return IL.Return<int[]>();
+        }
 #endif
 
         private static int OverloadedMethod() => 10;
@@ -216,6 +312,14 @@ namespace InlineIL.Tests.AssemblyToProcess
 
         private static T GenericMethod<T>(T value) => value;
 
+        private static int GenericOverload<T>(T a, int b) => 1;
+        private static int GenericOverload<T>(T a, uint b) => 2;
+        private static int GenericOverload<T1, T2>(T1 a, uint b) => 3;
+        private static int GenericOverload<T1, T2>(T1 a, T2 b) => 4;
+        private static int GenericOverload<T1, T2>(T2 a, T1 b) => 5;
+        private static int GenericOverload(int a, int b) => 6;
+        private static int GenericOverload<T1, T2>(T1[] a, List<T2> b) => 7;
+
         private class GenericType<TClass>
         {
             public static string NormalMethod()
@@ -223,19 +327,28 @@ namespace InlineIL.Tests.AssemblyToProcess
 
             public static string GenericMethod<TMethod>()
                 => $"{typeof(TClass).FullName} {typeof(TMethod).FullName}";
+
+            public class NestedGenericType<TOther>
+            {
+                public static int GenericOverload<T>(TClass a, TOther b) => 1;
+                public static int GenericOverload<T>(TOther a, TClass b) => 2;
+                public static int GenericOverload<T>(TClass a, T b) => 3;
+                public static int GenericOverload<T>(TClass[] a, List<TOther> b) => 4;
+                public static int GenericOverload<T>(T[] a, List<T> b) => 5;
+            }
         }
 
 #if NETFRAMEWORK
-    private static int[] VarArgMethod(int count, __arglist)
-    {
-        var it = new ArgIterator(__arglist);
-        var result = new int[count];
+        private static int[] VarArgMethod(int count, __arglist)
+        {
+            var it = new ArgIterator(__arglist);
+            var result = new int[count];
 
-        for (var i = 0; i < count; ++i)
-            result[i] = it.GetRemainingCount() > 0 ? __refvalue(it.GetNextArg(), int) : 0;
+            for (var i = 0; i < count; ++i)
+                result[i] = it.GetRemainingCount() > 0 ? __refvalue(it.GetNextArg(), int) : 0;
 
-        return result;
-    }
+            return result;
+        }
 #endif
 
         private class TypeWithInitializer

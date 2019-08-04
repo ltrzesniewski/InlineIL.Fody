@@ -18,6 +18,19 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
+        /// Generic parameters of the declaring type, for overload resolution.
+        /// Generic parameters of a nested type come after generic parameters of its enclosing type.
+        /// </summary>
+        public static GenericParameters TypeGenericParameters
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Generic parameters of the method, for overload resolution.
+        /// </summary>
+        public static GenericParameters MethodGenericParameters
+            => throw IL.Throw();
+
+        /// <summary>
         /// Constructs a type reference from a <see cref="Type"/>.
         /// </summary>
         /// <param name="type">The type to reference.</param>

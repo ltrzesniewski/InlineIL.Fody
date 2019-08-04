@@ -106,6 +106,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_generic_types_by_name()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().LoadGenericTypeByName();
+            Type.GetTypeFromHandle(result).ShouldEqual(typeof(Action<int>));
+        }
+
+        [Fact]
         public void should_handle_nested_types_using_runtime_syntax()
         {
             var result = (Type)GetInstance().ReturnNestedTypeUsingRuntimeSyntax();
@@ -221,6 +228,24 @@ namespace InlineIL.Tests.Weaving
         public void should_report_incorrect_usage_of_array_of_typedbyref()
         {
             ShouldHaveError("ArrayOfTypedReference").ShouldContain("Cannot create an array, pointer or ByRef to TypedReference");
+        }
+
+        [Fact]
+        public void should_report_incorrect_usage_of_type_generic_parameter()
+        {
+            ShouldHaveError("TypeGenericParameter").ShouldContain("TypeRef.TypeGenericParameters can only be used in MethodRef definitions for overload resolution");
+        }
+
+        [Fact]
+        public void should_report_incorrect_usage_of_method_generic_parameter()
+        {
+            ShouldHaveError("MethodGenericParameter").ShouldContain("TypeRef.MethodGenericParameters can only be used in MethodRef definitions for overload resolution");
+        }
+
+        [Fact]
+        public void should_report_invalid_generic_parameter_index()
+        {
+            ShouldHaveError("InvalidGenericParameterIndex").ShouldContain("Invalid generic parameter index");
         }
     }
 }
