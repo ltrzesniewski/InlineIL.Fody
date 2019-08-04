@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.InvalidAssemblyToProcess
@@ -47,6 +48,16 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
             var array = new int[1];
             IL.Pop(out array[0]);
+        }
+
+        public void NotSameBasicBlock(bool a)
+        {
+            Ldc_I4(a ? 42 : 10);
+        }
+
+        public void NotSameBasicBlock2()
+        {
+            Ldtoken(MethodRef.Constructor(typeof(BasicTestCases)) ?? MethodRef.Constructor(typeof(BasicTestCases)));
         }
     }
 }

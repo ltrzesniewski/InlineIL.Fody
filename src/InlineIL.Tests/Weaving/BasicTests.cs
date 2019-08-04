@@ -346,5 +346,17 @@ namespace InlineIL.Tests.Weaving
 
             method.DebugInformation.SequencePoints.Count.ShouldEqual(expectedCount);
         }
+
+        [Fact]
+        public void should_report_not_same_basic_block()
+        {
+            ShouldHaveError("NotSameBasicBlock").ShouldContain("An unconditional expression was expected");
+        }
+
+        [Fact]
+        public void should_report_not_same_basic_block_2()
+        {
+            ShouldHaveError("NotSameBasicBlock2").ShouldContain("An unconditional expression was expected");
+        }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
+using InlineIL.Fody.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -14,6 +16,11 @@ namespace InlineIL.Fody.Processing
     {
         private readonly ILProcessor _il;
         private readonly HashSet<Instruction> _referencedInstructions;
+        private readonly Dictionary<Instruction, int> _basicBlocks;
+
+#if DEBUG
+        private readonly List<Instruction> _originalInstructions;
+#endif
 
         [CanBeNull]
         public MethodLocals Locals { get; private set; }
@@ -22,6 +29,11 @@ namespace InlineIL.Fody.Processing
         {
             _il = method.Body.GetILProcessor();
             _referencedInstructions = GetAllReferencedInstructions();
+            _basicBlocks = SplitToBasicBlocks(method.Body.Instructions, _referencedInstructions);
+
+#if DEBUG
+            _originalInstructions = method.Body.Instructions.ToList();
+#endif
         }
 
         public void Remove(Instruction instruction)
@@ -31,10 +43,13 @@ namespace InlineIL.Fody.Processing
             UpdateReferences(instruction, newRef);
         }
 
-        public void Replace(Instruction oldInstruction, Instruction newInstruction)
+        public void Replace(Instruction oldInstruction, Instruction newInstruction, bool mapToBasicBlock = false)
         {
             _il.Replace(oldInstruction, newInstruction);
             UpdateReferences(oldInstruction, newInstruction);
+
+            if (mapToBasicBlock)
+                _basicBlocks[newInstruction] = GetBasicBlock(oldInstruction);
         }
 
         public void DeclareLocals(IEnumerable<LocalVarBuilder> locals)
@@ -47,7 +62,7 @@ namespace InlineIL.Fody.Processing
 
         public HashSet<Instruction> GetAllReferencedInstructions()
         {
-            var refs = new HashSet<Instruction>();
+            var refs = new HashSet<Instruction>(ReferenceEqualityComparer<Instruction>.Instance);
 
             foreach (var handler in _il.Body.ExceptionHandlers)
                 refs.UnionWith(handler.GetInstructions());
@@ -67,6 +82,82 @@ namespace InlineIL.Fody.Processing
             }
 
             return refs;
+        }
+
+        private static Dictionary<Instruction, int> SplitToBasicBlocks(IEnumerable<Instruction> instructions, HashSet<Instruction> referencedInstructions)
+        {
+            var result = new Dictionary<Instruction, int>(ReferenceEqualityComparer<Instruction>.Instance);
+            var basicBlock = 1; // Reserve 0 for emitted instructions
+
+            foreach (var instruction in instructions)
+            {
+                if (referencedInstructions.Contains(instruction))
+                    ++basicBlock;
+
+                result[instruction] = basicBlock;
+
+                switch (instruction.OpCode.FlowControl)
+                {
+                    case FlowControl.Branch:
+                    case FlowControl.Cond_Branch:
+                    case FlowControl.Return:
+                    case FlowControl.Throw:
+                        ++basicBlock;
+                        break;
+
+                    case FlowControl.Call:
+                        if (instruction.OpCode == OpCodes.Jmp)
+                            ++basicBlock;
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+#if DEBUG
+        private string DumpBasicBlocks()
+        {
+            var sb = new StringBuilder();
+            var currentBlock = 0;
+
+            foreach (var instruction in _originalInstructions)
+            {
+                var basicBlock = GetBasicBlock(instruction);
+                if (basicBlock != currentBlock && sb.Length != 0)
+                    sb.AppendLine();
+
+                sb.AppendLine(instruction.ToString());
+                currentBlock = basicBlock;
+            }
+
+            return sb.ToString();
+        }
+#endif
+
+        internal int GetBasicBlock(Instruction instruction)
+            => _basicBlocks.GetValueOrDefault(instruction);
+
+        public Instruction[] GetArgumentPushInstructionsInSameBasicBlock(Instruction instruction)
+        {
+            var result = instruction.GetArgumentPushInstructions();
+            var basicBlock = GetBasicBlock(instruction);
+
+            foreach (var argInstruction in result)
+            {
+                if (GetBasicBlock(argInstruction) != basicBlock)
+                {
+                    const string errorMessage = "An unconditional expression was expected.";
+#if DEBUG
+                    var basicBlocks = DumpBasicBlocks();
+                    throw new InstructionWeavingException(argInstruction, $"{errorMessage} Basic blocks:\r\n{basicBlocks}");
+#else
+                    throw new InstructionWeavingException(argInstruction, $"{errorMessage}");
+#endif
+                }
+            }
+
+            return result;
         }
 
         private void UpdateReferences(Instruction oldInstruction, Instruction newInstruction)

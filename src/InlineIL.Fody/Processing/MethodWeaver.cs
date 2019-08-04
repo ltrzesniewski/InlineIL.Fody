@@ -367,7 +367,7 @@ namespace InlineIL.Fody.Processing
             {
                 var method = (MethodReference)emitCallInstruction.Operand;
                 var opCode = OpCodeMap.FromCecilFieldName(method.Name);
-                var args = emitCallInstruction.GetArgumentPushInstructions();
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(emitCallInstruction);
 
                 switch (opCode.OperandType)
                 {
@@ -480,7 +480,7 @@ namespace InlineIL.Fody.Processing
                 case "get_CoreLibrary":
                 {
                     var newInstruction = Instruction.Create(OpCodes.Ldstr, Module.GetCoreLibrary().Name);
-                    _il.Replace(instruction, newInstruction);
+                    _il.Replace(instruction, newInstruction, true);
                     _sequencePoints.MapSequencePoint(instruction, newInstruction);
                     break;
                 }
@@ -507,7 +507,7 @@ namespace InlineIL.Fody.Processing
 
         private void ProcessPopMethod(Instruction instruction)
         {
-            var target = instruction.GetArgumentPushInstructions().Single();
+            var target = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single();
 
             switch (target.OpCode.Code)
             {
@@ -650,7 +650,7 @@ namespace InlineIL.Fody.Processing
 
         private void ProcessMarkLabelMethod(Instruction instruction)
         {
-            var labelName = ConsumeArgString(instruction.GetArgumentPushInstructions().Single());
+            var labelName = ConsumeArgString(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
             _il.Replace(instruction, _labels.MarkLabel(labelName));
         }
 
@@ -662,7 +662,7 @@ namespace InlineIL.Fody.Processing
             {
                 case "System.Void InlineIL.IL::DeclareLocals(InlineIL.LocalVar[])":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     _method.Body.InitLocals = true;
                     _il.DeclareLocals(ConsumeArgArray(args[0], ConsumeArgLocalVarBuilder));
                     _il.Remove(instruction);
@@ -671,7 +671,7 @@ namespace InlineIL.Fody.Processing
 
                 case "System.Void InlineIL.IL::DeclareLocals(System.Boolean,InlineIL.LocalVar[])":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     _method.Body.InitLocals = ConsumeArgBool(args[0]);
                     _il.DeclareLocals(ConsumeArgArray(args[1], ConsumeArgLocalVarBuilder));
                     _il.Remove(instruction);
@@ -755,7 +755,7 @@ namespace InlineIL.Fody.Processing
             {
                 case "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)":
                 {
-                    var ldToken = instruction.GetArgumentPushInstructions().Single();
+                    var ldToken = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single();
                     if (ldToken.OpCode != OpCodes.Ldtoken)
                         throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
@@ -769,7 +769,7 @@ namespace InlineIL.Fody.Processing
                 case "InlineIL.TypeRef InlineIL.TypeRef::op_Implicit(System.Type)":
                 case "System.Void InlineIL.TypeRef::.ctor(System.Type)":
                 {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
 
                     _il.Remove(instruction);
                     return builder;
@@ -777,7 +777,7 @@ namespace InlineIL.Fody.Processing
 
                 case "System.Void InlineIL.TypeRef::.ctor(System.String,System.String)":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var assemblyName = ConsumeArgString(args[0]);
                     var typeName = ConsumeArgString(args[1]);
                     var builder = new TypeRefBuilder(Module, assemblyName, typeName);
@@ -788,7 +788,7 @@ namespace InlineIL.Fody.Processing
 
                 case "InlineIL.TypeRef InlineIL.GenericParameters::get_Item(System.Int32)":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var genericParameterType = ConsumeArgGenericParameterType(args[0]);
                     var genericParameterIndex = ConsumeArgInt32(args[1]);
                     var builder = new TypeRefBuilder(Module, genericParameterType, genericParameterIndex);
@@ -800,7 +800,7 @@ namespace InlineIL.Fody.Processing
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
                 case "System.Type System.Type::MakePointerType()":
                 {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
                     builder.MakePointerType();
 
                     _il.Remove(instruction);
@@ -810,7 +810,7 @@ namespace InlineIL.Fody.Processing
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
                 case "System.Type System.Type::MakeByRefType()":
                 {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
                     builder.MakeByRefType();
 
                     _il.Remove(instruction);
@@ -820,7 +820,7 @@ namespace InlineIL.Fody.Processing
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
                 case "System.Type System.Type::MakeArrayType()":
                 {
-                    var builder = ConsumeArgTypeRefBuilder(instruction.GetArgumentPushInstructions().Single());
+                    var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
                     builder.MakeArrayType(1);
 
                     _il.Remove(instruction);
@@ -830,7 +830,7 @@ namespace InlineIL.Fody.Processing
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType(System.Int32)":
                 case "System.Type System.Type::MakeArrayType(System.Int32)":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var rank = ConsumeArgInt32(args[1]);
                     builder.MakeArrayType(rank);
@@ -842,7 +842,7 @@ namespace InlineIL.Fody.Processing
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakeGenericType(InlineIL.TypeRef[])":
                 case "System.Type System.Type::MakeGenericType(System.Type[])":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRefBuilder);
                     builder.MakeGenericType(genericArgs);
@@ -853,7 +853,7 @@ namespace InlineIL.Fody.Processing
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::WithOptionalModifier(InlineIL.TypeRef)":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var modifierType = ConsumeArgTypeRef(args[1]);
                     builder.AddOptionalModifier(modifierType);
@@ -864,7 +864,7 @@ namespace InlineIL.Fody.Processing
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::WithRequiredModifier(InlineIL.TypeRef)":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var builder = ConsumeArgTypeRefBuilder(args[0]);
                     var modifierType = ConsumeArgTypeRef(args[1]);
                     builder.AddRequiredModifier(modifierType);
@@ -918,7 +918,7 @@ namespace InlineIL.Fody.Processing
                 {
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var methodName = ConsumeArgString(args[1]);
                         var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRefBuilder);
@@ -930,7 +930,7 @@ namespace InlineIL.Fody.Processing
 
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,System.Int32,InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var methodName = ConsumeArgString(args[1]);
                         var genericParameterCount = ConsumeArgInt32(args[2]);
@@ -961,7 +961,7 @@ namespace InlineIL.Fody.Processing
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::Constructor(InlineIL.TypeRef,InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var paramTypes = ConsumeArgArray(args[1], ConsumeArgTypeRefBuilder);
                         var builder = MethodRefBuilder.Constructor(Module, typeRef, paramTypes);
@@ -972,7 +972,7 @@ namespace InlineIL.Fody.Processing
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::TypeInitializer(InlineIL.TypeRef)":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var builder = MethodRefBuilder.TypeInitializer(Module, typeRef);
 
@@ -982,7 +982,7 @@ namespace InlineIL.Fody.Processing
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var builder = ConsumeArgMethodRefBuilder(args[0]);
                         var genericArgs = ConsumeArgArray(args[1], ConsumeArgTypeRef);
                         builder.MakeGenericMethod(genericArgs);
@@ -993,7 +993,7 @@ namespace InlineIL.Fody.Processing
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::WithOptionalParameters(InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var builder = ConsumeArgMethodRefBuilder(args[0]);
                         var optionalParamTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
                         builder.SetOptionalParameters(optionalParamTypes);
@@ -1008,7 +1008,7 @@ namespace InlineIL.Fody.Processing
 
                 MethodRefBuilder FromNamedMember(Func<TypeReference, string, MethodRefBuilder> resolver)
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var typeRef = ConsumeArgTypeRef(args[0]);
                     var memberName = ConsumeArgString(args[1]);
                     var builder = resolver(typeRef, memberName);
@@ -1029,7 +1029,7 @@ namespace InlineIL.Fody.Processing
                 if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)")
                     throw UnexpectedInstruction(instruction, "newobj FieldRef");
 
-                var args = instruction.GetArgumentPushInstructions();
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var typeRef = ConsumeArgTypeRef(args[0]);
                 var fieldName = ConsumeArgString(args[1]);
                 var builder = new FieldRefBuilder(typeRef, fieldName);
@@ -1107,7 +1107,7 @@ namespace InlineIL.Fody.Processing
             {
                 case "System.Void InlineIL.LocalVar::.ctor(System.String,InlineIL.TypeRef)":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var name = ConsumeArgString(args[0]);
                     var typeRef = ConsumeArgTypeRef(args[1]);
                     var builder = new LocalVarBuilder(typeRef, name);
@@ -1119,7 +1119,7 @@ namespace InlineIL.Fody.Processing
                 case "System.Void InlineIL.LocalVar::.ctor(InlineIL.TypeRef)":
                 case "InlineIL.LocalVar InlineIL.LocalVar::op_Implicit(System.Type)":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var typeRef = ConsumeArgTypeRef(args[0]);
                     var builder = new LocalVarBuilder(typeRef);
 
@@ -1129,7 +1129,7 @@ namespace InlineIL.Fody.Processing
 
                 case "InlineIL.LocalVar InlineIL.LocalVar::Pinned()":
                 {
-                    var args = instruction.GetArgumentPushInstructions();
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var builder = ConsumeArgLocalVarBuilder(args[0]);
                     builder.MakePinned();
 
@@ -1185,7 +1185,7 @@ namespace InlineIL.Fody.Processing
                 {
                     case "System.Void InlineIL.StandAloneMethodSig::.ctor(System.Reflection.CallingConventions,InlineIL.TypeRef,InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var callingConvention = (CallingConventions)ConsumeArgInt32(args[0]);
                         var returnType = ConsumeArgTypeRef(args[1]);
                         var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
@@ -1197,7 +1197,7 @@ namespace InlineIL.Fody.Processing
 
                     case "System.Void InlineIL.StandAloneMethodSig::.ctor(System.Runtime.InteropServices.CallingConvention,InlineIL.TypeRef,InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var callingConvention = (CallingConvention)ConsumeArgInt32(args[0]);
                         var returnType = ConsumeArgTypeRef(args[1]);
                         var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRef);
@@ -1209,7 +1209,7 @@ namespace InlineIL.Fody.Processing
 
                     case "InlineIL.StandAloneMethodSig InlineIL.StandAloneMethodSig::WithOptionalParameters(InlineIL.TypeRef[])":
                     {
-                        var args = instruction.GetArgumentPushInstructions();
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var builder = ConsumeArgStandAloneMethodSigBuilder(args[0]);
                         var optionalParamTypes = ConsumeArgArray(args[1], ConsumeArgTypeRef);
                         builder.SetOptionalParameters(optionalParamTypes);
