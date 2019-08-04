@@ -106,6 +106,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_generic_types_by_name()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().LoadGenericTypeByName();
+            Type.GetTypeFromHandle(result).ShouldEqual(typeof(Action<int>));
+        }
+
+        [Fact]
         public void should_handle_nested_types_using_runtime_syntax()
         {
             var result = (Type)GetInstance().ReturnNestedTypeUsingRuntimeSyntax();

@@ -98,6 +98,12 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<RuntimeTypeHandle>();
         }
 
+        public RuntimeTypeHandle LoadGenericTypeByName()
+        {
+            Ldtoken(new TypeRef(TypeRef.CoreLibrary, "System.Action`1").MakeGenericType(typeof(int)));
+            return IL.Return<RuntimeTypeHandle>();
+        }
+
         public RuntimeTypeHandle LoadGenericTypeUsingType()
         {
             Ldtoken(typeof(Dictionary<,>).MakeGenericType(typeof(int), typeof(string)));

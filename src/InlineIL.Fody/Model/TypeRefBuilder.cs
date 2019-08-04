@@ -343,13 +343,11 @@ namespace InlineIL.Fody.Model
                 if (typeRef.IsByReference || typeRef.IsPointer || typeRef.IsArray)
                     throw new WeavingException("Cannot make a generic instance of a ByRef, pointer or array type");
 
-                var typeDef = typeRef.ResolveRequiredType();
+                if (!typeRef.HasGenericParameters)
+                    throw new WeavingException($"Not a generic type definition: {typeRef.FullName}");
 
-                if (!typeDef.HasGenericParameters)
-                    throw new WeavingException($"Not a generic type definition: {typeDef.FullName}");
-
-                if (typeDef.GenericParameters.Count != _genericArgs.Length)
-                    throw new WeavingException($"Incorrect number of generic arguments supplied for type {typeDef.FullName} - expected {typeDef.GenericParameters.Count}, but got {_genericArgs.Length}");
+                if (typeRef.GenericParameters.Count != _genericArgs.Length)
+                    throw new WeavingException($"Incorrect number of generic arguments supplied for type {typeRef.FullName} - expected {typeRef.GenericParameters.Count}, but got {_genericArgs.Length}");
 
                 var argTypeRefs = new TypeReference[_genericArgs.Length];
 
