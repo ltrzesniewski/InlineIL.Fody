@@ -20,7 +20,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
 
         public void InvalidAssembly()
         {
-            Ldtoken(new TypeRef("AssemblyThatDonestExist", "TypeThatDoesntExist"));
+            Ldtoken(new TypeRef("AssemblyThatDoesntExist", "TypeThatDoesntExist"));
         }
 
         public void InvalidType()
