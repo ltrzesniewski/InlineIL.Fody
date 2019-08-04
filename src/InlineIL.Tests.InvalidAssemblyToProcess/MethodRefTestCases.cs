@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using static InlineIL.IL.Emit;
 
@@ -62,6 +63,51 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         public void TooManyGenericArgsProvided()
         {
             Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod)).MakeGenericMethod(typeof(int), typeof(string)));
+        }
+
+        public void NoMatchingGenericOverload()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), typeof(string)).MakeGenericMethod(typeof(int)));
+        }
+
+        public void TypeGenericArgOutsideOfGenericType()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), TypeRef.TypeGenericParameters[42]).MakeGenericMethod(typeof(int)));
+        }
+
+        public void TypeGenericArgOutOfBounds()
+        {
+            Call(new MethodRef(typeof(GenericType<int>), nameof(GenericType<int>.Method), TypeRef.TypeGenericParameters[42]).MakeGenericMethod(typeof(int)));
+        }
+
+        public void MethodGenericArgOutOfBounds()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), TypeRef.MethodGenericParameters[42]).MakeGenericMethod(typeof(int)));
+        }
+
+        public void NoMatchingGenericOverloadArray()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), typeof(string).MakeArrayType()).MakeGenericMethod(typeof(int)));
+        }
+
+        public void NoMatchingGenericOverloadArray2()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), typeof(string).MakeArrayType(2)).MakeGenericMethod(typeof(int)));
+        }
+
+        public void NoMatchingGenericOverloadByRef()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), typeof(string).MakeByRefType()).MakeGenericMethod(typeof(int)));
+        }
+
+        public void NoMatchingGenericOverloadPointer()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), typeof(int).MakePointerType()).MakeGenericMethod(typeof(int)));
+        }
+
+        public void NoMatchingGenericOverloadGeneric()
+        {
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericMethod), typeof(Dictionary<,>).MakeGenericType(typeof(int), typeof(string))).MakeGenericMethod(typeof(int)));
         }
 
         public void NotAVarArgMethod()
@@ -133,6 +179,13 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         private class ClassWithNoDefaultConstructor
         {
             public ClassWithNoDefaultConstructor(int foo)
+            {
+            }
+        }
+
+        private class GenericType<T>
+        {
+            public static void Method(T arg)
             {
             }
         }

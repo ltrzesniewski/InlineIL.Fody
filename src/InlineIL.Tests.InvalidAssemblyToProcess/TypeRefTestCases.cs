@@ -92,5 +92,20 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
             Ldtoken(typeof(TypedReference).MakeByRefType());
         }
+
+        public void TypeGenericParameter()
+        {
+            Ldtoken(TypeRef.TypeGenericParameters[0]);
+        }
+
+        public void MethodGenericParameter()
+        {
+            Ldtoken(TypeRef.MethodGenericParameters[0]);
+        }
+
+        public void InvalidGenericParameterIndex()
+        {
+            Ldtoken(TypeRef.TypeGenericParameters[-1]);
+        }
     }
 }
