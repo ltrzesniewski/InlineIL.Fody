@@ -48,7 +48,7 @@ A few more things which are good to know:
 
  - The [`InlineIL.IL`](src/InlineIL/IL.cs) class exposes methods for handling labels and local variables, and some utilities (see below).
 
- - `System.Type` is implicitly convertible to `InlineIL.TypeRef`: when you see a `TypeRef` parameter, you can use the `typeof` keyword.
+ - `System.Type` is implicitly convertible to `InlineIL.TypeRef`: when you see a `TypeRef` parameter, you can use the `typeof` keyword in most cases.
 
  - You can add the `using static InlineIL.IL.Emit;` directive to get rid of the `IL.Emit` prefix.
 
@@ -70,7 +70,7 @@ A few more things which are good to know:
    Marks a label at a given position in the code.
    
  - `IL.Push`  
-   Pushes the provided argument onto the evaluation stack.
+   Pushes the provided argument onto the evaluation stack. Does not require a constatnt argument, any expression will work.
 
  - `IL.Pop`  
    Pops a value from the evaluation stack into a local variable or static field.
@@ -89,16 +89,17 @@ A few more things which are good to know:
    A class which represents a type. Note that `System.Type` is implicitly convertible to `TypeRef`, so you can directly write `typeof(int)` for instance where a `TypeRef` parameter is expected.
 
  - [`MethodRef`](src/InlineIL/MethodRef.cs)  
-   A method reference. Exposes a simple constructor for methods without overloads, and a more detailed one for overload disambiguation. Additional static factory methods for referencing underlying methods of properties and events are provided for convenience.
+   A method reference. Exposes a simple constructor for methods without overloads, and some more detailed ones for overload disambiguation. Additional static factory methods for referencing underlying methods of properties and events are provided for convenience.  
+   Use `TypeRef.TypeGenericParameters[N]` and `TypeRef.MethodGenericParameters[N]` to represent the generic parameter of index `N` in `MethodRef` calls which involve overload resolution.
 
  - [`FieldRef`](src/InlineIL/FieldRef.cs)  
    A field reference.
 
  - [`StandAloneMethodSig`](src/InlineIL/StandAloneMethodSig.cs)  
-   Method signature for use as an operand for the `calli` opcode.
+   A method signature for use as an operand to the `calli` instruction.
 
  - [`LocalVar`](src/InlineIL/LocalVar.cs)  
-   Declares a local variable (with an optional name), for use with `IL.DeclareLocals`. Implicitly convertible from `System.Type` if you don't want to use named locals.
+   Declares a local variable (with an optional name), for use with `IL.DeclareLocals`. Implicitly convertible from `System.Type` if you don't want to use named locals or pinning.
 
 ## Configuration
 
