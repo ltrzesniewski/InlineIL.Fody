@@ -171,12 +171,12 @@ namespace InlineIL.Fody.Model
         {
             var typeDef = typeRef.ResolveRequiredType();
 
-            var ctors = typeDef.GetConstructors()
-                               .Where(i => !i.IsStatic && i.Name == ".ctor" && SignatureMatches(i, paramTypes))
-                               .ToList();
+            var constructors = typeDef.GetConstructors()
+                                      .Where(i => !i.IsStatic && i.Name == ".ctor" && SignatureMatches(i, paramTypes))
+                                      .ToList();
 
-            if (ctors.Count == 1)
-                return new MethodRefBuilder(module, typeRef, ctors.Single());
+            if (constructors.Count == 1)
+                return new MethodRefBuilder(module, typeRef, constructors.Single());
 
             if (paramTypes.Count == 0)
                 throw new WeavingException($"Type {typeDef.FullName} has no default constructor");
@@ -188,12 +188,12 @@ namespace InlineIL.Fody.Model
         {
             var typeDef = typeRef.ResolveRequiredType();
 
-            var cctors = typeDef.GetConstructors()
-                                .Where(i => i.IsStatic && i.Name == ".cctor" && i.Parameters.Count == 0)
-                                .ToList();
+            var initializers = typeDef.GetConstructors()
+                                      .Where(i => i.IsStatic && i.Name == ".cctor" && i.Parameters.Count == 0)
+                                      .ToList();
 
-            if (cctors.Count == 1)
-                return new MethodRefBuilder(module, typeRef, cctors.Single());
+            if (initializers.Count == 1)
+                return new MethodRefBuilder(module, typeRef, initializers.Single());
 
             throw new WeavingException($"Type {typeDef.FullName} has no type initializer");
         }

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InlineIL.Fody.Processing
 {
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal static class KnownNames
     {
         public static class Short
