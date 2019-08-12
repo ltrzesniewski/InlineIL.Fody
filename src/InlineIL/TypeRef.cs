@@ -18,14 +18,14 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
-        /// Generic parameters of the declaring type, for overload resolution.
+        /// Generic parameters of the declaring type, for overload resolution in <see cref="MethodRef"/>.
         /// Generic parameters of a nested type come after generic parameters of its enclosing type.
         /// </summary>
         public static GenericParameters TypeGenericParameters
             => throw IL.Throw();
 
         /// <summary>
-        /// Generic parameters of the method, for overload resolution.
+        /// Generic parameters of the method, for overload resolution in <see cref="MethodRef"/>.
         /// </summary>
         public static GenericParameters MethodGenericParameters
             => throw IL.Throw();
@@ -74,7 +74,7 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
-        /// Returns a type that represents an array of the current type, with the specifiend number of dimensions.
+        /// Returns a type that represents an array of the current type, with the specified number of dimensions.
         /// </summary>
         /// <param name="rank">The number of dimensions for the array.</param>
         /// <returns>A <see cref="TypeRef"/> that represents an array of the current type.</returns>

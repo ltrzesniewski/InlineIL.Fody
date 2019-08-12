@@ -7,7 +7,6 @@ namespace InlineIL
     /// Injects IL code to the calling method, using InlineIL.Fody.
     /// All method calls are replaced at weaving time.
     /// </summary>
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public static unsafe partial class IL
     {
