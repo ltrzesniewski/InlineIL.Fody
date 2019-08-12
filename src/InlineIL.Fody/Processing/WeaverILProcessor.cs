@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
@@ -20,10 +19,6 @@ namespace InlineIL.Fody.Processing
 
         public MethodDefinition Method { get; }
 
-#if DEBUG
-        private readonly List<Instruction> _originalInstructions;
-#endif
-
         [CanBeNull]
         public MethodLocals Locals { get; private set; }
 
@@ -33,10 +28,6 @@ namespace InlineIL.Fody.Processing
             _il = method.Body.GetILProcessor();
             _referencedInstructions = GetAllReferencedInstructions();
             _basicBlocks = SplitToBasicBlocks(method.Body.Instructions, _referencedInstructions);
-
-#if DEBUG
-            _originalInstructions = method.Body.Instructions.ToList();
-#endif
         }
 
         public void Remove(Instruction instruction)
@@ -118,26 +109,6 @@ namespace InlineIL.Fody.Processing
             return result;
         }
 
-#if DEBUG
-        private string DumpBasicBlocks()
-        {
-            var sb = new StringBuilder();
-            var currentBlock = 0;
-
-            foreach (var instruction in _originalInstructions)
-            {
-                var basicBlock = GetBasicBlock(instruction);
-                if (basicBlock != currentBlock && sb.Length != 0)
-                    sb.AppendLine();
-
-                sb.AppendLine(instruction.ToString());
-                currentBlock = basicBlock;
-            }
-
-            return sb.ToString();
-        }
-#endif
-
         internal int GetBasicBlock(Instruction instruction)
             => _basicBlocks.GetValueOrDefault(instruction);
 
@@ -149,15 +120,7 @@ namespace InlineIL.Fody.Processing
             foreach (var argInstruction in result)
             {
                 if (GetBasicBlock(argInstruction) != basicBlock)
-                {
-                    const string errorMessage = "An unconditional expression was expected.";
-#if DEBUG
-                    var basicBlocks = DumpBasicBlocks();
-                    throw new InstructionWeavingException(argInstruction, $"{errorMessage} Basic blocks:\r\n{basicBlocks}");
-#else
-                    throw new InstructionWeavingException(argInstruction, $"{errorMessage}");
-#endif
-                }
+                    throw new InstructionWeavingException(argInstruction, "An unconditional expression was expected.");
             }
 
             return result;
