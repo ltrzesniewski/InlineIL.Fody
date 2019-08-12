@@ -18,6 +18,8 @@ namespace InlineIL.Fody.Processing
         private readonly HashSet<Instruction> _referencedInstructions;
         private readonly Dictionary<Instruction, int> _basicBlocks;
 
+        public MethodDefinition Method { get; }
+
 #if DEBUG
         private readonly List<Instruction> _originalInstructions;
 #endif
@@ -27,6 +29,7 @@ namespace InlineIL.Fody.Processing
 
         public WeaverILProcessor(MethodDefinition method)
         {
+            Method = method;
             _il = method.Body.GetILProcessor();
             _referencedInstructions = GetAllReferencedInstructions();
             _basicBlocks = SplitToBasicBlocks(method.Body.Instructions, _referencedInstructions);
