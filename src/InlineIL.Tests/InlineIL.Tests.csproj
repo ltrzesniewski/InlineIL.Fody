@@ -23,5 +23,9 @@
     <ProjectReference Include="..\InlineIL.Tests.UnverifiableAssemblyToProcess\InlineIL.Tests.UnverifiableAssemblyToProcess.csproj" />
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>

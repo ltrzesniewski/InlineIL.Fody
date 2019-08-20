@@ -1,4 +1,5 @@
 ﻿using Fody;
+using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using Mono.Cecil;
 
 #pragma warning disable 618
@@ -15,7 +16,7 @@ namespace InlineIL.Tests.Weaving
         {
             var weavingTask = new AssemblyToProcessFixture.GuardedWeaver();
 
-            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly("InlineIL.Tests.UnverifiableAssemblyToProcess.dll"), false);
+            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly<UnverifiableAssemblyToProcessReference>(), false);
 
             using (var assemblyResolver = new TestAssemblyResolver())
             {

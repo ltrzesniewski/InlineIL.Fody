@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Fody;
 using InlineIL.Fody;
+using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 
 #pragma warning disable 618
@@ -14,7 +15,7 @@ namespace InlineIL.Tests.Weaving
         static InvalidAssemblyToProcessFixture()
         {
             var weavingTask = new ModuleWeaver();
-            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly("InlineIL.Tests.InvalidAssemblyToProcess.dll"), false);
+            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly<InvalidAssemblyToProcessReference>(), false);
         }
 
         public static string ShouldHaveError(string className, string methodName, bool sequencePointRequired)
