@@ -31,8 +31,8 @@ namespace InlineIL.Fody.Extensions
                                || t.GenericArguments.Any(i => i.IsInlineILTypeUsage(context));
 
                     case GenericParameter t:
-                        return // t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage(context)) // TODO : Update for Fody v6
-                               t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
+                        return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage(context))
+                               || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
 
                     case IModifierType t:
                         return t.ElementType.IsInlineILTypeUsage(context)
@@ -208,6 +208,21 @@ namespace InlineIL.Fody.Extensions
 
             return interfaceImpl.InterfaceType.IsInlineILTypeUsage(context)
                    || interfaceImpl.HasCustomAttributes && interfaceImpl.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
+        }
+
+        [ContractAnnotation("constraint:null => false")]
+        public static bool IsInlineILTypeUsage([CanBeNull] this GenericParameterConstraint constraint, ModuleWeavingContext context)
+        {
+            if (constraint == null)
+                return false;
+
+            if (constraint.ConstraintType.IsInlineILTypeUsage(context))
+                return true;
+
+            if (constraint.HasCustomAttributes && constraint.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context)))
+                return true;
+
+            return false;
         }
     }
 }

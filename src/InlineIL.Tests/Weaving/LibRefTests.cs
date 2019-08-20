@@ -41,7 +41,7 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveError("BadEventRef");
         }
 
-        [Fact(Skip = "Compatibility fix for Fody v6")] // TODO Activate for Fody v6
+        [Fact]
         public void should_report_lib_ref_generic_constraint()
         {
             ShouldHaveErrorNoSeqPoint("GenericConstraint");

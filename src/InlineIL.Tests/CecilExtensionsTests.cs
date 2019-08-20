@@ -159,6 +159,7 @@ namespace InlineIL.Tests
             CecilExtensions.IsInlineILTypeUsage(default(EventReference), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsage(default(PropertyReference), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsage(default(InterfaceImplementation), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(GenericParameterConstraint), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsageDeep(null, context).ShouldBeFalse();
         }
     }
