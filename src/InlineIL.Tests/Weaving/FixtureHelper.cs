@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Fody;
 
 #pragma warning disable 618
 
@@ -11,8 +10,8 @@ namespace InlineIL.Tests.Weaving
     {
         public static string IsolateAssembly(string assemblyFileName)
         {
-            var assemblyPath = Path.Combine(CodeBaseLocation.CurrentDirectory, assemblyFileName);
-            var assemblyDir = Path.GetDirectoryName(assemblyPath);
+            var assemblyDir = Path.GetDirectoryName(typeof(FixtureHelper).Assembly.Location);
+            var assemblyPath = Path.Combine(assemblyDir, assemblyFileName);
             var rootTestDir = Path.Combine(assemblyDir, "WeavingTest");
             var asmTestDir = Path.Combine(rootTestDir, Path.GetFileNameWithoutExtension(assemblyPath));
 

@@ -28,16 +28,21 @@ namespace InlineIL.Tests.Weaving
                 ignoreCodes: new[]
                 {
                     "0x801312da" // VLDTR_E_MR_VARARGCALLINGCONV
-                }
+                },
+                writeSymbols: true
             );
 
-            var readerParams = new ReaderParameters(ReadingMode.Immediate)
+            using (var assemblyResolver = new TestAssemblyResolver())
             {
-                ReadSymbols = true
-            };
+                var readerParams = new ReaderParameters(ReadingMode.Immediate)
+                {
+                    ReadSymbols = true,
+                    AssemblyResolver = assemblyResolver
+                };
 
-            OriginalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
-            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, readerParams);
+                OriginalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
+                ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, readerParams);
+            }
         }
 
         internal class GuardedWeaver : ModuleWeaver
