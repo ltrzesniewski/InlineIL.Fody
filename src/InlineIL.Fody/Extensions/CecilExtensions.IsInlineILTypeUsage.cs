@@ -31,8 +31,8 @@ namespace InlineIL.Fody.Extensions
                                || t.GenericArguments.Any(i => i.IsInlineILTypeUsage(context));
 
                     case GenericParameter t:
-                        return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage(context))
-                               || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
+                        return // t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage(context)) // TODO : Update for Fody v6
+                               t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
 
                     case IModifierType t:
                         return t.ElementType.IsInlineILTypeUsage(context)
