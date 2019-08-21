@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Fody;
 
 #pragma warning disable 618
 
@@ -9,9 +9,10 @@ namespace InlineIL.Tests.Weaving
     [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     internal static class FixtureHelper
     {
-        public static string IsolateAssembly(string assemblyFileName)
+        public static string IsolateAssembly<T>()
         {
-            var assemblyPath = Path.Combine(CodeBaseLocation.CurrentDirectory, assemblyFileName);
+            var assembly = typeof(T).Assembly;
+            var assemblyPath = assembly.Location;
             var assemblyDir = Path.GetDirectoryName(assemblyPath);
             var rootTestDir = Path.Combine(assemblyDir, "WeavingTest");
             var asmTestDir = Path.Combine(rootTestDir, Path.GetFileNameWithoutExtension(assemblyPath));
@@ -29,7 +30,7 @@ namespace InlineIL.Tests.Weaving
         private static string CopyFile(string fileName, string targetDir)
         {
             if (!File.Exists(fileName))
-                return null;
+                throw new InvalidOperationException($"File not found: {fileName}");
 
             var dest = Path.Combine(targetDir, Path.GetFileName(fileName));
             File.Copy(fileName, dest);

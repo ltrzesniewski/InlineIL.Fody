@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Processing;
 using InlineIL.Tests.Support;
@@ -122,16 +123,25 @@ namespace InlineIL.Tests
         [Fact]
         public void should_detect_debug_builds()
         {
-            var module = ModuleDefinition.ReadModule(typeof(CecilExtensionsTests).Assembly.Location);
+            using (var assemblyResolver = new TestAssemblyResolver())
+            {
+                var module = ModuleDefinition.ReadModule(
+                    typeof(CecilExtensionsTests).Assembly.Location,
+                    new ReaderParameters(ReadingMode.Immediate)
+                    {
+                        AssemblyResolver = assemblyResolver
+                    }
+                );
 
-            const bool isDebug =
+                const bool isDebug =
 #if DEBUG
-                true;
+                    true;
 #else
-                false;
+                    false;
 #endif
 
-            module.IsDebugBuild().ShouldEqual(isDebug);
+                module.IsDebugBuild().ShouldEqual(isDebug);
+            }
         }
 
         [Fact]
@@ -149,6 +159,7 @@ namespace InlineIL.Tests
             CecilExtensions.IsInlineILTypeUsage(default(EventReference), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsage(default(PropertyReference), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsage(default(InterfaceImplementation), context).ShouldBeFalse();
+            CecilExtensions.IsInlineILTypeUsage(default(GenericParameterConstraint), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsageDeep(null, context).ShouldBeFalse();
         }
     }

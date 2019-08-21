@@ -2,12 +2,18 @@
 variables:
   Solution: src/InlineIL.sln
   TestProject: src/InlineIL.Tests/InlineIL.Tests.csproj
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
   - job: Windows
     pool:
       vmImage: windows-2019
     steps:
+      - task: DotNetCoreInstaller@1
+        displayName: Install .NET Core SDK
+        inputs:
+          version: 2.2.x
+
       - task: MSBuild@1
         displayName: NuGet Restore
         inputs:

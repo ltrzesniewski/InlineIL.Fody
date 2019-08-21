@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Fody;
 using InlineIL.Fody;
 using Mono.Cecil;
 
@@ -15,6 +16,7 @@ namespace InlineIL.Examples.InSolutionWeaver
         static InlineILInSolution()
         {
             GC.KeepAlive(typeof(ModuleDefinition));
+            GC.KeepAlive(typeof(WeavingException));
         }
     }
 }

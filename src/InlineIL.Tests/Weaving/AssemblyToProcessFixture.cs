@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Fody;
 using InlineIL.Fody;
+using InlineIL.Tests.AssemblyToProcess;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -19,7 +20,7 @@ namespace InlineIL.Tests.Weaving
 
         static AssemblyToProcessFixture()
         {
-            var assemblyPath = FixtureHelper.IsolateAssembly("InlineIL.Tests.AssemblyToProcess.dll");
+            var assemblyPath = FixtureHelper.IsolateAssembly<AssemblyToProcessReference>();
 
             var weavingTask = new GuardedWeaver();
 
@@ -28,16 +29,21 @@ namespace InlineIL.Tests.Weaving
                 ignoreCodes: new[]
                 {
                     "0x801312da" // VLDTR_E_MR_VARARGCALLINGCONV
-                }
+                },
+                writeSymbols: true
             );
 
-            var readerParams = new ReaderParameters(ReadingMode.Immediate)
+            using (var assemblyResolver = new TestAssemblyResolver())
             {
-                ReadSymbols = true
-            };
+                var readerParams = new ReaderParameters(ReadingMode.Immediate)
+                {
+                    ReadSymbols = true,
+                    AssemblyResolver = assemblyResolver
+                };
 
-            OriginalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
-            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, readerParams);
+                OriginalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
+                ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, readerParams);
+            }
         }
 
         internal class GuardedWeaver : ModuleWeaver
