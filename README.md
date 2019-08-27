@@ -61,7 +61,8 @@ A few more things which are good to know:
 ### Methods
 
  - `IL.Emit.*`  
-   Every method call on the `IL.Emit` class will be replaced by the IL instruction it represents.
+   Every method call on the `IL.Emit` class will be replaced by the IL instruction it represents.  
+   Note that all arguments to these methods need to be constructed in place (i.e. the instruction needs to be representable in IL).
 
  - `IL.DeclareLocals`  
    Declares local variables. Supports changing the [`init`](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.methodbuilder.initlocals) flag and pinned variables. Local variables can be referenced by name or by index.
