@@ -63,6 +63,12 @@ namespace InlineIL.Fody
             method.Body.Variables.Clear();
             method.Body.ExceptionHandlers.Clear();
 
+            method.DebugInformation.SequencePoints.Clear();
+            method.DebugInformation.Scope = null;
+            method.DebugInformation.StateMachineKickOffMethod = null;
+
+            method.CustomDebugInformations.Clear();
+
             var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.GetCoreLibrary())
                                 .Resolve()?
                                 .Methods
