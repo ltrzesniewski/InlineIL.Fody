@@ -477,7 +477,11 @@ namespace InlineIL.Fody.Processing
             {
                 case "get_CoreLibrary":
                 {
-                    var newInstruction = Instruction.Create(OpCodes.Ldstr, Module.GetCoreLibrary().Name);
+                    var coreLibrary = Module.GetCoreLibrary();
+                    if (coreLibrary == null)
+                        throw new InstructionWeavingException(instruction, "Could not resolve core library");
+
+                    var newInstruction = Instruction.Create(OpCodes.Ldstr, coreLibrary.Name);
                     _il.Replace(instruction, newInstruction, true);
                     _sequencePoints.MapSequencePoint(instruction, newInstruction);
                     break;

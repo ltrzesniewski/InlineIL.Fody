@@ -69,7 +69,12 @@ namespace InlineIL.Fody
 
             method.CustomDebugInformations.Clear();
 
-            var exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, ModuleDefinition.GetCoreLibrary())
+            MethodDefinition exceptionCtor = null;
+
+            var coreLibrary = ModuleDefinition.GetCoreLibrary();
+            if (coreLibrary != null)
+            {
+                exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, coreLibrary)
                                 .Resolve()?
                                 .Methods
                                 .FirstOrDefault(m => m.IsRuntimeSpecialName
@@ -77,6 +82,7 @@ namespace InlineIL.Fody
                                                      && m.Parameters.Count == 1
                                                      && m.Parameters[0].ParameterType.FullName == "System.String"
                                 );
+            }
 
             if (exceptionCtor != null)
             {

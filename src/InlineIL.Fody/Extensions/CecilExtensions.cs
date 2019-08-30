@@ -320,11 +320,12 @@ namespace InlineIL.Fody.Extensions
                 yield return handler.HandlerEnd;
         }
 
-        public static IMetadataScope GetCoreLibrary(this ModuleDefinition module)
+        [CanBeNull]
+        public static AssemblyNameReference GetCoreLibrary(this ModuleDefinition module)
         {
-#pragma warning disable 618
-            return module.TypeSystem.CoreLibrary;
-#pragma warning restore 618
+            return module.AssemblyReferences.FirstOrDefault(i => i.Name == "System.Private.CoreLib")
+                   ?? module.AssemblyReferences.FirstOrDefault(i => i.Name == "mscorlib")
+                   ?? module.AssemblyReferences.FirstOrDefault(i => i.Name == "netstandard");
         }
 
         public static bool IsDebugBuild(this ModuleDefinition module)
