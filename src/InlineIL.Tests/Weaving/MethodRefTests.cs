@@ -35,6 +35,17 @@ namespace InlineIL.Tests.Weaving
             result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
         }
 
+#if NETCOREAPP
+
+        [Fact]
+        public void should_resolve_generic_overloads_with_Type_API()
+        {
+            var result = (int[])GetInstance().ResolveGenericOverloadsUsingTypeApi();
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
+        }
+
+#endif
+
         [Fact]
         public void should_resolve_generic_overloads_in_nested_generic_types()
         {

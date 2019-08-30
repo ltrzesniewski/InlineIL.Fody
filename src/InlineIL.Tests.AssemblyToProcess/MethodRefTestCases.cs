@@ -146,6 +146,66 @@ namespace InlineIL.Tests.AssemblyToProcess
             return result.ToArray();
         }
 
+#if NETCOREAPP
+
+        public int[] ResolveGenericOverloadsUsingTypeApi()
+        {
+            var result = new List<int>();
+            int item;
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), Type.MakeGenericMethodParameter(0), typeof(int)).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), 1, Type.MakeGenericMethodParameter(0), typeof(uint)).MakeGenericMethod(typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), 2, Type.MakeGenericMethodParameter(0), typeof(uint)).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), Type.MakeGenericMethodParameter(0), Type.MakeGenericMethodParameter(1)).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), Type.MakeGenericMethodParameter(1), Type.MakeGenericMethodParameter(0)).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldc_I4_0();
+            Ldc_I4_0();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), 0, typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            Ldnull();
+            Ldnull();
+            Call(new MethodRef(typeof(MethodRefTestCases), nameof(GenericOverload), Type.MakeGenericMethodParameter(0).MakeArrayType(), new TypeRef(typeof(List<>)).MakeGenericType(Type.MakeGenericMethodParameter(1))).MakeGenericMethod(typeof(int), typeof(int)));
+            IL.Pop(out item);
+            result.Add(item);
+
+            return result.ToArray();
+        }
+
+#endif
+
         public int[] ResolveGenericOverloadsInGenericType()
         {
             var result = new List<int>();

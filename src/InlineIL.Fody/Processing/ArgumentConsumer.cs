@@ -137,6 +137,16 @@ namespace InlineIL.Fody.Processing
                     return builder;
                 }
 
+                case "System.Type System.Type::MakeGenericMethodParameter(System.Int32)":
+                {
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                    var genericParameterIndex = ConsumeArgInt32(args[0]);
+                    var builder = new TypeRefBuilder(Module, GenericParameterType.Method, genericParameterIndex);
+
+                    _il.Remove(instruction);
+                    return builder;
+                }
+
                 case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
                 case "System.Type System.Type::MakePointerType()":
                 {
