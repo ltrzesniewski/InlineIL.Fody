@@ -18,7 +18,7 @@ namespace InlineIL.Fody.Model
         {
             _module = module;
 
-            method = method.MapToScope(typeRef);
+            method = method.MapToScope(typeRef.Scope, module.AssemblyResolver);
             _method = _module.ImportReference(_module.ImportReference(method).MakeGeneric(typeRef));
         }
 

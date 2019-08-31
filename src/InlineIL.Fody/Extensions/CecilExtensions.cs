@@ -55,12 +55,12 @@ namespace InlineIL.Fody.Extensions
             };
         }
 
-        public static TypeReference MapToScope(this TypeReference typeRef, TypeReference scopeTypeRef)
+        public static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, IAssemblyResolver assemblyResolver)
         {
-            if (scopeTypeRef.Scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
+            if (scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
             {
-                var assemblyName = (AssemblyNameReference)scopeTypeRef.Scope;
-                var assembly = scopeTypeRef.Module.AssemblyResolver.Resolve(assemblyName)
+                var assemblyName = (AssemblyNameReference)scope;
+                var assembly = assemblyResolver.Resolve(assemblyName)
                                ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
 
                 var exportedType = assembly.MainModule.ExportedTypes.FirstOrDefault(i => i.FullName == typeRef.FullName);
@@ -89,9 +89,9 @@ namespace InlineIL.Fody.Extensions
             return clone;
         }
 
-        public static MethodReference MapToScope(this MethodReference method, TypeReference declaringTypeRef)
+        public static MethodReference MapToScope(this MethodReference method, IMetadataScope scope, IAssemblyResolver assemblyResolver)
         {
-            var clone = new MethodReference(method.Name, method.ReturnType.MapToScope(declaringTypeRef), method.DeclaringType.MapToScope(declaringTypeRef))
+            var clone = new MethodReference(method.Name, method.ReturnType.MapToScope(scope, assemblyResolver), method.DeclaringType.MapToScope(scope, assemblyResolver))
             {
                 HasThis = method.HasThis,
                 ExplicitThis = method.ExplicitThis,
@@ -99,7 +99,7 @@ namespace InlineIL.Fody.Extensions
             };
 
             foreach (var param in method.Parameters)
-                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(declaringTypeRef)));
+                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(scope, assemblyResolver)));
 
             foreach (var param in method.GenericParameters)
                 clone.GenericParameters.Add(new GenericParameter(param.Name, clone));

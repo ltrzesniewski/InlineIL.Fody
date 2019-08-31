@@ -69,7 +69,7 @@ namespace InlineIL.Fody
 
             method.CustomDebugInformations.Clear();
 
-            MethodDefinition exceptionCtor = null;
+            MethodReference exceptionCtor = null;
 
             var coreLibrary = ModuleDefinition.GetCoreLibrary();
             if (coreLibrary != null)
@@ -81,7 +81,8 @@ namespace InlineIL.Fody
                                                      && m.Name == ".ctor"
                                                      && m.Parameters.Count == 1
                                                      && m.Parameters[0].ParameterType.FullName == "System.String"
-                                );
+                                )?
+                                .MapToScope(coreLibrary, ModuleDefinition.AssemblyResolver);
             }
 
             if (exceptionCtor != null)
