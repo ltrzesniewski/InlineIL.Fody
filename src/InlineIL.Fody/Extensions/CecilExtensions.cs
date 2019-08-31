@@ -8,7 +8,6 @@ using InlineIL.Fody.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
 
 namespace InlineIL.Fody.Extensions
 {
@@ -45,11 +44,14 @@ namespace InlineIL.Fody.Extensions
             return clone;
         }
 
-        public static TypeReference CreateReference(this ExportedType exportedType, ModuleDefinition module)
+        public static TypeReference CreateReference(this ExportedType exportedType, ModuleDefinition exportingModule)
         {
-            return new TypeReference(exportedType.Namespace, exportedType.Name, module, exportedType.Scope)
+            var typeDef = exportedType.Resolve() ?? throw new WeavingException($"Could not resolve type {exportedType.FullName}");
+
+            return new TypeReference(exportedType.Namespace, exportedType.Name, exportingModule, exportingModule.Assembly.Name)
             {
-                DeclaringType = exportedType.DeclaringType?.CreateReference(module)
+                DeclaringType = exportedType.DeclaringType?.CreateReference(exportingModule),
+                IsValueType = typeDef.IsValueType
             };
         }
 
@@ -113,8 +115,13 @@ namespace InlineIL.Fody.Extensions
             if (!declaringType.IsGenericInstance || method.DeclaringType.IsGenericInstance)
                 return method;
 
+            var genericDeclType = new GenericInstanceType(method.DeclaringType);
+
+            foreach (var argument in ((GenericInstanceType)declaringType).GenericArguments)
+                genericDeclType.GenericArguments.Add(argument);
+
             var result = method.Clone();
-            result.DeclaringType = result.DeclaringType.MakeGenericInstanceType(((GenericInstanceType)declaringType).GenericArguments.ToArray());
+            result.DeclaringType = genericDeclType;
             return result;
         }
 
