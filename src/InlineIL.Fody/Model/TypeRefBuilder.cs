@@ -43,14 +43,51 @@ namespace InlineIL.Fody.Model
             if (assembly == null)
                 throw new WeavingException($"Could not resolve assembly '{assemblyName}'");
 
-            var typeRef = assembly.Modules
-                                  .Select(m => m.GetType(typeName, false) ?? m.GetType(typeName, true))
-                                  .FirstOrDefault(t => t != null);
+            var declaredTypeRef = TryFindDeclaredType(assembly, typeName);
+            if (declaredTypeRef != null)
+                return declaredTypeRef;
 
-            if (typeRef == null)
-                throw new WeavingException($"Could not find type '{typeName}' in assembly '{assemblyName}'");
+            var forwardedTypeRef = TryFindForwardedType(assembly, typeName);
+            if (forwardedTypeRef != null)
+                return forwardedTypeRef;
 
-            return typeRef;
+            throw new WeavingException($"Could not find type '{typeName}' in assembly '{assemblyName}'");
+        }
+
+        private static TypeReference TryFindDeclaredType(AssemblyDefinition assembly, string typeName)
+            => assembly.Modules
+                       .Select(m => m.GetType(typeName, false) ?? m.GetType(typeName, true))
+                       .FirstOrDefault(t => t != null);
+
+        private static TypeReference TryFindForwardedType(AssemblyDefinition assembly, string typeName)
+        {
+            foreach (var module in assembly.Modules)
+            {
+                foreach (var exportedType in module.ExportedTypes)
+                {
+                    // TODO find by runtime name
+                    if (exportedType.FullName != typeName)
+                        continue;
+
+                    var typeRef = ToTypeRef(module, exportedType);
+                    if (typeRef != null)
+                        return typeRef;
+                }
+            }
+
+            return null;
+
+            TypeReference ToTypeRef(ModuleDefinition module, ExportedType exportedType)
+            {
+                var resolved = exportedType?.Resolve();
+                if (resolved == null)
+                    return null;
+
+                return new TypeReference(exportedType.Namespace, exportedType.Name, module, module, resolved.IsValueType)
+                {
+                    DeclaringType = ToTypeRef(module, exportedType.DeclaringType)
+                };
+            }
         }
 
         public TypeReference Build()
