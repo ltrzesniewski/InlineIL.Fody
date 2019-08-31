@@ -376,11 +376,10 @@ namespace InlineIL.Fody.Model
                 if (typeDef.GenericParameters.Count != _genericArgs.Length)
                     throw new WeavingException($"Incorrect number of generic arguments supplied for type {typeRef.FullName} - expected {typeRef.GenericParameters.Count}, but got {_genericArgs.Length}");
 
-                var argTypeRefs = new TypeReference[_genericArgs.Length];
+                var genericType = new GenericInstanceType(typeRef);
 
-                for (var i = 0; i < _genericArgs.Length; ++i)
+                foreach (var argTypeBuilder in _genericArgs)
                 {
-                    var argTypeBuilder = _genericArgs[i];
                     TypeReference argTypeRef;
 
                     if (context != null)
@@ -394,11 +393,8 @@ namespace InlineIL.Fody.Model
                         argTypeRef = argTypeBuilder.Build();
                     }
 
-                    argTypeRefs[i] = argTypeRef;
+                    genericType.GenericArguments.Add(argTypeRef);
                 }
-
-                var genericType = new GenericInstanceType(typeRef);
-                genericType.GenericArguments.AddRange(argTypeRefs);
 
                 return module.ImportReference(genericType);
             }

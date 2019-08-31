@@ -55,7 +55,7 @@ namespace InlineIL.Fody.Extensions
             };
         }
 
-        public static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, IAssemblyResolver assemblyResolver)
+        private static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, IAssemblyResolver assemblyResolver)
         {
             if (scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
             {
