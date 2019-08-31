@@ -17,6 +17,8 @@ namespace InlineIL.Fody.Model
         private MethodRefBuilder(ModuleDefinition module, TypeReference typeRef, MethodReference method)
         {
             _module = module;
+
+            method = method.MapToScope(typeRef);
             _method = _module.ImportReference(_module.ImportReference(method).MakeGeneric(typeRef));
         }
 

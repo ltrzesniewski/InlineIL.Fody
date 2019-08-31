@@ -69,25 +69,11 @@ namespace InlineIL.Fody.Model
                     if (exportedType.FullName != typeName)
                         continue;
 
-                    var typeRef = ToTypeRef(module, exportedType);
-                    if (typeRef != null)
-                        return typeRef;
+                    return exportedType.CreateReference(module);
                 }
             }
 
             return null;
-
-            TypeReference ToTypeRef(ModuleDefinition module, ExportedType exportedType)
-            {
-                var resolved = exportedType?.Resolve();
-                if (resolved == null)
-                    return null;
-
-                return new TypeReference(exportedType.Namespace, exportedType.Name, module, module, resolved.IsValueType)
-                {
-                    DeclaringType = ToTypeRef(module, exportedType.DeclaringType)
-                };
-            }
         }
 
         public TypeReference Build()
@@ -158,7 +144,9 @@ namespace InlineIL.Fody.Model
                 {
                     // TypeRefs from different assemblies get imported as MetadataType.Class
                     // since this information is not stored in the assembly metadata.
-                    typeRef = typeRef.ResolveRequiredType();
+                    var typeDef = typeRef.ResolveRequiredType();
+                    typeRef = typeRef.Clone();
+                    typeRef.IsValueType = typeDef.IsValueType;
                 }
 
                 _typeRef = typeRef;
@@ -380,10 +368,12 @@ namespace InlineIL.Fody.Model
                 if (typeRef.IsByReference || typeRef.IsPointer || typeRef.IsArray)
                     throw new WeavingException("Cannot make a generic instance of a ByRef, pointer or array type");
 
-                if (!typeRef.HasGenericParameters)
+                var typeDef = typeRef.ResolveRequiredType();
+
+                if (!typeDef.HasGenericParameters)
                     throw new WeavingException($"Not a generic type definition: {typeRef.FullName}");
 
-                if (typeRef.GenericParameters.Count != _genericArgs.Length)
+                if (typeDef.GenericParameters.Count != _genericArgs.Length)
                     throw new WeavingException($"Incorrect number of generic arguments supplied for type {typeRef.FullName} - expected {typeRef.GenericParameters.Count}, but got {_genericArgs.Length}");
 
                 var argTypeRefs = new TypeReference[_genericArgs.Length];
@@ -407,7 +397,10 @@ namespace InlineIL.Fody.Model
                     argTypeRefs[i] = argTypeRef;
                 }
 
-                return module.ImportReference(typeRef.MakeGenericInstanceType(argTypeRefs));
+                var genericType = new GenericInstanceType(typeRef);
+                genericType.GenericArguments.AddRange(argTypeRefs);
+
+                return module.ImportReference(genericType);
             }
 
             public override string GetDisplayName()

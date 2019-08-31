@@ -32,6 +32,43 @@ namespace InlineIL.Fody.Extensions
             }
         }
 
+        public static TypeReference Clone(this TypeReference typeRef)
+        {
+            var clone = new TypeReference(typeRef.Namespace, typeRef.Name, typeRef.Module, typeRef.Scope, typeRef.IsValueType)
+            {
+                DeclaringType = typeRef.DeclaringType
+            };
+
+            foreach (var param in typeRef.GenericParameters)
+                clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+
+            return clone;
+        }
+
+        public static TypeReference CreateReference(this ExportedType exportedType, ModuleDefinition module)
+        {
+            return new TypeReference(exportedType.Namespace, exportedType.Name, module, exportedType.Scope)
+            {
+                DeclaringType = exportedType.DeclaringType?.CreateReference(module)
+            };
+        }
+
+        public static TypeReference MapToScope(this TypeReference typeRef, TypeReference scopeTypeRef)
+        {
+            if (scopeTypeRef.Scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
+            {
+                var assemblyName = (AssemblyNameReference)scopeTypeRef.Scope;
+                var assembly = scopeTypeRef.Module.AssemblyResolver.Resolve(assemblyName)
+                               ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
+
+                var exportedType = assembly.MainModule.ExportedTypes.FirstOrDefault(i => i.FullName == typeRef.FullName);
+                if (exportedType != null)
+                    return exportedType.CreateReference(assembly.MainModule);
+            }
+
+            return typeRef;
+        }
+
         public static MethodReference Clone(this MethodReference method)
         {
             var clone = new MethodReference(method.Name, method.ReturnType, method.DeclaringType)
@@ -43,6 +80,24 @@ namespace InlineIL.Fody.Extensions
 
             foreach (var param in method.Parameters)
                 clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType));
+
+            foreach (var param in method.GenericParameters)
+                clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+
+            return clone;
+        }
+
+        public static MethodReference MapToScope(this MethodReference method, TypeReference declaringTypeRef)
+        {
+            var clone = new MethodReference(method.Name, method.ReturnType.MapToScope(declaringTypeRef), method.DeclaringType.MapToScope(declaringTypeRef))
+            {
+                HasThis = method.HasThis,
+                ExplicitThis = method.ExplicitThis,
+                CallingConvention = method.CallingConvention
+            };
+
+            foreach (var param in method.Parameters)
+                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(declaringTypeRef)));
 
             foreach (var param in method.GenericParameters)
                 clone.GenericParameters.Add(new GenericParameter(param.Name, clone));

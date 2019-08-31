@@ -358,5 +358,12 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("NotSameBasicBlock2").ShouldContain("An unconditional expression was expected");
         }
+
+        [Fact]
+        public void should_not_add_reference_to_private_core_lib()
+        {
+            AssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
+            UnverifiableAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
+        }
     }
 }

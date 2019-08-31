@@ -1,5 +1,6 @@
 using System;
 using InlineIL.Fody.Extensions;
+using JetBrains.Annotations;
 using Mono.Cecil;
 
 namespace InlineIL.Fody.Support
@@ -8,8 +9,11 @@ namespace InlineIL.Fody.Support
     {
         public bool GenerateSequencePoints { get; }
 
-        public WeaverConfig(WeaverConfigOptions config, ModuleDefinition module)
+        public WeaverConfig([CanBeNull] WeaverConfigOptions config, ModuleDefinition module)
         {
+            if (config == null)
+                config = new WeaverConfigOptions(null);
+
             GenerateSequencePoints = ShouldGenerateSequencePoints(config, module);
         }
 
