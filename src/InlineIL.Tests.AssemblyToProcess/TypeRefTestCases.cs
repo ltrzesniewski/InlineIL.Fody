@@ -123,6 +123,24 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<Type>();
         }
 
+#if NETCOREAPP
+
+        public Type ReturnNestedForwardedTypeUsingRuntimeSyntax()
+        {
+            Ldtoken(new TypeRef(TypeRef.CoreLibrary, "System.Span`1+Enumerator"));
+            Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
+            return IL.Return<Type>();
+        }
+
+        public Type ReturnNestedForwardedTypeUsingEcmaSyntax()
+        {
+            Ldtoken(new TypeRef(TypeRef.CoreLibrary, "System.Span`1/Enumerator"));
+            Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
+            return IL.Return<Type>();
+        }
+
+#endif
+
         public string ReturnCoreLibrary()
         {
             return TypeRef.CoreLibrary;

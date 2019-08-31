@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Fody;
 using InlineIL.Fody.Extensions;
 using JetBrains.Annotations;
@@ -61,15 +62,14 @@ namespace InlineIL.Fody.Model
 
         private static TypeReference TryFindForwardedType(AssemblyDefinition assembly, string typeName)
         {
+            var ecmaTypeName = Regex.Replace(typeName, @"\\.|\+", m => m.Length == 1 ? "/" : m.Value.Substring(1), RegexOptions.CultureInvariant);
+
             foreach (var module in assembly.Modules)
             {
                 foreach (var exportedType in module.ExportedTypes)
                 {
-                    // TODO find by runtime name
-                    if (exportedType.FullName != typeName)
-                        continue;
-
-                    return exportedType.CreateReference(module);
+                    if (exportedType.FullName == typeName || exportedType.FullName == ecmaTypeName)
+                        return exportedType.CreateReference(module);
                 }
             }
 

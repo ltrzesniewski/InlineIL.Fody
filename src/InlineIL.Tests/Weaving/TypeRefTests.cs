@@ -126,6 +126,24 @@ namespace InlineIL.Tests.Weaving
             result.FullName.ShouldEqual($"{VerifiableAssembly}.TypeRefTestCases+NestedType");
         }
 
+#if NETCOREAPP
+
+        [Fact]
+        public void should_handle_nested_forwarded_types_using_runtime_syntax()
+        {
+            var result = (Type)GetInstance().ReturnNestedForwardedTypeUsingRuntimeSyntax();
+            result.ShouldEqual(typeof(Span<>.Enumerator));
+        }
+
+        [Fact]
+        public void should_handle_nested_forwarded_types_using_ecma_syntax()
+        {
+            var result = (Type)GetInstance().ReturnNestedForwardedTypeUsingEcmaSyntax();
+            result.ShouldEqual(typeof(Span<>.Enumerator));
+        }
+
+#endif
+
         [Fact]
         public void should_use_corelib_as_a_standalone_property()
         {
