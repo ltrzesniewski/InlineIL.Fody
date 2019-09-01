@@ -4,13 +4,16 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class StandAloneMethodSigTests : ClassTestsBase
+    public abstract class StandAloneMethodSigTestsBase : ClassTestsBase
     {
-        public StandAloneMethodSigTests()
+        protected StandAloneMethodSigTestsBase()
             : base("StandAloneMethodSigTestCases")
         {
         }
+    }
 
+    public class StandAloneMethodSigTests : StandAloneMethodSigTestsBase
+    {
         [Fact]
         public void should_call_indirect_static()
         {
@@ -126,7 +129,7 @@ namespace InlineIL.Tests.Weaving
     }
 
 #if NETFRAMEWORK
-    public class StandAloneMethodSigTestsFramework : StandAloneMethodSigTests
+    public class StandAloneMethodSigTestsFramework : StandAloneMethodSigTestsBase
     {
         [Fact]
         public void should_call_indirect_vararg()

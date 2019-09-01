@@ -8,13 +8,16 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class MethodRefTests : ClassTestsBase
+    public abstract class MethodRefTestsBase : ClassTestsBase
     {
-        public MethodRefTests()
+        protected MethodRefTestsBase()
             : base("MethodRefTestCases")
         {
         }
+    }
 
+    public class MethodRefTests : MethodRefTestsBase
+    {
         [Fact]
         public void should_handle_method_call()
         {
@@ -340,7 +343,7 @@ namespace InlineIL.Tests.Weaving
     }
 
 #if NETCOREAPP
-    public class MethodRefTestsCore : MethodRefTests
+    public class MethodRefTestsCore : MethodRefTestsBase
     {
         [Fact]
         public void should_resolve_generic_overloads_with_Type_API()
@@ -352,7 +355,7 @@ namespace InlineIL.Tests.Weaving
 #endif
 
 #if NETFRAMEWORK
-    public class MethodRefTestsFramework: MethodRefTests
+    public class MethodRefTestsFramework: MethodRefTestsBase
     {
         [Fact]
         public void should_call_vararg_method()

@@ -8,13 +8,16 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class TypeRefTests : ClassTestsBase
+    public abstract class TypeRefTestsBase : ClassTestsBase
     {
-        public TypeRefTests()
+        protected TypeRefTestsBase()
             : base("TypeRefTestCases")
         {
         }
+    }
 
+    public class TypeRefTests : TypeRefTestsBase
+    {
         [Fact]
         public void should_handle_type_arg()
         {
@@ -258,7 +261,7 @@ namespace InlineIL.Tests.Weaving
     }
 
 #if NETCOREAPP
-    public class TypeRefTestsCore : TypeRefTests
+    public class TypeRefTestsCore : TypeRefTestsBase
     {
         [Fact]
         public void should_handle_nested_forwarded_types_using_runtime_syntax()
