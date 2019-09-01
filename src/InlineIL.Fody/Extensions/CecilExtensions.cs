@@ -16,19 +16,35 @@ namespace InlineIL.Fody.Extensions
         [NotNull]
         public static TypeDefinition ResolveRequiredType(this TypeReference typeRef)
         {
+            TypeDefinition typeDef;
+
             try
             {
-                var typeDef = typeRef.Resolve();
-
-                if (typeDef == null)
-                    throw new WeavingException($"Could not resolve type {typeRef.FullName}");
-
-                return typeDef;
+                typeDef = typeRef.Resolve();
             }
             catch (Exception ex)
             {
                 throw new WeavingException($"Could not resolve type {typeRef.FullName}: {ex.Message}");
             }
+
+            return typeDef ?? throw new WeavingException($"Could not resolve type {typeRef.FullName}");
+        }
+
+        [NotNull]
+        private static TypeDefinition ResolveRequiredType(this ExportedType exportedType)
+        {
+            TypeDefinition typeDef;
+
+            try
+            {
+                typeDef = exportedType.Resolve();
+            }
+            catch (Exception ex)
+            {
+                throw new WeavingException($"Could not resolve type {exportedType.FullName}: {ex.Message}");
+            }
+
+            return typeDef ?? throw new WeavingException($"Could not resolve type {exportedType.FullName}");
         }
 
         public static TypeReference Clone(this TypeReference typeRef)
@@ -38,21 +54,31 @@ namespace InlineIL.Fody.Extensions
                 DeclaringType = typeRef.DeclaringType
             };
 
-            foreach (var param in typeRef.GenericParameters)
-                clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+            if (typeRef.HasGenericParameters)
+            {
+                foreach (var param in typeRef.GenericParameters)
+                    clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+            }
 
             return clone;
         }
 
         public static TypeReference CreateReference(this ExportedType exportedType, ModuleDefinition exportingModule)
         {
-            var typeDef = exportedType.Resolve() ?? throw new WeavingException($"Could not resolve type {exportedType.FullName}");
+            var typeDef = exportedType.ResolveRequiredType();
 
-            return new TypeReference(exportedType.Namespace, exportedType.Name, exportingModule, exportingModule.Assembly.Name)
+            var typeRef = new TypeReference(exportedType.Namespace, exportedType.Name, exportingModule, exportingModule.Assembly.Name, typeDef.IsValueType)
             {
-                DeclaringType = exportedType.DeclaringType?.CreateReference(exportingModule),
-                IsValueType = typeDef.IsValueType
+                DeclaringType = exportedType.DeclaringType?.CreateReference(exportingModule)
             };
+
+            if (typeDef.HasGenericParameters)
+            {
+                foreach (var param in typeDef.GenericParameters)
+                    typeRef.GenericParameters.Add(new GenericParameter(param.Name, typeRef));
+            }
+
+            return typeRef;
         }
 
         private static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, IAssemblyResolver assemblyResolver)
@@ -60,8 +86,7 @@ namespace InlineIL.Fody.Extensions
             if (scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
             {
                 var assemblyName = (AssemblyNameReference)scope;
-                var assembly = assemblyResolver.Resolve(assemblyName)
-                               ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
+                var assembly = assemblyResolver.Resolve(assemblyName) ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
 
                 var exportedType = assembly.MainModule.ExportedTypes.FirstOrDefault(i => i.FullName == typeRef.FullName);
                 if (exportedType != null)
@@ -80,11 +105,17 @@ namespace InlineIL.Fody.Extensions
                 CallingConvention = method.CallingConvention
             };
 
-            foreach (var param in method.Parameters)
-                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType));
+            if (method.HasParameters)
+            {
+                foreach (var param in method.Parameters)
+                    clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType));
+            }
 
-            foreach (var param in method.GenericParameters)
-                clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+            if (method.HasGenericParameters)
+            {
+                foreach (var param in method.GenericParameters)
+                    clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+            }
 
             return clone;
         }
@@ -98,11 +129,17 @@ namespace InlineIL.Fody.Extensions
                 CallingConvention = method.CallingConvention
             };
 
-            foreach (var param in method.Parameters)
-                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(scope, assemblyResolver)));
+            if (method.HasParameters)
+            {
+                foreach (var param in method.Parameters)
+                    clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(scope, assemblyResolver)));
+            }
 
-            foreach (var param in method.GenericParameters)
-                clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+            if (method.HasGenericParameters)
+            {
+                foreach (var param in method.GenericParameters)
+                    clone.GenericParameters.Add(new GenericParameter(param.Name, clone));
+            }
 
             return clone;
         }
@@ -157,11 +194,7 @@ namespace InlineIL.Fody.Extensions
             while (true)
             {
                 stackSize += GetPushCount(instruction);
-
-                instruction = instruction.Next;
-                if (instruction == null)
-                    throw new WeavingException("Unexpected end of method");
-
+                instruction = instruction.Next ?? throw new WeavingException("Unexpected end of method");
                 stackSize -= GetPopCount(instruction);
 
                 if (stackSize <= 0)
@@ -227,10 +260,7 @@ namespace InlineIL.Fody.Extensions
                 currentInstruction = currentInstruction.Previous;
             }
 
-            if (result == null)
-                throw new InstructionWeavingException(startInstruction, "Could not locate call argument, reached beginning of method");
-
-            return result;
+            return result ?? throw new InstructionWeavingException(startInstruction, "Could not locate call argument, reached beginning of method");
         }
 
         private static int GetArgCount(OpCode opCode, IMethodSignature method)
