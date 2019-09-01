@@ -1,4 +1,5 @@
 ﻿using InlineIL.Tests.Support;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving
@@ -136,6 +137,7 @@ namespace InlineIL.Tests.Weaving
     }
 #endif
 
+    [UsedImplicitly]
     public class StandAloneMethodSigTestsStandard : StandAloneMethodSigTests
     {
         public StandAloneMethodSigTestsStandard()

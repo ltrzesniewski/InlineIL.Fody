@@ -5,6 +5,7 @@ using System.Reflection;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
+using JetBrains.Annotations;
 using Mono.Cecil.Cil;
 using Xunit;
 
@@ -140,13 +141,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_report_unvalid_use_of_Unreachable()
+        public void should_report_invalid_use_of_Unreachable()
         {
             ShouldHaveError("InvalidUnreachable");
         }
 
         [Fact]
-        public void should_report_unvalid_use_of_Return()
+        public void should_report_invalid_use_of_Return()
         {
             ShouldHaveError("InvalidReturn");
         }
@@ -369,6 +370,7 @@ namespace InlineIL.Tests.Weaving
         }
     }
 
+    [UsedImplicitly]
     public class BasicTestsStandard : BasicTests
     {
         public BasicTestsStandard()

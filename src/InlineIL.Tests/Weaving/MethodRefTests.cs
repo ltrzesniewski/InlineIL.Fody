@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using InlineIL.Tests.Support;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving
@@ -362,6 +363,7 @@ namespace InlineIL.Tests.Weaving
     }
 #endif
 
+    [UsedImplicitly]
     public class MethodRefTestsStandard : MethodRefTests
     {
         public MethodRefTestsStandard()

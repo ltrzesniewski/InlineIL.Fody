@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 #pragma warning disable 618
 
 namespace InlineIL.Tests.Weaving
 {
-    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     internal static class FixtureHelper
     {
         public static string IsolateAssembly<T>()

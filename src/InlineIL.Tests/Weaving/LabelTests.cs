@@ -1,4 +1,5 @@
 ﻿using InlineIL.Tests.Support;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving
@@ -61,6 +62,7 @@ namespace InlineIL.Tests.Weaving
         }
     }
 
+    [UsedImplicitly]
     public class LabelTestsStandard : LabelTests
     {
         public LabelTestsStandard()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using InlineIL.Tests.Support;
+using JetBrains.Annotations;
 using Xunit;
 
 #pragma warning disable 618
@@ -275,6 +276,7 @@ namespace InlineIL.Tests.Weaving
     }
 #endif
 
+    [UsedImplicitly]
     public class TypeRefTestsStandard : TypeRefTests
     {
         public TypeRefTestsStandard()

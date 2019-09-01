@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using JetBrains.Annotations;
+using Xunit;
 
 namespace InlineIL.Tests.Weaving
 {
@@ -123,6 +124,7 @@ namespace InlineIL.Tests.Weaving
         }
     }
 
+    [UsedImplicitly]
     public class LibRefTestsStandard : LibRefTests
     {
         public LibRefTestsStandard()

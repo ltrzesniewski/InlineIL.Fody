@@ -150,7 +150,6 @@ namespace InlineIL.Tests.AssemblyToProcess
             Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
             return IL.Return<Type>();
         }
-
 #endif
 
         public string ReturnCoreLibrary()

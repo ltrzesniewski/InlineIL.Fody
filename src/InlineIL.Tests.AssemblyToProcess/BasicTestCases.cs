@@ -202,7 +202,6 @@ namespace InlineIL.Tests.AssemblyToProcess
             return StaticIntField;
         }
 
-        [SuppressMessage("ReSharper", "IdentifierTypo")]
         public void LdargaS(object obj)
         {
             Ldarga_S(nameof(obj));

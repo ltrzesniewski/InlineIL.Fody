@@ -1,12 +1,11 @@
 extern alias standard;
-
 using Fody;
-using standard::InlineIL.Tests.StandardAssemblyToProcess;
 using Mono.Cecil;
+using standard::InlineIL.Tests.StandardAssemblyToProcess;
 
 namespace InlineIL.Tests.Weaving
 {
-    public class StandardAssemblyToProcessFixture
+    public static class StandardAssemblyToProcessFixture
     {
         public static TestResult TestResult { get; }
 
