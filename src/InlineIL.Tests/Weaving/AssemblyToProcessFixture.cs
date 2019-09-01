@@ -20,11 +20,16 @@ namespace InlineIL.Tests.Weaving
 
         static AssemblyToProcessFixture()
         {
-            var assemblyPath = FixtureHelper.IsolateAssembly<AssemblyToProcessReference>();
+            (TestResult, OriginalModule, ResultModule) = Process<AssemblyToProcessReference>();
+        }
+
+        internal static (TestResult testResult, ModuleDefinition originalModule, ModuleDefinition resultModule) Process<T>()
+        {
+            var assemblyPath = FixtureHelper.IsolateAssembly<T>();
 
             var weavingTask = new GuardedWeaver();
 
-            TestResult = weavingTask.ExecuteTestRun(
+            var testResult = weavingTask.ExecuteTestRun(
                 assemblyPath,
                 ignoreCodes: new[]
                 {
@@ -41,8 +46,10 @@ namespace InlineIL.Tests.Weaving
                     AssemblyResolver = assemblyResolver
                 };
 
-                OriginalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
-                ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, readerParams);
+                var originalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
+                var resultModule = ModuleDefinition.ReadModule(testResult.AssemblyPath, readerParams);
+
+                return (testResult, originalModule, resultModule);
             }
         }
 

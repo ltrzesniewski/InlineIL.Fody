@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <DisableFody>true</DisableFody>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\InlineIL.Tests.AssemblyToProcess\**\*.cs" Exclude="..\InlineIL.Tests.AssemblyToProcess\obj\**;..\InlineIL.Tests.AssemblyToProcess\AssemblyToProcessReference.cs" Link="AssemblyToProcess\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

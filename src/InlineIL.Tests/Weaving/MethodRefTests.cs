@@ -35,17 +35,6 @@ namespace InlineIL.Tests.Weaving
             result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
         }
 
-#if NETCOREAPP
-
-        [Fact]
-        public void should_resolve_generic_overloads_with_Type_API()
-        {
-            var result = (int[])GetInstance().ResolveGenericOverloadsUsingTypeApi();
-            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
-        }
-
-#endif
-
         [Fact]
         public void should_resolve_generic_overloads_in_nested_generic_types()
         {
@@ -288,15 +277,6 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveError("NoMatchingGenericOverloadGeneric").ShouldContain("Method GenericMethod(System.Collections.Generic.Dictionary`2<System.Int32,System.String>) not found");
         }
 
-#if NETFRAMEWORK
-        [Fact]
-        public void should_call_vararg_method()
-        {
-            var result = (int[])GetInstance().CallVarArgMethod();
-            result.ShouldEqual(new[] { 1, 2, 3, 0, 0 });
-        }
-#endif
-
         [Fact]
         public void should_report_vararg_usage_on_normal_method()
         {
@@ -356,5 +336,35 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("NoTypeInitializer").ShouldContain("has no type initializer");
         }
+    }
+
+#if NETCOREAPP
+    public class MethodRefTestsCore : MethodRefTests
+    {
+        [Fact]
+        public void should_resolve_generic_overloads_with_Type_API()
+        {
+            var result = (int[])GetInstance().ResolveGenericOverloadsUsingTypeApi();
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
+        }
+    }
+#endif
+
+#if NETFRAMEWORK
+    public class MethodRefTestsFramework: MethodRefTests
+    {
+        [Fact]
+        public void should_call_vararg_method()
+        {
+            var result = (int[])GetInstance().CallVarArgMethod();
+            result.ShouldEqual(new[] { 1, 2, 3, 0, 0 });
+        }
+    }
+#endif
+
+    public class MethodRefTestsStandard : MethodRefTests
+    {
+        public MethodRefTestsStandard()
+            => NetStandard = true;
     }
 }

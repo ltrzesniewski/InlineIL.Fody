@@ -10,6 +10,7 @@ namespace InlineIL.Tests.Weaving
         protected const string InvalidAssembly = "InlineIL.Tests.InvalidAssemblyToProcess";
 
         private string ClassName { get; }
+        protected bool NetStandard { get; set; }
 
         protected ClassTestsBase(string className)
         {
@@ -17,13 +18,25 @@ namespace InlineIL.Tests.Weaving
         }
 
         protected dynamic GetInstance()
-            => AssemblyToProcessFixture.TestResult.GetInstance($"{VerifiableAssembly}.{ClassName}");
+        {
+            return NetStandard
+                ? StandardAssemblyToProcessFixture.TestResult.GetInstance($"{VerifiableAssembly}.{ClassName}")
+                : AssemblyToProcessFixture.TestResult.GetInstance($"{VerifiableAssembly}.{ClassName}");
+        }
 
         protected MethodDefinition GetMethodDefinition(string methodName)
-            => GetMethodDefinition(AssemblyToProcessFixture.ResultModule, VerifiableAssembly, methodName);
+        {
+            return NetStandard
+                ? GetMethodDefinition(StandardAssemblyToProcessFixture.ResultModule, VerifiableAssembly, methodName)
+                : GetMethodDefinition(AssemblyToProcessFixture.ResultModule, VerifiableAssembly, methodName);
+        }
 
         protected MethodDefinition GetOriginalMethodDefinition(string methodName)
-            => GetMethodDefinition(AssemblyToProcessFixture.OriginalModule, VerifiableAssembly, methodName);
+        {
+            return NetStandard
+                ? GetMethodDefinition(StandardAssemblyToProcessFixture.OriginalModule, VerifiableAssembly, methodName)
+                : GetMethodDefinition(AssemblyToProcessFixture.OriginalModule, VerifiableAssembly, methodName);
+        }
 
         protected dynamic GetUnverifiableInstance()
             => UnverifiableAssemblyToProcessFixture.TestResult.GetInstance($"{UnverifiableAssembly}.{ClassName}");

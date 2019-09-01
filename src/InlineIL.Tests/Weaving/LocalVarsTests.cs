@@ -163,4 +163,10 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveError("LocalOutOfRange").ShouldContain("out of range");
         }
     }
+
+    public class LocalVarsTestsStandard : LocalVarsTests
+    {
+        public LocalVarsTestsStandard()
+            => NetStandard = true;
+    }
 }

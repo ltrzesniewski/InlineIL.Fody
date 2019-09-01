@@ -122,4 +122,10 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveErrorInType("InterfaceType");
         }
     }
+
+    public class LibRefTestsStandard : LibRefTests
+    {
+        public LibRefTestsStandard()
+            => NetStandard = true;
+    }
 }

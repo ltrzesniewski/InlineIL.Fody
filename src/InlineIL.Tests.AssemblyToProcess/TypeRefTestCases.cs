@@ -8,6 +8,13 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class TypeRefTestCases
     {
+        private const string _thisAssemblyName =
+#if NETSTANDARD
+            "InlineIL.Tests.StandardAssemblyToProcess";
+#else
+            "InlineIL.Tests.AssemblyToProcess";
+#endif
+
         public RuntimeTypeHandle ReturnTypeHandle<T>()
         {
             Ldtoken(typeof(T));
@@ -117,20 +124,19 @@ namespace InlineIL.Tests.AssemblyToProcess
 
         public Type ReturnNestedTypeUsingRuntimeSyntax()
         {
-            Ldtoken(new TypeRef("InlineIL.Tests.AssemblyToProcess", "InlineIL.Tests.AssemblyToProcess." + nameof(TypeRefTestCases) + "+" + nameof(NestedType)));
+            Ldtoken(new TypeRef(_thisAssemblyName, "InlineIL.Tests.AssemblyToProcess." + nameof(TypeRefTestCases) + "+" + nameof(NestedType)));
             Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
             return IL.Return<Type>();
         }
 
         public Type ReturnNestedTypeUsingEcmaSyntax()
         {
-            Ldtoken(new TypeRef("InlineIL.Tests.AssemblyToProcess", "InlineIL.Tests.AssemblyToProcess." + nameof(TypeRefTestCases) + "/" + nameof(NestedType)));
+            Ldtoken(new TypeRef(_thisAssemblyName, "InlineIL.Tests.AssemblyToProcess." + nameof(TypeRefTestCases) + "/" + nameof(NestedType)));
             Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
             return IL.Return<Type>();
         }
 
 #if NETCOREAPP
-
         public Type ReturnNestedForwardedTypeUsingRuntimeSyntax()
         {
             Ldtoken(new TypeRef(TypeRef.CoreLibrary, "System.Span`1+Enumerator"));

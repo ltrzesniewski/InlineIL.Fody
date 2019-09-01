@@ -363,8 +363,15 @@ namespace InlineIL.Tests.Weaving
         public void should_not_add_reference_to_private_core_lib()
         {
             AssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
+            StandardAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
             UnverifiableAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
             InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
         }
+    }
+
+    public class BasicTestsStandard : BasicTests
+    {
+        public BasicTestsStandard()
+            => NetStandard = true;
     }
 }

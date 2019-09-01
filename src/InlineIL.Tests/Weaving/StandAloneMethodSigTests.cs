@@ -24,15 +24,6 @@ namespace InlineIL.Tests.Weaving
             result.ShouldEqual(42);
         }
 
-#if NETFRAMEWORK
-        [Fact]
-        public void should_call_indirect_vararg()
-        {
-            var result = (int)GetUnverifiableInstance().CallIndirectVarArg();
-            result.ShouldEqual(42);
-        }
-#endif
-
         [Fact]
         public void should_report_mismatched_calling_convention()
         {
@@ -131,5 +122,23 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("InvalidTailCallRet").ShouldContain("A tail call must be immediately followed by ret");
         }
+    }
+
+#if NETFRAMEWORK
+    public class StandAloneMethodSigTestsFramework : StandAloneMethodSigTests
+    {
+        [Fact]
+        public void should_call_indirect_vararg()
+        {
+            var result = (int)GetUnverifiableInstance().CallIndirectVarArg();
+            result.ShouldEqual(42);
+        }
+    }
+#endif
+
+    public class StandAloneMethodSigTestsStandard : StandAloneMethodSigTests
+    {
+        public StandAloneMethodSigTestsStandard()
+            => NetStandard = true;
     }
 }

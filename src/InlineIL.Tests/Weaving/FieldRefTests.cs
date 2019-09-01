@@ -75,4 +75,10 @@ namespace InlineIL.Tests.Weaving
             result.ShouldEqual(10);
         }
     }
+
+    public class FieldRefTestsStandard : FieldRefTests
+    {
+        public FieldRefTestsStandard()
+            => NetStandard = true;
+    }
 }

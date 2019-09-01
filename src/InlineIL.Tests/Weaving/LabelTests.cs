@@ -60,4 +60,10 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveError("RedefinedLabel").ShouldContain("already defined");
         }
     }
+
+    public class LabelTestsStandard : LabelTests
+    {
+        public LabelTestsStandard()
+            => NetStandard = true;
+    }
 }
