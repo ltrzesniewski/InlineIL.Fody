@@ -12,7 +12,8 @@ jobs:
       - task: DotNetCoreInstaller@1
         displayName: Install .NET Core SDK
         inputs:
-          version: 2.2.x
+          version: 3.x
+          includePreviewVersions: true
 
       - task: MSBuild@1
         displayName: NuGet Restore
