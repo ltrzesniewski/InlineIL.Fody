@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
 using InlineIL.Fody.Support;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -23,7 +22,6 @@ namespace InlineIL.Fody.Processing
             _il = il;
         }
 
-        [NotNull]
         public string ConsumeArgString(Instruction instruction)
         {
             if (instruction.OpCode == OpCodes.Ldstr)
@@ -81,11 +79,9 @@ namespace InlineIL.Fody.Processing
             throw UnexpectedInstruction(instruction, "a constant value");
         }
 
-        [NotNull]
         public TypeReference ConsumeArgTypeRef(Instruction typeRefInstruction)
             => ConsumeArgTypeRefBuilder(typeRefInstruction).Build();
 
-        [NotNull]
         private TypeRefBuilder ConsumeArgTypeRefBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -254,7 +250,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public MethodReference ConsumeArgMethodRef(Instruction methodRefInstruction)
         {
             return ConsumeArgMethodRefBuilder(methodRefInstruction).Build();
@@ -369,7 +364,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public FieldReference ConsumeArgFieldRef(Instruction fieldRefInstruction)
         {
             return ConsumeArgFieldRefBuilder(fieldRefInstruction).Build();
@@ -389,7 +383,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public T[] ConsumeArgArray<T>(Instruction instruction, Func<Instruction, T> consumeItem)
         {
             if (instruction.OpCode == OpCodes.Call)
@@ -447,7 +440,6 @@ namespace InlineIL.Fody.Processing
             return args;
         }
 
-        [NotNull]
         public LocalVarBuilder ConsumeArgLocalVarBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -492,7 +484,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public VariableDefinition ConsumeArgLocalRef(Instruction instruction)
         {
             var localName = ConsumeArgString(instruction);
@@ -521,7 +512,6 @@ namespace InlineIL.Fody.Processing
             return paramIndex;
         }
 
-        [NotNull]
         public CallSite ConsumeArgCallSite(Instruction callSiteInstruction)
         {
             return ConsumeArgStandAloneMethodSigBuilder(callSiteInstruction).Build();

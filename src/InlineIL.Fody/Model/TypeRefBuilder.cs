@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Fody;
 using InlineIL.Fody.Extensions;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 
@@ -124,10 +123,9 @@ namespace InlineIL.Fody.Model
 
         private abstract class TypeRefResolver
         {
-            [NotNull]
             public abstract TypeReference Resolve(ModuleDefinition module);
 
-            public abstract TypeReference? TryResolve(ModuleDefinition module, [NotNull] IGenericParameterProvider context);
+            public abstract TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context);
 
             public abstract string GetDisplayName();
         }
@@ -234,8 +232,7 @@ namespace InlineIL.Fody.Model
             protected TypeSpecTypeRefResolver(TypeRefResolver baseResolver)
                 => _baseResolver = baseResolver;
 
-            [NotNull]
-            protected abstract TypeReference WrapTypeRef([NotNull] TypeReference typeRef);
+            protected abstract TypeReference WrapTypeRef(TypeReference typeRef);
 
             public sealed override TypeReference Resolve(ModuleDefinition module)
             {

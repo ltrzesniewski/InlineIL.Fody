@@ -13,7 +13,6 @@ namespace InlineIL.Fody.Extensions
 {
     internal static partial class CecilExtensions
     {
-        [NotNull]
         public static TypeDefinition ResolveRequiredType(this TypeReference typeRef)
         {
             TypeDefinition typeDef;
@@ -30,7 +29,6 @@ namespace InlineIL.Fody.Extensions
             return typeDef ?? throw new WeavingException($"Could not resolve type {typeRef.FullName}");
         }
 
-        [NotNull]
         private static TypeDefinition ResolveRequiredType(this ExportedType exportedType)
         {
             TypeDefinition typeDef;
@@ -183,7 +181,6 @@ namespace InlineIL.Fody.Extensions
         public static Instruction? NextSkipNops(this Instruction? instruction)
             => instruction?.Next?.SkipNops();
 
-        [NotNull]
         public static Instruction GetValueConsumingInstruction(this Instruction instruction)
         {
             var stackSize = 0;
@@ -199,7 +196,6 @@ namespace InlineIL.Fody.Extensions
             }
         }
 
-        [NotNull]
         public static Instruction[] GetArgumentPushInstructions(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call)

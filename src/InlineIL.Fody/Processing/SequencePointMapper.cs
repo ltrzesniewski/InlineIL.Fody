@@ -2,7 +2,6 @@
 using System.Linq;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Support;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 

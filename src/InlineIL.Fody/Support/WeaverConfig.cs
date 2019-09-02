@@ -1,6 +1,5 @@
 using System;
 using InlineIL.Fody.Extensions;
-using JetBrains.Annotations;
 using Mono.Cecil;
 
 namespace InlineIL.Fody.Support

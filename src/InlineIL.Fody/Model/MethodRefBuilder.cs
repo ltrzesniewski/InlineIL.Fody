@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 

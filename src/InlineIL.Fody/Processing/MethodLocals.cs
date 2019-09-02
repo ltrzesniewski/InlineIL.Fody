@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
