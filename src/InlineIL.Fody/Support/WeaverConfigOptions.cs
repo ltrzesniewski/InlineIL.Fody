@@ -10,7 +10,7 @@ namespace InlineIL.Fody.Support
     {
         public SequencePointsBehavior SequencePoints { get; private set; } = SequencePointsBehavior.Debug;
 
-        public WeaverConfigOptions([CanBeNull] XElement element)
+        public WeaverConfigOptions(XElement? element)
         {
             if (element != null)
                 LoadFrom(element);

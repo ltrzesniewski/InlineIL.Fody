@@ -73,7 +73,7 @@ namespace InlineIL.Fody.Processing
                 case Code.Conv_U8:
                 case Code.Conv_R4:
                 case Code.Conv_R8:
-                    var value = ConsumeArgConst(instruction.PrevSkipNops());
+                    var value = ConsumeArgConst(instruction.PrevSkipNops() ?? throw new InstructionWeavingException(instruction, "Invalid instruction at start of method"));
                     _il.Remove(instruction);
                     return value;
             }
@@ -432,7 +432,7 @@ namespace InlineIL.Fody.Processing
                 if (!stelemInstruction.OpCode.IsStelem())
                     throw UnexpectedInstruction(stelemInstruction, "stelem");
 
-                args[index] = consumeItem(stelemInstruction.PrevSkipNops());
+                args[index] = consumeItem(stelemInstruction.PrevSkipNops() ?? throw new InstructionWeavingException(stelemInstruction, "Invalid array construction at start of method"));
 
                 currentDupInstruction = stelemInstruction.NextSkipNops();
 
@@ -574,10 +574,10 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, OpCode expectedOpcode)
+        private static InstructionWeavingException UnexpectedInstruction(Instruction? instruction, OpCode expectedOpcode)
             => UnexpectedInstruction(instruction, expectedOpcode.Name);
 
-        private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
+        private static InstructionWeavingException UnexpectedInstruction(Instruction? instruction, string expected)
             => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction}{Environment.NewLine}InlineIL requires that arguments to IL-emitting methods be constructed in place.");
     }
 }

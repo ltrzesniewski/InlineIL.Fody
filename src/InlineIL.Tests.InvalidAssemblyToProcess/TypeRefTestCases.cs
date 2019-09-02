@@ -10,12 +10,12 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
     {
         public void LoadNullType()
         {
-            Ldtoken(new TypeRef(null));
+            Ldtoken(new TypeRef(null!));
         }
 
         public void LoadNullTypeRef()
         {
-            Ldtoken((TypeRef)null);
+            Ldtoken(((TypeRef?)null)!);
         }
 
         public void InvalidAssembly()

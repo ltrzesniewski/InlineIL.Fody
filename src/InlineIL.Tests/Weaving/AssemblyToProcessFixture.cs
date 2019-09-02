@@ -74,7 +74,7 @@ namespace InlineIL.Tests.Weaving
                 }
             }
 
-            protected override void AddError(string message, SequencePoint sequencePoint)
+            protected override void AddError(string message, SequencePoint? sequencePoint)
             {
                 _errors.Add(message);
                 base.AddError(message, sequencePoint);

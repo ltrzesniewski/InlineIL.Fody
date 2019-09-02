@@ -28,7 +28,7 @@ namespace InlineIL.Fody.Model
         public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder> paramTypes)
             => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
 
-        private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, [CanBeNull] IReadOnlyList<TypeRefBuilder> paramTypes)
+        private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder>? paramTypes)
         {
             var typeDef = typeRef.ResolveRequiredType();
 

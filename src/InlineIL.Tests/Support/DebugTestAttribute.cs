@@ -5,21 +5,19 @@ namespace InlineIL.Tests.Support
 {
     public class DebugTestAttribute : FactAttribute
     {
-        private string _skip;
-
-        public override string Skip
+        public override string? Skip
         {
             get
             {
-                if (_skip != null)
-                    return _skip;
+                if (base.Skip != null)
+                    return base.Skip;
 
                 if (!Debugger.IsAttached)
                     return "Debug test";
 
                 return null;
             }
-            set => _skip = value;
+            set => base.Skip = value;
         }
     }
 }

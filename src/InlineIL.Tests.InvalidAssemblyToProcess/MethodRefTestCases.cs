@@ -39,12 +39,12 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
 
         public void NullMethod()
         {
-            Call(new MethodRef(typeof(MethodRefTestCases), null));
+            Call(new MethodRef(typeof(MethodRefTestCases), null!));
         }
 
         public void NullMethodRef()
         {
-            Call(null);
+            Call(null!);
         }
 
         public void UnusedInstance()
@@ -172,7 +172,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
 
         private static T GenericMethod<T>(T value) => value;
 
-        private static int[] VarArgMethod(int count, __arglist) => null;
+        private static int[]? VarArgMethod(int count, __arglist) => null;
 
         private class ClassWithoutInitializer
         {

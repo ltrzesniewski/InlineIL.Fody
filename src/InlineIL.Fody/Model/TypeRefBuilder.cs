@@ -55,12 +55,12 @@ namespace InlineIL.Fody.Model
             throw new WeavingException($"Could not find type '{typeName}' in assembly '{assemblyName}'");
         }
 
-        private static TypeReference TryFindDeclaredType(AssemblyDefinition assembly, string typeName)
+        private static TypeReference? TryFindDeclaredType(AssemblyDefinition assembly, string typeName)
             => assembly.Modules
                        .Select(m => m.GetType(typeName, false) ?? m.GetType(typeName, true))
                        .FirstOrDefault(t => t != null);
 
-        private static TypeReference TryFindForwardedType(AssemblyDefinition assembly, string typeName)
+        private static TypeReference? TryFindForwardedType(AssemblyDefinition assembly, string typeName)
         {
             var ecmaTypeName = Regex.Replace(typeName, @"\\.|\+", m => m.Length == 1 ? "/" : m.Value.Substring(1), RegexOptions.CultureInvariant);
 
@@ -82,8 +82,7 @@ namespace InlineIL.Fody.Model
             return AddModifiers(typeRef);
         }
 
-        [CanBeNull]
-        public TypeReference TryBuild(IGenericParameterProvider context)
+        public TypeReference? TryBuild(IGenericParameterProvider context)
         {
             var typeRef = _resolver.TryResolve(_module, context);
             return typeRef != null ? AddModifiers(typeRef) : null;
@@ -128,8 +127,7 @@ namespace InlineIL.Fody.Model
             [NotNull]
             public abstract TypeReference Resolve(ModuleDefinition module);
 
-            [CanBeNull]
-            public abstract TypeReference TryResolve(ModuleDefinition module, [NotNull] IGenericParameterProvider context);
+            public abstract TypeReference? TryResolve(ModuleDefinition module, [NotNull] IGenericParameterProvider context);
 
             public abstract string GetDisplayName();
         }
@@ -155,7 +153,7 @@ namespace InlineIL.Fody.Model
             public override TypeReference Resolve(ModuleDefinition module)
                 => module.ImportReference(_typeRef);
 
-            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            public override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
                 => Resolve(module);
 
             public override string GetDisplayName()
@@ -179,7 +177,7 @@ namespace InlineIL.Fody.Model
             public override TypeReference Resolve(ModuleDefinition module)
                 => throw new WeavingException($"TypeRef.{(_type == GenericParameterType.Method ? "MethodGenericParameters" : "TypeGenericParameters")} can only be used in MethodRef definitions for overload resolution");
 
-            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            public override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
             {
                 switch (_type)
                 {
@@ -245,7 +243,7 @@ namespace InlineIL.Fody.Model
                 return ResolveImpl(module, typeRef);
             }
 
-            public sealed override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            public sealed override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
             {
                 var typeRef = _baseResolver.TryResolve(module, context);
                 return typeRef != null ? ResolveImpl(module, typeRef) : null;
@@ -351,16 +349,16 @@ namespace InlineIL.Fody.Model
             public override TypeReference Resolve(ModuleDefinition module)
             {
                 var typeRef = _baseResolver.Resolve(module);
-                return ResolveImpl(module, null, typeRef);
+                return ResolveImpl(module, null, typeRef)!;
             }
 
-            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            public override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
             {
                 var typeRef = _baseResolver.TryResolve(module, context);
                 return typeRef != null ? ResolveImpl(module, context, typeRef) : null;
             }
 
-            private TypeReference ResolveImpl(ModuleDefinition module, [CanBeNull] IGenericParameterProvider context, TypeReference typeRef)
+            private TypeReference? ResolveImpl(ModuleDefinition module, IGenericParameterProvider? context, TypeReference typeRef)
             {
                 if (typeRef.IsGenericInstance)
                     throw new WeavingException($"Type is already a generic instance: {typeRef.FullName}");
@@ -380,7 +378,7 @@ namespace InlineIL.Fody.Model
 
                 foreach (var argTypeBuilder in _genericArgs)
                 {
-                    TypeReference argTypeRef;
+                    TypeReference? argTypeRef;
 
                     if (context != null)
                     {

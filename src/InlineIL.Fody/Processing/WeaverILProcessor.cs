@@ -19,8 +19,7 @@ namespace InlineIL.Fody.Processing
 
         public MethodDefinition Method { get; }
 
-        [CanBeNull]
-        public MethodLocals Locals { get; private set; }
+        public MethodLocals? Locals { get; private set; }
 
         public WeaverILProcessor(MethodDefinition method)
         {

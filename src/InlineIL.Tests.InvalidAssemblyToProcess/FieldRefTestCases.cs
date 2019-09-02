@@ -9,12 +9,12 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
     {
         public void NullField()
         {
-            Ldfld(new FieldRef(typeof(FieldRefTestCases), null));
+            Ldfld(new FieldRef(typeof(FieldRefTestCases), null!));
         }
 
         public void NullFieldRef()
         {
-            Ldfld(null);
+            Ldfld(null!);
         }
 
         public void UnknownField()

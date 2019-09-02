@@ -9,7 +9,7 @@ namespace InlineIL.Fody.Support
     {
         public bool GenerateSequencePoints { get; }
 
-        public WeaverConfig([CanBeNull] WeaverConfigOptions config, ModuleDefinition module)
+        public WeaverConfig(WeaverConfigOptions? config, ModuleDefinition module)
         {
             if (config == null)
                 config = new WeaverConfigOptions(null);
