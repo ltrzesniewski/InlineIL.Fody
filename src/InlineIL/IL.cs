@@ -44,7 +44,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The type of the value to push.</typeparam>
         /// <param name="value">The value to push.</param>
-        public static void Push<T>(T value)
+        public static void Push<T>([AllowNull] T value)
             => Throw();
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The type of the value to push.</typeparam>
         /// <param name="value">The reference to push.</param>
-        public static void Push<T>(ref T value)
+        public static void Push<T>([AllowNull] ref T value)
             => Throw();
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The type of the value to pop.</typeparam>
         /// <param name="value">A reference to a local variable receiving the value.</param>
-        public static void Pop<T>(out T value)
+        public static void Pop<T>([MaybeNull] out T value)
             => throw Throw();
 
         /// <summary>

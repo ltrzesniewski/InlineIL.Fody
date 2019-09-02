@@ -29,6 +29,22 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_push_string_value()
+        {
+            var result = (string)GetInstance().PushValue();
+
+            result.ShouldEqual("Hello");
+        }
+
+        [Fact]
+        public void should_push_null_string_value()
+        {
+            var result = (string?)GetInstance().PushNullValue();
+
+            result.ShouldBeNull();
+        }
+
+        [Fact]
         public void should_push_value_by_ref()
         {
             var a = 42;
