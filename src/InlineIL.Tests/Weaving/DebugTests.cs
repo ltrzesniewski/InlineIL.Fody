@@ -16,15 +16,13 @@ namespace InlineIL.Tests.Weaving
             var type = typeof(MethodRefTestCases);
             var methodName = nameof(MethodRefTestCases.ReturnType);
 
-            using (var module = ModuleDefinition.ReadModule(assemblyPath))
-            {
-                var weavingContext = new ModuleWeavingContext(module, new WeaverConfig(null, module));
+            using var module = ModuleDefinition.ReadModule(assemblyPath);
+            var weavingContext = new ModuleWeavingContext(module, new WeaverConfig(null, module));
 
-                var typeDef = module.GetTypes().Single(i => i.FullName == type.FullName);
-                var methodDef = typeDef.Methods.Single(i => i.Name == methodName);
+            var typeDef = module.GetTypes().Single(i => i.FullName == type.FullName);
+            var methodDef = typeDef.Methods.Single(i => i.Name == methodName);
 
-                new MethodWeaver(weavingContext, methodDef).Process();
-            }
+            new MethodWeaver(weavingContext, methodDef).Process();
         }
     }
 }

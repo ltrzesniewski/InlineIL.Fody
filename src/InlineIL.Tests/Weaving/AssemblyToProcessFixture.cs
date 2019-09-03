@@ -38,19 +38,18 @@ namespace InlineIL.Tests.Weaving
                 writeSymbols: true
             );
 
-            using (var assemblyResolver = new TestAssemblyResolver())
+            using var assemblyResolver = new TestAssemblyResolver();
+
+            var readerParams = new ReaderParameters(ReadingMode.Immediate)
             {
-                var readerParams = new ReaderParameters(ReadingMode.Immediate)
-                {
-                    ReadSymbols = true,
-                    AssemblyResolver = assemblyResolver
-                };
+                ReadSymbols = true,
+                AssemblyResolver = assemblyResolver
+            };
 
-                var originalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
-                var resultModule = ModuleDefinition.ReadModule(testResult.AssemblyPath, readerParams);
+            var originalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
+            var resultModule = ModuleDefinition.ReadModule(testResult.AssemblyPath, readerParams);
 
-                return (testResult, originalModule, resultModule);
-            }
+            return (testResult, originalModule, resultModule);
         }
 
         internal class GuardedWeaver : ModuleWeaver

@@ -18,13 +18,12 @@ namespace InlineIL.Tests.Weaving
 
             TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly<UnverifiableAssemblyToProcessReference>(), false);
 
-            using (var assemblyResolver = new TestAssemblyResolver())
+            using var assemblyResolver = new TestAssemblyResolver();
+
+            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate)
             {
-                ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate)
-                {
-                    AssemblyResolver = assemblyResolver
-                });
-            }
+                AssemblyResolver = assemblyResolver
+            });
         }
     }
 }

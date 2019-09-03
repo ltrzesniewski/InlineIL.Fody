@@ -18,23 +18,14 @@ namespace InlineIL.Fody.Support
 
         private static bool ShouldGenerateSequencePoints(WeaverConfigOptions config, ModuleDefinition module)
         {
-            switch (config.SequencePoints)
+            return config.SequencePoints switch
             {
-                case WeaverConfigOptions.SequencePointsBehavior.False:
-                    return false;
-
-                case WeaverConfigOptions.SequencePointsBehavior.True:
-                    return true;
-
-                case WeaverConfigOptions.SequencePointsBehavior.Debug:
-                    return module.IsDebugBuild();
-
-                case WeaverConfigOptions.SequencePointsBehavior.Release:
-                    return !module.IsDebugBuild();
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                WeaverConfigOptions.SequencePointsBehavior.False => false,
+                WeaverConfigOptions.SequencePointsBehavior.True => true,
+                WeaverConfigOptions.SequencePointsBehavior.Debug => module.IsDebugBuild(),
+                WeaverConfigOptions.SequencePointsBehavior.Release => !module.IsDebugBuild(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }
