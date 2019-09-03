@@ -19,7 +19,7 @@ namespace InlineIL.Tests.AssemblyToProcess
 
         public string? PushNullValue()
         {
-            IL.Push<string>(null);
+            IL.Push<string?>(null);
             return IL.Return<string?>();
         }
 

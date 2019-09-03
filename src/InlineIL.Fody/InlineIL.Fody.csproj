@@ -8,9 +8,5 @@
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Compile Include="..\InlineIL\NullableAttributes.cs" Link="Support\%(Filename)%(Extension)" />
-  </ItemGroup>
 
 </Project>
