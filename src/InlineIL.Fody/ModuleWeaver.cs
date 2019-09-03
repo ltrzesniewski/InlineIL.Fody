@@ -69,7 +69,7 @@ namespace InlineIL.Fody
 
             method.CustomDebugInformations.Clear();
 
-            MethodReference exceptionCtor = null;
+            MethodReference? exceptionCtor = null;
 
             var coreLibrary = ModuleDefinition.GetCoreLibrary();
             if (coreLibrary != null)
@@ -150,7 +150,7 @@ namespace InlineIL.Fody
             }
         }
 
-        protected virtual void AddError(string message, SequencePoint sequencePoint)
+        protected virtual void AddError(string message, SequencePoint? sequencePoint)
             => _log.Error(message, sequencePoint);
     }
 }

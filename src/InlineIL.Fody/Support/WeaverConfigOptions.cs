@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Xml.Linq;
 using Fody;
-using JetBrains.Annotations;
 
 namespace InlineIL.Fody.Support
 {
@@ -10,7 +9,7 @@ namespace InlineIL.Fody.Support
     {
         public SequencePointsBehavior SequencePoints { get; private set; } = SequencePointsBehavior.Debug;
 
-        public WeaverConfigOptions([CanBeNull] XElement element)
+        public WeaverConfigOptions(XElement? element)
         {
             if (element != null)
                 LoadFrom(element);

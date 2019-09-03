@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
 using InlineIL.Fody.Support;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -23,7 +22,6 @@ namespace InlineIL.Fody.Processing
             _il = il;
         }
 
-        [NotNull]
         public string ConsumeArgString(Instruction instruction)
         {
             if (instruction.OpCode == OpCodes.Ldstr)
@@ -73,7 +71,7 @@ namespace InlineIL.Fody.Processing
                 case Code.Conv_U8:
                 case Code.Conv_R4:
                 case Code.Conv_R8:
-                    var value = ConsumeArgConst(instruction.PrevSkipNops());
+                    var value = ConsumeArgConst(instruction.PrevSkipNops() ?? throw new InstructionWeavingException(instruction, "Invalid instruction at start of method"));
                     _il.Remove(instruction);
                     return value;
             }
@@ -81,11 +79,9 @@ namespace InlineIL.Fody.Processing
             throw UnexpectedInstruction(instruction, "a constant value");
         }
 
-        [NotNull]
         public TypeReference ConsumeArgTypeRef(Instruction typeRefInstruction)
             => ConsumeArgTypeRefBuilder(typeRefInstruction).Build();
 
-        [NotNull]
         private TypeRefBuilder ConsumeArgTypeRefBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -254,7 +250,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public MethodReference ConsumeArgMethodRef(Instruction methodRefInstruction)
         {
             return ConsumeArgMethodRefBuilder(methodRefInstruction).Build();
@@ -369,7 +364,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public FieldReference ConsumeArgFieldRef(Instruction fieldRefInstruction)
         {
             return ConsumeArgFieldRefBuilder(fieldRefInstruction).Build();
@@ -389,7 +383,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public T[] ConsumeArgArray<T>(Instruction instruction, Func<Instruction, T> consumeItem)
         {
             if (instruction.OpCode == OpCodes.Call)
@@ -432,7 +425,7 @@ namespace InlineIL.Fody.Processing
                 if (!stelemInstruction.OpCode.IsStelem())
                     throw UnexpectedInstruction(stelemInstruction, "stelem");
 
-                args[index] = consumeItem(stelemInstruction.PrevSkipNops());
+                args[index] = consumeItem(stelemInstruction.PrevSkipNops() ?? throw new InstructionWeavingException(stelemInstruction, "Invalid array construction at start of method"));
 
                 currentDupInstruction = stelemInstruction.NextSkipNops();
 
@@ -447,7 +440,6 @@ namespace InlineIL.Fody.Processing
             return args;
         }
 
-        [NotNull]
         public LocalVarBuilder ConsumeArgLocalVarBuilder(Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
@@ -492,7 +484,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [NotNull]
         public VariableDefinition ConsumeArgLocalRef(Instruction instruction)
         {
             var localName = ConsumeArgString(instruction);
@@ -521,7 +512,6 @@ namespace InlineIL.Fody.Processing
             return paramIndex;
         }
 
-        [NotNull]
         public CallSite ConsumeArgCallSite(Instruction callSiteInstruction)
         {
             return ConsumeArgStandAloneMethodSigBuilder(callSiteInstruction).Build();
@@ -574,10 +564,10 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, OpCode expectedOpcode)
+        private static InstructionWeavingException UnexpectedInstruction(Instruction? instruction, OpCode expectedOpcode)
             => UnexpectedInstruction(instruction, expectedOpcode.Name);
 
-        private static InstructionWeavingException UnexpectedInstruction([CanBeNull] Instruction instruction, string expected)
+        private static InstructionWeavingException UnexpectedInstruction(Instruction? instruction, string expected)
             => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction}{Environment.NewLine}InlineIL requires that arguments to IL-emitting methods be constructed in place.");
     }
 }

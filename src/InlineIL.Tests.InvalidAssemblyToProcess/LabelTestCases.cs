@@ -8,12 +8,12 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
     {
         public void NullLabelName()
         {
-            Br(null);
+            Br(null!);
         }
 
         public void NullLabel()
         {
-            IL.MarkLabel(null);
+            IL.MarkLabel(null!);
         }
 
         public void UndefinedLabel()

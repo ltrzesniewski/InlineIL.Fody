@@ -11,6 +11,18 @@ namespace InlineIL.Tests.AssemblyToProcess
     {
         public static int StaticIntField;
 
+        public string PushValue()
+        {
+            IL.Push("Hello");
+            return IL.Return<string>();
+        }
+
+        public string? PushNullValue()
+        {
+            IL.Push<string?>(null);
+            return IL.Return<string?>();
+        }
+
         public int MultiplyBy3(int value)
         {
             Ldarg(1);

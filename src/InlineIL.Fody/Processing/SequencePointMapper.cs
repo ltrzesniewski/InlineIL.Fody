@@ -2,7 +2,6 @@
 using System.Linq;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Support;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -22,8 +21,7 @@ namespace InlineIL.Fody.Processing
             _inputSequencePoints = _method.DebugInformation.SequencePoints.ToList();
         }
 
-        [CanBeNull]
-        public SequencePoint GetInputSequencePoint([CanBeNull] Instruction instruction)
+        public SequencePoint? GetInputSequencePoint(Instruction? instruction)
         {
             if (instruction == null)
                 return null;
@@ -31,8 +29,7 @@ namespace InlineIL.Fody.Processing
             return _inputSequencePoints.LastOrDefault(sp => sp.Offset <= instruction.Offset);
         }
 
-        [CanBeNull]
-        public SequencePoint MapSequencePoint([CanBeNull] Instruction inputInstruction, [CanBeNull] Instruction outputInstruction)
+        public SequencePoint? MapSequencePoint(Instruction? inputInstruction, Instruction? outputInstruction)
         {
             if (inputInstruction == null || outputInstruction == null)
                 return null;
@@ -64,7 +61,7 @@ namespace InlineIL.Fody.Processing
             return outputSequencePoint;
         }
 
-        public void MergeWithPreviousSequencePoint(SequencePoint sequencePoint)
+        public void MergeWithPreviousSequencePoint(SequencePoint? sequencePoint)
         {
             if (sequencePoint == null)
                 return;
@@ -96,7 +93,7 @@ namespace InlineIL.Fody.Processing
         private void RemoveObsoleteSequencePoints()
         {
             var sequencePoints = _method.DebugInformation.SequencePoints;
-            HashSet<Instruction> instructions = null;
+            HashSet<Instruction>? instructions = null;
 
             for (var i = sequencePoints.Count - 1; i >= 0; --i)
             {

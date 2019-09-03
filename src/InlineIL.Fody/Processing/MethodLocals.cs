@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -34,11 +34,10 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        [CanBeNull]
-        public VariableDefinition TryGetByName(string name)
+        public VariableDefinition? TryGetByName(string name)
             => _localsByName.GetValueOrDefault(name);
 
-        public static void MapMacroInstruction([CanBeNull] MethodLocals locals, Instruction instruction)
+        public static void MapMacroInstruction(MethodLocals? locals, Instruction instruction)
         {
             switch (instruction.OpCode.Code)
             {
@@ -76,7 +75,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        public static bool MapIndexInstruction([CanBeNull] MethodLocals locals, ref OpCode opCode, int index, out VariableDefinition result)
+        public static bool MapIndexInstruction(MethodLocals? locals, ref OpCode opCode, int index, [NotNullWhen(true)] out VariableDefinition? result)
         {
             switch (opCode.Code)
             {
@@ -97,7 +96,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private static VariableDefinition GetLocalByIndex([CanBeNull] MethodLocals locals, int index)
+        private static VariableDefinition GetLocalByIndex(MethodLocals? locals, int index)
         {
             if (locals == null)
                 throw new WeavingException("No locals are defined");

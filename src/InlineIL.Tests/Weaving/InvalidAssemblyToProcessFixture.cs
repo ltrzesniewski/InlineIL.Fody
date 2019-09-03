@@ -20,13 +20,12 @@ namespace InlineIL.Tests.Weaving
             var weavingTask = new ModuleWeaver();
             TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly<InvalidAssemblyToProcessReference>(), false);
 
-            using (var assemblyResolver = new TestAssemblyResolver())
+            using var assemblyResolver = new TestAssemblyResolver();
+
+            ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate)
             {
-                ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate)
-                {
-                    AssemblyResolver = assemblyResolver
-                });
-            }
+                AssemblyResolver = assemblyResolver
+            });
         }
 
         public static string ShouldHaveError(string className, string methodName, bool sequencePointRequired)

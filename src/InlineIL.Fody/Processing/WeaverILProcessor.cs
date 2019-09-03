@@ -5,7 +5,6 @@ using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
 using InlineIL.Fody.Support;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -19,8 +18,7 @@ namespace InlineIL.Fody.Processing
 
         public MethodDefinition Method { get; }
 
-        [CanBeNull]
-        public MethodLocals Locals { get; private set; }
+        public MethodLocals? Locals { get; private set; }
 
         public WeaverILProcessor(MethodDefinition method)
         {

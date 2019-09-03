@@ -8,7 +8,7 @@ namespace InlineIL.Fody.Extensions
     internal static partial class CecilExtensions
     {
         [ContractAnnotation("type:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this TypeReference type, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this TypeReference? type, ModuleWeavingContext context)
         {
             if (type == null)
                 return false;
@@ -17,11 +17,11 @@ namespace InlineIL.Fody.Extensions
                 return result;
 
             context.LibUsageTypeCache[type] = false;
-            result = DoCheck();
+            result = DoCheck(type, context);
             context.LibUsageTypeCache[type] = result;
             return result;
 
-            bool DoCheck()
+            static bool DoCheck(TypeReference type, ModuleWeavingContext context)
             {
                 switch (type)
                 {
@@ -51,7 +51,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("typeDef:null => false")]
-        public static bool IsInlineILTypeUsageDeep([CanBeNull] this TypeDefinition typeDef, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsageDeep(this TypeDefinition? typeDef, ModuleWeavingContext context)
         {
             if (typeDef == null)
                 return false;
@@ -68,7 +68,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("method:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this IMethodSignature method, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this IMethodSignature? method, ModuleWeavingContext context)
         {
             if (method == null)
                 return false;
@@ -100,7 +100,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("fieldRef:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this FieldReference fieldRef, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this FieldReference? fieldRef, ModuleWeavingContext context)
         {
             if (fieldRef == null)
                 return false;
@@ -123,7 +123,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("propRef:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this PropertyReference propRef, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this PropertyReference? propRef, ModuleWeavingContext context)
         {
             if (propRef == null)
                 return false;
@@ -145,7 +145,7 @@ namespace InlineIL.Fody.Extensions
             return false;
         }
 
-        public static bool IsInlineILTypeUsage(this EventReference eventRef, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this EventReference? eventRef, ModuleWeavingContext context)
         {
             if (eventRef == null)
                 return false;
@@ -168,7 +168,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("paramDef:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this ParameterDefinition paramDef, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this ParameterDefinition? paramDef, ModuleWeavingContext context)
         {
             if (paramDef == null)
                 return false;
@@ -183,7 +183,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("attr:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this CustomAttribute attr, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this CustomAttribute? attr, ModuleWeavingContext context)
         {
             if (attr == null)
                 return false;
@@ -201,7 +201,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("interfaceImpl:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this InterfaceImplementation interfaceImpl, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this InterfaceImplementation? interfaceImpl, ModuleWeavingContext context)
         {
             if (interfaceImpl == null)
                 return false;
@@ -211,7 +211,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("constraint:null => false")]
-        public static bool IsInlineILTypeUsage([CanBeNull] this GenericParameterConstraint constraint, ModuleWeavingContext context)
+        public static bool IsInlineILTypeUsage(this GenericParameterConstraint? constraint, ModuleWeavingContext context)
         {
             if (constraint == null)
                 return false;

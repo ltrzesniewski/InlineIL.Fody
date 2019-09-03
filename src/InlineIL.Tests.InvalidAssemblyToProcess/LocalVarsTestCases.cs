@@ -39,20 +39,20 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         public void NullLocal()
         {
             IL.DeclareLocals(
-                null
+                null!
             );
         }
 
         public void NullLocalName()
         {
             IL.DeclareLocals(
-                new LocalVar(null, typeof(int))
+                new LocalVar(null!, typeof(int))
             );
         }
 
         public void NullLocalRefName()
         {
-            Ldloc(null);
+            Ldloc(null!);
         }
 
         public void UndefinedLocalByIndexMacro()

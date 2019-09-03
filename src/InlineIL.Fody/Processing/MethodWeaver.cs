@@ -35,7 +35,7 @@ namespace InlineIL.Fody.Processing
         public static bool NeedsProcessing(ModuleWeavingContext context, MethodDefinition method)
             => HasLibReference(context, method, out _);
 
-        private static bool HasLibReference(ModuleWeavingContext context, MethodDefinition method, out Instruction refInstruction)
+        private static bool HasLibReference(ModuleWeavingContext context, MethodDefinition method, out Instruction? refInstruction)
         {
             refInstruction = null;
 
@@ -148,11 +148,11 @@ namespace InlineIL.Fody.Processing
 
         private void ProcessMethodCalls()
         {
-            var instruction = Instructions.FirstOrDefault();
+            Instruction? instruction = Instructions.FirstOrDefault();
 
             while (instruction != null)
             {
-                var nextInstruction = instruction.Next;
+                Instruction? nextInstruction = instruction.Next;
 
                 if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
                 {
@@ -317,7 +317,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private void ProcessIlEmitMethodCall(Instruction emitCallInstruction, out Instruction nextInstruction)
+        private void ProcessIlEmitMethodCall(Instruction emitCallInstruction, out Instruction? nextInstruction)
         {
             var emittedInstruction = CreateInstructionToEmit();
             _il.Replace(emitCallInstruction, emittedInstruction);
@@ -593,7 +593,7 @@ namespace InlineIL.Fody.Processing
                                 {
                                     if (branchInstruction.Operand is Instruction branchTarget)
                                     {
-                                        branchTarget = branchTarget.SkipNops();
+                                        branchTarget = branchTarget.SkipNops() ?? throw new InstructionWeavingException(branchTarget, "Unexpected end of method");
 
                                         if (branchTarget.OpCode == OpCodes.Ldloc && ((VariableReference)branchTarget.Operand).Index == localIndex)
                                             return;

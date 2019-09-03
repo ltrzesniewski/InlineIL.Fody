@@ -13,7 +13,6 @@ namespace InlineIL.Fody.Extensions
 {
     internal static partial class CecilExtensions
     {
-        [NotNull]
         public static TypeDefinition ResolveRequiredType(this TypeReference typeRef)
         {
             TypeDefinition typeDef;
@@ -30,7 +29,6 @@ namespace InlineIL.Fody.Extensions
             return typeDef ?? throw new WeavingException($"Could not resolve type {typeRef.FullName}");
         }
 
-        [NotNull]
         private static TypeDefinition ResolveRequiredType(this ExportedType exportedType)
         {
             TypeDefinition typeDef;
@@ -162,8 +160,7 @@ namespace InlineIL.Fody.Extensions
             return result;
         }
 
-        [CanBeNull]
-        public static Instruction PrevSkipNops(this Instruction instruction)
+        public static Instruction? PrevSkipNops(this Instruction? instruction)
         {
             instruction = instruction?.Previous;
 
@@ -173,8 +170,7 @@ namespace InlineIL.Fody.Extensions
             return instruction;
         }
 
-        [ContractAnnotation("null => null; notnull => notnull")]
-        public static Instruction SkipNops(this Instruction instruction)
+        public static Instruction? SkipNops(this Instruction? instruction)
         {
             while (instruction != null && instruction.OpCode == OpCodes.Nop)
                 instruction = instruction.Next;
@@ -182,11 +178,9 @@ namespace InlineIL.Fody.Extensions
             return instruction;
         }
 
-        [CanBeNull]
-        public static Instruction NextSkipNops(this Instruction instruction)
+        public static Instruction? NextSkipNops(this Instruction? instruction)
             => instruction?.Next?.SkipNops();
 
-        [NotNull]
         public static Instruction GetValueConsumingInstruction(this Instruction instruction)
         {
             var stackSize = 0;
@@ -202,7 +196,6 @@ namespace InlineIL.Fody.Extensions
             }
         }
 
-        [NotNull]
         public static Instruction[] GetArgumentPushInstructions(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl != FlowControl.Call)
@@ -226,7 +219,7 @@ namespace InlineIL.Fody.Extensions
         private static Instruction BackwardScanPush(ref Instruction currentInstruction)
         {
             var startInstruction = currentInstruction;
-            Instruction result = null;
+            Instruction? result = null;
             var stackToConsume = 1;
 
             while (stackToConsume > 0)
@@ -412,8 +405,7 @@ namespace InlineIL.Fody.Extensions
                 yield return handler.HandlerEnd;
         }
 
-        [CanBeNull]
-        public static IMetadataScope GetCoreLibrary(this ModuleDefinition module)
+        public static IMetadataScope? GetCoreLibrary(this ModuleDefinition module)
         {
 #pragma warning disable 618
             return module.TypeSystem.CoreLibrary;
@@ -447,7 +439,7 @@ namespace InlineIL.Fody.Extensions
         }
 
         [ContractAnnotation("null => false")]
-        public static bool IsInlineILAssembly([CanBeNull] this AssemblyNameReference assembly)
+        public static bool IsInlineILAssembly(this AssemblyNameReference? assembly)
             => assembly?.Name == "InlineIL";
     }
 }

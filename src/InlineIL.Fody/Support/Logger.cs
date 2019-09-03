@@ -17,7 +17,7 @@ namespace InlineIL.Fody.Support
         public void Info(string message)
             => _moduleWeaver.LogInfo?.Invoke(message);
 
-        public void Warning(string message, SequencePoint sequencePoint)
+        public void Warning(string message, SequencePoint? sequencePoint)
         {
             if (_moduleWeaver.LogWarningPoint != null)
             {
@@ -28,7 +28,7 @@ namespace InlineIL.Fody.Support
             _moduleWeaver.LogWarning?.Invoke(message);
         }
 
-        public void Error(string message, SequencePoint sequencePoint)
+        public void Error(string message, SequencePoint? sequencePoint)
         {
             if (_moduleWeaver.LogErrorPoint != null)
             {

@@ -15,13 +15,13 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
     {
         public void Local()
         {
-            TypeRef local = null;
+            TypeRef? local = null;
             DoNothing(ref local);
         }
 
         public void Local2()
         {
-            Foo<TypeRef> local = null;
+            Foo<TypeRef>? local = null;
             DoNothing(ref local);
         }
 
@@ -108,7 +108,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
 
         private class SomeAttributeAttribute : Attribute
         {
-            public Type Type { get; set; }
+            public Type? Type { get; set; }
 
             public SomeAttributeAttribute()
             {
@@ -146,12 +146,12 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
 
         public class FieldType
         {
-            public static TypeRef Item;
+            public static TypeRef? Item;
         }
 
         public class PropType
         {
-            public static TypeRef Item { get; set; }
+            public static TypeRef? Item { get; set; }
         }
 
         public class EventType

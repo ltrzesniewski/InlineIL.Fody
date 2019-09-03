@@ -123,25 +123,24 @@ namespace InlineIL.Tests
         [Fact]
         public void should_detect_debug_builds()
         {
-            using (var assemblyResolver = new TestAssemblyResolver())
-            {
-                var module = ModuleDefinition.ReadModule(
-                    typeof(CecilExtensionsTests).Assembly.Location,
-                    new ReaderParameters(ReadingMode.Immediate)
-                    {
-                        AssemblyResolver = assemblyResolver
-                    }
-                );
+            using var assemblyResolver = new TestAssemblyResolver();
 
-                const bool isDebug =
+            var module = ModuleDefinition.ReadModule(
+                typeof(CecilExtensionsTests).Assembly.Location,
+                new ReaderParameters(ReadingMode.Immediate)
+                {
+                    AssemblyResolver = assemblyResolver
+                }
+            );
+
+            const bool isDebug =
 #if DEBUG
-                    true;
+                true;
 #else
-                    false;
+                false;
 #endif
 
-                module.IsDebugBuild().ShouldEqual(isDebug);
-            }
+            module.IsDebugBuild().ShouldEqual(isDebug);
         }
 
         [Fact]
@@ -149,7 +148,7 @@ namespace InlineIL.Tests
         [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
         public void should_return_false_on_null()
         {
-            var context = new ModuleWeavingContext(null, null);
+            var context = new ModuleWeavingContext(null!, null!);
 
             CecilExtensions.IsInlineILTypeUsage(default(CustomAttribute), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsage(default(FieldReference), context).ShouldBeFalse();
