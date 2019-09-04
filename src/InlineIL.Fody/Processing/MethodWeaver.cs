@@ -279,7 +279,7 @@ namespace InlineIL.Fody.Processing
                 throw new WeavingException($"Found invalid references to instructions:{Environment.NewLine}{string.Join(Environment.NewLine, invalidRefs)}");
         }
 
-        private void ProcessIlMethodCall(Instruction instruction, out Instruction nextInstruction)
+        private void ProcessIlMethodCall(Instruction instruction, out Instruction? nextInstruction)
         {
             var calledMethod = (MethodReference)instruction.Operand;
             nextInstruction = instruction.Next;
@@ -468,7 +468,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private void ProcessTypeRefCall(Instruction instruction, out Instruction nextInstruction)
+        private void ProcessTypeRefCall(Instruction instruction, out Instruction? nextInstruction)
         {
             var calledMethod = (MethodReference)instruction.Operand;
             nextInstruction = instruction.Next;
@@ -551,7 +551,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private void ProcessUnreachableMethod(Instruction instruction, out Instruction nextInstruction)
+        private void ProcessUnreachableMethod(Instruction instruction, out Instruction? nextInstruction)
         {
             var throwInstruction = instruction.NextSkipNops();
             if (throwInstruction?.OpCode != OpCodes.Throw)

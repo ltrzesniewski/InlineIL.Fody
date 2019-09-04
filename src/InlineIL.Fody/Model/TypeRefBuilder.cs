@@ -13,8 +13,7 @@ namespace InlineIL.Fody.Model
     internal class TypeRefBuilder
     {
         private readonly ModuleDefinition _module;
-        private readonly List<TypeReference> _optionalModifiers = new List<TypeReference>();
-        private readonly List<TypeReference> _requiredModifiers = new List<TypeReference>();
+        private List<(TypeReference type, bool required)>? _modifiers;
         private TypeRefResolver _resolver;
 
         public TypeRefBuilder(ModuleDefinition module, TypeReference typeRef)
@@ -89,11 +88,16 @@ namespace InlineIL.Fody.Model
 
         private TypeReference AddModifiers(TypeReference type)
         {
-            foreach (var modifier in _optionalModifiers)
-                type = type.MakeOptionalModifierType(modifier);
-
-            foreach (var modifier in _requiredModifiers)
-                type = type.MakeRequiredModifierType(modifier);
+            if (_modifiers != null)
+            {
+                foreach (var (modifierType, required) in _modifiers)
+                {
+                    if (required)
+                        type = type.MakeRequiredModifierType(modifierType);
+                    else
+                        type = type.MakeOptionalModifierType(modifierType);
+                }
+            }
 
             return type;
         }
@@ -114,10 +118,18 @@ namespace InlineIL.Fody.Model
             => _resolver = new GenericTypeRefResolver(_resolver, genericArgs);
 
         public void AddOptionalModifier(TypeReference modifierType)
-            => _optionalModifiers.Add(modifierType);
+            => AddModifier(modifierType, false);
 
         public void AddRequiredModifier(TypeReference modifierType)
-            => _requiredModifiers.Add(modifierType);
+            => AddModifier(modifierType, true);
+
+        private void AddModifier(TypeReference modifierType, bool required)
+        {
+            if (_modifiers == null)
+                _modifiers = new List<(TypeReference, bool)>();
+
+            _modifiers.Add((modifierType, required));
+        }
 
         public override string ToString() => GetDisplayName();
 

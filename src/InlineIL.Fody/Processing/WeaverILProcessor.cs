@@ -30,7 +30,7 @@ namespace InlineIL.Fody.Processing
 
         public void Remove(Instruction instruction)
         {
-            var newRef = instruction.Next ?? instruction.Previous;
+            var newRef = instruction.Next ?? instruction.Previous ?? throw new InstructionWeavingException(instruction, "Cannot remove single instruction of method");
             _il.Remove(instruction);
             UpdateReferences(instruction, newRef);
         }

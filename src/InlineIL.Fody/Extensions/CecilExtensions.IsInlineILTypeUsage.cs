@@ -17,11 +17,11 @@ namespace InlineIL.Fody.Extensions
                 return result;
 
             context.LibUsageTypeCache[type] = false;
-            result = DoCheck(type, context);
+            result = DoCheck();
             context.LibUsageTypeCache[type] = result;
             return result;
 
-            static bool DoCheck(TypeReference type, ModuleWeavingContext context)
+            bool DoCheck()
             {
                 switch (type)
                 {
@@ -45,7 +45,7 @@ namespace InlineIL.Fody.Extensions
                         return t.ElementType.IsInlineILTypeUsage(context);
 
                     default:
-                        return KnownNames.Full.AllTypes.Contains(type.FullName);
+                        return KnownNames.Full.AllTypes.Contains(type!.FullName);
                 }
             }
         }
