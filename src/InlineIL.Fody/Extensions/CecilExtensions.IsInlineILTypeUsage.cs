@@ -17,35 +17,33 @@ namespace InlineIL.Fody.Extensions
                 return result;
 
             context.LibUsageTypeCache[type] = false;
-            result = DoCheck();
+            result = DoCheck(type, context);
             context.LibUsageTypeCache[type] = result;
             return result;
 
-            bool DoCheck()
+            static bool DoCheck(TypeReference typeRef, ModuleWeavingContext ctx)
             {
-                switch (type)
+                switch (typeRef)
                 {
                     case GenericInstanceType t:
-                        return t.ElementType.IsInlineILTypeUsage(context)
-                               || t.GenericParameters.Any(i => i.IsInlineILTypeUsage(context))
-                               || t.GenericArguments.Any(i => i.IsInlineILTypeUsage(context));
+                        return t.ElementType.IsInlineILTypeUsage(ctx)
+                               || t.GenericParameters.Any(i => i.IsInlineILTypeUsage(ctx))
+                               || t.GenericArguments.Any(i => i.IsInlineILTypeUsage(ctx));
 
                     case GenericParameter t:
-                        return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage(context))
-                               || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
+                        return t.HasConstraints && t.Constraints.Any(c => c.IsInlineILTypeUsage(ctx))
+                               || t.HasCustomAttributes && t.CustomAttributes.Any(i => i.IsInlineILTypeUsage(ctx));
 
                     case IModifierType t:
-                        return t.ElementType.IsInlineILTypeUsage(context)
-                               || t.ModifierType.IsInlineILTypeUsage(context);
+                        return t.ElementType.IsInlineILTypeUsage(ctx)
+                               || t.ModifierType.IsInlineILTypeUsage(ctx);
 
                     case FunctionPointerType t:
-                        return ((IMethodSignature)t).IsInlineILTypeUsage(context);
-
-                    case TypeSpecification t:
-                        return t.ElementType.IsInlineILTypeUsage(context);
+                        return ((IMethodSignature)t).IsInlineILTypeUsage(ctx);
 
                     default:
-                        return KnownNames.Full.AllTypes.Contains(type!.FullName);
+                        return typeRef.Scope?.MetadataScopeType == MetadataScopeType.AssemblyNameReference
+                               && typeRef.Scope.Name == "InlineIL";
                 }
             }
         }

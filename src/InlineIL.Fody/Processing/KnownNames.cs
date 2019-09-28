@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace InlineIL.Fody.Processing
 {
@@ -13,9 +12,7 @@ namespace InlineIL.Fody.Processing
             public const string TypeRefType = "TypeRef";
             public const string MethodRefType = "MethodRef";
             public const string FieldRefType = "FieldRef";
-            public const string LocalVarType = "LocalVar";
             public const string StandAloneMethodSigType = "StandAloneMethodSig";
-            public const string GenericParametersType = "GenericParameters";
 
             public const string PushMethod = "Push";
             public const string PopMethod = "Pop";
@@ -36,21 +33,6 @@ namespace InlineIL.Fody.Processing
             public const string TypeRefType = _nsPrefix + Short.TypeRefType;
             public const string MethodRefType = _nsPrefix + Short.MethodRefType;
             public const string FieldRefType = _nsPrefix + Short.FieldRefType;
-            public const string LocalVarType = _nsPrefix + Short.LocalVarType;
-            public const string StandAloneMethodSigType = _nsPrefix + Short.StandAloneMethodSigType;
-            public const string GenericParametersType = _nsPrefix + Short.GenericParametersType;
-
-            public static readonly HashSet<string> AllTypes = new HashSet<string>
-            {
-                IlType,
-                IlEmitType,
-                TypeRefType,
-                MethodRefType,
-                FieldRefType,
-                LocalVarType,
-                StandAloneMethodSigType,
-                GenericParametersType
-            };
         }
     }
 }
