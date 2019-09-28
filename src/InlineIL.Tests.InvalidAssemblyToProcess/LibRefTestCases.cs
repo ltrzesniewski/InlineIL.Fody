@@ -140,7 +140,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
 #pragma warning disable 67
             [SomeAttribute(typeof(TypeRef))]
-            public event Action Item;
+            public event Action? Item;
 #pragma warning restore 67
         }
 
@@ -157,7 +157,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         public class EventType
         {
 #pragma warning disable 67
-            public static event Action<TypeRef> Item;
+            public static event Action<TypeRef>? Item;
 #pragma warning restore 67
         }
 

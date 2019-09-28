@@ -20,7 +20,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
             set => Value = value;
         }
 
-        public event Action Event;
+        public event Action? Event;
 
         public void UnknownMethodWithoutParams()
         {

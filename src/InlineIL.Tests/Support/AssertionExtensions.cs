@@ -21,8 +21,12 @@ namespace InlineIL.Tests.Support
             => Assert.Null(actual);
 
         [ContractAnnotation("null => halt")]
-        public static void ShouldNotBeNull(this object? actual)
-            => Assert.NotNull(actual);
+        public static T ShouldNotBeNull<T>(this T? actual)
+            where T : class
+        {
+            Assert.NotNull(actual);
+            return actual!;
+        }
 
         public static void ShouldAll<T>(this IEnumerable<T> items, Func<T, bool> test)
             => Assert.All(items, item => Assert.True(test(item)));

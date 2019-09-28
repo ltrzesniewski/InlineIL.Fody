@@ -383,7 +383,7 @@ namespace InlineIL.Tests.AssemblyToProcess
         private class GenericType<TClass>
         {
             public static string NormalMethod()
-                => typeof(TClass).FullName;
+                => typeof(TClass).FullName ?? string.Empty;
 
             public static string GenericMethod<TMethod>()
                 => $"{typeof(TClass).FullName} {typeof(TMethod).FullName}";

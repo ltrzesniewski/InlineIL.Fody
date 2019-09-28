@@ -22,13 +22,13 @@ namespace InlineIL.Tests
             var cecilCodes = typeof(OpCodes)
                              .GetFields(BindingFlags.Public | BindingFlags.Static)
                              .Where(field => field.IsInitOnly && field.FieldType == typeof(OpCode))
-                             .Select(field => (OpCode)field.GetValue(null))
+                             .Select(field => (OpCode)field.GetValue(null)!)
                              .ToDictionary(i => i.Value);
 
             var reflectionEmitCodes = typeof(System.Reflection.Emit.OpCodes)
                                       .GetFields(BindingFlags.Public | BindingFlags.Static)
                                       .Where(field => field.IsInitOnly && field.FieldType == typeof(System.Reflection.Emit.OpCode))
-                                      .Select(field => (System.Reflection.Emit.OpCode)field.GetValue(null))
+                                      .Select(field => (System.Reflection.Emit.OpCode)field.GetValue(null)!)
                                       .ToDictionary(i => i.Value);
 
             var values = new HashSet<short>();

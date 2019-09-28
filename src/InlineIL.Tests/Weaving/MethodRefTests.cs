@@ -139,7 +139,7 @@ namespace InlineIL.Tests.Weaving
         public void should_handle_method_token_load()
         {
             var handle = (RuntimeMethodHandle)GetInstance().ReturnMethodHandle();
-            MethodBase.GetMethodFromHandle(handle).Name.ShouldEqual(nameof(Type.GetTypeFromHandle));
+            MethodBase.GetMethodFromHandle(handle).ShouldNotBeNull().Name.ShouldEqual(nameof(Type.GetTypeFromHandle));
         }
 
         [Fact]
@@ -206,7 +206,7 @@ namespace InlineIL.Tests.Weaving
         public void should_access_type_initializer()
         {
             var result = (RuntimeMethodHandle)GetInstance().GetTypeInitializer();
-            MethodBase.GetMethodFromHandle(result).Name.ShouldEqual(".cctor");
+            MethodBase.GetMethodFromHandle(result).ShouldNotBeNull().Name.ShouldEqual(".cctor");
         }
 
         [Fact]

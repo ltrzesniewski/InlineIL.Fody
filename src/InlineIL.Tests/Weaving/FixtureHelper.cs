@@ -11,7 +11,7 @@ namespace InlineIL.Tests.Weaving
         {
             var assembly = typeof(T).Assembly;
             var assemblyPath = assembly.Location;
-            var assemblyDir = Path.GetDirectoryName(assemblyPath);
+            var assemblyDir = Path.GetDirectoryName(assemblyPath) ?? throw new InvalidOperationException($"Could not get parent directory: {assemblyPath}");
             var rootTestDir = Path.Combine(assemblyDir, "WeavingTest");
             var asmTestDir = Path.Combine(rootTestDir, Path.GetFileNameWithoutExtension(assemblyPath));
 
