@@ -125,9 +125,7 @@ namespace InlineIL.Fody.Model
 
         private void AddModifier(TypeReference modifierType, bool required)
         {
-            if (_modifiers == null)
-                _modifiers = new List<(TypeReference, bool)>();
-
+            _modifiers ??= new List<(TypeReference, bool)>();
             _modifiers.Add((modifierType, required));
         }
 
@@ -223,17 +221,12 @@ namespace InlineIL.Fody.Model
 
             public override string GetDisplayName()
             {
-                switch (_type)
+                return _type switch
                 {
-                    case GenericParameterType.Type:
-                        return "!" + _index;
-
-                    case GenericParameterType.Method:
-                        return "!!" + _index;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    GenericParameterType.Type => "!" + _index,
+                    GenericParameterType.Method => "!!" + _index,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
             }
         }
 

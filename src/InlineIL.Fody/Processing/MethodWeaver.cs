@@ -396,20 +396,13 @@ namespace InlineIL.Fody.Processing
 
                     case OperandType.InlineTok:
                     {
-                        switch (method.Parameters[0].ParameterType.FullName)
+                        return method.Parameters[0].ParameterType.FullName switch
                         {
-                            case KnownNames.Full.TypeRefType:
-                                return _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single()));
-
-                            case KnownNames.Full.MethodRefType:
-                                return _il.Create(opCode, _consumer.ConsumeArgMethodRef(args.Single()));
-
-                            case KnownNames.Full.FieldRefType:
-                                return _il.Create(opCode, _consumer.ConsumeArgFieldRef(args.Single()));
-
-                            default:
-                                throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}");
-                        }
+                            KnownNames.Full.TypeRefType => _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single())),
+                            KnownNames.Full.MethodRefType => _il.Create(opCode, _consumer.ConsumeArgMethodRef(args.Single())),
+                            KnownNames.Full.FieldRefType => _il.Create(opCode, _consumer.ConsumeArgFieldRef(args.Single())),
+                            _ => throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}")
+                        };
                     }
 
                     case OperandType.InlineBrTarget:

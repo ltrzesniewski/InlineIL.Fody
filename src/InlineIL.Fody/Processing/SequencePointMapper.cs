@@ -102,13 +102,10 @@ namespace InlineIL.Fody.Processing
                 if (!_outputSequencePointMap.TryGetValue(sequencePoint, out var instruction))
                     continue;
 
-                if (instructions == null)
-                    instructions = _method.Body.Instructions.ToHashSet();
+                instructions ??= _method.Body.Instructions.ToHashSet();
 
                 if (!instructions.Contains(instruction))
-                {
                     sequencePoints.RemoveAt(i);
-                }
             }
         }
     }

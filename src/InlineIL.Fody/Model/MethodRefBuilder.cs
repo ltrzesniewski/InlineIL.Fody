@@ -106,17 +106,12 @@ namespace InlineIL.Fody.Model
 
             var properties = typeDef.Properties.Where(p => p.Name == propertyName).ToList();
 
-            switch (properties.Count)
+            return properties.Count switch
             {
-                case 1:
-                    return properties.Single();
-
-                case 0:
-                    throw new WeavingException($"Property '{propertyName}' not found in type {typeDef.FullName}");
-
-                default:
-                    throw new WeavingException($"Ambiguous property '{propertyName}' in type {typeDef.FullName}");
-            }
+                1 => properties.Single(),
+                0 => throw new WeavingException($"Property '{propertyName}' not found in type {typeDef.FullName}"),
+                _ => throw new WeavingException($"Ambiguous property '{propertyName}' in type {typeDef.FullName}")
+            };
         }
 
         public static MethodRefBuilder EventAdd(ModuleDefinition module, TypeReference typeRef, string eventName)
@@ -155,17 +150,12 @@ namespace InlineIL.Fody.Model
 
             var events = typeDef.Events.Where(e => e.Name == eventName).ToList();
 
-            switch (events.Count)
+            return events.Count switch
             {
-                case 1:
-                    return events.Single();
-
-                case 0:
-                    throw new WeavingException($"Event '{eventName}' not found in type {typeDef.FullName}");
-
-                default:
-                    throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}");
-            }
+                1 => events.Single(),
+                0 => throw new WeavingException($"Event '{eventName}' not found in type {typeDef.FullName}"),
+                _ => throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}")
+            };
         }
 
         public static MethodRefBuilder Constructor(ModuleDefinition module, TypeReference typeRef, IReadOnlyList<TypeRefBuilder> paramTypes)
