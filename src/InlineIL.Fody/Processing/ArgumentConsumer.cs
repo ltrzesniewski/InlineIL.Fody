@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
 using InlineIL.Fody.Support;
@@ -569,10 +570,22 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private static InstructionWeavingException UnexpectedInstruction(Instruction? instruction, OpCode expectedOpcode)
+        private static WeavingException UnexpectedInstruction(Instruction? instruction, OpCode expectedOpcode)
             => UnexpectedInstruction(instruction, expectedOpcode.Name);
 
-        private static InstructionWeavingException UnexpectedInstruction(Instruction? instruction, string expected)
-            => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction} - InlineIL requires that arguments to IL-emitting methods be constructed in place.");
+        private static WeavingException UnexpectedInstruction(Instruction? instruction, string expected)
+        {
+            switch (instruction?.OpCode.Code)
+            {
+                case null:
+                    return new WeavingException($"Expected {expected} but the instruction was missing");
+
+                case Code.Ldnull:
+                    return new InstructionWeavingException(instruction, $"Expected {expected} but was null");
+
+                default:
+                    return new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction} - InlineIL requires that arguments to IL-emitting methods be constructed in place.");
+            }
+        }
     }
 }
