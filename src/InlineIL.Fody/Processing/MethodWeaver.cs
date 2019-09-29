@@ -276,7 +276,7 @@ namespace InlineIL.Fody.Processing
 
             var invalidRefs = _il.GetAllReferencedInstructions().Except(Instructions).ToList();
             if (invalidRefs.Any())
-                throw new WeavingException($"Found invalid references to instructions:{Environment.NewLine}{string.Join(Environment.NewLine, invalidRefs)}");
+                throw new WeavingException($"Found invalid references to instructions: {string.Join(", ", invalidRefs)}");
         }
 
         private void ProcessIlMethodCall(Instruction instruction, out Instruction? nextInstruction)

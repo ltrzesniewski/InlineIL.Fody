@@ -568,6 +568,6 @@ namespace InlineIL.Fody.Processing
             => UnexpectedInstruction(instruction, expectedOpcode.Name);
 
         private static InstructionWeavingException UnexpectedInstruction(Instruction? instruction, string expected)
-            => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction}{Environment.NewLine}InlineIL requires that arguments to IL-emitting methods be constructed in place.");
+            => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction} - InlineIL requires that arguments to IL-emitting methods be constructed in place.");
     }
 }
