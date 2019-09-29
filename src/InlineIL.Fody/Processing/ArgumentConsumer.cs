@@ -24,13 +24,18 @@ namespace InlineIL.Fody.Processing
 
         public string ConsumeArgString(Instruction instruction)
         {
-            if (instruction.OpCode == OpCodes.Ldstr)
+            switch (instruction.OpCode.Code)
             {
-                _il.Remove(instruction);
-                return (string)instruction.Operand;
-            }
+                case Code.Ldstr:
+                    _il.Remove(instruction);
+                    return (string)instruction.Operand;
 
-            throw UnexpectedInstruction(instruction, OpCodes.Ldstr);
+                case Code.Ldnull:
+                    throw new InstructionWeavingException(instruction, "A non-null string literal is expected");
+
+                default:
+                    throw UnexpectedInstruction(instruction, "a string literal");
+            }
         }
 
         private int ConsumeArgInt32(Instruction instruction)
