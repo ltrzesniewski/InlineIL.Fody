@@ -102,6 +102,14 @@ namespace InlineIL.Examples
 
         [NonVersionable]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SkipInit<T>(out T value)
+        {
+            Ret();
+            throw IL.Unreachable();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SizeOf<T>()
         {
             Sizeof(typeof(T));
