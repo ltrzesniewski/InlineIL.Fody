@@ -61,13 +61,14 @@ namespace InlineIL.Fody.Extensions
             return clone;
         }
 
-        public static TypeReference CreateReference(this ExportedType exportedType, ModuleDefinition exportingModule)
+        public static TypeReference CreateReference(this ExportedType exportedType, ModuleDefinition exportingModule, ModuleDefinition targetModule)
         {
             var typeDef = exportedType.ResolveRequiredType();
+            var metadataScope = MapAssemblyReference(targetModule, exportingModule.Assembly.Name);
 
-            var typeRef = new TypeReference(exportedType.Namespace, exportedType.Name, exportingModule, exportingModule.Assembly.Name, typeDef.IsValueType)
+            var typeRef = new TypeReference(exportedType.Namespace, exportedType.Name, exportingModule, metadataScope, typeDef.IsValueType)
             {
-                DeclaringType = exportedType.DeclaringType?.CreateReference(exportingModule)
+                DeclaringType = exportedType.DeclaringType?.CreateReference(exportingModule, targetModule)
             };
 
             if (typeDef.HasGenericParameters)
@@ -79,16 +80,31 @@ namespace InlineIL.Fody.Extensions
             return typeRef;
         }
 
-        private static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, IAssemblyResolver assemblyResolver)
+        private static AssemblyNameReference MapAssemblyReference(ModuleDefinition module, AssemblyNameReference name)
+        {
+            // Try to map to an existing assembly reference by name,
+            // to avoid adding additional versions of a referenced assembly
+            // (netstandard v2.0 can be mapped to netstandard 2.1 for instance)
+
+            foreach (var assemblyReference in module.AssemblyReferences)
+            {
+                if (assemblyReference.Name == name.Name)
+                    return assemblyReference;
+            }
+
+            return name;
+        }
+
+        private static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, ModuleDefinition module)
         {
             if (scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
             {
                 var assemblyName = (AssemblyNameReference)scope;
-                var assembly = assemblyResolver.Resolve(assemblyName) ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
+                var assembly = module.AssemblyResolver.Resolve(assemblyName) ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
 
                 var exportedType = assembly.MainModule.ExportedTypes.FirstOrDefault(i => i.FullName == typeRef.FullName);
                 if (exportedType != null)
-                    return exportedType.CreateReference(assembly.MainModule);
+                    return exportedType.CreateReference(assembly.MainModule, module);
             }
 
             return typeRef;
@@ -118,9 +134,9 @@ namespace InlineIL.Fody.Extensions
             return clone;
         }
 
-        public static MethodReference MapToScope(this MethodReference method, IMetadataScope scope, IAssemblyResolver assemblyResolver)
+        public static MethodReference MapToScope(this MethodReference method, IMetadataScope scope, ModuleDefinition module)
         {
-            var clone = new MethodReference(method.Name, method.ReturnType.MapToScope(scope, assemblyResolver), method.DeclaringType.MapToScope(scope, assemblyResolver))
+            var clone = new MethodReference(method.Name, method.ReturnType.MapToScope(scope, module), method.DeclaringType.MapToScope(scope, module))
             {
                 HasThis = method.HasThis,
                 ExplicitThis = method.ExplicitThis,
@@ -130,7 +146,7 @@ namespace InlineIL.Fody.Extensions
             if (method.HasParameters)
             {
                 foreach (var param in method.Parameters)
-                    clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(scope, assemblyResolver)));
+                    clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(scope, module)));
             }
 
             if (method.HasGenericParameters)

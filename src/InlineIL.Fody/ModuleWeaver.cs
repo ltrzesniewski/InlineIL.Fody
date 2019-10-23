@@ -82,7 +82,7 @@ namespace InlineIL.Fody
                                                      && m.Parameters.Count == 1
                                                      && m.Parameters[0].ParameterType.FullName == "System.String"
                                 )?
-                                .MapToScope(coreLibrary, ModuleDefinition.AssemblyResolver);
+                                .MapToScope(coreLibrary, ModuleDefinition);
             }
 
             if (exceptionCtor != null)

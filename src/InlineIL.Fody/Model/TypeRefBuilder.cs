@@ -46,7 +46,7 @@ namespace InlineIL.Fody.Model
             if (declaredTypeRef != null)
                 return declaredTypeRef;
 
-            var forwardedTypeRef = TryFindForwardedType(assembly, typeName);
+            var forwardedTypeRef = TryFindForwardedType(assembly, typeName, module);
             if (forwardedTypeRef != null)
                 return forwardedTypeRef;
 
@@ -58,7 +58,7 @@ namespace InlineIL.Fody.Model
                        .Select(m => m.GetType(typeName, false) ?? m.GetType(typeName, true))
                        .FirstOrDefault(t => t != null);
 
-        private static TypeReference? TryFindForwardedType(AssemblyDefinition assembly, string typeName)
+        private static TypeReference? TryFindForwardedType(AssemblyDefinition assembly, string typeName, ModuleDefinition targetModule)
         {
             var ecmaTypeName = Regex.Replace(typeName, @"\\.|\+", m => m.Length == 1 ? "/" : m.Value.Substring(1), RegexOptions.CultureInvariant);
 
@@ -67,7 +67,7 @@ namespace InlineIL.Fody.Model
                 foreach (var exportedType in module.ExportedTypes)
                 {
                     if (exportedType.FullName == typeName || exportedType.FullName == ecmaTypeName)
-                        return exportedType.CreateReference(module);
+                        return exportedType.CreateReference(module, targetModule);
                 }
             }
 
