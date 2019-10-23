@@ -166,7 +166,7 @@ namespace InlineIL.Fody.Model
             }
 
             public override TypeReference Resolve(ModuleDefinition module)
-                => module.ImportReference(_typeRef).CheckForPrivateCoreLib();
+                => module.ImportReference(_typeRef);
 
             public override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
                 => Resolve(module);
@@ -207,7 +207,7 @@ namespace InlineIL.Fody.Model
                         if (_index >= context.GenericParameters.Count)
                             return null;
 
-                        return module.ImportReference(context.GenericParameters[_index]).CheckForPrivateCoreLib();
+                        return module.ImportReference(context.GenericParameters[_index]);
                     }
 
                     case GenericParameterType.Method:
@@ -218,7 +218,7 @@ namespace InlineIL.Fody.Model
                         if (_index >= context.GenericParameters.Count)
                             return null;
 
-                        return module.ImportReference(context.GenericParameters[_index]).CheckForPrivateCoreLib();
+                        return module.ImportReference(context.GenericParameters[_index]);
                     }
 
                     default:
@@ -264,7 +264,7 @@ namespace InlineIL.Fody.Model
                     throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
 
                 typeRef = WrapTypeRef(typeRef);
-                return module.ImportReference(typeRef).CheckForPrivateCoreLib();
+                return module.ImportReference(typeRef);
             }
 
             public sealed override string GetDisplayName()
@@ -403,7 +403,7 @@ namespace InlineIL.Fody.Model
                     genericType.GenericArguments.Add(argTypeRef);
                 }
 
-                return module.ImportReference(genericType).CheckForPrivateCoreLib();
+                return module.ImportReference(genericType);
             }
 
             public override string GetDisplayName()
