@@ -31,6 +31,8 @@ namespace InlineIL.Fody
             var config = new WeaverConfig(configOptions, ModuleDefinition);
             var context = new ModuleWeavingContext(ModuleDefinition, config);
 
+            var weavedCount = 0;
+
             foreach (var type in ModuleDefinition.GetTypes())
             {
                 foreach (var method in type.Methods)
@@ -40,6 +42,7 @@ namespace InlineIL.Fody
                         if (!MethodWeaver.NeedsProcessing(context, method))
                             continue;
 
+                        ++weavedCount;
                         _log.Debug($"Processing: {method.FullName}");
                         new MethodWeaver(context, method).Process();
                     }
@@ -48,6 +51,9 @@ namespace InlineIL.Fody
                         AddError(ex.Message, ex.SequencePoint);
                         InvalidateMethod(method, ex.Message);
                     }
+
+                    if (ModuleDefinition.AssemblyReferences.Any(i => string.Equals(i.Name, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase)))
+                        throw new InvalidOperationException($"Reference to System.Private.CoreLib added after weaving method {method.FullName} in {type.FullName} (method count: {weavedCount})");
                 }
 
                 if (type.IsInlineILTypeUsageDeep(context))
