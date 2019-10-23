@@ -40,6 +40,7 @@ jobs:
 
       - task: DotNetCoreCLI@2
         displayName: Test Debug
+        continueOnError: true
         inputs:
           command: test
           projects: $(TestProject)
@@ -49,12 +50,19 @@ jobs:
 
       - task: DotNetCoreCLI@2
         displayName: Test Release
+        continueOnError: true
         inputs:
           command: test
           projects: $(TestProject)
           arguments: --configuration Release
           nobuild: true
           testRunTitle: Release
+
+      - task: PublishBuildArtifacts@1
+        displayName: Publish Debug Artifacts
+        inputs:
+          ArtifactName: Debug
+          pathToPublish: src/InlineIL.Tests/bin
 
       - task: PublishBuildArtifacts@1
         displayName: Publish Artifacts
