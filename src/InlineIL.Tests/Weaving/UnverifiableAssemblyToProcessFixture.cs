@@ -16,7 +16,11 @@ namespace InlineIL.Tests.Weaving
         {
             var weavingTask = new AssemblyToProcessFixture.GuardedWeaver();
 
-            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly<UnverifiableAssemblyToProcessReference>(), false);
+            TestResult = weavingTask.ExecuteTestRun(
+                FixtureHelper.IsolateAssembly<UnverifiableAssemblyToProcessReference>(),
+                false,
+                beforeExecuteCallback: AssemblyToProcessFixture.BeforeExecuteCallback
+            );
 
             using var assemblyResolver = new TestAssemblyResolver();
 
