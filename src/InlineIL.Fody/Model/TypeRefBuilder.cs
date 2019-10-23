@@ -42,7 +42,7 @@ namespace InlineIL.Fody.Model
             if (assembly == null)
                 throw new WeavingException($"Could not resolve assembly '{assemblyName}'");
 
-            var declaredTypeRef = TryFindDeclaredType(assembly, typeName);
+            var declaredTypeRef = TryFindDeclaredType(assembly, typeName, module);
             if (declaredTypeRef != null)
                 return declaredTypeRef;
 
@@ -53,10 +53,17 @@ namespace InlineIL.Fody.Model
             throw new WeavingException($"Could not find type '{typeName}' in assembly '{assemblyName}'");
         }
 
-        private static TypeReference? TryFindDeclaredType(AssemblyDefinition assembly, string typeName)
-            => assembly.Modules
-                       .Select(m => m.GetType(typeName, false) ?? m.GetType(typeName, true))
-                       .FirstOrDefault(t => t != null);
+        private static TypeReference? TryFindDeclaredType(AssemblyDefinition assembly, string typeName, ModuleDefinition targetModule)
+        {
+            foreach (var module in assembly.Modules)
+            {
+                var type = module.GetType(typeName, false) ?? module.GetType(typeName, true);
+                if (type != null)
+                    return type.MapToScope(assembly.Name, targetModule);
+            }
+
+            return null;
+        }
 
         private static TypeReference? TryFindForwardedType(AssemblyDefinition assembly, string typeName, ModuleDefinition targetModule)
         {

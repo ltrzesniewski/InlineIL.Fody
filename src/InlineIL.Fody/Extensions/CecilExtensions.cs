@@ -80,11 +80,34 @@ namespace InlineIL.Fody.Extensions
             return typeRef;
         }
 
+        private static TypeReference CreateReference(this TypeReference typeRef, ModuleDefinition targetModule)
+        {
+            if (typeRef.Scope.MetadataScopeType != MetadataScopeType.AssemblyNameReference)
+                return typeRef;
+
+            var typeDef = typeRef.ResolveRequiredType();
+            var metadataScope = MapAssemblyReference(targetModule, (AssemblyNameReference)typeRef.Scope);
+            var declaringType = typeRef.DeclaringType?.CreateReference(targetModule);
+
+            typeRef = new TypeReference(typeRef.Namespace, typeRef.Name, typeDef.Module, metadataScope, typeDef.IsValueType)
+            {
+                DeclaringType = declaringType
+            };
+
+            if (typeDef.HasGenericParameters)
+            {
+                foreach (var param in typeDef.GenericParameters)
+                    typeRef.GenericParameters.Add(new GenericParameter(param.Name, typeRef));
+            }
+
+            return typeRef;
+        }
+
         private static AssemblyNameReference MapAssemblyReference(ModuleDefinition module, AssemblyNameReference name)
         {
             // Try to map to an existing assembly reference by name,
             // to avoid adding additional versions of a referenced assembly
-            // (netstandard v2.0 can be mapped to netstandard 2.1 for instance)
+            // (netstandard v2.0 can be mapped to netstandard v2.1 for instance)
 
             foreach (var assemblyReference in module.AssemblyReferences)
             {
@@ -95,7 +118,7 @@ namespace InlineIL.Fody.Extensions
             return name;
         }
 
-        private static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, ModuleDefinition module)
+        public static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, ModuleDefinition module)
         {
             if (scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
             {
@@ -105,6 +128,8 @@ namespace InlineIL.Fody.Extensions
                 var exportedType = assembly.MainModule.ExportedTypes.FirstOrDefault(i => i.FullName == typeRef.FullName);
                 if (exportedType != null)
                     return exportedType.CreateReference(assembly.MainModule, module);
+
+                return typeRef.CreateReference(module);
             }
 
             return typeRef;
