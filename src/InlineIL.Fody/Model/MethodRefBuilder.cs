@@ -18,7 +18,7 @@ namespace InlineIL.Fody.Model
             _module = module;
 
             method = method.MapToScope(typeRef.Scope, module);
-            _method = _module.ImportReference(_module.ImportReference(method).MakeGeneric(typeRef));
+            _method = _module.ImportReference(_module.ImportReference(method).CheckForPrivateCoreLib().MakeGeneric(typeRef)).CheckForPrivateCoreLib();
         }
 
         public static MethodRefBuilder MethodByName(ModuleDefinition module, TypeReference typeRef, string methodName)
@@ -206,7 +206,7 @@ namespace InlineIL.Fody.Model
             var genericInstance = new GenericInstanceMethod(_method);
             genericInstance.GenericArguments.AddRange(genericArgs);
 
-            _method = _module.ImportReference(genericInstance);
+            _method = _module.ImportReference(genericInstance).CheckForPrivateCoreLib();
         }
 
         public void SetOptionalParameters(TypeReference[] optionalParamTypes)
@@ -232,7 +232,7 @@ namespace InlineIL.Fody.Model
                 methodRef.Parameters.Add(new ParameterDefinition(paramType));
             }
 
-            _method = _module.ImportReference(methodRef);
+            _method = _module.ImportReference(methodRef).CheckForPrivateCoreLib();
         }
 
         public override string ToString() => _method.ToString();

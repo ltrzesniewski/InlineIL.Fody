@@ -473,5 +473,20 @@ namespace InlineIL.Fody.Extensions
         [ContractAnnotation("null => false")]
         public static bool IsInlineILAssembly(this AssemblyNameReference? assembly)
             => assembly?.Name == "InlineIL";
+
+#nullable disable
+        public static TypeReference CheckForPrivateCoreLib(this TypeReference typeRef)
+        {
+            if (typeRef?.Scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference && typeRef.Scope.Name.Equals("System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"Ref to {typeRef.Scope.Name} found");
+
+            return typeRef;
+        }
+
+        public static MethodReference CheckForPrivateCoreLib(this MethodReference methodRef)
+        {
+            methodRef.DeclaringType.CheckForPrivateCoreLib();
+            return methodRef;
+        }
     }
 }

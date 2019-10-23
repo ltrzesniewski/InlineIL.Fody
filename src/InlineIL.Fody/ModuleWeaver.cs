@@ -89,7 +89,7 @@ namespace InlineIL.Fody
             {
                 method.Body.Instructions.AddRange(
                     Instruction.Create(OpCodes.Ldstr, $"InlineIL processing failed: {message}"),
-                    Instruction.Create(OpCodes.Newobj, ModuleDefinition.ImportReference(exceptionCtor)),
+                    Instruction.Create(OpCodes.Newobj, ModuleDefinition.ImportReference(exceptionCtor).CheckForPrivateCoreLib()),
                     Instruction.Create(OpCodes.Throw)
                 );
             }
