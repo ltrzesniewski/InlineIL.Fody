@@ -8,6 +8,11 @@ jobs:
     pool:
       vmImage: windows-2019
     steps:
+      - task: DotNetCoreInstaller@1
+        displayName: Install .NET Core SDK
+        inputs:
+          version: 3.0.x
+
       - task: DotNetCoreCLI@2
         displayName: Build Debug
         inputs:
@@ -27,7 +32,7 @@ jobs:
         inputs:
           command: pack
           packagesToPack: $(Solution)
-          arguments: --configuration Release
+          configuration: Release
           nobuild: true
           verbosityPack: Minimal
 
