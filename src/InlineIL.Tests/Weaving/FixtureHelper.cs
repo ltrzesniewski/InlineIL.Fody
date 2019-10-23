@@ -7,12 +7,12 @@ namespace InlineIL.Tests.Weaving
 {
     internal static class FixtureHelper
     {
-        public static string IsolateAssembly<T>()
+        public static string IsolateAssembly<T>(string dirName = "WeavingTest")
         {
             var assembly = typeof(T).Assembly;
             var assemblyPath = assembly.Location!;
             var assemblyDir = Path.GetDirectoryName(assemblyPath)!;
-            var rootTestDir = Path.Combine(assemblyDir, "WeavingTest");
+            var rootTestDir = Path.Combine(assemblyDir, dirName);
             var asmTestDir = Path.Combine(rootTestDir, Path.GetFileNameWithoutExtension(assemblyPath)!);
 
             EmptyDirectory(asmTestDir);
