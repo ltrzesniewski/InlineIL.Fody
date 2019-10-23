@@ -18,7 +18,11 @@ namespace InlineIL.Tests.Weaving
         static InvalidAssemblyToProcessFixture()
         {
             var weavingTask = new ModuleWeaver();
-            TestResult = weavingTask.ExecuteTestRun(FixtureHelper.IsolateAssembly<InvalidAssemblyToProcessReference>(), false);
+            TestResult = weavingTask.ExecuteTestRun(
+                FixtureHelper.IsolateAssembly<InvalidAssemblyToProcessReference>(),
+                false,
+                beforeExecuteCallback: AssemblyToProcessFixture.BeforeExecuteCallback
+            );
 
             using var assemblyResolver = new TestAssemblyResolver();
 

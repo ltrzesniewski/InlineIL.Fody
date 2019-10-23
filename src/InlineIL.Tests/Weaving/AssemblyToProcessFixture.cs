@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Fody;
 using InlineIL.Fody;
+using InlineIL.Fody.Extensions;
 using InlineIL.Tests.AssemblyToProcess;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -35,7 +36,8 @@ namespace InlineIL.Tests.Weaving
                 {
                     "0x801312da" // VLDTR_E_MR_VARARGCALLINGCONV
                 },
-                writeSymbols: true
+                writeSymbols: true,
+                beforeExecuteCallback: BeforeExecuteCallback
             );
 
             using var assemblyResolver = new TestAssemblyResolver();
@@ -50,6 +52,12 @@ namespace InlineIL.Tests.Weaving
             var resultModule = ModuleDefinition.ReadModule(testResult.AssemblyPath, readerParams);
 
             return (testResult, originalModule, resultModule);
+        }
+
+        internal static void BeforeExecuteCallback(ModuleDefinition module)
+        {
+            // This reference is added by Fody, it's not supposed to be there
+            module.AssemblyReferences.RemoveWhere(i => string.Equals(i.Name, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase));
         }
 
         internal class GuardedWeaver : ModuleWeaver
