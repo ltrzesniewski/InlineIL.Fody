@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Version>1.3.3</Version>
-    <FodyVersion>6.0.0</FodyVersion>
+    <FodyVersion>6.0.2</FodyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
