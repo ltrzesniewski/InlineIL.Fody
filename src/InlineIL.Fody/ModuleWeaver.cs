@@ -27,6 +27,9 @@ namespace InlineIL.Fody
 
         public override void Execute()
         {
+            if (ModuleDefinition.AssemblyReferences.Any(i => string.Equals(i.Name, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException("Reference to System.Private.CoreLib was initially present");
+
             var configOptions = new WeaverConfigOptions(Config);
             var config = new WeaverConfig(configOptions, ModuleDefinition);
             var context = new ModuleWeavingContext(ModuleDefinition, config);
