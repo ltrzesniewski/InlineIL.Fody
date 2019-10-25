@@ -8,35 +8,33 @@ jobs:
     pool:
       vmImage: windows-2019
     steps:
-      - task: MSBuild@1
-        displayName: NuGet Restore
+      - task: DotNetCoreInstaller@1
+        displayName: Install .NET Core SDK
         inputs:
-          solution: $(Solution)
-          msbuildArguments: /v:m /t:Restore
+          version: 3.0.x
 
-      - task: MSBuild@1
+      - task: DotNetCoreCLI@2
         displayName: Build Debug
         inputs:
-          solution: $(Solution)
-          msbuildArguments: /v:m /t:Build
-          configuration: Debug
-          maximumCpuCount: true
+          command: build
+          projects: $(Solution)
+          arguments: --configuration Debug
 
-      - task: MSBuild@1
+      - task: DotNetCoreCLI@2
         displayName: Build Release
         inputs:
-          solution: $(Solution)
-          msbuildArguments: /v:m /t:Build
-          configuration: Release
-          maximumCpuCount: true
+          command: build
+          projects: $(Solution)
+          arguments: --configuration Release
 
-      - task: MSBuild@1
+      - task: DotNetCoreCLI@2
         displayName: NuGet Pack
         inputs:
-          solution: $(Solution)
-          msbuildArguments: /v:m /t:Pack /p:PackageOutputPath=$(Build.ArtifactStagingDirectory)
+          command: pack
+          packagesToPack: $(Solution)
           configuration: Release
-          maximumCpuCount: true
+          nobuild: true
+          verbosityPack: Minimal
 
       - task: DotNetCoreCLI@2
         displayName: Test Debug
