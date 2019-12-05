@@ -18,7 +18,7 @@ namespace InlineIL.Tests.AssemblyToProcess
     {
         public int Value { get; set; }
 
-        public event Action? Event;
+        public event Action Event;
 
         public Type ReturnType<T>()
         {

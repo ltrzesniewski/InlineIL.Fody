@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
     <DisableFody>true</DisableFody>
+
+    <!-- Workaround for https://github.com/dotnet/roslyn/issues/40136 -->
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
