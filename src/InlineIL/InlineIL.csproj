@@ -12,11 +12,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="$(FodyVersion)" />
+    <PackageReference Include="Fody" Version="$(FodyVersion)" GeneratePathProperty="true" />
     <PackageReference Include="FodyPackaging" Version="$(FodyVersion)" PrivateAssets="all" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <MonoCecilPath>$(PkgFody)\netclassictask\Mono.Cecil.dll</MonoCecilPath>
+  </PropertyGroup>
+
   <ItemGroup>
+    <T4ParameterValues Include="MonoCecilPath" Value="$(MonoCecilPath)" Visible="false" />
     <None Update="IL.Emit.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>IL.Emit.cs</LastGenOutput>
