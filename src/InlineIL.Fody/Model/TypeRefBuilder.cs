@@ -64,8 +64,14 @@ namespace InlineIL.Fody.Model
 
             foreach (var module in assembly.Modules)
             {
+                if (!module.HasExportedTypes)
+                    continue;
+
                 foreach (var exportedType in module.ExportedTypes)
                 {
+                    if (!exportedType.IsForwardedType())
+                        continue;
+
                     if (exportedType.FullName == typeName || exportedType.FullName == ecmaTypeName)
                         return exportedType.CreateReference(module, targetModule);
                 }

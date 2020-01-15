@@ -29,6 +29,17 @@ namespace InlineIL.Fody.Extensions
             return typeDef ?? throw new WeavingException($"Could not resolve type {typeRef.FullName}");
         }
 
+        public static bool IsForwardedType(this ExportedType exportedType)
+        {
+            for (; exportedType != null; exportedType = exportedType.DeclaringType)
+            {
+                if (exportedType.IsForwarder)
+                    return true;
+            }
+
+            return false;
+        }
+
         private static TypeDefinition ResolveRequiredType(this ExportedType exportedType)
         {
             TypeDefinition typeDef;
@@ -102,9 +113,17 @@ namespace InlineIL.Fody.Extensions
                 var assemblyName = (AssemblyNameReference)scope;
                 var assembly = module.AssemblyResolver.Resolve(assemblyName) ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
 
-                var exportedType = assembly.MainModule.ExportedTypes.FirstOrDefault(i => i.FullName == typeRef.FullName);
-                if (exportedType != null)
-                    return exportedType.CreateReference(assembly.MainModule, module);
+                if (assembly.MainModule.HasExportedTypes)
+                {
+                    foreach (var exportedType in assembly.MainModule.ExportedTypes)
+                    {
+                        if (!exportedType.IsForwardedType())
+                            continue;
+
+                        if (exportedType.FullName == typeRef.FullName)
+                            return exportedType.CreateReference(assembly.MainModule, module);
+                    }
+                }
             }
 
             return typeRef;
@@ -445,7 +464,8 @@ namespace InlineIL.Fody.Extensions
             }
         }
 
-        [ContractAnnotation("null => false")]
+        [
+            ContractAnnotation("null => false")]
         public static bool IsInlineILAssembly(this AssemblyNameReference? assembly)
             => assembly?.Name == "InlineIL";
     }
