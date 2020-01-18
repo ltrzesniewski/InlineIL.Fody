@@ -20,7 +20,7 @@ This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject
 
 ## Installation
 
-- Install the NuGet packages [`Fody`](https://www.nuget.org/packages/Fody) and [`InlineIL.Fody`](https://www.nuget.org/packages/InlineIL.Fody). Installing `Fody` explicitly ensures the latest version is used:
+- Install the NuGet packages [`Fody`](https://www.nuget.org/packages/Fody) and [`InlineIL.Fody`](https://www.nuget.org/packages/InlineIL.Fody). Installing `Fody` explicitly is needed to enable weaving.
 
   ```
   PM> Install-Package Fody
@@ -111,7 +111,7 @@ The `<InlineIL />` element in `FodyWeavers.xml` accepts the following attribute:
 
 ## Examples
 
-- A [reimplementation of the `System.Runtime.CompilerServices.Unsafe` class](src/InlineIL.Examples/Unsafe.cs) using InlineIL is provided as an example (compare to [the original IL code](https://github.com/dotnet/corefx/blob/master/src/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il)).
+- A [reimplementation of the `System.Runtime.CompilerServices.Unsafe` class](src/InlineIL.Examples/Unsafe.cs) using InlineIL is provided as an example (compare to [the original IL code](https://github.com/dotnet/runtime/blob/master/src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il)).
 
 - Unit tests can also serve as examples of API usage. See [verifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.AssemblyToProcess) and [unverifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.UnverifiableAssemblyToProcess) test cases.
 
