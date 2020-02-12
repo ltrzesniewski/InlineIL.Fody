@@ -8,6 +8,7 @@ using InlineIL.Tests.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Xunit;
+using CecilExtensions = InlineIL.Fody.Extensions.CecilExtensions;
 
 namespace InlineIL.Tests
 {
