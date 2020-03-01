@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
+    <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

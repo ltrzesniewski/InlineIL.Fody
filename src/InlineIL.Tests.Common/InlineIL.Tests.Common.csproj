@@ -5,4 +5,8 @@
     <DisableFody>true</DisableFody>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
+  </ItemGroup>  
+
 </Project>

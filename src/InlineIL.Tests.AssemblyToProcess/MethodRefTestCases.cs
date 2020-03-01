@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using InlineIL.Tests.Common;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.AssemblyToProcess
@@ -14,7 +15,7 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
-    public class MethodRefTestCases
+    public class MethodRefTestCases : IMethodRefTestCases
     {
         public int Value { get; set; }
 

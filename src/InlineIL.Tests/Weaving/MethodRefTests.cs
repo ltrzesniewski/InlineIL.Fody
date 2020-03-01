@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
+using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Xunit;
@@ -166,7 +167,7 @@ namespace InlineIL.Tests.Weaving
         {
             var callCount = 0;
             Action callback = () => ++callCount;
-            var instance = GetInstance();
+            var instance = (IMethodRefTestCases)GetInstance();
             instance.AddEvent(callback);
             instance.RaiseEvent();
             callCount.ShouldEqual(1);
@@ -178,7 +179,7 @@ namespace InlineIL.Tests.Weaving
         {
             var callCount = 0;
             Action callback = () => ++callCount;
-            var instance = GetInstance();
+            var instance = (IMethodRefTestCases)GetInstance();
             instance.Event += callback;
             instance.RaiseEvent();
             instance.RemoveEvent(callback);
