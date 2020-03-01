@@ -34,6 +34,13 @@ namespace InlineIL.Tests
         }
 
         [Fact]
+        public void should_parse_Warnings()
+        {
+            var config = Parse(@"<InlineIL Warnings=""Ignore""/>");
+            config.Warnings.ShouldEqual(WeaverConfigOptions.WarningsBehavior.Ignore);
+        }
+
+        [Fact]
         public void should_throw_on_invalid_enum_value()
         {
             AssertInvalid(@"<InlineIL SequencePoints=""Foo""/>");

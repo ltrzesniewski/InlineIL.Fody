@@ -7,7 +7,12 @@ namespace InlineIL.Fody.Support
 {
     internal class WeaverConfigOptions
     {
-        public SequencePointsBehavior SequencePoints { get; private set; } = SequencePointsBehavior.Debug;
+        public SequencePointsBehavior SequencePoints { get; set; } = SequencePointsBehavior.Debug;
+        public WarningsBehavior Warnings { get; set; } = WarningsBehavior.Warnings;
+
+        public WeaverConfigOptions()
+        {
+        }
 
         public WeaverConfigOptions(XElement? element)
         {
@@ -25,6 +30,10 @@ namespace InlineIL.Fody.Support
                 {
                     case nameof(SequencePoints):
                         SequencePoints = ParseEnum<SequencePointsBehavior>(attribute);
+                        break;
+
+                    case nameof(Warnings):
+                        Warnings = ParseEnum<WarningsBehavior>(attribute);
                         break;
 
                     default:
@@ -60,6 +69,13 @@ namespace InlineIL.Fody.Support
             True,
             Debug,
             Release
+        }
+
+        public enum WarningsBehavior
+        {
+            Warnings,
+            Ignore,
+            Errors
         }
     }
 }

@@ -40,6 +40,9 @@ namespace InlineIL.Tests.Support
         public static void ShouldNotContain<T>(this IEnumerable<T> items, Func<T, bool> predicate)
             => Assert.DoesNotContain(items, item => predicate(item));
 
+        public static void ShouldBeEmpty<T>(this IEnumerable<T> items)
+            => Assert.Empty(items);
+
         public static void ShouldContain(this string str, string expectedSubstring)
             => Assert.Contains(expectedSubstring, str);
     }
