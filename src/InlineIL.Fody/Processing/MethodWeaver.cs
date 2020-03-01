@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Fody;
@@ -231,6 +231,7 @@ namespace InlineIL.Fody.Processing
             var refsToLdloc = Instructions.Where(i => i.Operand == ldlocInstruction).ToList();
 
             var leaveOriginalReturnPoint = false;
+            var insertedRet = 0;
 
             foreach (var brInstruction in refsToLdloc)
             {
@@ -243,6 +244,7 @@ namespace InlineIL.Fody.Processing
                 {
                     _il.Remove(stlocInstruction);
                     _il.Replace(brInstruction, Instruction.Create(OpCodes.Ret));
+                    ++insertedRet;
                 }
                 else
                 {
@@ -263,6 +265,9 @@ namespace InlineIL.Fody.Processing
                 if (lastRetInstruction.Previous?.OpCode == OpCodes.Ret)
                     _il.Remove(lastRetInstruction);
             }
+
+            if (insertedRet > 0)
+                _log.Debug($"Split single point of return: {insertedRet} ret inserted, original {(leaveOriginalReturnPoint ? "left" : "removed")}");
         }
 
         private void ValidateAfterProcessing()
@@ -335,7 +340,10 @@ namespace InlineIL.Fody.Processing
                 case Code.Endfilter:
                 {
                     if (nextInstruction?.OpCode == emittedInstruction.OpCode)
+                    {
                         _il.Remove(emittedInstruction);
+                        _log.Debug($"Removed duplicate {emittedInstruction.OpCode}");
+                    }
 
                     break;
                 }
@@ -350,6 +358,7 @@ namespace InlineIL.Fody.Processing
                         _il.RemoveNopsAfter(emittedInstruction);
                         _il.Remove(emittedInstruction);
                         _il.Replace(nextInstruction, emittedInstruction);
+                        _log.Debug($"Replaced {nextInstruction.OpCode} with emitted {emittedInstruction.OpCode}");
                         nextInstruction = emittedInstruction.NextSkipNops();
                     }
 
