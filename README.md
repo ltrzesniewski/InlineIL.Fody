@@ -104,10 +104,13 @@ A few more things which are good to know:
 
 ## Configuration
 
-The `<InlineIL />` element in `FodyWeavers.xml` accepts the following attribute:
+The `<InlineIL />` element in `FodyWeavers.xml` accepts the following attributes:
 
  - `SequencePoints="True|False|Debug|Release"`, default value: `Debug`  
    Defines if sequence points should be generated for each emitted IL instruction. The default `Debug` value improves the debugging experience in Debug builds without impacting the JIT codegen in Release builds.
+
+- `Warnings="Warnings|Ignore|Errors"`, default value: `Warnings`  
+  Defines how warnings should be handled. `Ignore` hides them, while `Errors` turns them into errors.
 
 ## Examples
 
