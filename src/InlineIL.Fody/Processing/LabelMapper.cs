@@ -10,20 +10,23 @@ namespace InlineIL.Fody.Processing
     internal class LabelMapper
     {
         private readonly WeaverILProcessor _il;
+        private readonly ILogger _log;
         private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
 
-        public LabelMapper(WeaverILProcessor il)
+        public LabelMapper(WeaverILProcessor il, ILogger log)
         {
             _il = il;
+            _log = log;
         }
 
-        public Instruction MarkLabel(string labelName)
+        public Instruction MarkLabel(string labelName, SequencePoint? sequencePoint)
         {
             var labelInfo = _labels.GetOrAddNew(labelName);
 
             if (labelInfo.IsDefined)
                 throw new WeavingException($"Label '{labelName}' is already defined");
 
+            labelInfo.SequencePoint = sequencePoint;
             return labelInfo.PlaceholderTarget;
         }
 
@@ -55,6 +58,9 @@ namespace InlineIL.Fody.Processing
                 if (!info.IsDefined)
                     throw new InstructionWeavingException(info.References.FirstOrDefault(), $"Undefined label: '{name}'");
 
+                if (info.References.Count == 0)
+                    _log.Warning($"Unused label: '{name}'", info.SequencePoint);
+
                 _il.Remove(info.PlaceholderTarget);
             }
         }
@@ -63,6 +69,7 @@ namespace InlineIL.Fody.Processing
         {
             public Instruction PlaceholderTarget { get; } = Instruction.Create(OpCodes.Nop);
             public ICollection<Instruction> References { get; } = new List<Instruction>();
+            public SequencePoint? SequencePoint { get; set; }
 
             public bool IsDefined => PlaceholderTarget.Next != null;
         }

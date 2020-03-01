@@ -24,7 +24,7 @@ namespace InlineIL.Tests.Weaving
             var typeDef = module.GetTypes().Single(i => i.FullName == type.FullName);
             var methodDef = typeDef.Methods.Single(i => i.Name == methodName);
 
-            new MethodWeaver(weavingContext, methodDef).Process();
+            new MethodWeaver(weavingContext, methodDef, NoOpLogger.Instance).Process();
         }
     }
 }

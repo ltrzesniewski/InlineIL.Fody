@@ -40,5 +40,10 @@ namespace InlineIL.Tests.AssemblyToProcess
             IL.MarkLabel("end");
             return IL.Return<int>();
         }
+
+        public void UnusedLabel()
+        {
+            IL.MarkLabel("SomeLabel");
+        }
     }
 }

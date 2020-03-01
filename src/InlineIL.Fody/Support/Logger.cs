@@ -2,7 +2,7 @@
 
 namespace InlineIL.Fody.Support
 {
-    internal class Logger
+    internal class Logger : ILogger
     {
         private readonly ModuleWeaver _moduleWeaver;
 

@@ -22,13 +22,13 @@ namespace InlineIL.Fody.Processing
         private ModuleDefinition Module => _context.Module;
         private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
 
-        public MethodWeaver(ModuleWeavingContext context, MethodDefinition method)
+        public MethodWeaver(ModuleWeavingContext context, MethodDefinition method, ILogger log)
         {
             _context = context;
             _method = method;
             _il = new WeaverILProcessor(_method);
-            _labels = new LabelMapper(_il);
             _sequencePoints = new SequencePointMapper(_method, context.Config);
+            _labels = new LabelMapper(_il, new MethodWeaverLogger(log, _method, _sequencePoints));
             _consumer = new ArgumentConsumer(_il);
         }
 
@@ -646,7 +646,8 @@ namespace InlineIL.Fody.Processing
         private void ProcessMarkLabelMethod(Instruction instruction)
         {
             var labelName = _consumer.ConsumeArgString(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
-            _il.Replace(instruction, _labels.MarkLabel(labelName));
+            var labelPlaceholder = _labels.MarkLabel(labelName, _sequencePoints.GetInputSequencePoint(instruction));
+            _il.Replace(instruction, labelPlaceholder);
         }
 
         private void ProcessDeclareLocalsMethod(Instruction instruction)

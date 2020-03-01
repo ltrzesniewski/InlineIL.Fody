@@ -41,7 +41,7 @@ namespace InlineIL.Fody
                             continue;
 
                         _log.Debug($"Processing: {method.FullName}");
-                        new MethodWeaver(context, method).Process();
+                        new MethodWeaver(context, method, _log).Process();
                     }
                     catch (WeavingException ex)
                     {

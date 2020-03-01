@@ -19,6 +19,8 @@ namespace InlineIL.Tests.Weaving
 
             result = (int)GetInstance().Branch(true);
             result.ShouldEqual(1);
+
+            ShouldNotHaveWarnings("Branch");
         }
 
         [Fact]
@@ -35,6 +37,8 @@ namespace InlineIL.Tests.Weaving
 
             result = (int)GetInstance().JumpTable(3);
             result.ShouldEqual(42);
+
+            ShouldNotHaveWarnings("JumpTable");
         }
 
         [Fact]
@@ -59,6 +63,12 @@ namespace InlineIL.Tests.Weaving
         public void should_report_redefined_label()
         {
             ShouldHaveError("RedefinedLabel").ShouldContain("already defined");
+        }
+
+        [Fact]
+        public void should_report_unused_label()
+        {
+            ShouldHaveWarning("UnusedLabel", "Unused label: 'SomeLabel'");
         }
     }
 

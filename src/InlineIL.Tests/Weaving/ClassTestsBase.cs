@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using InlineIL.Tests.Support;
 using Mono.Cecil;
 
 namespace InlineIL.Tests.Weaving
@@ -52,6 +53,30 @@ namespace InlineIL.Tests.Weaving
 
         protected void ShouldHaveErrorInType(string nestedTypeName)
             => InvalidAssemblyToProcessFixture.ShouldHaveErrorInType($"{InvalidAssembly}.{ClassName}", nestedTypeName);
+
+        protected string ShouldHaveWarning(string methodName, string expectedText)
+        {
+            var testResult = NetStandard
+                ? StandardAssemblyToProcessFixture.TestResult
+                : AssemblyToProcessFixture.TestResult;
+
+            var expectedMessagePart = $" {VerifiableAssembly}.{ClassName}::{methodName}(";
+            var warning = testResult.Warnings.FirstOrDefault(warn => warn.Text.Contains(expectedMessagePart) && warn.Text.Contains(expectedText));
+            warning.ShouldNotBeNull();
+            warning.SequencePoint.ShouldNotBeNull();
+
+            return warning.Text;
+        }
+
+        protected void ShouldNotHaveWarnings(string methodName)
+        {
+            var testResult = NetStandard
+                ? StandardAssemblyToProcessFixture.TestResult
+                : AssemblyToProcessFixture.TestResult;
+
+            var expectedMessagePart = $" {VerifiableAssembly}.{ClassName}::{methodName}(";
+            testResult.Warnings.ShouldNotContain(warn => warn.Text.Contains(expectedMessagePart));
+        }
 
         private MethodDefinition GetMethodDefinition(ModuleDefinition module, string ns, string methodName)
             => module.GetType($"{ns}.{ClassName}").Methods.Single(m => m.Name == methodName);
