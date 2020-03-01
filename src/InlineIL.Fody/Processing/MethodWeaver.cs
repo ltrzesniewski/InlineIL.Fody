@@ -18,6 +18,7 @@ namespace InlineIL.Fody.Processing
         private readonly SequencePointMapper _sequencePoints;
         private readonly LabelMapper _labels;
         private readonly ArgumentConsumer _consumer;
+        private readonly MethodWeaverLogger _log;
 
         private ModuleDefinition Module => _context.Module;
         private IEnumerable<Instruction> Instructions => _method.Body.Instructions;
@@ -28,7 +29,8 @@ namespace InlineIL.Fody.Processing
             _method = method;
             _il = new WeaverILProcessor(_method);
             _sequencePoints = new SequencePointMapper(_method, context.Config);
-            _labels = new LabelMapper(_il, new MethodWeaverLogger(log, _method, _sequencePoints));
+            _log = new MethodWeaverLogger(log, _method);
+            _labels = new LabelMapper(_il, _log);
             _consumer = new ArgumentConsumer(_il);
         }
 
@@ -74,20 +76,14 @@ namespace InlineIL.Fody.Processing
             }
             catch (InstructionWeavingException ex)
             {
-                var message = ex.Message.Contains(_method.FullName)
-                    ? ex.Message
-                    : ex.Instruction != null
-                        ? $"{ex.Message} (in {_method.FullName} at instruction {ex.Instruction})"
-                        : $"{ex.Message} (in {_method.FullName})";
-
-                throw new WeavingException(message)
+                throw new WeavingException(_log.QualifyMessage(ex.Message, ex.Instruction))
                 {
                     SequencePoint = _sequencePoints.GetInputSequencePoint(ex.Instruction)
                 };
             }
             catch (WeavingException ex)
             {
-                throw new WeavingException($"{ex.Message} (in {_method.FullName})")
+                throw new WeavingException(_log.QualifyMessage(ex.Message))
                 {
                     SequencePoint = ex.SequencePoint
                 };
@@ -136,7 +132,7 @@ namespace InlineIL.Fody.Processing
                     }
                     catch (WeavingException ex)
                     {
-                        throw new InstructionWeavingException(instruction, $"{ex.Message} (in {_method.FullName} at instruction {instruction})");
+                        throw new InstructionWeavingException(instruction, _log.QualifyMessage(ex.Message, instruction));
                     }
                     catch (Exception ex)
                     {
@@ -179,7 +175,7 @@ namespace InlineIL.Fody.Processing
                     }
                     catch (WeavingException ex)
                     {
-                        throw new InstructionWeavingException(instruction, $"{ex.Message} (in {_method.FullName} at instruction {instruction})");
+                        throw new InstructionWeavingException(instruction, _log.QualifyMessage(ex.Message, instruction));
                     }
                     catch (Exception ex)
                     {

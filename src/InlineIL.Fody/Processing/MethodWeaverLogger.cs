@@ -8,33 +8,33 @@ namespace InlineIL.Fody.Processing
     {
         private readonly ILogger _log;
         private readonly MethodDefinition _method;
-        private readonly SequencePointMapper _sequencePoints;
 
-        public MethodWeaverLogger(ILogger log, MethodDefinition method, SequencePointMapper sequencePoints)
+        public MethodWeaverLogger(ILogger log, MethodDefinition method)
         {
             _log = log;
             _method = method;
-            _sequencePoints = sequencePoints;
         }
 
         public void Debug(string message)
-            => _log.Debug(ProcessMessage(message));
+            => _log.Debug(QualifyMessage(message));
 
         public void Info(string message)
-            => _log.Info(ProcessMessage(message));
+            => _log.Info(QualifyMessage(message));
 
         public void Warning(string message, SequencePoint? sequencePoint)
-            => _log.Warning(ProcessMessage(message), sequencePoint);
+            => _log.Warning(QualifyMessage(message), sequencePoint);
 
         public void Error(string message, SequencePoint? sequencePoint)
-            => _log.Error(ProcessMessage(message), sequencePoint);
+            => _log.Error(QualifyMessage(message), sequencePoint);
 
-        private string ProcessMessage(string message)
+        public string QualifyMessage(string message, Instruction? instruction = null)
         {
             if (message.Contains(_method.FullName))
                 return message;
 
-            return $"{message} (in {_method.FullName})";
+            return instruction != null
+                ? $"{message} (in {_method.FullName} at instruction {instruction})"
+                : $"{message} (in {_method.FullName})";
         }
     }
 }
