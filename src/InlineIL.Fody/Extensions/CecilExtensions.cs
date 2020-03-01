@@ -464,8 +464,7 @@ namespace InlineIL.Fody.Extensions
             }
         }
 
-        [
-            ContractAnnotation("null => false")]
+        [ContractAnnotation("null => false")]
         public static bool IsInlineILAssembly(this AssemblyNameReference? assembly)
             => assembly?.Name == "InlineIL";
     }

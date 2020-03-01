@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Fody;
@@ -194,6 +194,8 @@ namespace InlineIL.Fody.Processing
 
             SplitSinglePointOfReturn();
 
+            var validTailOpCodes = new[] { OpCodes.Call, OpCodes.Calli, OpCodes.Callvirt };
+
             for (var instruction = Instructions.FirstOrDefault(); instruction != null; instruction = instruction.Next)
             {
                 if (instruction.OpCode != OpCodes.Tail)
@@ -201,8 +203,6 @@ namespace InlineIL.Fody.Processing
 
                 var tailInstruction = instruction;
                 var callInstruction = tailInstruction.Next;
-
-                var validTailOpCodes = new[] { OpCodes.Call, OpCodes.Calli, OpCodes.Callvirt };
 
                 if (callInstruction == null || !validTailOpCodes.Contains(callInstruction.OpCode))
                     throw new InstructionWeavingException(tailInstruction, $"{OpCodes.Tail.Name} must be followed by {string.Join(" or ", validTailOpCodes.Select(i => i.Name))}");
