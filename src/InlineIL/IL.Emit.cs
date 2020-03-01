@@ -4,6 +4,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+#nullable enable
+
 using System.Diagnostics.CodeAnalysis;
 
 namespace InlineIL
