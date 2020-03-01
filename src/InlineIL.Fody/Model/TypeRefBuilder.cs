@@ -229,9 +229,9 @@ namespace InlineIL.Fody.Model
             {
                 return _type switch
                 {
-                    GenericParameterType.Type => "!" + _index,
+                    GenericParameterType.Type   => "!" + _index,
                     GenericParameterType.Method => "!!" + _index,
-                    _ => throw new ArgumentOutOfRangeException()
+                    _                           => throw new ArgumentOutOfRangeException()
                 };
             }
         }

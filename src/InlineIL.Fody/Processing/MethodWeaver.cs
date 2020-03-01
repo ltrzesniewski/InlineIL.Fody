@@ -403,10 +403,10 @@ namespace InlineIL.Fody.Processing
                     {
                         return method.Parameters[0].ParameterType.FullName switch
                         {
-                            KnownNames.Full.TypeRefType => _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single())),
+                            KnownNames.Full.TypeRefType   => _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single())),
                             KnownNames.Full.MethodRefType => _il.Create(opCode, _consumer.ConsumeArgMethodRef(args.Single())),
-                            KnownNames.Full.FieldRefType => _il.Create(opCode, _consumer.ConsumeArgFieldRef(args.Single())),
-                            _ => throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}")
+                            KnownNames.Full.FieldRefType  => _il.Create(opCode, _consumer.ConsumeArgFieldRef(args.Single())),
+                            _                             => throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}")
                         };
                     }
 

@@ -19,11 +19,11 @@ namespace InlineIL.Fody.Support
         {
             return config.SequencePoints switch
             {
-                WeaverConfigOptions.SequencePointsBehavior.False => false,
-                WeaverConfigOptions.SequencePointsBehavior.True => true,
-                WeaverConfigOptions.SequencePointsBehavior.Debug => module.IsDebugBuild(),
+                WeaverConfigOptions.SequencePointsBehavior.False   => false,
+                WeaverConfigOptions.SequencePointsBehavior.True    => true,
+                WeaverConfigOptions.SequencePointsBehavior.Debug   => module.IsDebugBuild(),
                 WeaverConfigOptions.SequencePointsBehavior.Release => !module.IsDebugBuild(),
-                _ => throw new ArgumentOutOfRangeException()
+                _                                                  => throw new ArgumentOutOfRangeException()
             };
         }
     }

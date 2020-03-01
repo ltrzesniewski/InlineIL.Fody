@@ -404,12 +404,12 @@ namespace InlineIL.Fody.Extensions
         {
             return callingConvention switch
             {
-                CallingConvention.Cdecl => MethodCallingConvention.C,
-                CallingConvention.StdCall => MethodCallingConvention.StdCall,
-                CallingConvention.Winapi => MethodCallingConvention.StdCall,
+                CallingConvention.Cdecl    => MethodCallingConvention.C,
+                CallingConvention.StdCall  => MethodCallingConvention.StdCall,
+                CallingConvention.Winapi   => MethodCallingConvention.StdCall,
                 CallingConvention.FastCall => MethodCallingConvention.FastCall,
                 CallingConvention.ThisCall => MethodCallingConvention.ThisCall,
-                _ => throw new WeavingException("Invalid calling convention")
+                _                          => throw new WeavingException("Invalid calling convention")
             };
         }
 

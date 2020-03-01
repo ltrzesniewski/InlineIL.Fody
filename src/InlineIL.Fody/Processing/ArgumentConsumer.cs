@@ -575,17 +575,12 @@ namespace InlineIL.Fody.Processing
 
         private static WeavingException UnexpectedInstruction(Instruction? instruction, string expected)
         {
-            switch (instruction?.OpCode.Code)
+            return instruction?.OpCode.Code switch
             {
-                case null:
-                    return new WeavingException($"Expected {expected} but the instruction was missing");
-
-                case Code.Ldnull:
-                    return new InstructionWeavingException(instruction, $"Expected {expected} but was null");
-
-                default:
-                    return new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction} - InlineIL requires that arguments to IL-emitting methods be constructed in place.");
-            }
+                null        => new WeavingException($"Expected {expected} but the instruction was missing"),
+                Code.Ldnull => new InstructionWeavingException(instruction, $"Expected {expected} but was null"),
+                _           => new InstructionWeavingException(instruction, $"Unexpected instruction, expected {expected} but was: {instruction} - InlineIL requires that arguments to IL-emitting methods be constructed in place.")
+            };
         }
     }
 }
