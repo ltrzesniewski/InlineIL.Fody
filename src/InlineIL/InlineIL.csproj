@@ -5,6 +5,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DebugType>embedded</DebugType>
     <IsPackable>true</IsPackable>
     <PackageId>InlineIL.Fody</PackageId>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
