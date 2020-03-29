@@ -13,6 +13,7 @@
     <IsPackable>false</IsPackable>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(TF_BUILD)' != ''">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <PropertyGroup>
