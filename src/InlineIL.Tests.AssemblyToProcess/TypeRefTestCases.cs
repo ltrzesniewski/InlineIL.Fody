@@ -6,6 +6,7 @@ using static InlineIL.IL.Emit;
 namespace InlineIL.Tests.AssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public class TypeRefTestCases
     {
         private const string _thisAssemblyName =
@@ -27,9 +28,39 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<RuntimeTypeHandle>();
         }
 
+        public RuntimeTypeHandle ReturnTypeHandleGeneric<T>()
+        {
+            Ldtoken<T>();
+            return IL.Return<RuntimeTypeHandle>();
+        }
+
+        public RuntimeTypeHandle ReturnTypeHandleGeneric()
+        {
+            Ldtoken<Guid>();
+            return IL.Return<RuntimeTypeHandle>();
+        }
+
+        public bool IsString(object obj)
+        {
+            Ldarg(nameof(obj));
+            Isinst<string>();
+            Ldnull();
+            Cgt_Un();
+            return IL.Return<bool>();
+        }
+        
+        public bool GenericIsinst<T>(object obj)
+        {
+            Ldarg(nameof(obj));
+            Isinst<T>();
+            Ldnull();
+            Cgt_Un();
+            return IL.Return<bool>();
+        }
+        
         public RuntimeTypeHandle[] LoadTypeDifferentWays()
         {
-            var result = new RuntimeTypeHandle[3];
+            var result = new RuntimeTypeHandle[4];
 
             IL.Push(result);
             Ldc_I4_0();
@@ -43,9 +74,13 @@ namespace InlineIL.Tests.AssemblyToProcess
 
             IL.Push(result);
             Ldc_I4_2();
-
             Ldtoken(new TypeRef(TypeRef.CoreLibrary, "System.Int32"));
             Stelem_Any(new TypeRef(TypeRef.CoreLibrary, "System.RuntimeTypeHandle"));
+
+            IL.Push(result);
+            Ldc_I4_3();
+            Ldtoken<int>();
+            Stelem_Any<RuntimeTypeHandle>();
 
             return result;
         }

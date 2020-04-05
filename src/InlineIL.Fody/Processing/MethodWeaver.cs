@@ -395,7 +395,12 @@ namespace InlineIL.Fody.Processing
                         return _il.CreateConst(opCode, _consumer.ConsumeArgString(args.Single()));
 
                     case OperandType.InlineType:
+                    {
+                        if (method.IsGenericInstance)
+                            return _il.Create(opCode, ((GenericInstanceMethod)method).GenericArguments[0]);
+
                         return _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single()));
+                    }
 
                     case OperandType.InlineMethod:
                         return _il.Create(opCode, _consumer.ConsumeArgMethodRef(args.Single()));
@@ -405,6 +410,9 @@ namespace InlineIL.Fody.Processing
 
                     case OperandType.InlineTok:
                     {
+                        if (method.IsGenericInstance)
+                            return _il.Create(opCode, ((GenericInstanceMethod)method).GenericArguments[0]);
+
                         return method.Parameters[0].ParameterType.FullName switch
                         {
                             KnownNames.Full.TypeRefType   => _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single())),

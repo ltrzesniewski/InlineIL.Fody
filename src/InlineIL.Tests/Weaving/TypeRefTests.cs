@@ -33,6 +33,40 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_type_arg_generic()
+        {
+            var result = (RuntimeTypeHandle)GetInstance().ReturnTypeHandleGeneric<Guid>();
+            result.ShouldEqual(typeof(Guid).TypeHandle);
+        }
+
+        [Fact]
+        public void should_handle_type_token_load_generic()
+        {
+            var handle = (RuntimeTypeHandle)GetInstance().ReturnTypeHandleGeneric();
+            Type.GetTypeFromHandle(handle).ShouldEqual(typeof(Guid));
+        }
+
+        [Fact]
+        public void should_handle_type_arg_as_generic_method_call()
+        {
+            var result = (bool)GetInstance().IsString("foo");
+            result.ShouldBeTrue();
+
+            result = (bool)GetInstance().IsString((object)Array.Empty<string>());
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void should_handle_type_arg_as_generic_method_call_with_type_param()
+        {
+            var result = (bool)GetInstance().GenericIsinst<string>("foo");
+            result.ShouldBeTrue();
+
+            result = (bool)GetInstance().GenericIsinst<string[]>("foo");
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
         public void should_handle_type_arg_different_ways()
         {
             var result = (RuntimeTypeHandle[])GetInstance().LoadTypeDifferentWays();

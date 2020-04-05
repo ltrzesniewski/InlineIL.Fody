@@ -899,11 +899,27 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>cpobj</c> - Copies the value type located at the address of an object (type &amp;, * or native int) to the address of the destination object (type &amp;, * or native int).
+            /// <para>Stack Transition: ..., I, I -&gt; ...</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Cpobj<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>ldobj</c> - Copies the value type object pointed to by an address to the top of the evaluation stack.
             /// <para>Stack Transition: ..., I -&gt; ..., value</para>
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Ldobj(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>ldobj</c> - Copies the value type object pointed to by an address to the top of the evaluation stack.
+            /// <para>Stack Transition: ..., I -&gt; ..., value</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Ldobj<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -931,11 +947,27 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>castclass</c> - Attempts to cast an object passed by reference to the specified class.
+            /// <para>Stack Transition: ..., O -&gt; ..., O</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Castclass<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>isinst</c> - Tests whether an object reference (type O) is an instance of a particular class.
             /// <para>Stack Transition: ..., O -&gt; ..., I</para>
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Isinst(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>isinst</c> - Tests whether an object reference (type O) is an instance of a particular class.
+            /// <para>Stack Transition: ..., O -&gt; ..., I</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Isinst<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -951,6 +983,14 @@ namespace InlineIL
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Unbox(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>unbox</c> - Converts the boxed representation of a value type to its unboxed form.
+            /// <para>Stack Transition: ..., O -&gt; ..., I</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Unbox<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -1014,6 +1054,14 @@ namespace InlineIL
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Stobj(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>stobj</c> - Copies a value of a specified type from the evaluation stack into a supplied memory address.
+            /// <para>Stack Transition: ..., I, value -&gt; ...</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Stobj<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -1095,11 +1143,27 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>box</c> - Converts a value type to an object reference (type O).
+            /// <para>Stack Transition: ..., value -&gt; ..., O</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Box<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>newarr</c> - Pushes an object reference to a new zero-based, one-dimensional array whose elements are of a specific type onto the evaluation stack.
             /// <para>Stack Transition: ..., I -&gt; ..., O</para>
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Newarr(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>newarr</c> - Pushes an object reference to a new zero-based, one-dimensional array whose elements are of a specific type onto the evaluation stack.
+            /// <para>Stack Transition: ..., I -&gt; ..., O</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Newarr<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -1115,6 +1179,14 @@ namespace InlineIL
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Ldelema(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>ldelema</c> - Loads the address of the array element at a specified array index onto the top of the evaluation stack as type &amp; (managed pointer).
+            /// <para>Stack Transition: ..., O, I -&gt; ..., I</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Ldelema<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -1259,6 +1331,14 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>ldelem.any</c> - Loads the element at a specified array index onto the top of the evaluation stack as the type specified in the instruction.
+            /// <para>Stack Transition: ..., O, I -&gt; ..., value</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Ldelem_Any<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>stelem.any</c> - Replaces the array element at a given index with the value on the evaluation stack, whose type is specified in the instruction.
             /// <para>Stack Transition: ..., O, I, O -&gt; ...</para>
             /// </summary>
@@ -1267,11 +1347,27 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>stelem.any</c> - Replaces the array element at a given index with the value on the evaluation stack, whose type is specified in the instruction.
+            /// <para>Stack Transition: ..., O, I, O -&gt; ...</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Stelem_Any<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>unbox.any</c> - Converts the boxed representation of a type specified in the instruction to its unboxed form.
             /// <para>Stack Transition: ..., O -&gt; ..., value</para>
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Unbox_Any(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>unbox.any</c> - Converts the boxed representation of a type specified in the instruction to its unboxed form.
+            /// <para>Stack Transition: ..., O -&gt; ..., value</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Unbox_Any<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -1339,6 +1435,14 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>refanyval</c> - Retrieves the address (type &amp;) embedded in a typed reference.
+            /// <para>Stack Transition: ..., value -&gt; ..., I</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Refanyval<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>ckfinite</c> - Throws <see cref="System.ArithmeticException" /> if value is not a finite number.
             /// <para>Stack Transition: ..., value -&gt; ..., R8</para>
             /// </summary>
@@ -1354,11 +1458,27 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>mkrefany</c> - Pushes a typed reference to an instance of a specific type onto the evaluation stack.
+            /// <para>Stack Transition: ..., I -&gt; ..., value</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Mkrefany<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>ldtoken</c> - Converts a metadata token to its runtime representation, pushing it onto the evaluation stack.
             /// <para>Stack Transition: ... -&gt; ..., I</para>
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Ldtoken(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>ldtoken</c> - Converts a metadata token to its runtime representation, pushing it onto the evaluation stack.
+            /// <para>Stack Transition: ... -&gt; ..., I</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Ldtoken<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -1690,11 +1810,27 @@ namespace InlineIL
                 => IL.Throw();
 
             /// <summary>
+            /// <c>initobj</c> - Initializes each field of the value type at a specified address to a null reference or a 0 of the appropriate primitive type.
+            /// <para>Stack Transition: ..., I -&gt; ...</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Initobj<T>()
+                => IL.Throw();
+
+            /// <summary>
             /// <c>constrained.</c> - Constrains the type on which a virtual method call is made.
             /// <para>This is a prefix instruction.</para>
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Constrained(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>constrained.</c> - Constrains the type on which a virtual method call is made.
+            /// <para>This is a prefix instruction.</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Constrained<T>()
                 => IL.Throw();
 
             /// <summary>
@@ -1735,6 +1871,14 @@ namespace InlineIL
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void Sizeof(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <c>sizeof</c> - Pushes the size, in bytes, of a supplied value type onto the evaluation stack.
+            /// <para>Stack Transition: ... -&gt; ..., I</para>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void Sizeof<T>()
                 => IL.Throw();
 
             /// <summary>

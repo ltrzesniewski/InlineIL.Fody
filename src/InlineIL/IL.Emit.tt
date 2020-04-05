@@ -327,6 +327,13 @@ namespace InlineIL
             /// <param name="type">The type reference.</param>
             public static void <#= item.fieldName #>(TypeRef type)
                 => IL.Throw();
+
+            /// <summary>
+            /// <#= summary #>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void <#= item.fieldName #><T>()
+                => IL.Throw();
 <#
                 break;
 
@@ -359,6 +366,13 @@ namespace InlineIL
             /// </summary>
             /// <param name="type">The type reference.</param>
             public static void <#= item.fieldName #>(TypeRef type)
+                => IL.Throw();
+
+            /// <summary>
+            /// <#= summary #>
+            /// </summary>
+            /// <typeparam name="T">The type reference.</typeparam>
+            public static void <#= item.fieldName #><T>()
                 => IL.Throw();
 
             /// <summary>
