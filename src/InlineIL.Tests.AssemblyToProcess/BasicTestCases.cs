@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using InlineIL.Tests.Common;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.AssemblyToProcess
@@ -7,7 +8,7 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-    public class BasicTestCases
+    public class BasicTestCases : IBasicTestCases
     {
         public static int StaticIntField;
 
@@ -21,6 +22,27 @@ namespace InlineIL.Tests.AssemblyToProcess
         {
             IL.Push<string>(null);
             return IL.Return<string>();
+        }
+
+        public void PushRef(ref int i)
+        {
+            IL.Push(ref i);
+            Ldc_I4(42);
+            Stind_I4();
+        }
+
+        public void PushIn(in int i)
+        {
+            IL.PushIn(i);
+            Ldc_I4(42);
+            Stind_I4();
+        }
+
+        public void PushOut(out int i)
+        {
+            IL.PushOut(out i);
+            Ldc_I4(42);
+            Stind_I4();
         }
 
         public int MultiplyBy3(int value)

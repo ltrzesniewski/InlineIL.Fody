@@ -14,6 +14,13 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
         public static int* StaticIntPtrField;
         public static void* StaticVoidPtrField;
 
+        public void PushPointer(int* value)
+        {
+            IL.Push(value);
+            Ldc_I4(42);
+            Stind_I4();
+        }
+
         public void HandlePrefixesInDebugMode(ref Guid value)
         {
             IL.Push(ref value);

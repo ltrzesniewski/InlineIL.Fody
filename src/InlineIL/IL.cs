@@ -67,6 +67,26 @@ namespace InlineIL
             => Throw();
 
         /// <summary>
+        /// Pushes a read-only reference to a value onto the evaluation stack.
+        /// The <paramref name="value"/> parameter should be an argument reference.
+        /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to push.</typeparam>
+        /// <param name="value">The reference to push.</param>
+        public static void PushIn<T>(in T value)
+            => Throw();
+
+        /// <summary>
+        /// Pushes an output reference to a value onto the evaluation stack.
+        /// The <paramref name="value"/> parameter should be an argument reference.
+        /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to push.</typeparam>
+        /// <param name="value">The reference to push.</param>
+        public static void PushOut<T>(out T value)
+            => throw Throw();
+
+        /// <summary>
         /// Pops a value from the top of the evaluation stack into a local variable.
         /// </summary>
         /// <typeparam name="T">The type of the value to pop.</typeparam>

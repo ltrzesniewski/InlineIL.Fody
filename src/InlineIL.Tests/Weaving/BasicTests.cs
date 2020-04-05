@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using InlineIL.Fody.Extensions;
@@ -42,6 +43,38 @@ namespace InlineIL.Tests.Weaving
             var result = (string?)GetInstance().PushNullValue();
 
             result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void should_push_ref()
+        {
+            var i = 0;
+            GetInstance().PushRef(ref i);
+            i.ShouldEqual(42);
+        }
+
+        [Fact]
+        [SuppressMessage("ReSharper", "ConvertToConstant.Local")]
+        public void should_push_in_ref()
+        {
+            var i = 0;
+            ((IBasicTestCases)GetInstance()).PushIn(i);
+            i.ShouldEqual(42);
+        }
+
+        [Fact]
+        public void should_push_out_ref()
+        {
+            GetInstance().PushOut(out int i);
+            i.ShouldEqual(42);
+        }
+
+        [Fact]
+        public unsafe void should_push_pointer()
+        {
+            int i;
+            ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PushPointer(&i);
+            i.ShouldEqual(42);
         }
 
         [Fact]

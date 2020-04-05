@@ -15,6 +15,8 @@ namespace InlineIL.Fody.Processing
             public const string StandAloneMethodSigType = "StandAloneMethodSig";
 
             public const string PushMethod = "Push";
+            public const string PushInMethod = "PushIn";
+            public const string PushOutMethod = "PushOut";
             public const string PopMethod = "Pop";
             public const string UnreachableMethod = "Unreachable";
             public const string ReturnMethod = "Return";

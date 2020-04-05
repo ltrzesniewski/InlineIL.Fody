@@ -122,7 +122,9 @@ namespace InlineIL.Fody.Processing
                         switch (calledMethod.Name)
                         {
                             case KnownNames.Short.PushMethod:
-                                ValidatePushMethod(instruction);
+                            case KnownNames.Short.PushInMethod:
+                            case KnownNames.Short.PushOutMethod:
+                                ValidatePushMethod(instruction, calledMethod.Name);
                                 break;
                         }
                     }
@@ -288,6 +290,8 @@ namespace InlineIL.Fody.Processing
             switch (calledMethod.Name)
             {
                 case KnownNames.Short.PushMethod:
+                case KnownNames.Short.PushInMethod:
+                case KnownNames.Short.PushOutMethod:
                     ProcessPushMethod(instruction);
                     break;
 
@@ -487,7 +491,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private void ValidatePushMethod(Instruction instruction)
+        private void ValidatePushMethod(Instruction instruction, string pushMethodName)
         {
             if (_method.Body.ExceptionHandlers.Any(h => h.HandlerType == ExceptionHandlerType.Catch && h.HandlerStart == instruction
                                                         || h.HandlerType == ExceptionHandlerType.Filter && (h.FilterStart == instruction || h.HandlerStart == instruction)))
@@ -497,7 +501,7 @@ namespace InlineIL.Fody.Processing
             var prevInstruction = instruction.PrevSkipNops();
 
             if (args[0] != prevInstruction)
-                throw new InstructionWeavingException(instruction, "IL.Push cannot be used in this context, as the instruction which supplies its argument does not immediately precede the call");
+                throw new InstructionWeavingException(instruction, $"IL.{pushMethodName} cannot be used in this context, as the instruction which supplies its argument does not immediately precede the call");
         }
 
         private void ProcessPushMethod(Instruction instruction)
