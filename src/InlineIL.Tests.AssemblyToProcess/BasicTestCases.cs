@@ -31,16 +31,16 @@ namespace InlineIL.Tests.AssemblyToProcess
             Stind_I4();
         }
 
-        public void PushIn(in int i)
+        public void PushInRef(in int i)
         {
-            IL.PushIn(i);
+            IL.PushInRef(i);
             Ldc_I4(42);
             Stind_I4();
         }
 
-        public void PushOut(out int i)
+        public void PushOutRef(out int i)
         {
-            IL.PushOut(out i);
+            IL.PushOutRef(out i);
             Ldc_I4(42);
             Stind_I4();
         }

@@ -70,8 +70,8 @@ A few more things which are good to know:
  - `IL.MarkLabel`  
    Marks a label at a given position in the code.
    
- - `IL.Push`  
-   Pushes the provided argument onto the evaluation stack. Does not require a constatnt argument, any expression will work.
+ - `IL.Push`, `IL.PushInRef`, `IL.PushOutRef`  
+   Pushes the provided argument onto the evaluation stack. Does not require a constant argument, any expression will work.
 
  - `IL.Pop`  
    Pops a value from the evaluation stack into a local variable or static field.

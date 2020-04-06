@@ -122,8 +122,8 @@ namespace InlineIL.Fody.Processing
                         switch (calledMethod.Name)
                         {
                             case KnownNames.Short.PushMethod:
-                            case KnownNames.Short.PushInMethod:
-                            case KnownNames.Short.PushOutMethod:
+                            case KnownNames.Short.PushInRefMethod:
+                            case KnownNames.Short.PushOutRefMethod:
                                 ValidatePushMethod(instruction, calledMethod.Name);
                                 break;
                         }
@@ -290,8 +290,8 @@ namespace InlineIL.Fody.Processing
             switch (calledMethod.Name)
             {
                 case KnownNames.Short.PushMethod:
-                case KnownNames.Short.PushInMethod:
-                case KnownNames.Short.PushOutMethod:
+                case KnownNames.Short.PushInRefMethod:
+                case KnownNames.Short.PushOutRefMethod:
                     ProcessPushMethod(instruction);
                     break;
 

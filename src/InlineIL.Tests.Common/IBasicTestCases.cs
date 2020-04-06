@@ -2,6 +2,6 @@
 {
     public interface IBasicTestCases
     {
-        void PushIn(in int value);
+        void PushInRef(in int value);
     }
 }

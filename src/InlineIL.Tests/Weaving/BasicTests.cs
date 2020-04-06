@@ -58,14 +58,14 @@ namespace InlineIL.Tests.Weaving
         public void should_push_in_ref()
         {
             var i = 0;
-            ((IBasicTestCases)GetInstance()).PushIn(i);
+            ((IBasicTestCases)GetInstance()).PushInRef(i);
             i.ShouldEqual(42);
         }
 
         [Fact]
         public void should_push_out_ref()
         {
-            GetInstance().PushOut(out int i);
+            GetInstance().PushOutRef(out int i);
             i.ShouldEqual(42);
         }
 

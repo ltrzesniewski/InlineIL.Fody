@@ -73,7 +73,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The type of the value to push.</typeparam>
         /// <param name="value">The reference to push.</param>
-        public static void PushIn<T>(in T value)
+        public static void PushInRef<T>(in T value)
             => Throw();
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The type of the value to push.</typeparam>
         /// <param name="value">The reference to push.</param>
-        public static void PushOut<T>(out T value)
+        public static void PushOutRef<T>(out T value)
             => throw Throw();
 
         /// <summary>
