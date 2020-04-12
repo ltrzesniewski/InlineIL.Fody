@@ -34,7 +34,7 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
-        /// Makes the object referred to by the local pinned in memory, which prevents the garbage collector from moving it.
+        /// Makes the object referred to by the local as pinned in memory, which prevents the garbage collector from moving it.
         /// </summary>
         /// <returns>The local variable declaration.</returns>
         public LocalVar Pinned()

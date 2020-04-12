@@ -14,7 +14,7 @@ namespace InlineIL
     public sealed class StandAloneMethodSig
     {
         /// <summary>
-        /// Constructs an unmanaged method signature for the calli opcode.
+        /// Constructs an unmanaged method signature for the <c>calli</c> opcode.
         /// </summary>
         /// <param name="callingConvention">The unmanaged calling convention.</param>
         /// <param name="returnType">The method return type.</param>
@@ -24,7 +24,7 @@ namespace InlineIL
         }
 
         /// <summary>
-        /// Constructs a managed method signature for the calli opcode.
+        /// Constructs a managed method signature for the <c>calli</c> opcode.
         /// </summary>
         /// <param name="callingConvention">The managed calling convention.</param>
         /// <param name="returnType">The method return type.</param>

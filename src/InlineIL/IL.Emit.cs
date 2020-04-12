@@ -1721,7 +1721,7 @@ namespace InlineIL
             /// <c>ldloc</c> - Loads the local variable at a specific index onto the evaluation stack.
             /// <para>Stack Transition: ... -&gt; ..., value</para>
             /// </summary>
-            /// <param name="name">The local variable name.</param>
+            /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void Ldloc(string name)
                 => IL.Throw();
 
@@ -1737,7 +1737,7 @@ namespace InlineIL
             /// <c>ldloca</c> - Loads the address of the local variable at a specific index onto the evaluation stack.
             /// <para>Stack Transition: ... -&gt; ..., I</para>
             /// </summary>
-            /// <param name="name">The local variable name.</param>
+            /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void Ldloca(string name)
                 => IL.Throw();
 
@@ -1753,7 +1753,7 @@ namespace InlineIL
             /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at a specified index.
             /// <para>Stack Transition: ..., value -&gt; ...</para>
             /// </summary>
-            /// <param name="name">The local variable name.</param>
+            /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void Stloc(string name)
                 => IL.Throw();
 

@@ -23,8 +23,9 @@ namespace InlineIL
         /// These variables are appended to the ones already declared by the compiler, but indexes of emitted ldloc/stloc instructions are adjusted to account for that.
         /// </summary>
         /// <param name="init">
-        /// Flag which specifies if the local variables should be zero initialized. The default value is <c>true</c>.
-        /// Setting this to <c>false</c> will cause the method to be unverifiable. It will also affect the initialization of locals emitted by the compiler.
+        /// Flag which specifies if the local variables should be zero initialized.
+        /// This flag applies to all locals, including the ones declared by the compiler, and space allocated in the stack frame by <c>localloc</c>.
+        /// Setting this to <c>false</c> will cause the method to be unverifiable.
         /// </param>
         /// <param name="locals">The list of local variable declarations.</param>
         public static void DeclareLocals(bool init, params LocalVar[] locals)
@@ -39,8 +40,6 @@ namespace InlineIL
 
         /// <summary>
         /// Pushes a value onto the evaluation stack.
-        /// The <paramref name="value"/> parameter should be a constant or an argument.
-        /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
         /// </summary>
         /// <typeparam name="T">The type of the value to push.</typeparam>
         /// <param name="value">The value to push.</param>
@@ -48,40 +47,32 @@ namespace InlineIL
             => Throw();
 
         /// <summary>
-        /// Pushes a reference to a value onto the evaluation stack.
-        /// The <paramref name="value"/> parameter should be an argument reference.
-        /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
+        /// Pushes a reference onto the evaluation stack.
         /// </summary>
-        /// <typeparam name="T">The type of the value to push.</typeparam>
+        /// <typeparam name="T">The reference target type.</typeparam>
         /// <param name="value">The reference to push.</param>
         public static void Push<T>(ref T value)
             => Throw();
 
         /// <summary>
         /// Pushes a pointer onto the evaluation stack.
-        /// The <paramref name="value"/> parameter should be an argument.
-        /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
         /// </summary>
         /// <param name="value">The pointer to push.</param>
         public static void Push(void* value)
             => Throw();
 
         /// <summary>
-        /// Pushes a read-only reference to a value onto the evaluation stack.
-        /// The <paramref name="value"/> parameter should be an argument reference.
-        /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
+        /// Pushes a read-only reference onto the evaluation stack.
         /// </summary>
-        /// <typeparam name="T">The type of the value to push.</typeparam>
+        /// <typeparam name="T">The reference target type.</typeparam>
         /// <param name="value">The reference to push.</param>
         public static void PushInRef<T>(in T value)
             => Throw();
 
         /// <summary>
-        /// Pushes an output reference to a value onto the evaluation stack.
-        /// The <paramref name="value"/> parameter should be an argument reference.
-        /// Other values will either work correctly or cause a weaving-time error, depending on the surrounding code.
+        /// Pushes an output reference onto the evaluation stack.
         /// </summary>
-        /// <typeparam name="T">The type of the value to push.</typeparam>
+        /// <typeparam name="T">The reference target type.</typeparam>
         /// <param name="value">The reference to push.</param>
         public static void PushOutRef<T>(out T value)
             => throw Throw();
