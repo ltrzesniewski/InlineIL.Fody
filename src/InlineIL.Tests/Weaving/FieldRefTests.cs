@@ -23,6 +23,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void ShouldReferenceFieldInDifferentWays()
+        {
+            var result = (int[])GetInstance().ReturnStaticIntFieldInDifferentWays();
+            result.ShouldAll(i => i == result[0]);
+        }
+
+        [Fact]
         public void should_report_null_field()
         {
             ShouldHaveError("NullField").ShouldContain("ldnull");

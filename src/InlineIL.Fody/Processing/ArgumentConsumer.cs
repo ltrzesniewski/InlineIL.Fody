@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -388,16 +389,26 @@ namespace InlineIL.Fody.Processing
 
             FieldRefBuilder ConsumeArgFieldRefBuilder(Instruction instruction)
             {
-                if (instruction.OpCode != OpCodes.Newobj || !(instruction.Operand is MethodReference ctor) || ctor.FullName != "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)")
-                    throw UnexpectedInstruction(instruction, "newobj FieldRef");
+                if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                    throw UnexpectedInstruction(instruction, "a method call");
 
-                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
-                var typeRef = ConsumeArgTypeRef(args[0]);
-                var fieldName = ConsumeArgString(args[1]);
-                var builder = new FieldRefBuilder(typeRef, fieldName);
+                switch (method.FullName)
+                {
+                    case "System.Void InlineIL.FieldRef::.ctor(InlineIL.TypeRef,System.String)":
+                    case "InlineIL.FieldRef InlineIL.FieldRef::Field(InlineIL.TypeRef,System.String)":
+                    {
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var fieldName = ConsumeArgString(args[1]);
+                        var builder = new FieldRefBuilder(typeRef, fieldName);
 
-                _il.Remove(instruction);
-                return builder;
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    default:
+                        throw UnexpectedInstruction(instruction, "a field reference");
+                }
             }
         }
 

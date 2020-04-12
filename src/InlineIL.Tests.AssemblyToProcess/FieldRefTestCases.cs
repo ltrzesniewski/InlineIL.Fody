@@ -10,12 +10,32 @@ namespace InlineIL.Tests.AssemblyToProcess
     public class FieldRefTestCases
     {
         public int IntField;
+        public static int StaticIntField = 42;
 
         public int ReturnIntField()
         {
             Ldarg_0();
             Ldfld(new FieldRef(typeof(FieldRefTestCases), nameof(IntField)));
             return IL.Return<int>();
+        }
+
+        public int[] ReturnStaticIntFieldInDifferentWays()
+        {
+            var result = new int[3];
+
+            result[0] = StaticIntField;
+
+            IL.Push(result);
+            IL.Push(1);
+            Ldsfld(new FieldRef(typeof(FieldRefTestCases), nameof(StaticIntField)));
+            Stelem_I4();
+
+            IL.Push(result);
+            IL.Push(2);
+            Ldsfld(FieldRef.Field(typeof(FieldRefTestCases), nameof(StaticIntField)));
+            Stelem_I4();
+
+            return result;
         }
 
         public RuntimeFieldHandle ReturnFieldHandle()
