@@ -277,6 +277,7 @@ namespace InlineIL.Fody.Processing
                 switch (method.FullName)
                 {
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
+                    case "InlineIL.MethodRef InlineIL.MethodRef::Method(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
                     {
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var typeRef = ConsumeArgTypeRef(args[0]);
@@ -289,6 +290,7 @@ namespace InlineIL.Fody.Processing
                     }
 
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,System.Int32,InlineIL.TypeRef[])":
+                    case "InlineIL.MethodRef InlineIL.MethodRef::Method(InlineIL.TypeRef,System.String,System.Int32,InlineIL.TypeRef[])":
                     {
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var typeRef = ConsumeArgTypeRef(args[0]);
@@ -302,6 +304,7 @@ namespace InlineIL.Fody.Processing
                     }
 
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
+                    case "InlineIL.MethodRef InlineIL.MethodRef::Method(InlineIL.TypeRef,System.String)":
                         return FromNamedMember((typeRef, methodName) => MethodRefBuilder.MethodByName(Module, typeRef, methodName));
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::PropertyGet(InlineIL.TypeRef,System.String)":

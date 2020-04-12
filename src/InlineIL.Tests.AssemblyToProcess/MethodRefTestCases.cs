@@ -29,12 +29,47 @@ namespace InlineIL.Tests.AssemblyToProcess
             throw IL.Unreachable();
         }
 
-        public Type ReturnTypeAlt<T>()
+        public Type[] CallMethodDifferentWays()
         {
-            Ldtoken(typeof(T));
+            var result = new Type[6];
+
+            IL.Push(result);
+            IL.Push(0);
+            Ldtoken<int>();
             Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
-            Ret();
-            throw IL.Unreachable();
+            Stelem_Any<Type>();
+
+            IL.Push(result);
+            IL.Push(1);
+            Ldtoken<int>();
+            Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle), typeof(RuntimeTypeHandle)));
+            Stelem_Any<Type>();
+
+            IL.Push(result);
+            IL.Push(2);
+            Ldtoken<int>();
+            Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle), 0, typeof(RuntimeTypeHandle)));
+            Stelem_Any<Type>();
+
+            IL.Push(result);
+            IL.Push(3);
+            Ldtoken<int>();
+            Call(MethodRef.Method(typeof(Type), nameof(Type.GetTypeFromHandle)));
+            Stelem_Any<Type>();
+
+            IL.Push(result);
+            IL.Push(4);
+            Ldtoken<int>();
+            Call(MethodRef.Method(typeof(Type), nameof(Type.GetTypeFromHandle), typeof(RuntimeTypeHandle)));
+            Stelem_Any<Type>();
+
+            IL.Push(result);
+            IL.Push(5);
+            Ldtoken<int>();
+            Call(MethodRef.Method(typeof(Type), nameof(Type.GetTypeFromHandle), 0, typeof(RuntimeTypeHandle)));
+            Stelem_Any<Type>();
+
+            return result;
         }
 
         public int[] ResolveOverloads()

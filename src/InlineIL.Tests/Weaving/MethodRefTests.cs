@@ -27,6 +27,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_method_different_ways()
+        {
+            var result = (Type[])GetInstance().CallMethodDifferentWays();
+            result.ShouldAll(i => i == result[0]);
+        }
+
+        [Fact]
         public void should_resolve_overloads()
         {
             var result = (int[])GetInstance().ResolveOverloads();

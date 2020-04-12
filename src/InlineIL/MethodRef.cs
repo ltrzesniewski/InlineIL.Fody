@@ -46,6 +46,41 @@ namespace InlineIL
             => IL.Throw();
 
         /// <summary>
+        /// Constructs a method reference for a non-overloaded method.
+        /// </summary>
+        /// <param name="type">The type declaring the method.</param>
+        /// <param name="methodName">The method name.</param>
+        public static MethodRef Method(TypeRef type, string methodName)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference.
+        /// </summary>
+        /// <param name="type">The type declaring the method.</param>
+        /// <param name="methodName">The method name.</param>
+        /// <param name="parameterTypes">
+        /// The types of the method parameters.
+        /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
+        /// from the <see cref="TypeRef"/> class to represent generic parameter types.
+        /// </param>
+        public static MethodRef Method(TypeRef type, string methodName, params TypeRef[] parameterTypes)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference.
+        /// </summary>
+        /// <param name="type">The type declaring the method.</param>
+        /// <param name="methodName">The method name.</param>
+        /// <param name="genericParameterCount">The generic parameter count. Use 0 for a non-generic method.</param>
+        /// <param name="parameterTypes">
+        /// The types of the method parameters.
+        /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
+        /// from the <see cref="TypeRef"/> class to represent generic parameter types.
+        /// </param>
+        public static MethodRef Method(TypeRef type, string methodName, int genericParameterCount, params TypeRef[] parameterTypes)
+            => throw IL.Throw();
+
+        /// <summary>
         /// Constructs a method reference to a property getter.
         /// </summary>
         /// <param name="type">The type declaring the property.</param>
