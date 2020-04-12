@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace InlineIL
 {
     /// <summary>
-    /// Represents a type reference. This class is implicitly convertible from <see cref="Type"/>.
+    /// Represents a type reference. This class is implicitly convertible from <see cref="System.Type"/>.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
@@ -32,21 +32,21 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
-        /// Constructs a type reference from a <see cref="Type"/>.
+        /// Constructs a type reference from a <see cref="System.Type"/>.
         /// </summary>
         /// <param name="type">The type to reference.</param>
         public static TypeRef Type(Type type)
             => throw IL.Throw();
 
         /// <summary>
-        /// Constructs a type reference from a <see cref="Type"/>.
+        /// Constructs a type reference from a <see cref="System.Type"/>.
         /// </summary>
         /// <typeparam name="T">The type to reference.</typeparam>
         public static TypeRef Type<T>()
             => throw IL.Throw();
 
         /// <summary>
-        /// Constructs a type reference from a <see cref="Type"/>.
+        /// Constructs a type reference from a <see cref="System.Type"/>.
         /// </summary>
         /// <param name="type">The type to reference.</param>
         public TypeRef(Type type)
@@ -61,7 +61,7 @@ namespace InlineIL
             => IL.Throw();
 
         /// <summary>
-        /// Converts a <see cref="Type"/> to a <see cref="TypeRef"/>.
+        /// Converts a <see cref="System.Type"/> to a <see cref="TypeRef"/>.
         /// </summary>
         /// <param name="type">The type to reference.</param>
         public static implicit operator TypeRef(Type type)
