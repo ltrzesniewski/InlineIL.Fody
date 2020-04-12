@@ -34,6 +34,24 @@ namespace InlineIL
         }
 
         /// <summary>
+        /// Constructs an unmanaged method signature for the <c>calli</c> opcode.
+        /// </summary>
+        /// <param name="callingConvention">The unmanaged calling convention.</param>
+        /// <param name="returnType">The method return type.</param>
+        /// <param name="parameterTypes">The method parameter types.</param>
+        public static StandAloneMethodSig UnmanagedMethod(CallingConvention callingConvention, TypeRef returnType, params TypeRef[] parameterTypes)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a managed method signature for the <c>calli</c> opcode.
+        /// </summary>
+        /// <param name="callingConvention">The managed calling convention.</param>
+        /// <param name="returnType">The method return type.</param>
+        /// <param name="parameterTypes">The method parameter types.</param>
+        public static StandAloneMethodSig ManagedMethod(CallingConventions callingConvention, TypeRef returnType, params TypeRef[] parameterTypes)
+            => throw IL.Throw();
+
+        /// <summary>
         /// Specifies the optional parameter types for a managed varargs method call.
         /// </summary>
         /// <param name="optionalParameterTypes">The optional parameter types.</param>

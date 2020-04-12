@@ -19,6 +19,14 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             return IL.Return<int>();
         }
 
+        public int CallIndirectStaticAlt()
+        {
+            Ldc_I4(42);
+            Ldftn(new MethodRef(typeof(StandAloneMethodSigTestCases), nameof(IndirectCallStaticTargetMethod)));
+            Calli(StandAloneMethodSig.ManagedMethod(CallingConventions.Standard, typeof(int), typeof(int)));
+            return IL.Return<int>();
+        }
+
         public int CallIndirectInstance()
         {
             IL.Push(this);
@@ -54,6 +62,25 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             IL.Push(15);
             IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
             Calli(new StandAloneMethodSig(CallingConvention.StdCall, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
+
+            GC.KeepAlive(fn);
+            return IL.Return<int>();
+        }
+
+        public int CallIndirectNativeStdcallAlt()
+        {
+            var fn = new IntToIntStdcall(IndirectCallNativeTargetMethod);
+
+            IL.Push(40);
+            IL.Push(2);
+            IL.Push(40);
+            IL.Push(-20);
+            IL.Push(-20);
+            IL.Push(-20);
+            IL.Push(5);
+            IL.Push(15);
+            IL.Push(Marshal.GetFunctionPointerForDelegate(fn).ToPointer());
+            Calli(StandAloneMethodSig.UnmanagedMethod(CallingConvention.StdCall, typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)));
 
             GC.KeepAlive(fn);
             return IL.Return<int>();

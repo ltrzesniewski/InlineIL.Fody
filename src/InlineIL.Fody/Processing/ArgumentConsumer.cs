@@ -553,6 +553,7 @@ namespace InlineIL.Fody.Processing
                 switch (method.FullName)
                 {
                     case "System.Void InlineIL.StandAloneMethodSig::.ctor(System.Reflection.CallingConventions,InlineIL.TypeRef,InlineIL.TypeRef[])":
+                    case "InlineIL.StandAloneMethodSig InlineIL.StandAloneMethodSig::ManagedMethod(System.Reflection.CallingConventions,InlineIL.TypeRef,InlineIL.TypeRef[])":
                     {
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var callingConvention = (CallingConventions)ConsumeArgInt32(args[0]);
@@ -565,6 +566,7 @@ namespace InlineIL.Fody.Processing
                     }
 
                     case "System.Void InlineIL.StandAloneMethodSig::.ctor(System.Runtime.InteropServices.CallingConvention,InlineIL.TypeRef,InlineIL.TypeRef[])":
+                    case "InlineIL.StandAloneMethodSig InlineIL.StandAloneMethodSig::UnmanagedMethod(System.Runtime.InteropServices.CallingConvention,InlineIL.TypeRef,InlineIL.TypeRef[])":
                     {
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var callingConvention = (CallingConvention)ConsumeArgInt32(args[0]);
