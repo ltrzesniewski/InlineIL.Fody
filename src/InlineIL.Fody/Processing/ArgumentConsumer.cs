@@ -93,7 +93,7 @@ namespace InlineIL.Fody.Processing
             if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
                 throw UnexpectedInstruction(instruction, "a method call");
 
-            switch (method.FullName)
+            switch (method.GetElementMethod().FullName)
             {
                 case "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)":
                 {
@@ -109,9 +109,18 @@ namespace InlineIL.Fody.Processing
                 }
 
                 case "InlineIL.TypeRef InlineIL.TypeRef::op_Implicit(System.Type)":
+                case "InlineIL.TypeRef InlineIL.TypeRef::Type(System.Type)":
                 case "System.Void InlineIL.TypeRef::.ctor(System.Type)":
                 {
                     var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
+
+                    _il.Remove(instruction);
+                    return builder;
+                }
+
+                case "InlineIL.TypeRef InlineIL.TypeRef::Type()":
+                {
+                    var builder = new TypeRefBuilder(Module, ((GenericInstanceMethod)method).GenericArguments[0]);
 
                     _il.Remove(instruction);
                     return builder;

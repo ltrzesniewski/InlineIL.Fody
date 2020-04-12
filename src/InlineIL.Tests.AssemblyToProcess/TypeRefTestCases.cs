@@ -48,7 +48,7 @@ namespace InlineIL.Tests.AssemblyToProcess
             Cgt_Un();
             return IL.Return<bool>();
         }
-        
+
         public bool GenericIsinst<T>(object obj)
         {
             Ldarg(nameof(obj));
@@ -57,10 +57,10 @@ namespace InlineIL.Tests.AssemblyToProcess
             Cgt_Un();
             return IL.Return<bool>();
         }
-        
+
         public RuntimeTypeHandle[] LoadTypeDifferentWays()
         {
-            var result = new RuntimeTypeHandle[4];
+            var result = new RuntimeTypeHandle[6];
 
             IL.Push(result);
             Ldc_I4_0();
@@ -80,6 +80,16 @@ namespace InlineIL.Tests.AssemblyToProcess
             IL.Push(result);
             Ldc_I4_3();
             Ldtoken<int>();
+            Stelem_Any<RuntimeTypeHandle>();
+
+            IL.Push(result);
+            Ldc_I4_4();
+            Ldtoken(TypeRef.Type(typeof(int)));
+            Stelem_Any<RuntimeTypeHandle>();
+
+            IL.Push(result);
+            Ldc_I4_5();
+            Ldtoken(TypeRef.Type<int>());
             Stelem_Any<RuntimeTypeHandle>();
 
             return result;

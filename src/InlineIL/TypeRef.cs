@@ -9,6 +9,7 @@ namespace InlineIL
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "UnusedTypeParameter")]
     public sealed class TypeRef
     {
         /// <summary>
@@ -34,6 +35,20 @@ namespace InlineIL
         /// Constructs a type reference from a <see cref="Type"/>.
         /// </summary>
         /// <param name="type">The type to reference.</param>
+        public static TypeRef Type(Type type)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a type reference from a <see cref="Type"/>.
+        /// </summary>
+        /// <typeparam name="T">The type to reference.</typeparam>
+        public static TypeRef Type<T>()
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a type reference from a <see cref="Type"/>.
+        /// </summary>
+        /// <param name="type">The type to reference.</param>
         public TypeRef(Type type)
             => IL.Throw();
 
@@ -41,7 +56,7 @@ namespace InlineIL
         /// Constructs a type reference.
         /// </summary>
         /// <param name="assemblyName">The assembly name containing the type. This assembly should be referenced by the weaved assembly.</param>
-        /// <param name="typeName">The full runtime type name, as returned by <see cref="Type.FullName"/>.</param>
+        /// <param name="typeName">The full runtime type name, as returned by <see cref="System.Type.FullName"/>.</param>
         public TypeRef(string assemblyName, string typeName)
             => IL.Throw();
 
