@@ -19,7 +19,8 @@
   <PropertyGroup>
     <Authors>Lucas Trzesniewski</Authors>
     <Description>Inject arbitrary IL code at compile time.</Description>
-    <PackageTags>IL, MSIL, Fody, ILWeaving, Cecil</PackageTags>
+    <Copyright>Copyright © Lucas Trzesniewski 2018-$([System.DateTime]::Now.ToString('yyyy'))</Copyright>
+    <PackageTags>IL;MSIL;Fody;ILWeaving;Cecil</PackageTags>
     <PackageProjectUrl>https://github.com/ltrzesniewski/InlineIL.Fody</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>$(MSBuildThisFileDirectory)..\output</PackageOutputPath>
