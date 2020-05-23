@@ -151,6 +151,8 @@ namespace InlineIL.Fody
             }
         }
 
+        public override bool ShouldCleanReference => true; // Enable the check for PrivateAssets
+
         protected virtual void AddError(string message, SequencePoint? sequencePoint)
             => _log.Error(message, sequencePoint);
     }
