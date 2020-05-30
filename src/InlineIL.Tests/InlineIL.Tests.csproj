@@ -4,6 +4,7 @@
     <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <DisableFody>true</DisableFody>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
