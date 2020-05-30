@@ -459,7 +459,7 @@ namespace InlineIL.Fody.Processing
                 currentDupInstruction = stelemInstruction.NextSkipNops();
 
                 _il.Remove(dupInstruction);
-                _il.Remove(indexInstruction);
+                _il.Remove(indexInstruction!);
                 _il.Remove(stelemInstruction);
             }
 

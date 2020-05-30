@@ -108,7 +108,7 @@ namespace InlineIL.Fody.Processing
         }
 
         internal int GetBasicBlock(Instruction instruction)
-            => _basicBlocks.GetValueOrDefault(instruction);
+            => _basicBlocks.GetValueOrDefault(instruction)!;
 
         public Instruction[] GetArgumentPushInstructionsInSameBasicBlock(Instruction instruction)
         {
