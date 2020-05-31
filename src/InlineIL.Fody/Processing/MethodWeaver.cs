@@ -219,7 +219,7 @@ namespace InlineIL.Fody.Processing
 
         private void SplitSinglePointOfReturn()
         {
-            if (!Module.IsDebugBuild())
+            if (!_context.IsDebugBuild)
                 return;
 
             var lastRetInstruction = Instructions.LastOrDefault();
@@ -320,6 +320,8 @@ namespace InlineIL.Fody.Processing
                 default:
                     throw new InstructionWeavingException(instruction, $"Unsupported method: {calledMethod.FullName}");
             }
+
+            RemoveNopInDebugBuild(ref nextInstruction);
         }
 
         private void ProcessIlEmitMethodCall(Instruction emitCallInstruction, out Instruction? nextInstruction)
@@ -335,6 +337,8 @@ namespace InlineIL.Fody.Processing
             if (emittedInstruction.Previous?.OpCode.OpCodeType == OpCodeType.Prefix)
                 _sequencePoints.MergeWithPreviousSequencePoint(sequencePoint);
 
+            nextInstruction = emittedInstruction.Next;
+            RemoveNopInDebugBuild(ref nextInstruction);
             nextInstruction = emittedInstruction.NextSkipNops();
 
             switch (emittedInstruction.OpCode.Code)
@@ -693,6 +697,19 @@ namespace InlineIL.Fody.Processing
 
                 default:
                     throw new InstructionWeavingException(instruction, $"Unexpected instruction, expected a InlineIL.DeclareLocals method call but was: {instruction}");
+            }
+        }
+
+        private void RemoveNopInDebugBuild(ref Instruction? instruction)
+        {
+            if (!_context.IsDebugBuild)
+                return;
+
+            if (instruction?.OpCode == OpCodes.Nop)
+            {
+                var nop = instruction;
+                instruction = nop.Next;
+                _il.Remove(nop);
             }
         }
     }

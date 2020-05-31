@@ -149,7 +149,8 @@ namespace InlineIL.Tests
         [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
         public void should_return_false_on_null()
         {
-            var context = new ModuleWeavingContext(null!, null!);
+            var module = ModuleDefinition.CreateModule("test", ModuleKind.Dll);
+            var context = new ModuleWeavingContext(module, null!);
 
             CecilExtensions.IsInlineILTypeUsage(default(CustomAttribute), context).ShouldBeFalse();
             CecilExtensions.IsInlineILTypeUsage(default(FieldReference), context).ShouldBeFalse();
