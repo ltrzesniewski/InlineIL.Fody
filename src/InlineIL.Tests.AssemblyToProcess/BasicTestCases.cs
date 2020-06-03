@@ -266,6 +266,16 @@ namespace InlineIL.Tests.AssemblyToProcess
             Pop();
         }
 
+        public void HandleNop()
+        {
+            Ldnull();
+            Nop();
+            Ldnull();
+
+            Pop();
+            Pop();
+        }
+
         private static class NestedClassA
         {
             public static class NestedClassB

@@ -417,6 +417,38 @@ namespace InlineIL.Tests.Weaving
             UnverifiableAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
             InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
         }
+
+        [Fact]
+        public void should_remove_compiler_generated_nop_between_emitted_instructions()
+        {
+            var method = GetMethodDefinition("HandleNop");
+            var firstPop = method.Body.Instructions.First(i => i.OpCode == OpCodes.Pop);
+            firstPop.Next.OpCode.ShouldEqual(OpCodes.Pop);
+        }
+
+        [Fact]
+        public void should_not_remove_user_emitted_nop_instructions()
+        {
+            var method = GetMethodDefinition("HandleNop");
+            var firstPop = method.Body.Instructions.First(i => i.OpCode == OpCodes.Ldnull);
+            firstPop.Next.OpCode.ShouldEqual(OpCodes.Nop);
+        }
+
+        [Fact]
+        public void should_preserve_sequence_points_between_emitted_instructions()
+        {
+            var method = GetMethodDefinition("HandleNop");
+            if (!method.Module.IsDebugBuild())
+                return;
+
+            var firstPop = method.Body.Instructions.First(i => i.OpCode == OpCodes.Pop);
+            var firstPopSequencePoint = method.DebugInformation.GetSequencePoint(firstPop);
+            var secondPopSequencePoint = method.DebugInformation.GetSequencePoint(firstPop.Next);
+
+            firstPopSequencePoint.ShouldNotBeNull();
+            secondPopSequencePoint.ShouldNotBeNull();
+            secondPopSequencePoint.ShouldNotEqual(firstPopSequencePoint);
+        }
     }
 
     [UsedImplicitly]

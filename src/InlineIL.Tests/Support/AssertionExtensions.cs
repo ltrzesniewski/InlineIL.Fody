@@ -10,6 +10,9 @@ namespace InlineIL.Tests.Support
         public static void ShouldEqual<T>(this T actual, T expected)
             => Assert.Equal(expected, actual);
 
+        public static void ShouldNotEqual<T>(this T actual, T expected)
+            => Assert.NotEqual(expected, actual);
+
         public static void ShouldBeTrue(this bool actual)
             => Assert.True(actual);
 
