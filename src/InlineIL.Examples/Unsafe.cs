@@ -11,7 +11,7 @@ namespace InlineIL.Examples
     public static unsafe class Unsafe
     {
         // This is the InlineIL equivalent of System.Runtime.CompilerServices.Unsafe
-        // https://github.com/dotnet/corefx/blob/master/src/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
+        // https://github.com/dotnet/runtime/blob/master/src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
 
         [NonVersionable]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
