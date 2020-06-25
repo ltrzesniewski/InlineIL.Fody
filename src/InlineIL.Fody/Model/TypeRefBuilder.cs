@@ -13,7 +13,7 @@ namespace InlineIL.Fody.Model
     internal class TypeRefBuilder
     {
         private readonly ModuleDefinition _module;
-        private List<(TypeReference type, bool required)>? _modifiers;
+        private List<Modifier>? _modifiers;
         private TypeRefResolver _resolver;
 
         public TypeRefBuilder(ModuleDefinition module, TypeReference typeRef)
@@ -96,12 +96,12 @@ namespace InlineIL.Fody.Model
         {
             if (_modifiers != null)
             {
-                foreach (var (modifierType, required) in _modifiers)
+                foreach (var modifier in _modifiers)
                 {
-                    if (required)
-                        type = type.MakeRequiredModifierType(modifierType);
+                    if (modifier.IsRequired)
+                        type = type.MakeRequiredModifierType(modifier.Type);
                     else
-                        type = type.MakeOptionalModifierType(modifierType);
+                        type = type.MakeOptionalModifierType(modifier.Type);
                 }
             }
 
@@ -131,8 +131,8 @@ namespace InlineIL.Fody.Model
 
         private void AddModifier(TypeReference modifierType, bool required)
         {
-            _modifiers ??= new List<(TypeReference, bool)>();
-            _modifiers.Add((modifierType, required));
+            _modifiers ??= new List<Modifier>();
+            _modifiers.Add(new Modifier(modifierType, required));
         }
 
         public override string ToString() => GetDisplayName();
@@ -421,6 +421,18 @@ namespace InlineIL.Fody.Model
 
                 sb.Append(">");
                 return sb.ToString();
+            }
+        }
+
+        private readonly struct Modifier
+        {
+            public TypeReference Type { get; }
+            public bool IsRequired { get; }
+
+            public Modifier(TypeReference type, bool isRequired)
+            {
+                Type = type;
+                IsRequired = isRequired;
             }
         }
     }

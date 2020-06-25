@@ -48,5 +48,8 @@ namespace InlineIL.Tests.Support
 
         public static void ShouldContain(this string str, string expectedSubstring)
             => Assert.Contains(expectedSubstring, str);
+
+        public static void ShouldNotContain(this string str, string expectedSubstring)
+            => Assert.DoesNotContain(expectedSubstring, str);
     }
 }
