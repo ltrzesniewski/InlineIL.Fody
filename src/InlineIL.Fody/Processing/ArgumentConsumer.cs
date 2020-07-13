@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -275,7 +274,7 @@ namespace InlineIL.Fody.Processing
                 if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
                     throw UnexpectedInstruction(instruction, "a method call");
 
-                switch (method.FullName)
+                switch (method.GetElementMethod().FullName)
                 {
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
                     case "InlineIL.MethodRef InlineIL.MethodRef::Method(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
@@ -344,6 +343,15 @@ namespace InlineIL.Fody.Processing
                         return builder;
                     }
 
+                    case "InlineIL.MethodRef InlineIL.MethodRef::FromDelegate(!!0)":
+                    {
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                        var builder = ConsumeArgDelegate(args[0]);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
                     case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                     {
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
@@ -379,6 +387,54 @@ namespace InlineIL.Fody.Processing
 
                     _il.Remove(instruction);
                     return builder;
+                }
+            }
+
+            MethodRefBuilder ConsumeArgDelegate(Instruction instruction)
+            {
+                if (instruction.OpCode != OpCodes.Newobj)
+                    throw UnexpectedInstruction(instruction, "a delegate instantiation");
+
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                ConsumeArgObjRefNoSideEffects(args[0]);
+                var methodRef = ConsumeArgLdFtn(args[1]);
+                var builder = MethodRefBuilder.MethodFromReference(Module, methodRef);
+
+                _il.Remove(instruction);
+                return builder;
+            }
+
+            void ConsumeArgObjRefNoSideEffects(Instruction instruction)
+            {
+                switch (instruction.OpCode.Code)
+                {
+                    // Opcodes without side effects, pop 0, push 1
+                    case Code.Ldnull:
+                    case Code.Ldarg:
+                    case Code.Ldloc:
+                    case Code.Ldsfld:
+                    case Code.Ldstr:
+                        _il.Remove(instruction);
+                        return;
+
+                    // TODO struct (ld*, ldobj, box)
+
+                    default:
+                        throw UnexpectedInstruction(instruction, "a side-effect free object load, or null");
+                }
+            }
+
+            MethodReference ConsumeArgLdFtn(Instruction instruction)
+            {
+                switch (instruction.OpCode.Code)
+                {
+                    case Code.Ldftn:
+                    case Code.Ldvirtftn:
+                        _il.Remove(instruction);
+                        return (MethodReference)instruction.Operand;
+
+                    default:
+                        throw UnexpectedInstruction(instruction, "a ldftn or ldvirtftn");
                 }
             }
         }

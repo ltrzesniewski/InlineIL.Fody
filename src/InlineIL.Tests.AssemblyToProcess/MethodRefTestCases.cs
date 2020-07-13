@@ -384,6 +384,13 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<RuntimeMethodHandle>();
         }
 
+        public int CallMethodFromDelegate()
+        {
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(OverloadedMethod));
+            return IL.Return<int>();
+        }
+
         public void RaiseEvent()
             => Event?.Invoke();
 

@@ -218,6 +218,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_method_from_delegate()
+        {
+            var result = (int)GetInstance().CallMethodFromDelegate();
+            result.ShouldEqual(20);
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");

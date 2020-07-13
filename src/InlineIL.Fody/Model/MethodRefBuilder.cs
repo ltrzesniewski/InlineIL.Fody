@@ -21,11 +21,20 @@ namespace InlineIL.Fody.Model
             _method = _module.ImportReference(_module.ImportReference(method).MakeGeneric(typeRef));
         }
 
+        private MethodRefBuilder(ModuleDefinition module, MethodReference method)
+        {
+            _module = module;
+            _method = method;
+        }
+
         public static MethodRefBuilder MethodByName(ModuleDefinition module, TypeReference typeRef, string methodName)
             => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null, null));
 
         public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder> paramTypes)
             => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
+
+        public static MethodRefBuilder MethodFromReference(ModuleDefinition module, MethodReference methodRef)
+            => new MethodRefBuilder(module, methodRef);
 
         private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder>? paramTypes)
         {

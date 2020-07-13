@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InlineIL
 {
@@ -137,6 +138,15 @@ namespace InlineIL
         /// </summary>
         /// <param name="type">The type declaring the constructor.</param>
         public static MethodRef TypeInitializer(TypeRef type)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference from a delegate.
+        /// </summary>
+        /// <param name="delegate">A delegate which references the method</param>
+        /// <typeparam name="TDelegate">Type of the delegate</typeparam>
+        public static MethodRef FromDelegate<TDelegate>(TDelegate @delegate)
+            where TDelegate : Delegate
             => throw IL.Throw();
 
         /// <summary>
