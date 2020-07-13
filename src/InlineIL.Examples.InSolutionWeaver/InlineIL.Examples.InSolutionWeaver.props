@@ -1,7 +1,0 @@
-<Project>
-
-  <ItemGroup>
-    <WeaverFiles Include="$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\InlineIL.Examples.InSolutionWeaver.dll" WeaverClassNames="InlineILInSolution" />
-  </ItemGroup>
-
-</Project>

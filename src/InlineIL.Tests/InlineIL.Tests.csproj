@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <DisableFody>true</DisableFody>
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -10,28 +9,14 @@
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
-    <PackageReference Include="System.Reflection.Metadata" Version="1.8.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InlineIL.Examples\InlineIL.Examples.csproj" />
     <ProjectReference Include="..\InlineIL.Fody\InlineIL.Fody.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.AssemblyToProcess\InlineIL.Tests.AssemblyToProcess.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.InvalidAssemblyToProcess\InlineIL.Tests.InvalidAssemblyToProcess.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.StandardAssemblyToProcess\InlineIL.Tests.StandardAssemblyToProcess.csproj">
-      <Aliases>standard</Aliases>
-    </ProjectReference>
-    <ProjectReference Include="..\InlineIL.Tests.UnverifiableAssemblyToProcess\InlineIL.Tests.UnverifiableAssemblyToProcess.csproj" />
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
