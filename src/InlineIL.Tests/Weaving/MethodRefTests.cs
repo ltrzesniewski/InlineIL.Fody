@@ -218,10 +218,31 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
-        public void should_call_method_from_delegate()
+        public void should_call_static_method_from_delegate()
         {
-            var result = (int)GetInstance().CallMethodFromDelegate();
+            var result = (int)GetInstance().CallStaticMethodFromDelegate();
             result.ShouldEqual(20);
+        }
+
+        [Fact]
+        public void should_call_static_method_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallStaticMethodOfOtherClassFromDelegate();
+            result.ShouldEqual(200);
+        }
+
+        [Fact]
+        public void should_call_instance_method_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodFromDelegate();
+            result.ShouldEqual(20);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfOtherClassFromDelegate();
+            result.ShouldEqual(200);
         }
 
         [Fact]
@@ -370,7 +391,7 @@ namespace InlineIL.Tests.Weaving
 #endif
 
 #if NETFRAMEWORK
-    public class MethodRefTestsFramework: MethodRefTestsBase
+    public class MethodRefTestsFramework : MethodRefTestsBase
     {
         [Fact]
         public void should_call_vararg_method()

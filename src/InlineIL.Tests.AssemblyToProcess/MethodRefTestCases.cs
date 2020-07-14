@@ -15,6 +15,8 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
     public class MethodRefTestCases : IMethodRefTestCases
     {
         public int Value { get; set; }
@@ -183,7 +185,6 @@ namespace InlineIL.Tests.AssemblyToProcess
         }
 
 #if NETCOREAPP
-
         public int[] ResolveGenericOverloadsUsingTypeApi()
         {
             var result = new List<int>();
@@ -384,10 +385,34 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<RuntimeMethodHandle>();
         }
 
-        public int CallMethodFromDelegate()
+        public int CallStaticMethodFromDelegate()
         {
             Ldc_I4(42);
             Call(MethodRef.FromDelegate<Func<int, int>>(OverloadedMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallStaticMethodOfOtherClassFromDelegate()
+        {
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(OtherClass.StaticMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodFromDelegate()
+        {
+            Ldarg_0();
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfOtherClassFromDelegate()
+        {
+            OtherClass.Create(out var instance);
+            IL.Push(instance);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(instance.InstanceMethod));
             return IL.Return<int>();
         }
 
@@ -405,6 +430,9 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<int[]>();
         }
 #endif
+
+        private int InstanceMethod() => 10;
+        private int InstanceMethod(int a) => 20;
 
         private static int OverloadedMethod() => 10;
         private static int OverloadedMethod(int a) => 20;
@@ -460,6 +488,18 @@ namespace InlineIL.Tests.AssemblyToProcess
             {
                 GC.KeepAlive(null);
             }
+        }
+
+        private class OtherClass
+        {
+            public int InstanceMethod() => 100;
+            public int InstanceMethod(int a) => 200;
+
+            public static int StaticMethod() => 100;
+            public static int StaticMethod(int a) => 200;
+
+            public static void Create(out OtherClass result)
+                => result = new OtherClass();
         }
     }
 }
