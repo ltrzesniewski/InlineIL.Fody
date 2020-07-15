@@ -232,6 +232,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_static_method_of_struct_from_delegate()
+        {
+            var result = (int)GetInstance().CallStaticMethodOfStructFromDelegate();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
         public void should_call_instance_method_from_delegate()
         {
             var result = (int)GetInstance().CallInstanceMethodFromDelegate();
@@ -243,6 +250,34 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (int)GetInstance().CallInstanceMethodOfOtherClassFromDelegate();
             result.ShouldEqual(200);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate_2()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate2();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate_3()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate3();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate_4()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate4();
+            result.ShouldEqual(2000);
         }
 
         [Fact]

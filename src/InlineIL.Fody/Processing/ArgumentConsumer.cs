@@ -408,16 +408,27 @@ namespace InlineIL.Fody.Processing
             {
                 switch (instruction.OpCode.Code)
                 {
-                    // Opcodes without side effects, pop 0, push 1
+                    // Pop 0, Push 1
                     case Code.Ldnull:
                     case Code.Ldarg:
                     case Code.Ldloc:
+                    case Code.Ldloca:
                     case Code.Ldsfld:
                     case Code.Ldstr:
+                    {
                         _il.Remove(instruction);
                         return;
+                    }
 
-                    // TODO struct (ld*, ldobj, box)
+                    // Pop 1, Push 1
+                    case Code.Box:
+                    case Code.Ldobj:
+                    {
+                        var arg = _il.GetPreviousInstructionSkipNopsInSameBasicBlock(instruction);
+                        _il.Remove(instruction);
+                        ConsumeArgObjRefNoSideEffects(arg);
+                        return;
+                    }
 
                     default:
                         throw UnexpectedInstruction(instruction, "a side-effect free object load, or null");

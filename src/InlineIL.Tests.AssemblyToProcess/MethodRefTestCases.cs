@@ -399,6 +399,13 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<int>();
         }
 
+        public int CallStaticMethodOfStructFromDelegate()
+        {
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(OtherStruct.StaticMethod));
+            return IL.Return<int>();
+        }
+
         public int CallInstanceMethodFromDelegate()
         {
             Ldarg_0();
@@ -414,6 +421,47 @@ namespace InlineIL.Tests.AssemblyToProcess
             Ldc_I4(42);
             Call(MethodRef.FromDelegate<Func<int, int>>(instance.InstanceMethod));
             return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(value.InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate2()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(default(OtherStruct).InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate3()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(new OtherStruct().InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate4()
+        {
+            var value = new OtherStruct();
+            return Run(ref value);
+
+            static int Run(ref OtherStruct value)
+            {
+                IL.Push(ref value);
+                Ldc_I4(42);
+                Call(MethodRef.FromDelegate<Func<int, int>>(value.InstanceMethod));
+                return IL.Return<int>();
+            }
         }
 
         public void RaiseEvent()
@@ -500,6 +548,15 @@ namespace InlineIL.Tests.AssemblyToProcess
 
             public static void Create(out OtherClass result)
                 => result = new OtherClass();
+        }
+
+        private struct OtherStruct
+        {
+            public int InstanceMethod() => 1000;
+            public int InstanceMethod(int a) => 2000;
+
+            public static int StaticMethod() => 1000;
+            public static int StaticMethod(int a) => 2000;
         }
     }
 }
