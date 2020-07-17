@@ -397,9 +397,9 @@ namespace InlineIL.Fody.Processing
                     throw UnexpectedInstruction(instruction, "a delegate instantiation");
 
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
-                ConsumeArgObjRefNoSideEffects(args[0]);
                 var methodRef = ConsumeArgLdFtn(args[1]);
                 var builder = MethodRefBuilder.MethodFromDelegateReference(Module, methodRef);
+                ConsumeArgObjRefNoSideEffects(args[0]);
 
                 _il.Remove(instruction);
                 return builder;
