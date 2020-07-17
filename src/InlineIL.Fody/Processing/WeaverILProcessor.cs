@@ -128,7 +128,7 @@ namespace InlineIL.Fody.Processing
             return result;
         }
 
-        private void EnsureSameBasicBlock(Instruction checkedInstruction, Instruction referenceInstruction)
+        public void EnsureSameBasicBlock(Instruction checkedInstruction, Instruction referenceInstruction)
             => EnsureSameBasicBlock(checkedInstruction, GetBasicBlock(referenceInstruction));
 
         private void EnsureSameBasicBlock(Instruction instruction, int basicBlock)
