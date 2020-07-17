@@ -281,6 +281,20 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_static_method_of_generic_class_from_delegate()
+        {
+            var result = (string)GetInstance().CallStaticMethodOfGenericClassFromDelegate();
+            result.ShouldEqual(typeof(string).FullName);
+        }
+
+        [Fact]
+        public void should_call_generic_static_method_of_generic_class_from_delegate()
+        {
+            var result = (string)GetInstance().CallGenericStaticMethodOfGenericClassFromDelegate();
+            result.ShouldEqual($"{typeof(string).FullName} {typeof(int).FullName}");
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");

@@ -464,6 +464,18 @@ namespace InlineIL.Tests.AssemblyToProcess
             }
         }
 
+        public string CallStaticMethodOfGenericClassFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<string>>(GenericType<string>.NormalMethod));
+            return IL.Return<string>();
+        }
+
+        public string CallGenericStaticMethodOfGenericClassFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<string>>(GenericType<string>.GenericMethod<int>));
+            return IL.Return<string>();
+        }
+
         public void RaiseEvent()
             => Event?.Invoke();
 
