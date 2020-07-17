@@ -33,8 +33,17 @@ namespace InlineIL.Fody.Model
         public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder> paramTypes)
             => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
 
-        public static MethodRefBuilder MethodFromReference(ModuleDefinition module, MethodReference methodRef)
-            => new MethodRefBuilder(module, methodRef);
+        public static MethodRefBuilder MethodFromDelegateReference(ModuleDefinition module, MethodReference methodRef)
+        {
+            ThrowIfCompilerGeneratedDelegateReference(methodRef);
+            return new MethodRefBuilder(module, methodRef);
+        }
+
+        public static void ThrowIfCompilerGeneratedDelegateReference(MemberReference memberRef)
+        {
+            if (memberRef.Name.StartsWith("<"))
+                throw new WeavingException("A compiler-generated method is referenced by the delegate");
+        }
 
         private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder>? paramTypes)
         {

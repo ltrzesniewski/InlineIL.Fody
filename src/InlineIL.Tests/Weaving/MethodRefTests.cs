@@ -425,6 +425,30 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("NoTypeInitializer").ShouldContain("has no type initializer");
         }
+
+        [Fact]
+        public void should_report_static_lambda_from_delegate()
+        {
+            ShouldHaveError("StaticLambdaFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_non_static_lambda_from_delegate()
+        {
+            ShouldHaveError("NonStaticLambdaFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_static_local_function_from_delegate()
+        {
+            ShouldHaveError("StaticLocalFunctionFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_non_static_local_function_from_delegate()
+        {
+            ShouldHaveError("NonStaticLocalFunctionFromDelegate").ShouldContain("compiler-generated method");
+        }
     }
 
 #if NETCOREAPP

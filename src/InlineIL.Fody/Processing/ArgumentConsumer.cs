@@ -345,6 +345,10 @@ namespace InlineIL.Fody.Processing
 
                     case "InlineIL.MethodRef InlineIL.MethodRef::FromDelegate(!!0)":
                     {
+                        var prev = instruction.PrevSkipNops();
+                        if (prev?.OpCode == OpCodes.Stsfld && prev.Operand is FieldReference fieldRef)
+                            MethodRefBuilder.ThrowIfCompilerGeneratedDelegateReference(fieldRef);
+
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var builder = ConsumeArgDelegate(args[0]);
 
@@ -398,7 +402,7 @@ namespace InlineIL.Fody.Processing
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 ConsumeArgObjRefNoSideEffects(args[0]);
                 var methodRef = ConsumeArgLdFtn(args[1]);
-                var builder = MethodRefBuilder.MethodFromReference(Module, methodRef);
+                var builder = MethodRefBuilder.MethodFromDelegateReference(Module, methodRef);
 
                 _il.Remove(instruction);
                 return builder;
