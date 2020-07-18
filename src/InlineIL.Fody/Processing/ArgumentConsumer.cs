@@ -77,7 +77,7 @@ namespace InlineIL.Fody.Processing
                 case Code.Conv_U8:
                 case Code.Conv_R4:
                 case Code.Conv_R8:
-                    var value = ConsumeArgConst(instruction.PrevSkipNops() ?? throw new InstructionWeavingException(instruction, "Invalid instruction at start of method"));
+                    var value = ConsumeArgConst(instruction.PrevSkipNopsRequired());
                     _il.Remove(instruction);
                     return value;
             }
@@ -425,7 +425,8 @@ namespace InlineIL.Fody.Processing
                     case Code.Box:
                     case Code.Ldobj:
                     {
-                        var arg = _il.GetPreviousInstructionSkipNopsInSameBasicBlock(instruction);
+                        var arg = instruction.PrevSkipNopsRequired();
+                        _il.EnsureSameBasicBlock(arg, instruction);
                         _il.Remove(instruction);
                         ConsumeArgObjRefNoSideEffects(arg);
                         return;
@@ -496,8 +497,8 @@ namespace InlineIL.Fody.Processing
 
             var newarrInstruction = instruction;
 
-            var countInstruction = newarrInstruction.PrevSkipNops();
-            if (countInstruction?.OpCode != OpCodes.Ldc_I4)
+            var countInstruction = newarrInstruction.PrevSkipNopsRequired();
+            if (countInstruction.OpCode != OpCodes.Ldc_I4)
                 throw UnexpectedInstruction(countInstruction, OpCodes.Ldc_I4);
 
             var count = (int)countInstruction.Operand;
@@ -522,7 +523,7 @@ namespace InlineIL.Fody.Processing
                 if (!stelemInstruction.OpCode.IsStelem())
                     throw UnexpectedInstruction(stelemInstruction, "stelem");
 
-                args[index] = consumeItem(stelemInstruction.PrevSkipNops() ?? throw new InstructionWeavingException(stelemInstruction, "Invalid array construction at start of method"));
+                args[index] = consumeItem(stelemInstruction.PrevSkipNopsRequired());
 
                 currentDupInstruction = stelemInstruction.NextSkipNops();
 

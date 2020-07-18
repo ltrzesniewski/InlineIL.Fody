@@ -121,13 +121,6 @@ namespace InlineIL.Fody.Processing
             return result;
         }
 
-        public Instruction GetPreviousInstructionSkipNopsInSameBasicBlock(Instruction instruction)
-        {
-            var result = instruction.PrevSkipNops() ?? throw new InstructionWeavingException(instruction, "First instruction causes a stack underflow");
-            EnsureSameBasicBlock(result, instruction);
-            return result;
-        }
-
         public void EnsureSameBasicBlock(Instruction checkedInstruction, Instruction referenceInstruction)
             => EnsureSameBasicBlock(checkedInstruction, GetBasicBlock(referenceInstruction));
 
