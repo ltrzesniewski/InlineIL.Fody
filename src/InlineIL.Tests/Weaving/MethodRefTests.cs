@@ -449,6 +449,18 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("NonStaticLocalFunctionFromDelegate").ShouldContain("compiler-generated method");
         }
+
+        [Fact]
+        public void should_report_static_delegate_from_delegate()
+        {
+            ShouldHaveError("StaticDelegateFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_non_static_delegate_from_delegate()
+        {
+            ShouldHaveError("NonStaticDelegateFromDelegate").ShouldContain("compiler-generated method");
+        }
     }
 
 #if NETCOREAPP

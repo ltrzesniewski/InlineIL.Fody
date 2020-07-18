@@ -142,9 +142,10 @@ namespace InlineIL
 
         /// <summary>
         /// Constructs a method reference from a delegate.
+        /// Do not use with lambdas, local functions, or any other compiler-generated methods.
         /// </summary>
-        /// <param name="delegate">A delegate which references the method</param>
-        /// <typeparam name="TDelegate">Type of the delegate</typeparam>
+        /// <param name="delegate">A delegate which references the method.</param>
+        /// <typeparam name="TDelegate">Type of the delegate.</typeparam>
         public static MethodRef FromDelegate<TDelegate>(TDelegate @delegate)
             where TDelegate : Delegate
             => throw IL.Throw();

@@ -9,6 +9,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
+    [SuppressMessage("ReSharper", "ConvertToLambdaExpression")]
     public class MethodRefTestCases
     {
         public int Value { get; set; }
@@ -182,6 +183,16 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
             Call(MethodRef.FromDelegate<Func<int>>(LocalFunction));
             int LocalFunction() => i * 2;
+        }
+
+        public void StaticDelegateFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<int, int>>(delegate(int i) { return i * 2; }));
+        }
+
+        public void NonStaticDelegateFromDelegate(int i)
+        {
+            Call(MethodRef.FromDelegate<Func<int>>(delegate { return i * 2; }));
         }
 
         private static void Foo()
