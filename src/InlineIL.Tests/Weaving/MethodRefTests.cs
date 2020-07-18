@@ -295,6 +295,55 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_instance_method_of_string_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfStringFromDelegate();
+            result.ShouldEqual("foo");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int32_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt32FromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int32_from_delegate_2()
+        {
+            var result = (bool)GetInstance().CallInstanceMethodOfInt32FromDelegate2();
+            result.ShouldEqual(true);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int32_with_sizeof_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt32WithSizeofFromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int64_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt64FromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_float_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfFloatFromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_double_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfDoubleFromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");

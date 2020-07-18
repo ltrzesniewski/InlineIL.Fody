@@ -53,6 +53,14 @@ namespace InlineIL.Fody.Processing
 
         public object ConsumeArgConst(Instruction instruction)
         {
+            if (!TryConsumeArgConst(instruction, out var result))
+                throw UnexpectedInstruction(instruction, "a constant value");
+
+            return result;
+        }
+
+        private bool TryConsumeArgConst(Instruction instruction, out object result)
+        {
             switch (instruction.OpCode.OperandType)
             {
                 case OperandType.InlineI:
@@ -62,7 +70,8 @@ namespace InlineIL.Fody.Processing
                 case OperandType.ShortInlineR:
                 case OperandType.InlineString:
                     _il.Remove(instruction);
-                    return instruction.Operand;
+                    result = instruction.Operand;
+                    return true;
             }
 
             switch (instruction.OpCode.Code)
@@ -77,12 +86,18 @@ namespace InlineIL.Fody.Processing
                 case Code.Conv_U8:
                 case Code.Conv_R4:
                 case Code.Conv_R8:
-                    var value = ConsumeArgConst(instruction.PrevSkipNopsRequired());
-                    _il.Remove(instruction);
-                    return value;
-            }
+                    if (TryConsumeArgConst(instruction.PrevSkipNopsRequired(), out result))
+                    {
+                        _il.Remove(instruction);
+                        return true;
+                    }
 
-            throw UnexpectedInstruction(instruction, "a constant value");
+                    goto default;
+
+                default:
+                    result = default!;
+                    return false;
+            }
         }
 
         public TypeReference ConsumeArgTypeRef(Instruction typeRefInstruction)
@@ -407,16 +422,21 @@ namespace InlineIL.Fody.Processing
 
             void ConsumeArgObjRefNoSideEffects(Instruction instruction)
             {
+                var next = instruction.NextSkipNops();
+
                 switch (instruction.OpCode.Code)
                 {
                     // Pop 0, Push 1
                     case Code.Ldnull:
                     case Code.Ldarg:
+                    case Code.Ldarga:
                     case Code.Ldloc:
                     case Code.Ldloca:
                     case Code.Ldsfld:
-                    case Code.Ldstr:
+                    case Code.Ldsflda:
+                    case Code.Sizeof:
                     {
+                        RemoveNextIfDup();
                         _il.Remove(instruction);
                         return;
                     }
@@ -433,7 +453,19 @@ namespace InlineIL.Fody.Processing
                     }
 
                     default:
+                        if (TryConsumeArgConst(instruction, out _))
+                        {
+                            RemoveNextIfDup();
+                            return;
+                        }
+
                         throw UnexpectedInstruction(instruction, "a side-effect free object load, or null");
+                }
+
+                void RemoveNextIfDup()
+                {
+                    if (next?.OpCode == OpCodes.Dup)
+                        _il.Remove(next);
                 }
             }
 

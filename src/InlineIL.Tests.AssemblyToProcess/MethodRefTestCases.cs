@@ -464,6 +464,57 @@ namespace InlineIL.Tests.AssemblyToProcess
             }
         }
 
+        public string CallInstanceMethodOfStringFromDelegate()
+        {
+            IL.Push(" foo ");
+            Call(MethodRef.FromDelegate<Func<string>>("bar".Trim));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfInt32FromDelegate()
+        {
+            IL.Push((object)42);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0.ToString));
+            return IL.Return<string>();
+        }
+
+        public bool CallInstanceMethodOfInt32FromDelegate2()
+        {
+            var value = 42;
+            IL.Push(ref value);
+            IL.Push(42);
+            Callvirt(MethodRef.FromDelegate<Func<int, bool>>(0.Equals));
+            return IL.Return<bool>();
+        }
+
+        public unsafe string CallInstanceMethodOfInt32WithSizeofFromDelegate()
+        {
+            IL.Push((object)42);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(sizeof(OtherStruct).ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfInt64FromDelegate()
+        {
+            IL.Push((object)42L);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0L.ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfFloatFromDelegate()
+        {
+            IL.Push((object)42f);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0f.ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfDoubleFromDelegate()
+        {
+            IL.Push((object)42.0);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0.0.ToString));
+            return IL.Return<string>();
+        }
+
         public string CallStaticMethodOfGenericClassFromDelegate()
         {
             Call(MethodRef.FromDelegate<Func<string>>(GenericType<string>.NormalMethod));
