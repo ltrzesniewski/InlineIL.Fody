@@ -501,6 +501,8 @@ namespace InlineIL.Fody.Processing
             if (countInstruction.OpCode != OpCodes.Ldc_I4)
                 throw UnexpectedInstruction(countInstruction, OpCodes.Ldc_I4);
 
+            _il.EnsureSameBasicBlock(countInstruction, newarrInstruction);
+
             var count = (int)countInstruction.Operand;
             var args = new T[count];
 
@@ -527,9 +529,14 @@ namespace InlineIL.Fody.Processing
 
                 currentDupInstruction = stelemInstruction.NextSkipNops();
 
+                _il.EnsureSameBasicBlock(dupInstruction, newarrInstruction);
                 _il.Remove(dupInstruction);
+
                 _il.Remove(indexInstruction!);
+                _il.EnsureSameBasicBlock(indexInstruction, newarrInstruction);
+
                 _il.Remove(stelemInstruction);
+                _il.EnsureSameBasicBlock(stelemInstruction, newarrInstruction);
             }
 
             _il.Remove(countInstruction);

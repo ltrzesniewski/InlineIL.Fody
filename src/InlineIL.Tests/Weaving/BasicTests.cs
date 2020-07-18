@@ -410,6 +410,18 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_report_not_same_basic_block_array()
+        {
+            ShouldHaveError("NotSameBasicBlockArray").ShouldContain("An unconditional expression was expected");
+        }
+
+        [Fact]
+        public void should_report_not_same_basic_block_array_2()
+        {
+            ShouldHaveError("NotSameBasicBlockArray2").ShouldContain("Could not locate call argument");
+        }
+
+        [Fact]
         public void should_not_add_reference_to_private_core_lib()
         {
             AssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldNotContain(i => i.Name == "System.Private.CoreLib");
