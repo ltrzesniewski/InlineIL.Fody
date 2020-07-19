@@ -442,6 +442,8 @@ namespace InlineIL.Fody.Processing
                     // Pop 1, Push 1
                     case Code.Box:
                     case Code.Ldobj:
+                    case Code.Ldfld:
+                    case Code.Ldflda:
                     {
                         var arg = _il.GetPrevSkipNopsInSameBasicBlock(instruction);
                         ConsumeArgObjRefNoSideEffects(arg);

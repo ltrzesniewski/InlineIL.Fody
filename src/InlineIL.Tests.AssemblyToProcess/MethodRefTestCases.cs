@@ -20,6 +20,9 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
     public class MethodRefTestCases : IMethodRefTestCases
     {
+        private readonly OtherClass _otherClass = new OtherClass();
+        private OtherStruct _otherStruct = new OtherStruct();
+
         public int Value { get; set; }
 
         public event Action Event;
@@ -424,6 +427,14 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<int>();
         }
 
+        public int CallInstanceMethodOfOtherClassThroughFieldFromDelegate()
+        {
+            IL.Push(_otherClass);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(_otherClass.InstanceMethod));
+            return IL.Return<int>();
+        }
+
         public int CallVirtualMethodOfOtherClassFromDelegate()
         {
             var instance = new OtherClass();
@@ -439,7 +450,7 @@ namespace InlineIL.Tests.AssemblyToProcess
             Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
             return IL.Return<int>();
         }
-        
+
         public int CallVirtualMethodOverrideOfOtherClassFromDelegate()
         {
             var instance = new OtherClassDerived();
@@ -447,7 +458,7 @@ namespace InlineIL.Tests.AssemblyToProcess
             Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
             return IL.Return<int>();
         }
-        
+
         public int CallVirtualMethodOverrideOfOtherClassFromDelegate2()
         {
             var instance = new OtherClassDerived();
@@ -511,6 +522,14 @@ namespace InlineIL.Tests.AssemblyToProcess
             IL.Push(" foo ");
             Call(MethodRef.FromDelegate<Func<string>>("bar".Trim));
             return IL.Return<string>();
+        }
+
+        public int CallInstanceMethodOfStructThroughFieldFromDelegate()
+        {
+            IL.Push(ref _otherStruct);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(_otherStruct.InstanceMethod));
+            return IL.Return<int>();
         }
 
         public string CallInstanceMethodOfInt32FromDelegate()

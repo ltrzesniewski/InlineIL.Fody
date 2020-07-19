@@ -253,6 +253,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_instance_method_of_other_class_though_field_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfOtherClassThroughFieldFromDelegate();
+            result.ShouldEqual(200);
+        }
+
+        [Fact]
         public void should_call_virtual_method_of_other_class_from_delegate()
         {
             var result = (int)GetInstance().CallVirtualMethodOfOtherClassFromDelegate();
@@ -313,6 +320,13 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (int)GetInstance().CallInterfaceMethodOfStructFromDelegate();
             result.ShouldEqual(3000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_though_field_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructThroughFieldFromDelegate();
+            result.ShouldEqual(2000);
         }
 
         [Fact]
