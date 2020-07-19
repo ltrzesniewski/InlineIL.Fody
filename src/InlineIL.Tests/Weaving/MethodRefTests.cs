@@ -253,6 +253,34 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_virtual_method_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOfOtherClassFromDelegate();
+            result.ShouldEqual(300);
+        }
+
+        [Fact]
+        public void should_call_virtual_method_of_other_class_from_delegate_2()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOfOtherClassFromDelegate2();
+            result.ShouldEqual(300);
+        }
+
+        [Fact]
+        public void should_call_virtual_method_override_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOverrideOfOtherClassFromDelegate();
+            result.ShouldEqual(300); // Calls the base method
+        }
+
+        [Fact]
+        public void should_call_virtual_method_override_of_other_class_from_delegate_2()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOverrideOfOtherClassFromDelegate2();
+            result.ShouldEqual(400);
+        }
+
+        [Fact]
         public void should_call_instance_method_of_struct_from_delegate()
         {
             var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate();

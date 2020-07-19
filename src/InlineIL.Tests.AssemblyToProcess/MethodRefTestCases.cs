@@ -424,6 +424,38 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<int>();
         }
 
+        public int CallVirtualMethodOfOtherClassFromDelegate()
+        {
+            var instance = new OtherClass();
+            IL.Push(instance);
+            Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallVirtualMethodOfOtherClassFromDelegate2()
+        {
+            OtherClass.Create(out var instance);
+            IL.Push(instance);
+            Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+        
+        public int CallVirtualMethodOverrideOfOtherClassFromDelegate()
+        {
+            var instance = new OtherClassDerived();
+            IL.Push(instance);
+            Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+        
+        public int CallVirtualMethodOverrideOfOtherClassFromDelegate2()
+        {
+            var instance = new OtherClassDerived();
+            IL.Push(instance);
+            Callvirt(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+
         public int CallInstanceMethodOfStructFromDelegate()
         {
             var value = new OtherStruct();
@@ -623,11 +655,18 @@ namespace InlineIL.Tests.AssemblyToProcess
             public int InstanceMethod() => 100;
             public int InstanceMethod(int a) => 200;
 
+            public virtual int VirtualMethod() => 300;
+
             public static int StaticMethod() => 100;
             public static int StaticMethod(int a) => 200;
 
             public static void Create(out OtherClass result)
                 => result = new OtherClass();
+        }
+
+        private class OtherClassDerived : OtherClass
+        {
+            public override int VirtualMethod() => 400;
         }
 
         private struct OtherStruct : ISomeInterface
