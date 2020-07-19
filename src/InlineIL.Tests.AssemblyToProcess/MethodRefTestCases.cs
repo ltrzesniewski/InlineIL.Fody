@@ -17,6 +17,7 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
+    [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
     public class MethodRefTestCases : IMethodRefTestCases
     {
         public int Value { get; set; }
@@ -464,6 +465,15 @@ namespace InlineIL.Tests.AssemblyToProcess
             }
         }
 
+        public int CallInterfaceMethodOfStructFromDelegate()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(value.InterfaceMethod));
+            return IL.Return<int>();
+        }
+
         public string CallInstanceMethodOfStringFromDelegate()
         {
             IL.Push(" foo ");
@@ -497,6 +507,13 @@ namespace InlineIL.Tests.AssemblyToProcess
         public string CallInstanceMethodOfInt64FromDelegate()
         {
             IL.Push((object)42L);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0L.ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfInt64FromDelegate2()
+        {
+            IL.Push((object)424242424242L);
             Callvirt(MethodRef.FromDelegate<Func<string>>(0L.ToString));
             return IL.Return<string>();
         }
@@ -613,13 +630,20 @@ namespace InlineIL.Tests.AssemblyToProcess
                 => result = new OtherClass();
         }
 
-        private struct OtherStruct
+        private struct OtherStruct : ISomeInterface
         {
             public int InstanceMethod() => 1000;
             public int InstanceMethod(int a) => 2000;
 
+            public int InterfaceMethod(int a) => 3000;
+
             public static int StaticMethod() => 1000;
             public static int StaticMethod(int a) => 2000;
+        }
+
+        private interface ISomeInterface
+        {
+            public int InterfaceMethod(int a);
         }
     }
 }

@@ -121,6 +121,13 @@ namespace InlineIL.Fody.Processing
             return result;
         }
 
+        public Instruction GetPrevSkipNopsInSameBasicBlock(Instruction instruction)
+        {
+            var prev = instruction.PrevSkipNopsRequired();
+            EnsureSameBasicBlock(prev, instruction);
+            return prev;
+        }
+
         public void EnsureSameBasicBlock(Instruction checkedInstruction, Instruction referenceInstruction)
             => EnsureSameBasicBlock(checkedInstruction, GetBasicBlock(referenceInstruction));
 

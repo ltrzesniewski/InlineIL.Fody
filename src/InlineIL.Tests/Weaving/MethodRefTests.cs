@@ -281,6 +281,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_interface_method_of_struct_from_delegate()
+        {
+            var result = (int)GetInstance().CallInterfaceMethodOfStructFromDelegate();
+            result.ShouldEqual(3000);
+        }
+
+        [Fact]
         public void should_call_static_method_of_generic_class_from_delegate()
         {
             var result = (string)GetInstance().CallStaticMethodOfGenericClassFromDelegate();
@@ -327,6 +334,13 @@ namespace InlineIL.Tests.Weaving
         {
             var result = (string)GetInstance().CallInstanceMethodOfInt64FromDelegate();
             result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int64_from_delegate_2()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt64FromDelegate2();
+            result.ShouldEqual("424242424242");
         }
 
         [Fact]
