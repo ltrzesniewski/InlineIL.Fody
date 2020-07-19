@@ -422,8 +422,6 @@ namespace InlineIL.Fody.Processing
 
             void ConsumeArgObjRefNoSideEffects(Instruction instruction)
             {
-                var next = instruction.NextSkipNops();
-
                 switch (instruction.OpCode.Code)
                 {
                     // Pop 0, Push 1
@@ -435,8 +433,8 @@ namespace InlineIL.Fody.Processing
                     case Code.Ldsfld:
                     case Code.Ldsflda:
                     case Code.Sizeof:
+                    case Code.Dup: // Not really pop 0, push 1, but used as an arg to ldvirtftn
                     {
-                        RemoveNextIfDup();
                         _il.Remove(instruction);
                         return;
                     }
@@ -453,19 +451,12 @@ namespace InlineIL.Fody.Processing
                     }
 
                     default:
+                    {
                         if (TryConsumeArgConst(instruction, out _))
-                        {
-                            RemoveNextIfDup();
                             return;
-                        }
 
                         throw UnexpectedInstruction(instruction, "a side-effect free object load, or null");
-                }
-
-                void RemoveNextIfDup()
-                {
-                    if (next?.OpCode == OpCodes.Dup)
-                        _il.Remove(next);
+                    }
                 }
             }
 
@@ -474,9 +465,20 @@ namespace InlineIL.Fody.Processing
                 switch (instruction.OpCode.Code)
                 {
                     case Code.Ldftn:
-                    case Code.Ldvirtftn:
+                    {
                         _il.Remove(instruction);
                         return (MethodReference)instruction.Operand;
+                    }
+
+                    case Code.Ldvirtftn:
+                    {
+                        var prev = instruction.PrevSkipNopsRequired();
+                        _il.EnsureSameBasicBlock(prev, instruction);
+                        ConsumeArgObjRefNoSideEffects(prev);
+
+                        _il.Remove(instruction);
+                        return (MethodReference)instruction.Operand;
+                    }
 
                     default:
                         throw UnexpectedInstruction(instruction, "a ldftn or ldvirtftn");
