@@ -116,12 +116,25 @@ namespace InlineIL.Fody.Processing
             var basicBlock = GetBasicBlock(instruction);
 
             foreach (var argInstruction in result)
-            {
-                if (GetBasicBlock(argInstruction) != basicBlock)
-                    throw new InstructionWeavingException(argInstruction, "An unconditional expression was expected.");
-            }
+                EnsureSameBasicBlock(argInstruction, basicBlock);
 
             return result;
+        }
+
+        public Instruction GetPrevSkipNopsInSameBasicBlock(Instruction instruction)
+        {
+            var prev = instruction.PrevSkipNopsRequired();
+            EnsureSameBasicBlock(prev, instruction);
+            return prev;
+        }
+
+        public void EnsureSameBasicBlock(Instruction checkedInstruction, Instruction referenceInstruction)
+            => EnsureSameBasicBlock(checkedInstruction, GetBasicBlock(referenceInstruction));
+
+        private void EnsureSameBasicBlock(Instruction instruction, int basicBlock)
+        {
+            if (GetBasicBlock(instruction) != basicBlock)
+                throw new InstructionWeavingException(instruction, "An unconditional expression was expected.");
         }
 
         private void UpdateReferences(Instruction oldInstruction, Instruction newInstruction)

@@ -15,8 +15,14 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
+    [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
     public class MethodRefTestCases : IMethodRefTestCases
     {
+        private readonly OtherClass _otherClass = new OtherClass();
+        private OtherStruct _otherStruct = new OtherStruct();
+
         public int Value { get; set; }
 
         public event Action Event;
@@ -183,7 +189,6 @@ namespace InlineIL.Tests.AssemblyToProcess
         }
 
 #if NETCOREAPP
-
         public int[] ResolveGenericOverloadsUsingTypeApi()
         {
             var result = new List<int>();
@@ -384,6 +389,212 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<RuntimeMethodHandle>();
         }
 
+        public int CallStaticMethodFromDelegate()
+        {
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(OverloadedMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallStaticMethodOfOtherClassFromDelegate()
+        {
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(OtherClass.StaticMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallStaticMethodOfStructFromDelegate()
+        {
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(OtherStruct.StaticMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodFromDelegate()
+        {
+            Ldarg_0();
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfOtherClassFromDelegate()
+        {
+            OtherClass.Create(out var instance);
+            IL.Push(instance);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(instance.InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfOtherClassThroughFieldFromDelegate()
+        {
+            IL.Push(_otherClass);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(_otherClass.InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallVirtualMethodOfOtherClassFromDelegate()
+        {
+            var instance = new OtherClass();
+            IL.Push(instance);
+            Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallVirtualMethodOfOtherClassFromDelegate2()
+        {
+            OtherClass.Create(out var instance);
+            IL.Push(instance);
+            Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallVirtualMethodOverrideOfOtherClassFromDelegate()
+        {
+            var instance = new OtherClassDerived();
+            IL.Push(instance);
+            Call(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallVirtualMethodOverrideOfOtherClassFromDelegate2()
+        {
+            var instance = new OtherClassDerived();
+            IL.Push(instance);
+            Callvirt(MethodRef.FromDelegate<Func<int>>(instance.VirtualMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(value.InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate2()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(default(OtherStruct).InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate3()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(new OtherStruct().InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public int CallInstanceMethodOfStructFromDelegate4()
+        {
+            var value = new OtherStruct();
+            return Run(ref value);
+
+            static int Run(ref OtherStruct value)
+            {
+                IL.Push(ref value);
+                Ldc_I4(42);
+                Call(MethodRef.FromDelegate<Func<int, int>>(value.InstanceMethod));
+                return IL.Return<int>();
+            }
+        }
+
+        public int CallInterfaceMethodOfStructFromDelegate()
+        {
+            var value = new OtherStruct();
+            IL.Push(ref value);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(value.InterfaceMethod));
+            return IL.Return<int>();
+        }
+
+        public string CallInstanceMethodOfStringFromDelegate()
+        {
+            IL.Push(" foo ");
+            Call(MethodRef.FromDelegate<Func<string>>("bar".Trim));
+            return IL.Return<string>();
+        }
+
+        public int CallInstanceMethodOfStructThroughFieldFromDelegate()
+        {
+            IL.Push(ref _otherStruct);
+            Ldc_I4(42);
+            Call(MethodRef.FromDelegate<Func<int, int>>(_otherStruct.InstanceMethod));
+            return IL.Return<int>();
+        }
+
+        public string CallInstanceMethodOfInt32FromDelegate()
+        {
+            IL.Push((object)42);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0.ToString));
+            return IL.Return<string>();
+        }
+
+        public bool CallInstanceMethodOfInt32FromDelegate2()
+        {
+            var value = 42;
+            IL.Push(ref value);
+            IL.Push(42);
+            Callvirt(MethodRef.FromDelegate<Func<int, bool>>(0.Equals));
+            return IL.Return<bool>();
+        }
+
+        public unsafe string CallInstanceMethodOfInt32WithSizeofFromDelegate()
+        {
+            IL.Push((object)42);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(sizeof(OtherStruct).ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfInt64FromDelegate()
+        {
+            IL.Push((object)42L);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0L.ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfInt64FromDelegate2()
+        {
+            IL.Push((object)424242424242L);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0L.ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfFloatFromDelegate()
+        {
+            IL.Push((object)42f);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0f.ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallInstanceMethodOfDoubleFromDelegate()
+        {
+            IL.Push((object)42.0);
+            Callvirt(MethodRef.FromDelegate<Func<string>>(0.0.ToString));
+            return IL.Return<string>();
+        }
+
+        public string CallStaticMethodOfGenericClassFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<string>>(GenericType<string>.NormalMethod));
+            return IL.Return<string>();
+        }
+
+        public string CallGenericStaticMethodOfGenericClassFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<string>>(GenericType<string>.GenericMethod<int>));
+            return IL.Return<string>();
+        }
+
         public void RaiseEvent()
             => Event?.Invoke();
 
@@ -398,6 +609,9 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<int[]>();
         }
 #endif
+
+        private int InstanceMethod() => 10;
+        private int InstanceMethod(int a) => 20;
 
         private static int OverloadedMethod() => 10;
         private static int OverloadedMethod(int a) => 20;
@@ -453,6 +667,41 @@ namespace InlineIL.Tests.AssemblyToProcess
             {
                 GC.KeepAlive(null);
             }
+        }
+
+        private class OtherClass
+        {
+            public int InstanceMethod() => 100;
+            public int InstanceMethod(int a) => 200;
+
+            public virtual int VirtualMethod() => 300;
+
+            public static int StaticMethod() => 100;
+            public static int StaticMethod(int a) => 200;
+
+            public static void Create(out OtherClass result)
+                => result = new OtherClass();
+        }
+
+        private class OtherClassDerived : OtherClass
+        {
+            public override int VirtualMethod() => 400;
+        }
+
+        private struct OtherStruct : ISomeInterface
+        {
+            public int InstanceMethod() => 1000;
+            public int InstanceMethod(int a) => 2000;
+
+            public int InterfaceMethod(int a) => 3000;
+
+            public static int StaticMethod() => 1000;
+            public static int StaticMethod(int a) => 2000;
+        }
+
+        private interface ISomeInterface
+        {
+            public int InterfaceMethod(int a);
         }
     }
 }

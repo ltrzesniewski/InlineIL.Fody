@@ -205,6 +205,9 @@ namespace InlineIL.Fody.Extensions
             return instruction;
         }
 
+        public static Instruction PrevSkipNopsRequired(this Instruction instruction)
+            => instruction.PrevSkipNops() ?? throw new InstructionWeavingException(instruction, "The first instruction causes a stack underflow");
+
         public static Instruction? SkipNops(this Instruction? instruction)
         {
             while (instruction != null && instruction.OpCode == OpCodes.Nop)

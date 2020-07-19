@@ -59,5 +59,15 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
             Ldtoken(MethodRef.Constructor(typeof(BasicTestCases)) ?? MethodRef.Constructor(typeof(BasicTestCases)));
         }
+
+        public void NotSameBasicBlockArray(bool a)
+        {
+            Switch(new string[a ? 1 : 2]);
+        }
+
+        public void NotSameBasicBlockArray2(bool a)
+        {
+            Switch(a ? "foo" : "bar");
+        }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -54,6 +53,14 @@ namespace InlineIL.Fody.Processing
 
         public object ConsumeArgConst(Instruction instruction)
         {
+            if (!TryConsumeArgConst(instruction, out var result))
+                throw UnexpectedInstruction(instruction, "a constant value");
+
+            return result;
+        }
+
+        private bool TryConsumeArgConst(Instruction instruction, out object result)
+        {
             switch (instruction.OpCode.OperandType)
             {
                 case OperandType.InlineI:
@@ -63,7 +70,8 @@ namespace InlineIL.Fody.Processing
                 case OperandType.ShortInlineR:
                 case OperandType.InlineString:
                     _il.Remove(instruction);
-                    return instruction.Operand;
+                    result = instruction.Operand;
+                    return true;
             }
 
             switch (instruction.OpCode.Code)
@@ -78,12 +86,18 @@ namespace InlineIL.Fody.Processing
                 case Code.Conv_U8:
                 case Code.Conv_R4:
                 case Code.Conv_R8:
-                    var value = ConsumeArgConst(instruction.PrevSkipNops() ?? throw new InstructionWeavingException(instruction, "Invalid instruction at start of method"));
-                    _il.Remove(instruction);
-                    return value;
-            }
+                    if (TryConsumeArgConst(instruction.PrevSkipNopsRequired(), out result))
+                    {
+                        _il.Remove(instruction);
+                        return true;
+                    }
 
-            throw UnexpectedInstruction(instruction, "a constant value");
+                    goto default;
+
+                default:
+                    result = default!;
+                    return false;
+            }
         }
 
         public TypeReference ConsumeArgTypeRef(Instruction typeRefInstruction)
@@ -275,7 +289,7 @@ namespace InlineIL.Fody.Processing
                 if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
                     throw UnexpectedInstruction(instruction, "a method call");
 
-                switch (method.FullName)
+                switch (method.GetElementMethod().FullName)
                 {
                     case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
                     case "InlineIL.MethodRef InlineIL.MethodRef::Method(InlineIL.TypeRef,System.String,InlineIL.TypeRef[])":
@@ -344,6 +358,16 @@ namespace InlineIL.Fody.Processing
                         return builder;
                     }
 
+                    case "InlineIL.MethodRef InlineIL.MethodRef::FromDelegate(!!0)":
+                    {
+                        var args = instruction.GetArgumentPushInstructions();
+                        var builder = ConsumeArgDelegate(args[0]);
+                        _il.EnsureSameBasicBlock(args[0], instruction);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
                     case "InlineIL.MethodRef InlineIL.MethodRef::MakeGenericMethod(InlineIL.TypeRef[])":
                     {
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
@@ -379,6 +403,86 @@ namespace InlineIL.Fody.Processing
 
                     _il.Remove(instruction);
                     return builder;
+                }
+            }
+
+            MethodRefBuilder ConsumeArgDelegate(Instruction instruction)
+            {
+                if (instruction.OpCode != OpCodes.Newobj)
+                    throw UnexpectedInstruction(instruction, "a delegate instantiation");
+
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var methodRef = ConsumeArgLdFtn(args[1]);
+                var builder = MethodRefBuilder.MethodFromDelegateReference(Module, methodRef);
+                ConsumeArgObjRefNoSideEffects(args[0]);
+
+                _il.Remove(instruction);
+                return builder;
+            }
+
+            void ConsumeArgObjRefNoSideEffects(Instruction instruction)
+            {
+                switch (instruction.OpCode.Code)
+                {
+                    // Pop 0, Push 1
+                    case Code.Ldnull:
+                    case Code.Ldarg:
+                    case Code.Ldarga:
+                    case Code.Ldloc:
+                    case Code.Ldloca:
+                    case Code.Ldsfld:
+                    case Code.Ldsflda:
+                    case Code.Sizeof:
+                    case Code.Dup: // Not really pop 0, push 1, but used as an arg to ldvirtftn
+                    {
+                        _il.Remove(instruction);
+                        return;
+                    }
+
+                    // Pop 1, Push 1
+                    case Code.Box:
+                    case Code.Ldobj:
+                    case Code.Ldfld:
+                    case Code.Ldflda:
+                    {
+                        var arg = _il.GetPrevSkipNopsInSameBasicBlock(instruction);
+                        ConsumeArgObjRefNoSideEffects(arg);
+
+                        _il.Remove(instruction);
+                        return;
+                    }
+
+                    default:
+                    {
+                        if (TryConsumeArgConst(instruction, out _))
+                            return;
+
+                        throw UnexpectedInstruction(instruction, "a side-effect free object load, or null");
+                    }
+                }
+            }
+
+            MethodReference ConsumeArgLdFtn(Instruction instruction)
+            {
+                switch (instruction.OpCode.Code)
+                {
+                    case Code.Ldftn:
+                    {
+                        _il.Remove(instruction);
+                        return (MethodReference)instruction.Operand;
+                    }
+
+                    case Code.Ldvirtftn:
+                    {
+                        var arg = _il.GetPrevSkipNopsInSameBasicBlock(instruction);
+                        ConsumeArgObjRefNoSideEffects(arg);
+
+                        _il.Remove(instruction);
+                        return (MethodReference)instruction.Operand;
+                    }
+
+                    default:
+                        throw UnexpectedInstruction(instruction, "a ldftn or ldvirtftn");
                 }
             }
         }
@@ -428,8 +532,8 @@ namespace InlineIL.Fody.Processing
 
             var newarrInstruction = instruction;
 
-            var countInstruction = newarrInstruction.PrevSkipNops();
-            if (countInstruction?.OpCode != OpCodes.Ldc_I4)
+            var countInstruction = _il.GetPrevSkipNopsInSameBasicBlock(newarrInstruction);
+            if (countInstruction.OpCode != OpCodes.Ldc_I4)
                 throw UnexpectedInstruction(countInstruction, OpCodes.Ldc_I4);
 
             var count = (int)countInstruction.Operand;
@@ -454,12 +558,17 @@ namespace InlineIL.Fody.Processing
                 if (!stelemInstruction.OpCode.IsStelem())
                     throw UnexpectedInstruction(stelemInstruction, "stelem");
 
-                args[index] = consumeItem(stelemInstruction.PrevSkipNops() ?? throw new InstructionWeavingException(stelemInstruction, "Invalid array construction at start of method"));
+                args[index] = consumeItem(stelemInstruction.PrevSkipNopsRequired());
 
                 currentDupInstruction = stelemInstruction.NextSkipNops();
 
+                _il.EnsureSameBasicBlock(dupInstruction, newarrInstruction);
                 _il.Remove(dupInstruction);
-                _il.Remove(indexInstruction!);
+
+                _il.EnsureSameBasicBlock(indexInstruction, newarrInstruction);
+                _il.Remove(indexInstruction);
+
+                _il.EnsureSameBasicBlock(stelemInstruction, newarrInstruction);
                 _il.Remove(stelemInstruction);
             }
 

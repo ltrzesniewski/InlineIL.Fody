@@ -9,6 +9,7 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     [SuppressMessage("ReSharper", "EventNeverSubscribedTo.Global")]
+    [SuppressMessage("ReSharper", "ConvertToLambdaExpression")]
     public class MethodRefTestCases
     {
         public int Value { get; set; }
@@ -160,6 +161,38 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         public void NoTypeInitializer()
         {
             Call(MethodRef.TypeInitializer(typeof(ClassWithoutInitializer)));
+        }
+
+        public void StaticLambdaFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<int, int>>(i => i * 2));
+        }
+
+        public void NonStaticLambdaFromDelegate(int i)
+        {
+            Call(MethodRef.FromDelegate<Func<int>>(() => i * 2));
+        }
+
+        public void StaticLocalFunctionFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<int, int>>(LocalFunction));
+            static int LocalFunction(int i) => i * 2;
+        }
+
+        public void NonStaticLocalFunctionFromDelegate(int i)
+        {
+            Call(MethodRef.FromDelegate<Func<int>>(LocalFunction));
+            int LocalFunction() => i * 2;
+        }
+
+        public void StaticDelegateFromDelegate()
+        {
+            Call(MethodRef.FromDelegate<Func<int, int>>(delegate(int i) { return i * 2; }));
+        }
+
+        public void NonStaticDelegateFromDelegate(int i)
+        {
+            Call(MethodRef.FromDelegate<Func<int>>(delegate { return i * 2; }));
         }
 
         private static void Foo()

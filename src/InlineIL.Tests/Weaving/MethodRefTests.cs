@@ -218,6 +218,188 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_static_method_from_delegate()
+        {
+            var result = (int)GetInstance().CallStaticMethodFromDelegate();
+            result.ShouldEqual(20);
+        }
+
+        [Fact]
+        public void should_call_static_method_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallStaticMethodOfOtherClassFromDelegate();
+            result.ShouldEqual(200);
+        }
+
+        [Fact]
+        public void should_call_static_method_of_struct_from_delegate()
+        {
+            var result = (int)GetInstance().CallStaticMethodOfStructFromDelegate();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodFromDelegate();
+            result.ShouldEqual(20);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfOtherClassFromDelegate();
+            result.ShouldEqual(200);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_other_class_though_field_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfOtherClassThroughFieldFromDelegate();
+            result.ShouldEqual(200);
+        }
+
+        [Fact]
+        public void should_call_virtual_method_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOfOtherClassFromDelegate();
+            result.ShouldEqual(300);
+        }
+
+        [Fact]
+        public void should_call_virtual_method_of_other_class_from_delegate_2()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOfOtherClassFromDelegate2();
+            result.ShouldEqual(300);
+        }
+
+        [Fact]
+        public void should_call_virtual_method_override_of_other_class_from_delegate()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOverrideOfOtherClassFromDelegate();
+            result.ShouldEqual(300); // Calls the base method
+        }
+
+        [Fact]
+        public void should_call_virtual_method_override_of_other_class_from_delegate_2()
+        {
+            var result = (int)GetInstance().CallVirtualMethodOverrideOfOtherClassFromDelegate2();
+            result.ShouldEqual(400);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate_2()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate2();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate_3()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate3();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_from_delegate_4()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate4();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_interface_method_of_struct_from_delegate()
+        {
+            var result = (int)GetInstance().CallInterfaceMethodOfStructFromDelegate();
+            result.ShouldEqual(3000);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_struct_though_field_from_delegate()
+        {
+            var result = (int)GetInstance().CallInstanceMethodOfStructThroughFieldFromDelegate();
+            result.ShouldEqual(2000);
+        }
+
+        [Fact]
+        public void should_call_static_method_of_generic_class_from_delegate()
+        {
+            var result = (string)GetInstance().CallStaticMethodOfGenericClassFromDelegate();
+            result.ShouldEqual(typeof(string).FullName);
+        }
+
+        [Fact]
+        public void should_call_generic_static_method_of_generic_class_from_delegate()
+        {
+            var result = (string)GetInstance().CallGenericStaticMethodOfGenericClassFromDelegate();
+            result.ShouldEqual($"{typeof(string).FullName} {typeof(int).FullName}");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_string_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfStringFromDelegate();
+            result.ShouldEqual("foo");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int32_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt32FromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int32_from_delegate_2()
+        {
+            var result = (bool)GetInstance().CallInstanceMethodOfInt32FromDelegate2();
+            result.ShouldEqual(true);
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int32_with_sizeof_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt32WithSizeofFromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int64_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt64FromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_int64_from_delegate_2()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfInt64FromDelegate2();
+            result.ShouldEqual("424242424242");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_float_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfFloatFromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
+        public void should_call_instance_method_of_double_from_delegate()
+        {
+            var result = (string)GetInstance().CallInstanceMethodOfDoubleFromDelegate();
+            result.ShouldEqual("42");
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -348,6 +530,42 @@ namespace InlineIL.Tests.Weaving
         {
             ShouldHaveError("NoTypeInitializer").ShouldContain("has no type initializer");
         }
+
+        [Fact]
+        public void should_report_static_lambda_from_delegate()
+        {
+            ShouldHaveError("StaticLambdaFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_non_static_lambda_from_delegate()
+        {
+            ShouldHaveError("NonStaticLambdaFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_static_local_function_from_delegate()
+        {
+            ShouldHaveError("StaticLocalFunctionFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_non_static_local_function_from_delegate()
+        {
+            ShouldHaveError("NonStaticLocalFunctionFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_static_delegate_from_delegate()
+        {
+            ShouldHaveError("StaticDelegateFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_non_static_delegate_from_delegate()
+        {
+            ShouldHaveError("NonStaticDelegateFromDelegate").ShouldContain("compiler-generated method");
+        }
     }
 
 #if NETCOREAPP
@@ -363,7 +581,7 @@ namespace InlineIL.Tests.Weaving
 #endif
 
 #if NETFRAMEWORK
-    public class MethodRefTestsFramework: MethodRefTestsBase
+    public class MethodRefTestsFramework : MethodRefTestsBase
     {
         [Fact]
         public void should_call_vararg_method()
