@@ -8,6 +8,7 @@ namespace InlineIL.Examples
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
     public static unsafe class Unsafe
     {
         // This is the InlineIL equivalent of System.Runtime.CompilerServices.Unsafe
@@ -215,7 +216,6 @@ namespace InlineIL.Examples
         {
             // For .NET Core the roundtrip via a local is no longer needed (update the constant as needed)
 #if NETCOREAPP
-
             IL.Push(source);
             return ref IL.ReturnRef<T>();
 #else
@@ -392,6 +392,26 @@ namespace InlineIL.Examples
             Ldarg(nameof(right));
             Clt_Un();
             return IL.Return<bool>();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullRef<T>(ref T source)
+        {
+            Ldarg(nameof(source));
+            Ldc_I4_0();
+            Conv_U();
+            Ceq();
+            return IL.Return<bool>();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T NullRef<T>()
+        {
+            Ldc_I4_0();
+            Conv_U();
+            return ref IL.ReturnRef<T>();
         }
     }
 }
