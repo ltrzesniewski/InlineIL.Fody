@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using static InlineIL.IL.Emit;
 
+// System.Runtime.CompilerServices.Unsafe does not have nullable reference types annotations
+#nullable disable
+
 namespace InlineIL.Examples
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
