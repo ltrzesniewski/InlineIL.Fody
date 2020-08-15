@@ -18,10 +18,10 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<string>();
         }
 
-        public string PushNullValue()
+        public string? PushNullValue()
         {
-            IL.Push<string>(null);
-            return IL.Return<string>();
+            IL.Push<string?>(null);
+            return IL.Return<string?>();
         }
 
         public void PushRef(ref int i)

@@ -68,7 +68,7 @@ namespace InlineIL.Tests.AssemblyToProcess
         private class GenericType<T>
         {
             private static readonly int _value = 10;
-            private static readonly T _value2 = typeof(T) == typeof(int) ? (T)(object)10 : default;
+            private static readonly T _value2 = typeof(T) == typeof(int) ? (T)(object)10 : default!;
 
             public static int GetValue()
             {
