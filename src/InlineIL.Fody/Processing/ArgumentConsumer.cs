@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -59,7 +60,7 @@ namespace InlineIL.Fody.Processing
             return result;
         }
 
-        private bool TryConsumeArgConst(Instruction instruction, out object result)
+        private bool TryConsumeArgConst(Instruction instruction, [MaybeNullWhen(false)] out object result)
         {
             switch (instruction.OpCode.OperandType)
             {
@@ -95,7 +96,7 @@ namespace InlineIL.Fody.Processing
                     goto default;
 
                 default:
-                    result = default!;
+                    result = null;
                     return false;
             }
         }
@@ -551,7 +552,7 @@ namespace InlineIL.Fody.Processing
                 if (indexInstruction?.OpCode != OpCodes.Ldc_I4)
                     throw UnexpectedInstruction(indexInstruction, OpCodes.Ldc_I4);
 
-                if ((int?)indexInstruction?.Operand != index)
+                if ((int?)indexInstruction.Operand != index)
                     throw UnexpectedInstruction(indexInstruction, $"ldc.i4 with value of {index}");
 
                 var stelemInstruction = dupInstruction.GetValueConsumingInstruction();

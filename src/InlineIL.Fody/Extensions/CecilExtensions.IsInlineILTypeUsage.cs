@@ -143,6 +143,7 @@ namespace InlineIL.Fody.Extensions
             return false;
         }
 
+        [ContractAnnotation("eventRef:null => false")]
         public static bool IsInlineILTypeUsage(this EventReference? eventRef, ModuleWeavingContext context)
         {
             if (eventRef == null)

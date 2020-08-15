@@ -141,7 +141,7 @@ namespace InlineIL.Fody
                 }
             }
 
-            void ProcessImportScope(ImportDebugInformation importScope)
+            void ProcessImportScope(ImportDebugInformation? importScope)
             {
                 if (importScope == null || !importScopes.Add(importScope))
                     return;

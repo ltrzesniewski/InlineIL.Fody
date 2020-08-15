@@ -108,7 +108,7 @@ namespace InlineIL.Fody.Processing
         }
 
         internal int GetBasicBlock(Instruction instruction)
-            => _basicBlocks.GetValueOrDefault(instruction)!;
+            => _basicBlocks.GetValueOrDefault(instruction);
 
         public Instruction[] GetArgumentPushInstructionsInSameBasicBlock(Instruction instruction)
         {
@@ -183,13 +183,13 @@ namespace InlineIL.Fody.Processing
             _referencedInstructions.Add(newInstruction);
         }
 
-        public void RemoveNopsAround(Instruction instruction)
+        public void RemoveNopsAround(Instruction? instruction)
         {
             RemoveNopsBefore(instruction);
             RemoveNopsAfter(instruction);
         }
 
-        private void RemoveNopsBefore(Instruction instruction)
+        private void RemoveNopsBefore(Instruction? instruction)
         {
             var currentInstruction = instruction?.Previous;
             while (currentInstruction != null && currentInstruction.OpCode == OpCodes.Nop)
@@ -200,7 +200,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        public void RemoveNopsAfter(Instruction instruction)
+        public void RemoveNopsAfter(Instruction? instruction)
         {
             var currentInstruction = instruction?.Next;
             while (currentInstruction != null && currentInstruction.OpCode == OpCodes.Nop)

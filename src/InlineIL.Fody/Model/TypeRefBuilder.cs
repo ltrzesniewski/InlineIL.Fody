@@ -167,7 +167,7 @@ namespace InlineIL.Fody.Model
             public override TypeReference Resolve(ModuleDefinition module)
                 => module.ImportReference(_typeRef);
 
-            public override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
+            public override TypeReference TryResolve(ModuleDefinition module, IGenericParameterProvider context)
                 => Resolve(module);
 
             public override string GetDisplayName()

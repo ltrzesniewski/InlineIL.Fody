@@ -75,7 +75,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        public static bool MapIndexInstruction(MethodLocals? locals, ref OpCode opCode, int index, [NotNullWhen(true)] out VariableDefinition? result)
+        public static bool MapIndexInstruction(MethodLocals? locals, ref OpCode opCode, int index, [MaybeNullWhen(false)] out VariableDefinition result)
         {
             switch (opCode.Code)
             {

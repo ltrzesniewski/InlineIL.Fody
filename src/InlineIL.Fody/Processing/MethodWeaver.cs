@@ -146,11 +146,11 @@ namespace InlineIL.Fody.Processing
 
         private void ProcessMethodCalls()
         {
-            Instruction? instruction = Instructions.FirstOrDefault();
+            var instruction = Instructions.FirstOrDefault();
 
             while (instruction != null)
             {
-                Instruction? nextInstruction = instruction.Next;
+                var nextInstruction = instruction.Next;
 
                 if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
                 {

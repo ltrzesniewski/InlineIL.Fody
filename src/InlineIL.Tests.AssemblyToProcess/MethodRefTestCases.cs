@@ -21,7 +21,7 @@ namespace InlineIL.Tests.AssemblyToProcess
     public class MethodRefTestCases : IMethodRefTestCases
     {
         private readonly OtherClass _otherClass = new OtherClass();
-        private OtherStruct _otherStruct = new OtherStruct();
+        private OtherStruct _otherStruct;
 
         public int Value { get; set; }
 

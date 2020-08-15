@@ -8,6 +8,7 @@ namespace InlineIL.Fody.Extensions
     internal static class FrameworkExtensions
     {
         public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> pair, out TKey key, out TValue value)
+            where TKey : notnull
         {
             key = pair.Key;
             value = pair.Value;
@@ -15,9 +16,11 @@ namespace InlineIL.Fody.Extensions
 
         [return: MaybeNull]
         public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+            where TKey : notnull
             => dictionary.TryGetValue(key, out var value) ? value : default;
 
         public static TValue GetOrAddNew<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+            where TKey : notnull
             where TValue : new()
         {
             if (!dictionary.TryGetValue(key, out var value))
