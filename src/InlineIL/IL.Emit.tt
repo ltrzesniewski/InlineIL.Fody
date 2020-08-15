@@ -6,7 +6,6 @@
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
-<#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Xml.Linq" #>
 <#@ import namespace="Mono.Cecil.Cil" #>
@@ -26,11 +25,11 @@
         .Select(field => (fieldName: field.Name, opCode: (System.Reflection.Emit.OpCode)field.GetValue(null)))
         .ToDictionary(i => i.opCode.Value);
 
-    var xmlDocs = XDocument.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Reference Assemblies\Microsoft\Framework\.NETFramework\v4.X\mscorlib.xml"))
-        .Root
-        .Element("members")
+    var xmlDocs = XDocument.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Reference Assemblies\Microsoft\Framework\.NETFramework\v4.X\mscorlib.xml"))!
+        .Root!
+        .Element("members")!
         .Elements("member")
-        .ToDictionary(elem => elem.Attribute("name").Value, elem => elem);
+        .ToDictionary(elem => elem.Attribute("name")!.Value, elem => elem);
 
     static string EscapeXml(string value) => value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 
@@ -61,14 +60,11 @@
             }
         }
 
-        if (opCode.OpCodeType == OpCodeType.Prefix)
-        {
-            sb.AppendLine("<para>This is a prefix instruction.</para>");
-        }
-        else
-        {
-            sb.AppendLine($"<para>Stack Transition: {GetStackTransition(opCode)}</para>");
-        }
+        sb.AppendLine(
+            opCode.OpCodeType == OpCodeType.Prefix
+                ? "<para>This is a prefix instruction.</para>"
+                : $"<para>Stack Transition: {GetStackTransition(opCode)}</para>"
+            );
 
         return sb.ToString();
     }
@@ -80,7 +76,7 @@
 
         var summary = elementNode.Element("summary");
 
-        foreach (var node in summary.Nodes())
+        foreach (var node in summary!.Nodes())
         {
             switch (node)
             {
@@ -90,7 +86,7 @@
 
                 case XElement elem when elem.Name == "see" && elem.Attribute("cref") != null:
                     sb.Append(@"<see cref=""");
-                    sb.Append(EscapeXml(elem.Attribute("cref").Value.Substring(2)));
+                    sb.Append(EscapeXml(elem.Attribute("cref")!.Value.Substring(2)));
                     sb.Append(@""" />");
                     break;
 
