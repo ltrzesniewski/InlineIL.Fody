@@ -141,6 +141,34 @@ namespace InlineIL
             => throw IL.Throw();
 
         /// <summary>
+        /// Constructs a method reference to a unary operator.
+        /// </summary>
+        /// <param name="type">The type declaring the operator.</param>
+        /// <param name="operator">The operator kind.</param>
+        public static MethodRef Operator(TypeRef type, UnaryOperator @operator)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference to a binary operator.
+        /// </summary>
+        /// <param name="type">The type declaring the operator.</param>
+        /// <param name="operator">The operator kind.</param>
+        /// <param name="leftType">The left operand type.</param>
+        /// <param name="rightType">The right operand type.</param>
+        public static MethodRef Operator(TypeRef type, BinaryOperator @operator, TypeRef leftType, TypeRef rightType)
+            => throw IL.Throw();
+
+        /// <summary>
+        /// Constructs a method reference to a conversion operator.
+        /// </summary>
+        /// <param name="type">The type declaring the operator.</param>
+        /// <param name="operator">The operator kind.</param>
+        /// <param name="direction">The direction of the conversion.</param>
+        /// <param name="otherType">The other type of the conversion.</param>
+        public static MethodRef Operator(TypeRef type, ConversionOperator @operator, ConversionDirection direction, TypeRef otherType)
+            => throw IL.Throw();
+
+        /// <summary>
         /// Constructs a method reference from a delegate.
         /// Do not use with lambdas, local functions, or any other compiler-generated methods.
         /// </summary>
