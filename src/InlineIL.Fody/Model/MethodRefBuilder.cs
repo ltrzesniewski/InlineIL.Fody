@@ -238,6 +238,28 @@ namespace InlineIL.Fody.Model
             };
         }
 
+        public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, ConversionOperator op, ConversionDirection direction, TypeReference otherType)
+        {
+            var typeDef = typeRef.ResolveRequiredType();
+            var memberName = $"op_{op}";
+
+            var methods = typeDef.Methods.Where(i => i.IsStatic && i.IsSpecialName && i.Name == memberName && i.Parameters.Count == 1);
+
+            var operators = direction switch
+            {
+                ConversionDirection.From => methods.Where(i => i.Parameters[0].ParameterType.FullName == otherType.FullName).ToList(),
+                ConversionDirection.To   => methods.Where(i => i.ReturnType.FullName == otherType.FullName).ToList(),
+                _                        => throw new ArgumentOutOfRangeException(nameof(direction))
+            };
+
+            return operators.Count switch
+            {
+                1 => new MethodRefBuilder(module, typeRef, operators.Single()),
+                0 => throw new WeavingException($"Operator '{memberName}' not found in type {typeDef.FullName}"),
+                _ => throw new WeavingException($"Ambiguous operator '{memberName}' in type {typeDef.FullName}")
+            };
+        }
+
         public MethodReference Build()
             => _method;
 

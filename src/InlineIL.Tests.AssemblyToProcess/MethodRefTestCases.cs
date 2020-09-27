@@ -758,6 +758,43 @@ namespace InlineIL.Tests.AssemblyToProcess
             return results.ToArray();
         }
 
+        public int[] CallConversionOperators()
+        {
+            var results = new List<int>();
+
+            IL.Push(new ConversionOperatorsClass(0));
+            Call(MethodRef.Operator(typeof(ConversionOperatorsClass), ConversionOperator.Implicit, ConversionDirection.To, typeof(int)));
+            IL.Pop(out int intResult);
+            results.Add(intResult);
+
+            IL.Push(0);
+            Call(MethodRef.Operator(typeof(ConversionOperatorsClass), ConversionOperator.Implicit, ConversionDirection.From, typeof(int)));
+            IL.Pop(out ConversionOperatorsClass objResult);
+            results.Add(objResult.Value);
+
+            IL.Push(new ConversionOperatorsClass(0));
+            Call(MethodRef.Operator(typeof(ConversionOperatorsClass), ConversionOperator.Implicit, ConversionDirection.To, typeof(long)));
+            IL.Pop(out long longResult);
+            results.Add((int)longResult);
+
+            IL.Push(0L);
+            Call(MethodRef.Operator(typeof(ConversionOperatorsClass), ConversionOperator.Implicit, ConversionDirection.From, typeof(long)));
+            IL.Pop(out objResult);
+            results.Add(objResult.Value);
+
+            IL.Push(new ConversionOperatorsClass(0));
+            Call(MethodRef.Operator(typeof(ConversionOperatorsClass), ConversionOperator.Explicit, ConversionDirection.To, typeof(short)));
+            IL.Pop(out short shortResult);
+            results.Add(shortResult);
+
+            IL.Push((short)0);
+            Call(MethodRef.Operator(typeof(ConversionOperatorsClass), ConversionOperator.Explicit, ConversionDirection.From, typeof(short)));
+            IL.Pop(out objResult);
+            results.Add(objResult.Value);
+
+            return results.ToArray();
+        }
+
         public void RaiseEvent()
             => Event?.Invoke();
 
@@ -944,6 +981,23 @@ namespace InlineIL.Tests.AssemblyToProcess
 
             public override bool Equals(object? obj) => false;
             public override int GetHashCode() => 0;
+        }
+
+        private class ConversionOperatorsClass
+        {
+            public int Value { get; }
+
+            public ConversionOperatorsClass(int value)
+                => Value = value;
+
+            public static implicit operator int(ConversionOperatorsClass obj) => 1;
+            public static implicit operator ConversionOperatorsClass(int i) => new ConversionOperatorsClass(2);
+
+            public static implicit operator long(ConversionOperatorsClass obj) => 3;
+            public static implicit operator ConversionOperatorsClass(long i) => new ConversionOperatorsClass(4);
+
+            public static explicit operator short(ConversionOperatorsClass obj) => 5;
+            public static explicit operator ConversionOperatorsClass(short i) => new ConversionOperatorsClass(6);
         }
     }
 }

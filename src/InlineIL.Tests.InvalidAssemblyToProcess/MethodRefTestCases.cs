@@ -210,6 +210,11 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
             Call(MethodRef.Operator(typeof(ClassWithoutInitializer), BinaryOperator.Addition, typeof(ClassWithoutInitializer), typeof(int)));
         }
 
+        public void InvalidConversionOperator()
+        {
+            Call(MethodRef.Operator(typeof(ClassWithoutInitializer), ConversionOperator.Implicit, ConversionDirection.From, typeof(int)));
+        }
+
         private static void Foo()
         {
         }

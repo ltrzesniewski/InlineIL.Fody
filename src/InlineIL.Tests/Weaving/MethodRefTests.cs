@@ -414,6 +414,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_conversion_operators()
+        {
+            var result = (int[])GetInstance().CallConversionOperators();
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6 });
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -597,6 +604,12 @@ namespace InlineIL.Tests.Weaving
         public void should_report_invalid_binary_operator()
         {
             ShouldHaveError("InvalidBinaryOperator").ShouldContain("not found");
+        }
+
+        [Fact]
+        public void should_report_invalid_conversion_operator()
+        {
+            ShouldHaveError("InvalidConversionOperator").ShouldContain("not found");
         }
     }
 
