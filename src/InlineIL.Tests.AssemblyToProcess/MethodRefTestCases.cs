@@ -643,6 +643,121 @@ namespace InlineIL.Tests.AssemblyToProcess
             return results.ToArray();
         }
 
+        public int[] CallBinaryOperators()
+        {
+            var results = new List<int>();
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Addition, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out int result);
+            results.Add(result);
+
+            IL.Push(42);
+            IL.Push(new BinaryOperatorsClass());
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Addition, typeof(int), typeof(BinaryOperatorsClass)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(new BinaryOperatorsClass());
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Addition, typeof(BinaryOperatorsClass), typeof(BinaryOperatorsClass)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Subtraction, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Multiply, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Division, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Modulus, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.ExclusiveOr, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.BitwiseAnd, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.BitwiseOr, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.LeftShift, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.RightShift, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Equality, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.GreaterThan, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.LessThan, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.Inequality, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.GreaterThanOrEqual, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new BinaryOperatorsClass());
+            IL.Push(42);
+            Call(MethodRef.Operator(typeof(BinaryOperatorsClass), BinaryOperator.LessThanOrEqual, typeof(BinaryOperatorsClass), typeof(int)));
+            IL.Pop(out result);
+            results.Add(result);
+
+            return results.ToArray();
+        }
+
         public void RaiseEvent()
             => Event?.Invoke();
 
@@ -803,6 +918,32 @@ namespace InlineIL.Tests.AssemblyToProcess
                 s.Value = 8;
                 return s;
             }
+        }
+
+        private class BinaryOperatorsClass
+        {
+            public static int operator +(BinaryOperatorsClass a, int b) => 1;
+            public static int operator +(int a, BinaryOperatorsClass b) => 2;
+            public static int operator +(BinaryOperatorsClass a, BinaryOperatorsClass b) => 3;
+
+            public static int operator -(BinaryOperatorsClass a, int b) => 4;
+            public static int operator *(BinaryOperatorsClass a, int b) => 5;
+            public static int operator /(BinaryOperatorsClass a, int b) => 6;
+            public static int operator %(BinaryOperatorsClass a, int b) => 7;
+            public static int operator ^(BinaryOperatorsClass a, int b) => 8;
+            public static int operator &(BinaryOperatorsClass a, int b) => 9;
+            public static int operator |(BinaryOperatorsClass a, int b) => 10;
+            public static int operator <<(BinaryOperatorsClass a, int b) => 11;
+            public static int operator >>(BinaryOperatorsClass a, int b) => 12;
+            public static int operator ==(BinaryOperatorsClass a, int b) => 13;
+            public static int operator >(BinaryOperatorsClass a, int b) => 14;
+            public static int operator <(BinaryOperatorsClass a, int b) => 15;
+            public static int operator !=(BinaryOperatorsClass a, int b) => 16;
+            public static int operator >=(BinaryOperatorsClass a, int b) => 17;
+            public static int operator <=(BinaryOperatorsClass a, int b) => 18;
+
+            public override bool Equals(object? obj) => false;
+            public override int GetHashCode() => 0;
         }
     }
 }

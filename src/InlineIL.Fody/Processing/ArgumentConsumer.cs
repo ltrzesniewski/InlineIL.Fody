@@ -381,6 +381,19 @@ namespace InlineIL.Fody.Processing
                         return builder;
                     }
 
+                    case "InlineIL.MethodRef InlineIL.MethodRef::Operator(InlineIL.TypeRef,InlineIL.BinaryOperator,InlineIL.TypeRef,InlineIL.TypeRef)":
+                    {
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var op = ConsumeArgEnumInt32<BinaryOperator>(args[1]);
+                        var leftOperandType = ConsumeArgTypeRefBuilder(args[2]);
+                        var rightOperandType = ConsumeArgTypeRefBuilder(args[3]);
+                        var builder = MethodRefBuilder.Operator(Module, typeRef, op, leftOperandType, rightOperandType);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
                     case "InlineIL.MethodRef InlineIL.MethodRef::FromDelegate(!!0)":
                     {
                         var args = instruction.GetArgumentPushInstructions();

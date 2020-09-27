@@ -220,6 +220,24 @@ namespace InlineIL.Fody.Model
             };
         }
 
+        public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, BinaryOperator op, TypeRefBuilder leftOperandType, TypeRefBuilder rightOperandType)
+        {
+            var typeDef = typeRef.ResolveRequiredType();
+            var memberName = $"op_{op}";
+            var signature = new[] { leftOperandType, rightOperandType };
+
+            var operators = typeDef.Methods
+                                   .Where(i => i.IsStatic && i.IsSpecialName && i.Name == memberName && SignatureMatches(i, signature))
+                                   .ToList();
+
+            return operators.Count switch
+            {
+                1 => new MethodRefBuilder(module, typeRef, operators.Single()),
+                0 => throw new WeavingException($"Operator '{memberName}' not found in type {typeDef.FullName}"),
+                _ => throw new WeavingException($"Ambiguous operator '{memberName}' in type {typeDef.FullName}")
+            };
+        }
+
         public MethodReference Build()
             => _method;
 
