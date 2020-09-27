@@ -400,6 +400,13 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_call_unary_operators()
+        {
+            var result = (int[])GetInstance().CallUnaryOperators();
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+        }
+
+        [Fact]
         public void should_report_generic_args_on_normal_method()
         {
             ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -565,6 +572,18 @@ namespace InlineIL.Tests.Weaving
         public void should_report_non_static_delegate_from_delegate()
         {
             ShouldHaveError("NonStaticDelegateFromDelegate").ShouldContain("compiler-generated method");
+        }
+
+        [Fact]
+        public void should_report_invalid_enum_value()
+        {
+            ShouldHaveError("InvalidEnumValue").ShouldContain("Invalid enum value");
+        }
+
+        [Fact]
+        public void should_report_invalid_unary_operator()
+        {
+            ShouldHaveError("InvalidUnaryOperator").ShouldContain("not found");
         }
     }
 

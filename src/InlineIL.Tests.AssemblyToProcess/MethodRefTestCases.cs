@@ -595,6 +595,54 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<string>();
         }
 
+        public int[] CallUnaryOperators()
+        {
+            var results = new List<int>();
+            var obj = new UnaryOperatorsClass();
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.Decrement));
+            Pop();
+            results.Add(obj.Value);
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.Increment));
+            Pop();
+            results.Add(obj.Value);
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.UnaryNegation));
+            Pop();
+            results.Add(obj.Value);
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.UnaryPlus));
+            Pop();
+            results.Add(obj.Value);
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.LogicalNot));
+            Pop();
+            results.Add(obj.Value);
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.True));
+            Pop();
+            results.Add(obj.Value);
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.False));
+            Pop();
+            results.Add(obj.Value);
+
+            IL.Push(obj);
+            Call(MethodRef.Operator(typeof(UnaryOperatorsClass), UnaryOperator.OnesComplement));
+            Pop();
+            results.Add(obj.Value);
+
+            return results.ToArray();
+        }
+
         public void RaiseEvent()
             => Event?.Invoke();
 
@@ -702,6 +750,59 @@ namespace InlineIL.Tests.AssemblyToProcess
         private interface ISomeInterface
         {
             public int InterfaceMethod(int a);
+        }
+
+        private class UnaryOperatorsClass
+        {
+            public int Value { get; private set; }
+
+            public static UnaryOperatorsClass operator --(UnaryOperatorsClass s)
+            {
+                s.Value = 1;
+                return s;
+            }
+
+            public static UnaryOperatorsClass operator ++(UnaryOperatorsClass s)
+            {
+                s.Value = 2;
+                return s;
+            }
+
+            public static UnaryOperatorsClass operator -(UnaryOperatorsClass s)
+            {
+                s.Value = 3;
+                return s;
+            }
+
+            public static UnaryOperatorsClass operator +(UnaryOperatorsClass s)
+            {
+                s.Value = 4;
+                return s;
+            }
+
+            public static UnaryOperatorsClass operator !(UnaryOperatorsClass s)
+            {
+                s.Value = 5;
+                return s;
+            }
+
+            public static bool operator true(UnaryOperatorsClass s)
+            {
+                s.Value = 6;
+                return true;
+            }
+
+            public static bool operator false(UnaryOperatorsClass s)
+            {
+                s.Value = 7;
+                return true;
+            }
+
+            public static UnaryOperatorsClass operator ~(UnaryOperatorsClass s)
+            {
+                s.Value = 8;
+                return s;
+            }
         }
     }
 }

@@ -10,4 +10,11 @@
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="../InlineIL/UnaryOperator.cs" Link="InlineIL/%(Filename)%(Extension)" />
+    <Compile Include="../InlineIL/BinaryOperator.cs" Link="InlineIL/%(Filename)%(Extension)" />
+    <Compile Include="../InlineIL/ConversionOperator.cs" Link="InlineIL/%(Filename)%(Extension)" />
+    <Compile Include="../InlineIL/ConversionDirection.cs" Link="InlineIL/%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

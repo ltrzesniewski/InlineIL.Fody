@@ -49,6 +49,17 @@ namespace InlineIL.Fody.Processing
             throw UnexpectedInstruction(instruction, OpCodes.Ldc_I4);
         }
 
+        private T ConsumeArgEnumInt32<T>(Instruction instruction)
+            where T : struct, Enum
+        {
+            var boxedValue = (object)ConsumeArgInt32(instruction);
+
+            if (!Enum.IsDefined(typeof(T), boxedValue))
+                throw new InstructionWeavingException(instruction, $"Invalid enum value for {typeof(T).Name}");
+
+            return (T)boxedValue;
+        }
+
         public bool ConsumeArgBool(Instruction instruction)
             => ConsumeArgInt32(instruction) != 0;
 
@@ -354,6 +365,17 @@ namespace InlineIL.Fody.Processing
                         var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var builder = MethodRefBuilder.TypeInitializer(Module, typeRef);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "InlineIL.MethodRef InlineIL.MethodRef::Operator(InlineIL.TypeRef,InlineIL.UnaryOperator)":
+                    {
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var op = ConsumeArgEnumInt32<UnaryOperator>(args[1]);
+                        var builder = MethodRefBuilder.Operator(Module, typeRef, op);
 
                         _il.Remove(instruction);
                         return builder;

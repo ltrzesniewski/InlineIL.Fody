@@ -195,6 +195,16 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
             Call(MethodRef.FromDelegate<Func<int>>(delegate { return i * 2; }));
         }
 
+        public void InvalidEnumValue()
+        {
+            Call(MethodRef.Operator(typeof(decimal), (UnaryOperator)(-1)));
+        }
+
+        public void InvalidUnaryOperator()
+        {
+            Call(MethodRef.Operator(typeof(ClassWithoutInitializer), UnaryOperator.Decrement));
+        }
+
         private static void Foo()
         {
         }
