@@ -209,7 +209,7 @@ namespace InlineIL.Fody.Model
             var memberName = $"op_{op}";
 
             var operators = typeDef.Methods
-                                   .Where(i => i.IsStatic && i.IsSpecialName && i.Name == memberName && i.Parameters.Count == 1 && i.Parameters[0].ParameterType.FullName == typeDef.FullName)
+                                   .Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && m.Parameters.Count == 1 && m.Parameters[0].ParameterType.FullName == typeDef.FullName)
                                    .ToList();
 
             return operators.Count switch
@@ -227,7 +227,7 @@ namespace InlineIL.Fody.Model
             var signature = new[] { leftOperandType, rightOperandType };
 
             var operators = typeDef.Methods
-                                   .Where(i => i.IsStatic && i.IsSpecialName && i.Name == memberName && SignatureMatches(i, signature))
+                                   .Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && SignatureMatches(m, signature))
                                    .ToList();
 
             return operators.Count switch
@@ -238,17 +238,17 @@ namespace InlineIL.Fody.Model
             };
         }
 
-        public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, ConversionOperator op, ConversionDirection direction, TypeReference otherType)
+        public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, ConversionOperator op, ConversionDirection direction, TypeRefBuilder otherType)
         {
             var typeDef = typeRef.ResolveRequiredType();
             var memberName = $"op_{op}";
 
-            var methods = typeDef.Methods.Where(i => i.IsStatic && i.IsSpecialName && i.Name == memberName && i.Parameters.Count == 1);
+            var methods = typeDef.Methods.Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && m.Parameters.Count == 1);
 
             var operators = direction switch
             {
-                ConversionDirection.From => methods.Where(i => i.Parameters[0].ParameterType.FullName == otherType.FullName).ToList(),
-                ConversionDirection.To   => methods.Where(i => i.ReturnType.FullName == otherType.FullName).ToList(),
+                ConversionDirection.From => methods.Where(m => m.Parameters[0].ParameterType.FullName == otherType.TryBuild(m)?.FullName).ToList(),
+                ConversionDirection.To   => methods.Where(m => m.ReturnType.FullName == otherType.TryBuild(m)?.FullName).ToList(),
                 _                        => throw new ArgumentOutOfRangeException(nameof(direction))
             };
 

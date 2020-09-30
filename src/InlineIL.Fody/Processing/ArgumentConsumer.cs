@@ -400,7 +400,7 @@ namespace InlineIL.Fody.Processing
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var op = ConsumeArgEnumInt32<ConversionOperator>(args[1]);
                         var direction = ConsumeArgEnumInt32<ConversionDirection>(args[2]);
-                        var otherType = ConsumeArgTypeRef(args[3]);
+                        var otherType = ConsumeArgTypeRefBuilder(args[3]);
                         var builder = MethodRefBuilder.Operator(Module, typeRef, op, direction, otherType);
 
                         _il.Remove(instruction);
