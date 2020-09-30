@@ -215,8 +215,8 @@ namespace InlineIL.Fody.Model
             return operators.Count switch
             {
                 1 => new MethodRefBuilder(module, typeRef, operators.Single()),
-                0 => throw new WeavingException($"Operator '{memberName}' not found in type {typeDef.FullName}"),
-                _ => throw new WeavingException($"Ambiguous operator '{memberName}' in type {typeDef.FullName}")
+                0 => throw new WeavingException($"Unary operator {memberName} not found in type {typeDef.FullName}"),
+                _ => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
             };
         }
 
@@ -233,8 +233,8 @@ namespace InlineIL.Fody.Model
             return operators.Count switch
             {
                 1 => new MethodRefBuilder(module, typeRef, operators.Single()),
-                0 => throw new WeavingException($"Operator '{memberName}' not found in type {typeDef.FullName}"),
-                _ => throw new WeavingException($"Ambiguous operator '{memberName}' in type {typeDef.FullName}")
+                0 => throw new WeavingException($"Binary operator {memberName}({leftOperandType.GetDisplayName()}, {rightOperandType.GetDisplayName()}) not found in type {typeDef.FullName}"),
+                _ => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
             };
         }
 
@@ -255,8 +255,13 @@ namespace InlineIL.Fody.Model
             return operators.Count switch
             {
                 1 => new MethodRefBuilder(module, typeRef, operators.Single()),
-                0 => throw new WeavingException($"Operator '{memberName}' not found in type {typeDef.FullName}"),
-                _ => throw new WeavingException($"Ambiguous operator '{memberName}' in type {typeDef.FullName}")
+                0 => direction switch
+                {
+                    ConversionDirection.From => throw new WeavingException($"Conversion operator {memberName} from {otherType.GetDisplayName()} not found in type {typeDef.FullName}"),
+                    ConversionDirection.To   => throw new WeavingException($"Conversion operator {memberName} to {otherType.GetDisplayName()} not found in type {typeDef.FullName}"),
+                    _                        => throw new ArgumentOutOfRangeException(nameof(direction))
+                },
+                _ => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
             };
         }
 
