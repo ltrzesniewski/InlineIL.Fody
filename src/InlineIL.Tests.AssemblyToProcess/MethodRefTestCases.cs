@@ -640,6 +640,11 @@ namespace InlineIL.Tests.AssemblyToProcess
             Pop();
             results.Add(obj.Value);
 
+            IL.Push(new GenericOperatorsClass<string>(0));
+            Call(MethodRef.Operator(typeof(GenericOperatorsClass<string>), UnaryOperator.UnaryPlus));
+            IL.Pop(out int intResult);
+            results.Add(intResult);
+
             return results.ToArray();
         }
 
@@ -755,6 +760,18 @@ namespace InlineIL.Tests.AssemblyToProcess
             IL.Pop(out result);
             results.Add(result);
 
+            IL.Push("foo");
+            IL.Push(new GenericOperatorsClass<string>(0));
+            Call(MethodRef.Operator(typeof(GenericOperatorsClass<string>), BinaryOperator.Addition, TypeRef.TypeGenericParameters[0], new TypeRef(typeof(GenericOperatorsClass<>)).MakeGenericType(TypeRef.TypeGenericParameters[0])));
+            IL.Pop(out result);
+            results.Add(result);
+
+            IL.Push(new GenericOperatorsClass<string>(0));
+            IL.Push("foo");
+            Call(MethodRef.Operator(typeof(GenericOperatorsClass<string>), BinaryOperator.Addition, new TypeRef(typeof(GenericOperatorsClass<>)).MakeGenericType(TypeRef.TypeGenericParameters[0]), TypeRef.TypeGenericParameters[0]));
+            IL.Pop(out result);
+            results.Add(result);
+
             return results.ToArray();
         }
 
@@ -791,6 +808,17 @@ namespace InlineIL.Tests.AssemblyToProcess
             Call(MethodRef.Operator(typeof(ConversionOperatorsClass), ConversionOperator.Explicit, ConversionDirection.From, typeof(short)));
             IL.Pop(out objResult);
             results.Add(objResult.Value);
+
+            IL.Push("foo");
+            Call(MethodRef.Operator(typeof(GenericOperatorsClass<string>), ConversionOperator.Implicit, ConversionDirection.From, TypeRef.TypeGenericParameters[0]));
+            IL.Pop(out GenericOperatorsClass<string> genericStrResult);
+            results.Add(genericStrResult.Value);
+
+            genericStrResult = new GenericOperatorsClass<string>(0);
+            IL.Push(genericStrResult);
+            Call(MethodRef.Operator(typeof(GenericOperatorsClass<string>), ConversionOperator.Implicit, ConversionDirection.To, TypeRef.TypeGenericParameters[0]));
+            Pop();
+            results.Add(genericStrResult.Value);
 
             return results.ToArray();
         }
@@ -998,6 +1026,28 @@ namespace InlineIL.Tests.AssemblyToProcess
 
             public static explicit operator short(ConversionOperatorsClass obj) => 5;
             public static explicit operator ConversionOperatorsClass(short i) => new ConversionOperatorsClass(6);
+        }
+
+        private class GenericOperatorsClass<T>
+        {
+            public int Value { get; private set; }
+
+            public GenericOperatorsClass(int value)
+                => Value = value;
+
+            public static implicit operator GenericOperatorsClass<T>(T c)
+                => new GenericOperatorsClass<T>(101);
+
+            public static implicit operator T(GenericOperatorsClass<T> c)
+            {
+                c.Value = 102;
+                return default!;
+            }
+
+            public static int operator +(T a, GenericOperatorsClass<T> b) => 103;
+            public static int operator +(GenericOperatorsClass<T> a, T b) => 104;
+
+            public static int operator +(GenericOperatorsClass<T> a) => 105;
         }
     }
 }

@@ -209,7 +209,7 @@ namespace InlineIL.Fody.Model
             var memberName = $"op_{op}";
 
             var operators = typeDef.Methods
-                                   .Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && m.Parameters.Count == 1 && m.Parameters[0].ParameterType.FullName == typeDef.FullName)
+                                   .Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && m.Parameters.Count == 1)
                                    .ToList();
 
             return operators.Count switch

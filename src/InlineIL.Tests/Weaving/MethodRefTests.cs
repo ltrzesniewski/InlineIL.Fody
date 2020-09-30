@@ -403,21 +403,21 @@ namespace InlineIL.Tests.Weaving
         public void should_call_unary_operators()
         {
             var result = (int[])GetInstance().CallUnaryOperators();
-            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 105 });
         }
 
         [Fact]
         public void should_call_binary_operators()
         {
             var result = (int[])GetInstance().CallBinaryOperators();
-            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 });
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 103, 104 });
         }
 
         [Fact]
         public void should_call_conversion_operators()
         {
             var result = (int[])GetInstance().CallConversionOperators();
-            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6 });
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 101, 102 });
         }
 
         [Fact]
