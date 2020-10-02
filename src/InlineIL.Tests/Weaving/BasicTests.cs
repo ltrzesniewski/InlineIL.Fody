@@ -392,7 +392,9 @@ namespace InlineIL.Tests.Weaving
         {
             var method = GetMethodDefinition("MultiplyBy3");
 
-            method.DebugInformation.SequencePoints.Count.ShouldEqual(7);
+            var expectedCount = method.Module.IsDebugBuild() ? 7 : 0;
+
+            method.DebugInformation.SequencePoints.Count.ShouldEqual(expectedCount);
         }
 
         [Fact]
