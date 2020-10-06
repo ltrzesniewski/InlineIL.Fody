@@ -820,6 +820,22 @@ namespace InlineIL.Tests.AssemblyToProcess
             Pop();
             results.Add(genericStrResult.Value);
 
+            IL.Push(new ConversionOperatorsClass(0));
+            Call(MethodRef.Method(typeof(ConversionOperatorsClass), "op_Implicit", typeof(int), 0, typeof(ConversionOperatorsClass)));
+            IL.Pop(out intResult);
+            results.Add(intResult);
+
+            IL.Push(new ConversionOperatorsClass(0));
+            Call(new MethodRef(typeof(ConversionOperatorsClass), "op_Implicit", typeof(long), 0, typeof(ConversionOperatorsClass)));
+            IL.Pop(out longResult);
+            results.Add((int)longResult);
+
+            genericStrResult = new GenericOperatorsClass<string>(0);
+            IL.Push(genericStrResult);
+            Call(MethodRef.Method(typeof(GenericOperatorsClass<string>), "op_Implicit", TypeRef.TypeGenericParameters[0], 0, new TypeRef(typeof(GenericOperatorsClass<>)).MakeGenericType(TypeRef.TypeGenericParameters[0])));
+            Pop();
+            results.Add(genericStrResult.Value);
+
             return results.ToArray();
         }
 

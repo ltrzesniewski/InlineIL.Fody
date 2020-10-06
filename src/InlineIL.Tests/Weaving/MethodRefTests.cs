@@ -417,7 +417,7 @@ namespace InlineIL.Tests.Weaving
         public void should_call_conversion_operators()
         {
             var result = (int[])GetInstance().CallConversionOperators();
-            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 101, 102 });
+            result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 101, 102, 1, 3, 102 });
         }
 
         [Fact]

@@ -310,7 +310,7 @@ namespace InlineIL.Fody.Processing
                         var typeRef = ConsumeArgTypeRef(args[0]);
                         var methodName = ConsumeArgString(args[1]);
                         var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRefBuilder);
-                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, null, paramTypes);
+                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, null, null, paramTypes);
 
                         _il.Remove(instruction);
                         return builder;
@@ -324,7 +324,22 @@ namespace InlineIL.Fody.Processing
                         var methodName = ConsumeArgString(args[1]);
                         var genericParameterCount = ConsumeArgInt32(args[2]);
                         var paramTypes = ConsumeArgArray(args[3], ConsumeArgTypeRefBuilder);
-                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, genericParameterCount, paramTypes);
+                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, genericParameterCount, null, paramTypes);
+
+                        _il.Remove(instruction);
+                        return builder;
+                    }
+
+                    case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String,InlineIL.TypeRef,System.Int32,InlineIL.TypeRef[])":
+                    case "InlineIL.MethodRef InlineIL.MethodRef::Method(InlineIL.TypeRef,System.String,InlineIL.TypeRef,System.Int32,InlineIL.TypeRef[])":
+                    {
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                        var typeRef = ConsumeArgTypeRef(args[0]);
+                        var methodName = ConsumeArgString(args[1]);
+                        var returnType = ConsumeArgTypeRefBuilder(args[2]);
+                        var genericParameterCount = ConsumeArgInt32(args[3]);
+                        var paramTypes = ConsumeArgArray(args[4], ConsumeArgTypeRefBuilder);
+                        var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, genericParameterCount, returnType, paramTypes);
 
                         _il.Remove(instruction);
                         return builder;

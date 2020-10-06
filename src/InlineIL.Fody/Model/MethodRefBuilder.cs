@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Fody;
 using InlineIL.Fody.Extensions;
 using Mono.Cecil;
@@ -28,10 +29,10 @@ namespace InlineIL.Fody.Model
         }
 
         public static MethodRefBuilder MethodByName(ModuleDefinition module, TypeReference typeRef, string methodName)
-            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null, null));
+            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null, null, null));
 
-        public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder> paramTypes)
-            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
+        public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, TypeRefBuilder? returnType, IReadOnlyList<TypeRefBuilder> paramTypes)
+            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, returnType, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
 
         public static MethodRefBuilder MethodFromDelegateReference(ModuleDefinition module, MethodReference methodRef)
         {
@@ -41,7 +42,7 @@ namespace InlineIL.Fody.Model
             return new MethodRefBuilder(module, methodRef);
         }
 
-        private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, IReadOnlyList<TypeRefBuilder>? paramTypes)
+        private static MethodReference FindMethod(TypeReference typeRef, string methodName, int? genericArity, TypeRefBuilder? returnType, IReadOnlyList<TypeRefBuilder>? paramTypes)
         {
             var typeDef = typeRef.ResolveRequiredType();
 
@@ -54,26 +55,20 @@ namespace InlineIL.Fody.Model
                     : methods.Where(m => m.HasGenericParameters && m.GenericParameters.Count == genericArity);
             }
 
+            if (returnType != null)
+                methods = methods.Where(m => m.ReturnType.FullName == returnType.TryBuild(m)?.FullName);
+
             if (paramTypes != null)
                 methods = methods.Where(m => SignatureMatches(m, paramTypes));
 
             var methodList = methods.ToList();
 
-            switch (methodList.Count)
+            return methodList.Count switch
             {
-                case 1:
-                    return methodList.Single();
-
-                case 0:
-                    throw paramTypes == null
-                        ? new WeavingException($"Method '{methodName}' not found in type {typeDef.FullName}")
-                        : new WeavingException($"Method {methodName}({string.Join(", ", paramTypes.Select(p => p.GetDisplayName()))}) not found in type {typeDef.FullName}");
-
-                default:
-                    throw paramTypes == null
-                        ? new WeavingException($"Ambiguous method '{methodName}' in type {typeDef.FullName}")
-                        : new WeavingException($"Ambiguous method {methodName}({string.Join(", ", paramTypes.Select(p => p.GetDisplayName()))}) in type {typeDef.FullName}");
-            }
+                1 => methodList.Single(),
+                0 => throw new WeavingException($"Method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} not found in type {typeDef.FullName}"),
+                _ => throw new WeavingException($"Ambiguous method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} in type {typeDef.FullName}")
+            };
         }
 
         private static bool SignatureMatches(MethodReference method, IReadOnlyList<TypeRefBuilder> paramTypes)
@@ -92,6 +87,61 @@ namespace InlineIL.Fody.Model
             }
 
             return true;
+        }
+
+        private static string GetDisplaySignature(string methodName, int? genericArity, TypeRefBuilder? returnType, IReadOnlyList<TypeRefBuilder>? paramTypes)
+        {
+            if (genericArity is null && returnType is null && paramTypes is null)
+                return "'" + methodName + "'";
+
+            var sb = new StringBuilder();
+
+            if (returnType != null)
+                sb.Append(returnType.GetDisplayName()).Append(' ');
+
+            sb.Append(methodName);
+
+            switch (genericArity)
+            {
+                case 0:
+                case null:
+                    break;
+
+                case 1:
+                    sb.Append("<T>");
+                    break;
+
+                default:
+                    sb.Append('<');
+
+                    for (var i = 0; i < genericArity.GetValueOrDefault(); ++i)
+                    {
+                        if (i != 0)
+                            sb.Append(", ");
+
+                        sb.Append('T').Append(i);
+                    }
+
+                    sb.Append('>');
+                    break;
+            }
+
+            if (paramTypes != null)
+            {
+                sb.Append('(');
+
+                for (var i = 0; i < paramTypes.Count; ++i)
+                {
+                    if (i != 0)
+                        sb.Append(", ");
+
+                    sb.Append(paramTypes[i].GetDisplayName());
+                }
+
+                sb.Append(')');
+            }
+
+            return sb.ToString();
         }
 
         public static MethodRefBuilder PropertyGet(ModuleDefinition module, TypeReference typeRef, string propertyName)
