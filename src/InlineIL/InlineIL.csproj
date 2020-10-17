@@ -9,6 +9,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>InlineIL.Fody</PackageId>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,10 @@
   <PropertyGroup>
     <MonoCecilPath>$(PkgFody)\netclassictask\Mono.Cecil.dll</MonoCecilPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../icon.png" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
 
   <ItemGroup>
     <T4ParameterValues Include="MonoCecilPath" Value="$(MonoCecilPath)" Visible="false" />
