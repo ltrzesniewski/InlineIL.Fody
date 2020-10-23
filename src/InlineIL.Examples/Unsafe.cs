@@ -301,7 +301,29 @@ namespace InlineIL.Examples
 
         [NonVersionable]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T Add<T>(ref T source, nuint elementOffset)
+        {
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Mul();
+            IL.Emit.Add();
+            return ref IL.ReturnRef<T>();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AddByteOffset<T>(ref T source, IntPtr byteOffset)
+        {
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteOffset));
+            IL.Emit.Add();
+            return ref IL.ReturnRef<T>();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T AddByteOffset<T>(ref T source, nuint byteOffset)
         {
             Ldarg(nameof(source));
             Ldarg(nameof(byteOffset));
@@ -349,7 +371,29 @@ namespace InlineIL.Examples
 
         [NonVersionable]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T Subtract<T>(ref T source, nuint elementOffset)
+        {
+            Ldarg(nameof(source));
+            Ldarg(nameof(elementOffset));
+            Sizeof(typeof(T));
+            Mul();
+            Sub();
+            return ref IL.ReturnRef<T>();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T SubtractByteOffset<T>(ref T source, IntPtr byteOffset)
+        {
+            Ldarg(nameof(source));
+            Ldarg(nameof(byteOffset));
+            Sub();
+            return ref IL.ReturnRef<T>();
+        }
+
+        [NonVersionable]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T SubtractByteOffset<T>(ref T source, nuint byteOffset)
         {
             Ldarg(nameof(source));
             Ldarg(nameof(byteOffset));
