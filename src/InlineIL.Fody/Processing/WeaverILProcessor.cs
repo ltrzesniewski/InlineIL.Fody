@@ -340,7 +340,7 @@ namespace InlineIL.Fody.Processing
                     case OperandType.ShortInlineI:
                         operand = opCode == OpCodes.Ldc_I4_S
                             ? Convert.ToSByte(operand)
-                            : (object)Convert.ToByte(operand);
+                            : Convert.ToByte(operand);
                         break;
 
                     case OperandType.ShortInlineR:
@@ -445,7 +445,7 @@ namespace InlineIL.Fody.Processing
             }
 
             WeavingException ExpectedOperand(string expected)
-                => new WeavingException($"Opcode {opCode} expects an operand of type {expected}");
+                => new($"Opcode {opCode} expects an operand of type {expected}");
         }
     }
 }

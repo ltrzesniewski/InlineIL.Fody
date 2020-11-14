@@ -12,7 +12,7 @@ namespace InlineIL.Fody.Processing
         private readonly MethodDefinition _method;
         private readonly WeaverConfig _config;
         private readonly List<SequencePoint> _inputSequencePoints;
-        private readonly Dictionary<SequencePoint, Instruction> _outputSequencePointMap = new Dictionary<SequencePoint, Instruction>();
+        private readonly Dictionary<SequencePoint, Instruction> _outputSequencePointMap = new();
 
         public SequencePointMapper(MethodDefinition method, WeaverConfig config)
         {

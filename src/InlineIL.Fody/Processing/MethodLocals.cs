@@ -10,8 +10,8 @@ namespace InlineIL.Fody.Processing
 {
     internal class MethodLocals
     {
-        private readonly Dictionary<string, VariableDefinition> _localsByName = new Dictionary<string, VariableDefinition>();
-        private readonly List<VariableDefinition> _localsByIndex = new List<VariableDefinition>();
+        private readonly Dictionary<string, VariableDefinition> _localsByName = new();
+        private readonly List<VariableDefinition> _localsByIndex = new();
 
         public MethodLocals(MethodDefinition method, IEnumerable<LocalVarBuilder> locals)
         {

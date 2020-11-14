@@ -12,7 +12,7 @@ namespace InlineIL.Fody.Processing
 
         public bool IsDebugBuild { get; }
 
-        internal Dictionary<TypeReference, bool> LibUsageTypeCache { get; } = new Dictionary<TypeReference, bool>();
+        internal Dictionary<TypeReference, bool> LibUsageTypeCache { get; } = new();
 
         public ModuleWeavingContext(ModuleDefinition module, WeaverConfig config)
         {
