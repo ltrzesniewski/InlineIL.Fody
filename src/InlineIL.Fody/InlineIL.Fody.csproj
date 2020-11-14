@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../InlineIL/UnaryOperator.cs" Link="InlineIL/%(Filename)%(Extension)" />
-    <Compile Include="../InlineIL/BinaryOperator.cs" Link="InlineIL/%(Filename)%(Extension)" />
-    <Compile Include="../InlineIL/ConversionOperator.cs" Link="InlineIL/%(Filename)%(Extension)" />
-    <Compile Include="../InlineIL/ConversionDirection.cs" Link="InlineIL/%(Filename)%(Extension)" />
+    <Compile Include="../InlineIL/UnaryOperator.cs" Link="Enums/%(Filename)%(Extension)" />
+    <Compile Include="../InlineIL/BinaryOperator.cs" Link="Enums/%(Filename)%(Extension)" />
+    <Compile Include="../InlineIL/ConversionOperator.cs" Link="Enums/%(Filename)%(Extension)" />
+    <Compile Include="../InlineIL/ConversionDirection.cs" Link="Enums/%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     [SuppressMessage("ReSharper", "RedundantAssignment")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
     public unsafe class BasicTestCases : IUnverifiableBasicTestCases
     {
         public static int* StaticIntPtrField;

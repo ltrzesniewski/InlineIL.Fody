@@ -7,8 +7,8 @@ using static InlineIL.IL.Emit;
 namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
     public unsafe class StandAloneMethodSigTestCases
     {
         public int CallIndirectStatic()

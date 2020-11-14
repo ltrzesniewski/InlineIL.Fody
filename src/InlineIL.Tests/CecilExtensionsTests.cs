@@ -145,7 +145,6 @@ namespace InlineIL.Tests
         }
 
         [Fact]
-        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
         [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
         public void should_return_false_on_null()
         {
