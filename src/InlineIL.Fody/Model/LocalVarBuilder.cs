@@ -23,7 +23,7 @@ namespace InlineIL.Fody.Model
         }
 
         public VariableDefinition Build()
-            => new(_type);
+            => new VariableDefinition(_type);
 
         public void MakePinned()
         {

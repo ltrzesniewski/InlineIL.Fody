@@ -445,7 +445,7 @@ namespace InlineIL.Fody.Processing
             }
 
             WeavingException ExpectedOperand(string expected)
-                => new($"Opcode {opCode} expects an operand of type {expected}");
+                => new WeavingException($"Opcode {opCode} expects an operand of type {expected}");
         }
     }
 }

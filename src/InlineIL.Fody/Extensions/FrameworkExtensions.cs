@@ -64,6 +64,6 @@ namespace InlineIL.Fody.Extensions
         }
 
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> items)
-            => new(items);
+            => new HashSet<T>(items);
     }
 }
