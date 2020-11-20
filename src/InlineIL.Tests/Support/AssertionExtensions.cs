@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Xunit;
+using Xunit.Sdk;
 
 namespace InlineIL.Tests.Support
 {
@@ -24,11 +25,15 @@ namespace InlineIL.Tests.Support
             => Assert.Null(actual);
 
         [ContractAnnotation("null => halt")]
-        public static T ShouldNotBeNull<T>(this T? actual)
+        public static T ShouldNotBeNull<T>(
+#if NETCOREAPP
+            [System.Diagnostics.CodeAnalysis.NotNull]
+#endif
+            this T? actual)
             where T : class
         {
             Assert.NotNull(actual);
-            return actual!;
+            return actual ?? throw new NotNullException();
         }
 
         public static void ShouldAll<T>(this IEnumerable<T> items, Func<T, bool> test)

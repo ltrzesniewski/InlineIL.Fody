@@ -11,7 +11,7 @@ namespace InlineIL.Fody.Processing
     {
         private readonly WeaverILProcessor _il;
         private readonly ILogger _log;
-        private readonly Dictionary<string, LabelInfo> _labels = new Dictionary<string, LabelInfo>();
+        private readonly Dictionary<string, LabelInfo> _labels = new();
 
         public LabelMapper(WeaverILProcessor il, ILogger log)
         {
