@@ -1,0 +1,40 @@
+
+name: Build
+on: [push, pull_request]
+
+env:
+  DOTNET_NOLOGO: 1
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+
+      - name: Build Debug
+        run: dotnet build --configuration Debug -nodeReuse:false src/InlineIL.sln
+
+      - name: Build Release
+        run: dotnet build --configuration Release -nodeReuse:false src/InlineIL.sln
+
+      - name: NuGet Pack
+        run: dotnet pack --configuration Release -nodeReuse:false src/InlineIL.sln
+
+      - name: Test Debug
+        run: dotnet test --configuration Debug -nodeReuse:false src/InlineIL.sln
+
+      - name: Test Release
+        run: dotnet test --configuration Release -nodeReuse:false src/InlineIL.sln
+
+      - name: Upload NuGet
+        uses: actions/upload-artifact@v2
+        with:
+          name: NuGet
+          path: output/*.nupkg
