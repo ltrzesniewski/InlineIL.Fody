@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace InlineIL.Fody.Extensions
@@ -14,8 +13,7 @@ namespace InlineIL.Fody.Extensions
             value = pair.Value;
         }
 
-        [return: MaybeNull]
-        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+        public static TValue? GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
             where TKey : notnull
             => dictionary.TryGetValue(key, out var value) ? value : default;
 
