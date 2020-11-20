@@ -25,13 +25,13 @@ jobs:
         run: dotnet build --configuration Release -nodeReuse:false src/InlineIL.sln
 
       - name: NuGet Pack
-        run: dotnet pack --configuration Release -nodeReuse:false src/InlineIL.sln
+        run: dotnet pack --configuration Release -nodeReuse:false --no-build src/InlineIL.sln
 
       - name: Test Debug
-        run: dotnet test --configuration Debug -nodeReuse:false src/InlineIL.sln
+        run: dotnet test --configuration Debug -nodeReuse:false --no-build src/InlineIL.sln
 
       - name: Test Release
-        run: dotnet test --configuration Release -nodeReuse:false src/InlineIL.sln
+        run: dotnet test --configuration Release -nodeReuse:false --no-build src/InlineIL.sln
 
       - name: Upload NuGet
         uses: actions/upload-artifact@v2
