@@ -18,11 +18,14 @@ jobs:
         with:
           dotnet-version: 5.0.x
 
+      - name: NuGet Restore
+        run: dotnet restore -nodeReuse:false src/InlineIL.sln
+
       - name: Build Debug
-        run: dotnet build --configuration Debug -nodeReuse:false src/InlineIL.sln
+        run: dotnet build --configuration Debug -nodeReuse:false --no-restore src/InlineIL.sln
 
       - name: Build Release
-        run: dotnet build --configuration Release -nodeReuse:false src/InlineIL.sln
+        run: dotnet build --configuration Release -nodeReuse:false --no-restore src/InlineIL.sln
 
       - name: NuGet Pack
         run: dotnet pack --configuration Release -nodeReuse:false --no-build src/InlineIL.sln
