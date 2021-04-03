@@ -162,5 +162,21 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
             Ldelema(typeof(int));
             return *IL.ReturnPointer<int>();
         }
+
+        public void NoOpCodeByte()
+        {
+            IL.Push((object)42);
+            No(0x01);
+            Unbox(typeof(int));
+            Pop();
+        }
+
+        public void NoOpCodeEnum()
+        {
+            IL.Push((object)42);
+            No(NoArg.TypeCheck);
+            Unbox(typeof(int));
+            Pop();
+        }
     }
 }

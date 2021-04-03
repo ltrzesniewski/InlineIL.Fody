@@ -52,9 +52,9 @@
                 case Code.No:
                 {
                     sb.AppendLine(" - Indicates that the subsequent instruction need not perform the specified fault check when it is executed. Currently not implemented in the CLR.");
-                    sb.AppendLine("<para>0x01 = <c>typecheck</c> (<c>castclass</c>, <c> unbox</c>, <c> ldelema</c>, <c> stelem</c>, <c> stelem</c>)</para>");
-                    sb.AppendLine("<para>0x02 = <c>rangecheck</c> (<c>ldelem.*</c>, <c> ldelema</c>, <c> stelem.*</c>)</para>");
-                    sb.AppendLine("<para>0x04 = <c>nullcheck</c> (<c>ldfld</c>, <c> stfld</c>, <c> callvirt</c>, <c> ldvirtftn</c>, <c> ldelem.*</c>, <c> stelem.*</c>, <c> ldelema</c>)</para>");
+                    sb.AppendLine("<para>0x01 = <c>typecheck</c> (<c>castclass</c>, <c>unbox</c>, <c>ldelema</c>, <c>stelem.*</c>)</para>");
+                    sb.AppendLine("<para>0x02 = <c>rangecheck</c> (<c>ldelem.*</c>, <c>ldelema</c>, <c>stelem.*</c>)</para>");
+                    sb.AppendLine("<para>0x04 = <c>nullcheck</c> (<c>ldfld</c>, <c>stfld</c>, <c>callvirt</c>, <c>ldvirtftn</c>, <c>ldelem.*</c>, <c>stelem.*</c>, <c>ldelema</c>)</para>");
                     break;
                 }
             }
@@ -223,7 +223,7 @@ namespace InlineIL
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         [SuppressMessage("ReSharper", "IdentifierTypo")]
         [SuppressMessage("ReSharper", "CommentTypo")]
-        public static class Emit
+        public static partial class Emit
         {
 <#
     foreach (var item in cecilCodes)
