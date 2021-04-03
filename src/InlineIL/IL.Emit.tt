@@ -35,36 +35,20 @@
 
     string GetOpCodeSummary(OpCode opCode)
     {
-        var sb = new StringBuilder();
-        sb.Append("<c>").Append(opCode.Name).Append("</c>");
+        if (!reflectionEmitCodes.TryGetValue(opCode.Value, out var reflectionEmitCode))
+            throw new InvalidOperationException($"Could not find opcode: {opCode}");
 
-        if (reflectionEmitCodes.TryGetValue(opCode.Value, out var reflectionEmitCode))
-        {
-            sb.Append(" - ");
-            AppendXmlDoc(sb, "F:System.Reflection.Emit.OpCodes." + reflectionEmitCode.fieldName);
-            TrimEnd(sb);
-            sb.AppendLine();
-        }
-        else
-        {
-            switch (opCode.Code)
-            {
-                case Code.No:
-                {
-                    sb.AppendLine(" - Indicates that the subsequent instruction need not perform the specified fault check when it is executed. Currently not implemented in the CLR.");
-                    sb.AppendLine("<para>0x01 = <c>typecheck</c> (<c>castclass</c>, <c>unbox</c>, <c>ldelema</c>, <c>stelem.*</c>)</para>");
-                    sb.AppendLine("<para>0x02 = <c>rangecheck</c> (<c>ldelem.*</c>, <c>ldelema</c>, <c>stelem.*</c>)</para>");
-                    sb.AppendLine("<para>0x04 = <c>nullcheck</c> (<c>ldfld</c>, <c>stfld</c>, <c>callvirt</c>, <c>ldvirtftn</c>, <c>ldelem.*</c>, <c>stelem.*</c>, <c>ldelema</c>)</para>");
-                    break;
-                }
-            }
-        }
+        var sb = new StringBuilder();
+        sb.Append("<c>").Append(opCode.Name).Append("</c> - ");
+        AppendXmlDoc(sb, "F:System.Reflection.Emit.OpCodes." + reflectionEmitCode.fieldName);
+        TrimEnd(sb);
+        sb.AppendLine();
 
         sb.AppendLine(
             opCode.OpCodeType == OpCodeType.Prefix
                 ? "<para>This is a prefix instruction.</para>"
                 : $"<para>Stack Transition: {GetStackTransition(opCode)}</para>"
-            );
+        );
 
         return sb.ToString();
     }
@@ -228,6 +212,9 @@ namespace InlineIL
 <#
     foreach (var item in cecilCodes)
     {
+        if (item.opCode == OpCodes.No)
+            continue;
+
         var summary = GetOpCodeSummary(item.opCode).Trim().Replace("\n", "\n            /// ");
 
         switch (item.opCode.OperandType)
