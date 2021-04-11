@@ -465,15 +465,17 @@ namespace InlineIL.Tests.Weaving
         [Fact]
         public void should_support_no_opcode_with_byte_arg()
         {
-            var ex = Assert.Throws<InvalidProgramException>(() => { GetUnverifiableInstance().NoOpCodeByte(); });
-            ex.Message.ShouldEqual(new InvalidProgramException().Message);
+            var method = GetUnverifiableMethodDefinition("NoOpCodeByte");
+            var instruction = method.Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.No);
+            instruction.Operand.ShouldBe<byte>().ShouldEqual((byte)(0x01 | 0x04));
         }
 
         [Fact]
         public void should_support_no_opcode_with_enum_arg()
         {
-            var ex = Assert.Throws<InvalidProgramException>(() => { GetUnverifiableInstance().NoOpCodeEnum(); });
-            ex.Message.ShouldEqual(new InvalidProgramException().Message);
+            var method = GetUnverifiableMethodDefinition("NoOpCodeEnum");
+            var instruction = method.Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.No);
+            instruction.Operand.ShouldBe<byte>().ShouldEqual((byte)(0x01 | 0x02 | 0x04));
         }
     }
 

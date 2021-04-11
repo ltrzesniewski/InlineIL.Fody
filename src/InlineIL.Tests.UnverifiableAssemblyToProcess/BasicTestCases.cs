@@ -14,6 +14,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
     {
         public static int* StaticIntPtrField;
         public static void* StaticVoidPtrField;
+        public static readonly int[] IntArrayField = { 42 };
 
         public void PushPointer(int* value)
         {
@@ -165,17 +166,19 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 
         public void NoOpCodeByte()
         {
-            IL.Push((object)42);
-            No(0x01);
-            Unbox(typeof(int));
+            IL.Push(IntArrayField);
+            IL.Push(0);
+            No(0x01 | 0x04);
+            Ldelema(typeof(int));
             Pop();
         }
 
         public void NoOpCodeEnum()
         {
-            IL.Push((object)42);
-            No(NoArg.TypeCheck);
-            Unbox(typeof(int));
+            IL.Push(IntArrayField);
+            IL.Push(0);
+            No(NoArg.TypeCheck | NoArg.RangeCheck | NoArg.NullCheck);
+            Ldelema(typeof(int));
             Pop();
         }
     }

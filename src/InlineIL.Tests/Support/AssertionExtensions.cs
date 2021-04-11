@@ -48,6 +48,12 @@ namespace InlineIL.Tests.Support
         public static void ShouldNotContain<T>(this IEnumerable<T> items, Func<T, bool> predicate)
             => Assert.DoesNotContain(items, item => predicate(item));
 
+        public static T ShouldContainSingle<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+            => Assert.Single(items, item => predicate(item));
+
+        public static T ShouldBe<T>(this object? item)
+            => Assert.IsType<T>(item);
+
         public static void ShouldBeEmpty<T>(this IEnumerable<T> items)
             => Assert.Empty(items);
 
