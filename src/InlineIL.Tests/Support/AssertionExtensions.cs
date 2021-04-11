@@ -8,10 +8,10 @@ namespace InlineIL.Tests.Support
 {
     internal static class AssertionExtensions
     {
-        public static void ShouldEqual<T>(this T actual, T expected)
+        public static void ShouldEqual<T>(this T? actual, T? expected)
             => Assert.Equal(expected, actual);
 
-        public static void ShouldNotEqual<T>(this T actual, T expected)
+        public static void ShouldNotEqual<T>(this T? actual, T? expected)
             => Assert.NotEqual(expected, actual);
 
         public static void ShouldBeTrue(this bool actual)
@@ -51,6 +51,7 @@ namespace InlineIL.Tests.Support
         public static T ShouldContainSingle<T>(this IEnumerable<T> items, Func<T, bool> predicate)
             => Assert.Single(items, item => predicate(item));
 
+        [ContractAnnotation("null => halt")]
         public static T ShouldBe<T>(this object? item)
             => Assert.IsType<T>(item);
 
