@@ -18,11 +18,6 @@ jobs:
         with:
           dotnet-version: 5.0.x
 
-      - name: Clear NuGet Cache
-        run: |
-          dotnet nuget locals all --clear
-          dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
-
       - name: NuGet Restore
         run: dotnet restore -nodeReuse:false src/InlineIL.sln
 
