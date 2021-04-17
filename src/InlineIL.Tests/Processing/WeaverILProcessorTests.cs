@@ -29,7 +29,8 @@ namespace InlineIL.Tests.Processing
                 (false, Instruction.Create(OpCodes.Nop))
             };
 
-            var il = CreateProcessor(instructions.Select(i => i.instruction));
+            using var module = ModuleDefinition.CreateModule("test", ModuleKind.Dll);
+            var il = CreateProcessor(module, instructions.Select(i => i.instruction));
 
             for (var i = 0; i < instructions.Length; ++i)
             {
@@ -42,9 +43,8 @@ namespace InlineIL.Tests.Processing
             }
         }
 
-        private static WeaverILProcessor CreateProcessor(IEnumerable<Instruction> instructions)
+        private static WeaverILProcessor CreateProcessor(ModuleDefinition module, IEnumerable<Instruction> instructions)
         {
-            var module = ModuleDefinition.CreateModule("test", ModuleKind.Dll);
             var method = new MethodDefinition("Test", MethodAttributes.Static, module.TypeSystem.Void);
             method.Body.Instructions.AddRange(instructions);
             return new WeaverILProcessor(method);

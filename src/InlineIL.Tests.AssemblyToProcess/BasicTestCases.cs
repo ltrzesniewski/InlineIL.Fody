@@ -5,9 +5,11 @@ using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.AssemblyToProcess
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
     public class BasicTestCases : IBasicTestCases
     {
         public static int StaticIntField;

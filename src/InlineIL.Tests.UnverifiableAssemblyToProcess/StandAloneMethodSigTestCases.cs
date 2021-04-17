@@ -6,6 +6,7 @@ using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.UnverifiableAssemblyToProcess
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]

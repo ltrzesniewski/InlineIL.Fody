@@ -1,7 +1,9 @@
-﻿using static InlineIL.IL.Emit;
+﻿using System.Diagnostics.CodeAnalysis;
+using static InlineIL.IL.Emit;
 
 namespace InlineIL.Examples
 {
+    [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
     public static class Examples
     {
         public static void ZeroInit<T>(ref T value)

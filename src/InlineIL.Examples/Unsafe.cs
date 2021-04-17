@@ -9,6 +9,7 @@ using static InlineIL.IL.Emit;
 
 namespace InlineIL.Examples
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
@@ -217,7 +218,7 @@ namespace InlineIL.Examples
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AsRef<T>(void* source)
         {
-            // For .NET Core the roundtrip via a local is no longer needed (update the constant as needed)
+            // For .NET Core the roundtrip via a local is no longer needed
 #if NETCOREAPP
             IL.Push(source);
             return ref IL.ReturnRef<T>();

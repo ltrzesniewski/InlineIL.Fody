@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace InlineIL.Tests.InvalidAssemblyToProcess
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]

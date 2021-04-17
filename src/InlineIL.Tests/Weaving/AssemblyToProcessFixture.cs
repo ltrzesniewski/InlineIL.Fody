@@ -62,7 +62,7 @@ namespace InlineIL.Tests.Weaving
 
         internal class GuardedWeaver : ModuleWeaver
         {
-            private readonly List<string> _errors = new List<string>();
+            private readonly List<string> _errors = new();
 
             public override void Execute()
             {

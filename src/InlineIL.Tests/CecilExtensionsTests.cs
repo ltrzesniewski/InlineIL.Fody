@@ -126,7 +126,7 @@ namespace InlineIL.Tests
         {
             using var assemblyResolver = new TestAssemblyResolver();
 
-            var module = ModuleDefinition.ReadModule(
+            using var module = ModuleDefinition.ReadModule(
                 typeof(CecilExtensionsTests).Assembly.Location,
                 new ReaderParameters(ReadingMode.Immediate)
                 {
@@ -148,7 +148,7 @@ namespace InlineIL.Tests
         [SuppressMessage("ReSharper", "InvokeAsExtensionMethod")]
         public void should_return_false_on_null()
         {
-            var module = ModuleDefinition.CreateModule("test", ModuleKind.Dll);
+            using var module = ModuleDefinition.CreateModule("test", ModuleKind.Dll);
             var context = new ModuleWeavingContext(module, null!);
 
             CecilExtensions.IsInlineILTypeUsage(default(CustomAttribute), context).ShouldBeFalse();

@@ -5,8 +5,10 @@ using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.AssemblyToProcess
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
     public class TypeRefTestCases
     {
         private const string _thisAssemblyName =

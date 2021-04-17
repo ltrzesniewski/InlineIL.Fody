@@ -6,6 +6,7 @@ using Mono.Cecil;
 
 namespace InlineIL.Examples.InSolutionWeaver
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class InlineILInSolution : ModuleWeaver
     {

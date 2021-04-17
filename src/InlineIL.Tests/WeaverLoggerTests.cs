@@ -7,7 +7,7 @@ namespace InlineIL.Tests
 {
     public class WeaverLoggerTests
     {
-        private readonly TestLogger _log = new TestLogger();
+        private readonly TestLogger _log = new();
 
         [Fact]
         public void should_log_debug_and_info()

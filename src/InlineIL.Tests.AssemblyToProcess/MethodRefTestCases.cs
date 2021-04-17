@@ -7,6 +7,7 @@ using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.AssemblyToProcess
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "UnusedTypeParameter")]
@@ -18,9 +19,10 @@ namespace InlineIL.Tests.AssemblyToProcess
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
     [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
+    [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
     public class MethodRefTestCases : IMethodRefTestCases
     {
-        private readonly OtherClass _otherClass = new OtherClass();
+        private readonly OtherClass _otherClass = new();
         private OtherStruct _otherStruct;
 
         public int Value { get; set; }
@@ -1035,13 +1037,13 @@ namespace InlineIL.Tests.AssemblyToProcess
                 => Value = value;
 
             public static implicit operator int(ConversionOperatorsClass obj) => 1;
-            public static implicit operator ConversionOperatorsClass(int i) => new ConversionOperatorsClass(2);
+            public static implicit operator ConversionOperatorsClass(int i) => new(2);
 
             public static implicit operator long(ConversionOperatorsClass obj) => 3;
-            public static implicit operator ConversionOperatorsClass(long i) => new ConversionOperatorsClass(4);
+            public static implicit operator ConversionOperatorsClass(long i) => new(4);
 
             public static explicit operator short(ConversionOperatorsClass obj) => 5;
-            public static explicit operator ConversionOperatorsClass(short i) => new ConversionOperatorsClass(6);
+            public static explicit operator ConversionOperatorsClass(short i) => new(6);
         }
 
         private class GenericOperatorsClass<T>

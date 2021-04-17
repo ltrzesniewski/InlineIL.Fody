@@ -5,7 +5,7 @@ namespace InlineIL.Tests.Support
 {
     internal class NoOpLogger : ILogger
     {
-        public static NoOpLogger Instance { get; } = new NoOpLogger();
+        public static NoOpLogger Instance { get; } = new();
 
         private NoOpLogger()
         {

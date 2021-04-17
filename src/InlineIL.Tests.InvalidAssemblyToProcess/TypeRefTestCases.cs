@@ -5,6 +5,7 @@ using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.InvalidAssemblyToProcess
 {
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class TypeRefTestCases
     {
