@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Common;
+using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Mono.Cecil.Cil;
@@ -207,12 +206,9 @@ namespace InlineIL.Tests.Weaving
             ShouldHaveError("UnusedInstance");
         }
 
-        [Fact]
+        [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
         public void should_report_invalid_push_usage()
         {
-            if (((InvalidAssemblyToProcessFixture.TestResult.Assembly.GetCustomAttribute<DebuggableAttribute>()?.DebuggingFlags ?? DebuggableAttribute.DebuggingModes.Default) & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0)
-                return; // Inconclusive in debug builds
-
             ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
         }
 
