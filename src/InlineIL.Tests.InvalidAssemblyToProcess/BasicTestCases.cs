@@ -34,6 +34,22 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
             IL.Push(guid);
         }
 
+        public void InvalidPushUsage2()
+        {
+            // Issue #25
+
+            ref var a = ref GetRefToStruct();
+            ref var b = ref GetRefToStruct();
+
+            IL.Push(a.foo);
+            IL.Push(b.foo);
+
+            Add();
+            IL.Pop(out int _);
+
+            static ref (int foo, int bar) GetRefToStruct() => throw new InvalidOperationException();
+        }
+
         public void NonExistingParameter()
         {
             Ldarg("foo");
