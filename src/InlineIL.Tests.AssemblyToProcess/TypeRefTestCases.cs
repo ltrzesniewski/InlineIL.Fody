@@ -64,37 +64,39 @@ namespace InlineIL.Tests.AssemblyToProcess
         {
             var result = new RuntimeTypeHandle[6];
 
-            IL.Push(result);
+            IL.Push(GetResult());
             Ldc_I4_0();
             Ldtoken(typeof(int));
             Stelem_Any(typeof(RuntimeTypeHandle));
 
-            IL.Push(result);
+            IL.Push(GetResult());
             Ldc_I4_1();
             Ldtoken(new TypeRef(typeof(int)));
             Stelem_Any(new TypeRef(typeof(RuntimeTypeHandle)));
 
-            IL.Push(result);
+            IL.Push(GetResult());
             Ldc_I4_2();
             Ldtoken(new TypeRef(TypeRef.CoreLibrary, "System.Int32"));
             Stelem_Any(new TypeRef(TypeRef.CoreLibrary, "System.RuntimeTypeHandle"));
 
-            IL.Push(result);
+            IL.Push(GetResult());
             Ldc_I4_3();
             Ldtoken<int>();
             Stelem_Any<RuntimeTypeHandle>();
 
-            IL.Push(result);
+            IL.Push(GetResult());
             Ldc_I4_4();
             Ldtoken(TypeRef.Type(typeof(int)));
             Stelem_Any<RuntimeTypeHandle>();
 
-            IL.Push(result);
+            IL.Push(GetResult());
             Ldc_I4_5();
             Ldtoken(TypeRef.Type<int>());
             Stelem_Any<RuntimeTypeHandle>();
 
             return result;
+
+            RuntimeTypeHandle[] GetResult() => result;
         }
 
         public RuntimeTypeHandle LoadPointerTypeUsingTypeRef()

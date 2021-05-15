@@ -51,6 +51,32 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
             static ref (int foo, int bar) GetRefToStruct(int _) => throw new InvalidOperationException();
         }
 
+        public void InvalidPushUsage3()
+        {
+            var result = new int[4];
+            result[0] = 42;
+
+            IL.Push(result);
+            IL.Push(1);
+
+            IL.Push(result);
+            IL.Push(2);
+
+            result[0] = 42;
+        }
+
+        public void InvalidPushUsage4()
+        {
+            var result = new int[4];
+            result[0] = 42;
+
+            IL.Push(result);
+            IL.Push(1);
+
+            IL.Push(result);
+            IL.Push(2);
+        }
+
         public void NonExistingParameter()
         {
             Ldarg("foo");

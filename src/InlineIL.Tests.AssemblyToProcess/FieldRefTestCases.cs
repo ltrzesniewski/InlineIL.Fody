@@ -26,17 +26,19 @@ namespace InlineIL.Tests.AssemblyToProcess
 
             result[0] = StaticIntField;
 
-            IL.Push(result);
+            IL.Push(GetResult());
             IL.Push(1);
             Ldsfld(new FieldRef(typeof(FieldRefTestCases), nameof(StaticIntField)));
             Stelem_I4();
 
-            IL.Push(result);
+            IL.Push(GetResult());
             IL.Push(2);
             Ldsfld(FieldRef.Field(typeof(FieldRefTestCases), nameof(StaticIntField)));
             Stelem_I4();
 
             return result;
+
+            int[] GetResult() => result;
         }
 
         public RuntimeFieldHandle ReturnFieldHandle()

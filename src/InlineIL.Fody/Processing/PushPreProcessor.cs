@@ -83,7 +83,8 @@ namespace InlineIL.Fody.Processing
         {
             switch (instruction.OpCode.Code)
             {
-                case Code.Dup: // Special case
+                case Code.Dup: // Special-cased in GetPopCount
+                    --stackSize;
                     return;
 
                 case Code.Ret:
@@ -102,9 +103,9 @@ namespace InlineIL.Fody.Processing
 
         private static void PushStack(Instruction instruction, ref int stackSize)
         {
-            if (instruction.OpCode == OpCodes.Dup) // Special case
+            if (instruction.OpCode == OpCodes.Dup) // Special-cased in GetPushCount
             {
-                ++stackSize;
+                stackSize += 2;
                 return;
             }
 
