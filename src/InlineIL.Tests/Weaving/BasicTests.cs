@@ -210,6 +210,11 @@ namespace InlineIL.Tests.Weaving
         public void should_report_invalid_push_usage()
         {
             ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
+        }
+
+        [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+        public void should_report_invalid_push_usage_2()
+        {
             ShouldHaveError("InvalidPushUsage2").ShouldContain("IL.Push cannot be used in this context");
         }
 

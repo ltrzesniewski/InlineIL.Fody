@@ -38,16 +38,17 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
             // Issue #25
 
-            ref var a = ref GetRefToStruct();
-            ref var b = ref GetRefToStruct();
+            ref var a = ref GetRefToStruct(-1);
+            ref var b = ref GetRefToStruct(0);
 
             IL.Push(a.foo);
             IL.Push(b.foo);
 
             Add();
-            IL.Pop(out int _);
+            IL.Pop(out int result);
+            a.foo = result;
 
-            static ref (int foo, int bar) GetRefToStruct() => throw new InvalidOperationException();
+            static ref (int foo, int bar) GetRefToStruct(int _) => throw new InvalidOperationException();
         }
 
         public void NonExistingParameter()
