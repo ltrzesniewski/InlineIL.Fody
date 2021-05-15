@@ -594,8 +594,8 @@ namespace InlineIL.Fody.Processing
                             if (currentInstruction != null
                                 && (currentInstruction.OpCode.FlowControl == FlowControl.Next
                                     || currentInstruction.OpCode.FlowControl == FlowControl.Call)
-                                && currentInstruction.GetPopCount(false) == 1
-                                && currentInstruction.GetPushCount(false) == 1
+                                && currentInstruction.GetPopCount() == 1
+                                && currentInstruction.GetPushCount() == 1
                             )
                             {
                                 currentInstruction = currentInstruction.NextSkipNops();

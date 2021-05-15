@@ -225,10 +225,9 @@ namespace InlineIL.Fody.Extensions
 
             while (true)
             {
-                // TODO check if backwardsScan: false would be correct
-                stackSize += GetPushCount(instruction, true);
+                stackSize += GetPushCount(instruction);
                 instruction = instruction.Next ?? throw new WeavingException("Unexpected end of method");
-                stackSize -= GetPopCount(instruction, true);
+                stackSize -= GetPopCount(instruction);
 
                 if (stackSize <= 0)
                     return instruction;
@@ -277,8 +276,8 @@ namespace InlineIL.Fody.Extensions
                         break;
                 }
 
-                var popCount = GetPopCount(currentInstruction, true);
-                var pushCount = GetPushCount(currentInstruction, true);
+                var popCount = GetPopCount(currentInstruction);
+                var pushCount = GetPushCount(currentInstruction);
 
                 stackToConsume -= pushCount;
 
@@ -308,12 +307,12 @@ namespace InlineIL.Fody.Extensions
             return argCount;
         }
 
-        public static int GetPopCount(this Instruction instruction, bool backwardsScan)
+        public static int GetPopCount(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl == FlowControl.Call)
                 return GetArgCount(instruction.OpCode, (IMethodSignature)instruction.Operand);
 
-            if (backwardsScan && instruction.OpCode == OpCodes.Dup)
+            if (instruction.OpCode == OpCodes.Dup)
                 return 0;
 
             switch (instruction.OpCode.StackBehaviourPop)
@@ -345,23 +344,14 @@ namespace InlineIL.Fody.Extensions
                     return 3;
 
                 case StackBehaviour.PopAll:
-                    if (backwardsScan)
-                        throw new InstructionWeavingException(instruction, "Unexpected stack-clearing instruction encountered");
-
-                    return -1;
-
-                case StackBehaviour.Varpop:
-                    if (!backwardsScan)
-                        return 0; // TODO this is incorrect
-
-                    goto default;
+                    throw new InstructionWeavingException(instruction, "Unexpected stack-clearing instruction encountered");
 
                 default:
                     throw new InstructionWeavingException(instruction, $"Unexpected stack pop behavior: {instruction.OpCode.StackBehaviourPop}");
             }
         }
 
-        public static int GetPushCount(this Instruction instruction, bool backwardsScan)
+        public static int GetPushCount(this Instruction instruction)
         {
             if (instruction.OpCode.FlowControl == FlowControl.Call)
             {
@@ -369,7 +359,7 @@ namespace InlineIL.Fody.Extensions
                 return method.ReturnType.MetadataType != MetadataType.Void || instruction.OpCode.Code == Code.Newobj ? 1 : 0;
             }
 
-            if (backwardsScan && instruction.OpCode == OpCodes.Dup)
+            if (instruction.OpCode == OpCodes.Dup)
                 return 1;
 
             switch (instruction.OpCode.StackBehaviourPush)
@@ -387,12 +377,6 @@ namespace InlineIL.Fody.Extensions
 
                 case StackBehaviour.Push1_push1:
                     return 2;
-
-                case StackBehaviour.Varpush:
-                    if (!backwardsScan)
-                        return 0; // TODO this is incorrect
-
-                    goto default;
 
                 default:
                     throw new InstructionWeavingException(instruction, $"Unexpected stack push behavior: {instruction.OpCode.StackBehaviourPush}");

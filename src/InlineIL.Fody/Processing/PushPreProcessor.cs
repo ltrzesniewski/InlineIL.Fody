@@ -60,28 +60,55 @@ namespace InlineIL.Fody.Processing
 
                 var isCallToPushMethod = IsCallToPushMethod(instruction, out var pushMethodName);
 
-                var popCount = instruction.GetPopCount(false);
-                var pushCount = instruction.GetPushCount(false);
-
-                stackSize = popCount >= 0 ? stackSize - popCount : 0;
+                PopStack(instruction, ref stackSize);
 
                 var consumesInvalidItem = stackSize < invalidItems;
 
-                stackSize += pushCount;
+                PushStack(instruction, ref stackSize);
 
                 if (consumesInvalidItem && isCallToPushMethod)
                     throw new InstructionWeavingException(instruction, $"IL.{pushMethodName} cannot be used in this context, as the IL layout makes it unsafe to process");
 
                 if (consumesInvalidItem || isCallToPushMethod)
                     invalidItems = stackSize;
-                else if (IsCallToIlEmitMethod(instruction))
-                    invalidItems = 0;
 
                 state = new StackState(stackSize, invalidItems);
 
                 UpdateBranchStates(instruction, state);
                 UpdateNextInstructionState(instruction, ref state);
             }
+        }
+
+        private static void PopStack(Instruction instruction, ref int stackSize)
+        {
+            switch (instruction.OpCode.Code)
+            {
+                case Code.Dup: // Special case
+                    return;
+
+                case Code.Ret:
+                    stackSize = 0;
+                    return;
+            }
+
+            if (instruction.OpCode.StackBehaviourPop == StackBehaviour.PopAll)
+            {
+                stackSize = 0;
+                return;
+            }
+
+            stackSize -= instruction.GetPopCount();
+        }
+
+        private static void PushStack(Instruction instruction, ref int stackSize)
+        {
+            if (instruction.OpCode == OpCodes.Dup) // Special case
+            {
+                ++stackSize;
+                return;
+            }
+
+            stackSize += instruction.GetPushCount();
         }
 
         private void UpdateBranchStates(Instruction instruction, StackState state)
@@ -147,13 +174,6 @@ namespace InlineIL.Fody.Processing
             }
 
             return false;
-        }
-
-        private static bool IsCallToIlEmitMethod(Instruction instruction)
-        {
-            return instruction.OpCode == OpCodes.Call
-                   && instruction.Operand is MethodReference calledMethod
-                   && calledMethod.DeclaringType.FullName == KnownNames.Full.IlEmitType;
         }
 
         private readonly struct StackState
