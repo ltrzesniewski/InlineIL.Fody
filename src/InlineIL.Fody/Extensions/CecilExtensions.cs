@@ -347,7 +347,7 @@ namespace InlineIL.Fody.Extensions
                     throw new InstructionWeavingException(instruction, "Unexpected stack-clearing instruction encountered");
 
                 default:
-                    throw new InstructionWeavingException(instruction, "Could not locate method argument value");
+                    throw new InstructionWeavingException(instruction, $"Unexpected stack pop behavior: {instruction.OpCode.StackBehaviourPop}");
             }
         }
 
@@ -379,7 +379,7 @@ namespace InlineIL.Fody.Extensions
                     return 2;
 
                 default:
-                    throw new InstructionWeavingException(instruction, "Could not locate method argument value");
+                    throw new InstructionWeavingException(instruction, $"Unexpected stack push behavior: {instruction.OpCode.StackBehaviourPush}");
             }
         }
 

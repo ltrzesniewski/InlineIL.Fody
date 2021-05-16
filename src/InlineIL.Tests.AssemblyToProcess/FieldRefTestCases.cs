@@ -23,6 +23,7 @@ namespace InlineIL.Tests.AssemblyToProcess
         public int[] ReturnStaticIntFieldInDifferentWays()
         {
             var result = new int[3];
+            IL.EnsureLocal(result);
 
             result[0] = StaticIntField;
 

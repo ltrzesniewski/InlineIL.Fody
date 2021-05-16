@@ -34,6 +34,49 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
             IL.Push(guid);
         }
 
+        public void InvalidPushUsage2()
+        {
+            // Issue #25
+
+            ref var a = ref GetRefToStruct(-1);
+            ref var b = ref GetRefToStruct(0);
+
+            IL.Push(a.foo);
+            IL.Push(b.foo);
+
+            Add();
+            IL.Pop(out int result);
+            a.foo = result;
+
+            static ref (int foo, int bar) GetRefToStruct(int _) => throw new InvalidOperationException();
+        }
+
+        public void InvalidPushUsage3()
+        {
+            var result = new int[4];
+            result[0] = 42;
+
+            IL.Push(result);
+            IL.Push(1);
+
+            IL.Push(result);
+            IL.Push(2);
+
+            result[0] = 42;
+        }
+
+        public void InvalidPushUsage4()
+        {
+            var result = new int[4];
+            result[0] = 42;
+
+            IL.Push(result);
+            IL.Push(1);
+
+            IL.Push(result);
+            IL.Push(2);
+        }
+
         public void NonExistingParameter()
         {
             Ldarg("foo");
@@ -69,6 +112,22 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         public void NotSameBasicBlockArray2(bool a)
         {
             Switch(a ? "foo" : "bar");
+        }
+
+        public void InvalidEnsureLocalUsage()
+        {
+            ref var foo = ref _intField;
+            IL.EnsureLocal(foo);
+        }
+
+        public void InvalidEnsureLocalUsage2(int foo)
+        {
+            IL.EnsureLocal(foo);
+        }
+
+        public void InvalidEnsureLocalUsage3()
+        {
+            IL.EnsureLocal(_intField);
         }
     }
 }

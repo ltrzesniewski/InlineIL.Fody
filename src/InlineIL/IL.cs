@@ -146,6 +146,15 @@ namespace InlineIL
         public static void* ReturnPointer()
             => throw Throw();
 
+        /// <summary>
+        /// Ensures the compiler emits a local variable in IL for the variable passed as parameter in optimized builds.
+        /// This should make the variable usable in IL.Push calls that would otherwise fail.
+        /// </summary>
+        /// <param name="value">A non-ref local variable.</param>
+        /// <typeparam name="T">The type of the local variable.</typeparam>
+        public static void EnsureLocal<T>(in T value)
+            => throw Throw();
+
         internal static Exception Throw()
             => throw new InvalidOperationException("This method is meant to be replaced at compile time by InlineIL.Fody, but the weaver has not been executed correctly.");
     }

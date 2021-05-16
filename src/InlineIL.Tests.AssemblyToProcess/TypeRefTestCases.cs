@@ -63,6 +63,7 @@ namespace InlineIL.Tests.AssemblyToProcess
         public RuntimeTypeHandle[] LoadTypeDifferentWays()
         {
             var result = new RuntimeTypeHandle[6];
+            IL.EnsureLocal(result);
 
             IL.Push(result);
             Ldc_I4_0();

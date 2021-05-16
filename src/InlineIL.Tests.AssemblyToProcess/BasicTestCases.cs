@@ -278,6 +278,28 @@ namespace InlineIL.Tests.AssemblyToProcess
             Pop();
         }
 
+        public void EnsureLocal()
+        {
+            var guid = Guid.NewGuid();
+            IL.EnsureLocal(guid);
+        }
+
+        public void ValidPushUsageWithEnsureLocal()
+        {
+            var guid = Guid.NewGuid();
+            IL.EnsureLocal(guid);
+
+            IL.Push(42);
+            IL.Push(guid);
+            Call(new MethodRef(typeof(BasicTestCases), nameof(ValidatePushUsageWithEnsureLocal)));
+        }
+
+        private static void ValidatePushUsageWithEnsureLocal(int value, Guid guid)
+        {
+            if (value != 42 || guid == Guid.Empty)
+                throw new InvalidOperationException("Invalid value");
+        }
+
         private static class NestedClassA
         {
             public static class NestedClassB

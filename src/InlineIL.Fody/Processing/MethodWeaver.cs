@@ -98,7 +98,7 @@ namespace InlineIL.Fody.Processing
         {
             _method.Body.SimplifyMacros();
 
-            ValidateBeforeProcessing();
+            PreProcess();
             ProcessMethodCalls();
             _labels.PostProcess();
             PostProcessTailCalls();
@@ -109,38 +109,19 @@ namespace InlineIL.Fody.Processing
             _method.Body.OptimizeMacros();
         }
 
-        private void ValidateBeforeProcessing()
+        private void PreProcess()
         {
-            foreach (var instruction in Instructions)
+            try
             {
-                if (instruction.OpCode == OpCodes.Call
-                    && instruction.Operand is MethodReference calledMethod
-                    && calledMethod.DeclaringType.FullName == KnownNames.Full.IlType)
-                {
-                    try
-                    {
-                        switch (calledMethod.Name)
-                        {
-                            case KnownNames.Short.PushMethod:
-                            case KnownNames.Short.PushInRefMethod:
-                            case KnownNames.Short.PushOutRefMethod:
-                                ValidatePushMethod(instruction, calledMethod.Name);
-                                break;
-                        }
-                    }
-                    catch (InstructionWeavingException)
-                    {
-                        throw;
-                    }
-                    catch (WeavingException ex)
-                    {
-                        throw new InstructionWeavingException(instruction, _log.QualifyMessage(ex.Message, instruction));
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InstructionWeavingException(instruction, $"Unexpected error occured while processing method {_method.FullName} at instruction {instruction}: {ex}");
-                    }
-                }
+                PushPreProcessor.ValidatePushMethods(_method);
+            }
+            catch (WeavingException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new WeavingException($"Unexpected error occured while pre-processing method {_method.FullName}: {ex}");
             }
         }
 
@@ -315,6 +296,10 @@ namespace InlineIL.Fody.Processing
 
                 case KnownNames.Short.DeclareLocalsMethod:
                     ProcessDeclareLocalsMethod(instruction);
+                    break;
+
+                case KnownNames.Short.EnsureLocalMethod:
+                    ProcessEnsureLocalMethod(instruction);
                     break;
 
                 default:
@@ -503,19 +488,6 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private void ValidatePushMethod(Instruction instruction, string pushMethodName)
-        {
-            if (_method.Body.ExceptionHandlers.Any(h => h.HandlerType == ExceptionHandlerType.Catch && h.HandlerStart == instruction
-                                                        || h.HandlerType == ExceptionHandlerType.Filter && (h.FilterStart == instruction || h.HandlerStart == instruction)))
-                return;
-
-            var args = instruction.GetArgumentPushInstructions();
-            var prevInstruction = instruction.PrevSkipNops();
-
-            if (args[0] != prevInstruction)
-                throw new InstructionWeavingException(instruction, $"IL.{pushMethodName} cannot be used in this context, as the instruction which supplies its argument does not immediately precede the call");
-        }
-
         private void ProcessPushMethod(Instruction instruction)
         {
             _il.Remove(instruction);
@@ -698,6 +670,17 @@ namespace InlineIL.Fody.Processing
                 default:
                     throw new InstructionWeavingException(instruction, $"Unexpected instruction, expected a InlineIL.DeclareLocals method call but was: {instruction}");
             }
+        }
+
+        private void ProcessEnsureLocalMethod(Instruction instruction)
+        {
+            var ldloca = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single();
+
+            if (ldloca.OpCode != OpCodes.Ldloca)
+                throw new InstructionWeavingException(instruction, "Unexpected argument type, expected a non-ref local variable.");
+
+            _il.Remove(ldloca);
+            _il.Remove(instruction);
         }
 
         private void RemoveNopInDebugBuild(ref Instruction? instruction)
