@@ -55,27 +55,25 @@ namespace InlineIL.Fody.Processing
                 if (_branchStates.TryGetValue(instruction, out var branchState))
                     state = branchState;
 
-                var stackSize = state.StackSize;
-                var invalidItems = state.InvalidForPushCount;
-
+                var (stackSize, unsafeToPushCount) = state;
                 var isCallToPushMethod = IsCallToPushMethod(instruction, out var pushMethod);
 
                 PopStack(instruction, ref stackSize);
 
-                var consumesInvalidItem = stackSize < invalidItems;
+                var consumesUnsafeValue = stackSize < unsafeToPushCount;
 
                 PushStack(instruction, ref stackSize);
 
-                if (consumesInvalidItem && isCallToPushMethod)
+                if (consumesUnsafeValue && isCallToPushMethod)
                     ThrowInvalidPush(instruction, pushMethod!);
 
-                if (consumesInvalidItem || isCallToPushMethod)
-                    invalidItems = stackSize;
+                if (consumesUnsafeValue || isCallToPushMethod)
+                    unsafeToPushCount = stackSize;
 
-                state = new StackState(stackSize, invalidItems);
+                state = new StackState(stackSize, unsafeToPushCount);
 
-                UpdateBranchStates(instruction, state);
-                UpdateNextInstructionState(instruction, ref state);
+                UpdateStackStateForForwardBranches(instruction, state);
+                UpdateStackStateForNextInstruction(instruction, ref state);
             }
         }
 
@@ -112,7 +110,7 @@ namespace InlineIL.Fody.Processing
             stackSize += instruction.GetPushCount();
         }
 
-        private void UpdateBranchStates(Instruction instruction, StackState state)
+        private void UpdateStackStateForForwardBranches(Instruction instruction, StackState state)
         {
             switch (instruction.OpCode.OperandType)
             {
@@ -141,7 +139,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private static void UpdateNextInstructionState(Instruction instruction, ref StackState state)
+        private static void UpdateStackStateForNextInstruction(Instruction instruction, ref StackState state)
         {
             switch (instruction.OpCode.FlowControl)
             {
@@ -192,17 +190,23 @@ namespace InlineIL.Fody.Processing
         {
             public readonly int StackSize;
 
-            // Number of slots at the bottom of the stack that should have no impact on a call to Push
-            public readonly int InvalidForPushCount;
+            // Number of values at the bottom of the stack that should not be used (even indirectly) in a call to IL.Push
+            public readonly int UnsafeToPushCount;
 
-            public StackState(int stackSize, int invalidForPushCount)
+            public StackState(int stackSize, int unsafeToPushCount)
             {
                 StackSize = stackSize;
-                InvalidForPushCount = Math.Min(stackSize, invalidForPushCount);
+                UnsafeToPushCount = Math.Min(stackSize, unsafeToPushCount);
+            }
+
+            public void Deconstruct(out int stackSize, out int unsafeToPushCount)
+            {
+                stackSize = StackSize;
+                unsafeToPushCount = UnsafeToPushCount;
             }
 
             public override string ToString()
-                => $"{StackSize} ({InvalidForPushCount} non-pushable)";
+                => $"{StackSize} ({UnsafeToPushCount} unsafe)";
         }
     }
 }
