@@ -58,7 +58,7 @@ namespace InlineIL.Fody.Processing
                 var stackSize = state.StackSize;
                 var invalidItems = state.InvalidForPushCount;
 
-                var isCallToPushMethod = IsCallToPushMethod(instruction, out var pushMethodName);
+                var isCallToPushMethod = IsCallToPushMethod(instruction, out var pushMethod);
 
                 PopStack(instruction, ref stackSize);
 
@@ -67,7 +67,7 @@ namespace InlineIL.Fody.Processing
                 PushStack(instruction, ref stackSize);
 
                 if (consumesInvalidItem && isCallToPushMethod)
-                    throw new InstructionWeavingException(instruction, $"IL.{pushMethodName} cannot be used in this context, as the IL layout makes it unsafe to process");
+                    ThrowInvalidPush(instruction, pushMethod!);
 
                 if (consumesInvalidItem || isCallToPushMethod)
                     invalidItems = stackSize;
@@ -153,9 +153,9 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private static bool IsCallToPushMethod(Instruction instruction, [NotNullWhen(true)] out string? methodName)
+        private static bool IsCallToPushMethod(Instruction instruction, [NotNullWhen(true)] out MethodReference? method)
         {
-            methodName = null;
+            method = null;
 
             if (instruction.OpCode == OpCodes.Call
                 && instruction.Operand is MethodReference calledMethod
@@ -166,7 +166,7 @@ namespace InlineIL.Fody.Processing
                     case KnownNames.Short.PushMethod:
                     case KnownNames.Short.PushInRefMethod:
                     case KnownNames.Short.PushOutRefMethod:
-                        methodName = calledMethod.Name;
+                        method = calledMethod;
                         return true;
 
                     default:
@@ -175,6 +175,17 @@ namespace InlineIL.Fody.Processing
             }
 
             return false;
+        }
+
+        [DoesNotReturn]
+        private static void ThrowInvalidPush(Instruction instruction, MethodReference pushMethod)
+        {
+            var errorMessage = $"IL.{pushMethod.Name} cannot be used in this context, as the IL layout makes it unsafe to process.";
+
+            if (pushMethod.GetElementMethod().FullName == "System.Void InlineIL.IL::Push(!!0)")
+                errorMessage += $" You may be able to make the IL layout safe by using IL.{KnownNames.Short.EnsureLocalMethod}.";
+
+            throw new InstructionWeavingException(instruction, errorMessage);
         }
 
         private readonly struct StackState
@@ -191,7 +202,7 @@ namespace InlineIL.Fody.Processing
             }
 
             public override string ToString()
-                => $"{StackSize} ({InvalidForPushCount} invalid)";
+                => $"{StackSize} ({InvalidForPushCount} non-pushable)";
         }
     }
 }

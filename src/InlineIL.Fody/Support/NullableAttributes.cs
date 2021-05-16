@@ -28,4 +28,9 @@ namespace System.Diagnostics.CodeAnalysis
 
         public bool ReturnValue { get; }
     }
+
+    [AttributeUsageAttribute(AttributeTargets.Method, Inherited = false)]
+    internal sealed class DoesNotReturnAttribute : Attribute
+    {
+    }
 }
