@@ -71,7 +71,7 @@ A few more things which are good to know:
    Marks a label at a given position in the code.
    
  - `IL.Push`, `IL.PushInRef`, `IL.PushOutRef`  
-   Pushes the provided argument onto the evaluation stack. Does not require a constant argument, any expression will work.
+   Pushes the provided argument onto the evaluation stack. Does not require a constant argument, any expression should work. If an error is raised in optimized builds, try to use `IL.EnsureLocal` to change the layout of the IL emitted by the compiler, so it becomes compatible.
 
  - `IL.Pop`  
    Pops a value from the evaluation stack into a local variable or static field.
@@ -83,6 +83,9 @@ A few more things which are good to know:
  - `IL.Return`, `IL.ReturnRef`, `IL.ReturnPointer`  
    Helper methods to return the value from the top of the evaluation stack.  
    Example usage: `return IL.Return<int>();`
+
+ - `IL.EnsureLocal`  
+   Helper method that forces the compiler to emit an IL local for the supplied local variable, instead of keeping its value on the evaluation stack only. This can let a local variable be used with `IL.Push` in optimized builds, where the IL layout wouldn't allow it otherwise.
 
 ### Types
 
