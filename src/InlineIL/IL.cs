@@ -114,7 +114,7 @@ namespace InlineIL
         /// Returns the value on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
         /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
         /// </summary>
-        /// <typeparam name="T">The returned value type</typeparam>
+        /// <typeparam name="T">The returned value type.</typeparam>
         /// <returns>The value on top of the evaluation stack, which should be immediately returned from the method.</returns>
         public static T Return<T>()
             => throw Throw();
@@ -123,7 +123,7 @@ namespace InlineIL
         /// Returns the reference on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
         /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
         /// </summary>
-        /// <typeparam name="T">The returned reference type</typeparam>
+        /// <typeparam name="T">The returned reference type.</typeparam>
         /// <returns>The reference on top of the evaluation stack, which should be immediately returned from the method.</returns>
         public static ref T ReturnRef<T>()
             => throw Throw();
@@ -132,7 +132,7 @@ namespace InlineIL
         /// Returns the pointer on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
         /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
         /// </summary>
-        /// <typeparam name="T">The returned pointer type</typeparam>
+        /// <typeparam name="T">The returned pointer type.</typeparam>
         /// <returns>The pointer on top of the evaluation stack, which should be immediately returned from the method.</returns>
         public static T* ReturnPointer<T>()
             where T : unmanaged
