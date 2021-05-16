@@ -298,6 +298,10 @@ namespace InlineIL.Fody.Processing
                     ProcessDeclareLocalsMethod(instruction);
                     break;
 
+                case KnownNames.Short.EnsureLocalMethod:
+                    ProcessEnsureLocalMethod(instruction);
+                    break;
+
                 default:
                     throw new InstructionWeavingException(instruction, $"Unsupported method: {calledMethod.FullName}");
             }
@@ -666,6 +670,17 @@ namespace InlineIL.Fody.Processing
                 default:
                     throw new InstructionWeavingException(instruction, $"Unexpected instruction, expected a InlineIL.DeclareLocals method call but was: {instruction}");
             }
+        }
+
+        private void ProcessEnsureLocalMethod(Instruction instruction)
+        {
+            var ldloca = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single();
+
+            if (ldloca.OpCode != OpCodes.Ldloca)
+                throw new InstructionWeavingException(instruction, "Unexpected argument type, expected a non-ref local variable.");
+
+            _il.Remove(ldloca);
+            _il.Remove(instruction);
         }
 
         private void RemoveNopInDebugBuild(ref Instruction? instruction)

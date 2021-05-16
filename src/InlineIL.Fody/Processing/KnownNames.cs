@@ -24,6 +24,7 @@ namespace InlineIL.Fody.Processing
             public const string ReturnPointerMethod = "ReturnPointer";
             public const string MarkLabelMethod = "MarkLabel";
             public const string DeclareLocalsMethod = "DeclareLocals";
+            public const string EnsureLocalMethod = "EnsureLocal";
         }
 
         public static class Full

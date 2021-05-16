@@ -113,5 +113,21 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess
         {
             Switch(a ? "foo" : "bar");
         }
+
+        public void InvalidEnsureLocalUsage()
+        {
+            ref var foo = ref _intField;
+            IL.EnsureLocal(foo);
+        }
+
+        public void InvalidEnsureLocalUsage2(int foo)
+        {
+            IL.EnsureLocal(foo);
+        }
+
+        public void InvalidEnsureLocalUsage3()
+        {
+            IL.EnsureLocal(_intField);
+        }
     }
 }

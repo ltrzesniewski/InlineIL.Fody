@@ -491,6 +491,39 @@ namespace InlineIL.Tests.Weaving
             var instruction = method.Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.No);
             instruction.Operand.ShouldBe<byte>().ShouldEqual((byte)(0x01 | 0x02 | 0x04));
         }
+
+        [Fact]
+        public void should_ensure_local()
+        {
+            var method = GetMethodDefinition("EnsureLocal");
+            method.Body.Variables.ShouldContain(i => i.VariableType.FullName == "System.Guid");
+
+            GetInstance().EnsureLocal();
+        }
+
+        [Fact]
+        public void should_enable_correct_push_usage_with_ensure_local()
+        {
+            GetInstance().ValidPushUsageWithEnsureLocal();
+        }
+
+        [Fact]
+        public void should_detect_invalid_ensure_local_usage()
+        {
+            ShouldHaveError("InvalidEnsureLocalUsage").ShouldContain("expected a non-ref local variable");
+        }
+
+        [Fact]
+        public void should_detect_invalid_ensure_local_usage_2()
+        {
+            ShouldHaveError("InvalidEnsureLocalUsage2").ShouldContain("expected a non-ref local variable");
+        }
+
+        [Fact]
+        public void should_detect_invalid_ensure_local_usage_3()
+        {
+            ShouldHaveError("InvalidEnsureLocalUsage3").ShouldContain("expected a non-ref local variable");
+        }
     }
 
     [UsedImplicitly]
