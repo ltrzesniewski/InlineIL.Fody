@@ -42,7 +42,7 @@ See [Fody usage](https://github.com/Fody/Home/blob/master/pages/usage.md) for ge
 
 ## Usage
 
-Call static methods of the [`InlineIL.IL.Emit` class](src/InlineIL/IL.Emit.cs) to emit IL instructions. That's it. :wink:
+Call static methods of the `InlineIL.IL.Emit` class to emit IL instructions. That's it. :wink:
 
 A few more things which are good to know:
 
