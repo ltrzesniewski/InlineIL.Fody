@@ -10,6 +10,7 @@
     <PackageId>InlineIL.Fody</PackageId>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
 
   <ItemGroup>
     <None Include="../../icon.png" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="../NuGetReadme.md" Pack="true" PackagePath="/README.md" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

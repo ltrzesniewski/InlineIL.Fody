@@ -32,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{0E0CF69E
 		Directory.Build.targets = Directory.Build.targets
 		..\README.md = ..\README.md
 		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
+		NuGetReadme.md = NuGetReadme.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InlineIL.Tests.Common", "InlineIL.Tests.Common\InlineIL.Tests.Common.csproj", "{7998468F-7C8E-4457-8ECA-04401052159D}"
