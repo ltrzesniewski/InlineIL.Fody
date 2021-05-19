@@ -98,8 +98,9 @@ namespace InlineIL.Fody.Processing
         {
             _method.Body.SimplifyMacros();
 
-            PreProcess();
-            ProcessMethodCalls();
+            PushPreProcessor.ValidatePushMethods(_method);
+            ProcessMethodCalls(ProcessMethodCallFirstPass);
+            ProcessMethodCalls(ProcessMethodCallSecondPass);
             _labels.PostProcess();
             PostProcessTailCalls();
             _sequencePoints.PostProcess();
@@ -109,23 +110,9 @@ namespace InlineIL.Fody.Processing
             _method.Body.OptimizeMacros();
         }
 
-        private void PreProcess()
-        {
-            try
-            {
-                PushPreProcessor.ValidatePushMethods(_method);
-            }
-            catch (WeavingException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new WeavingException($"Unexpected error occured while pre-processing method {_method.FullName}: {ex}");
-            }
-        }
+        private delegate void CallInstructionHandler(Instruction instruction, ref Instruction? nextInstruction);
 
-        private void ProcessMethodCalls()
+        private void ProcessMethodCalls(CallInstructionHandler callHandler)
         {
             var instruction = Instructions.FirstOrDefault();
 
@@ -133,24 +120,11 @@ namespace InlineIL.Fody.Processing
             {
                 var nextInstruction = instruction.Next;
 
-                if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference calledMethod)
+                if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference)
                 {
                     try
                     {
-                        switch (calledMethod.DeclaringType.FullName)
-                        {
-                            case KnownNames.Full.IlType:
-                                ProcessIlMethodCall(instruction, out nextInstruction);
-                                break;
-
-                            case KnownNames.Full.IlEmitType:
-                                ProcessIlEmitMethodCall(instruction, out nextInstruction);
-                                break;
-
-                            case KnownNames.Full.TypeRefType:
-                                ProcessTypeRefCall(instruction, out nextInstruction);
-                                break;
-                        }
+                        callHandler(instruction, ref nextInstruction);
                     }
                     catch (InstructionWeavingException)
                     {
@@ -167,6 +141,38 @@ namespace InlineIL.Fody.Processing
                 }
 
                 instruction = nextInstruction;
+            }
+        }
+
+        private void ProcessMethodCallFirstPass(Instruction instruction, ref Instruction? nextInstruction)
+        {
+            var calledMethod = (MethodReference)instruction.Operand;
+
+            switch (calledMethod.DeclaringType.FullName)
+            {
+                case KnownNames.Full.IlType:
+                    ProcessIlMethodCallFirstPass(instruction, out nextInstruction);
+                    break;
+            }
+        }
+
+        private void ProcessMethodCallSecondPass(Instruction instruction, ref Instruction? nextInstruction)
+        {
+            var calledMethod = (MethodReference)instruction.Operand;
+
+            switch (calledMethod.DeclaringType.FullName)
+            {
+                case KnownNames.Full.IlType:
+                    ProcessIlMethodCallSecondPass(instruction, out nextInstruction);
+                    break;
+
+                case KnownNames.Full.IlEmitType:
+                    ProcessIlEmitMethodCall(instruction, out nextInstruction);
+                    break;
+
+                case KnownNames.Full.TypeRefType:
+                    ProcessTypeRefCall(instruction, out nextInstruction);
+                    break;
             }
         }
 
@@ -263,7 +269,24 @@ namespace InlineIL.Fody.Processing
                 throw new WeavingException($"Found invalid references to instructions: {string.Join(", ", invalidRefs)}");
         }
 
-        private void ProcessIlMethodCall(Instruction instruction, out Instruction? nextInstruction)
+        private void ProcessIlMethodCallFirstPass(Instruction instruction, out Instruction? nextInstruction)
+        {
+            var calledMethod = (MethodReference)instruction.Operand;
+            nextInstruction = instruction.Next;
+
+            switch (calledMethod.Name)
+            {
+                case KnownNames.Short.DeclareLocalsMethod:
+                    ProcessDeclareLocalsMethod(instruction);
+                    break;
+
+                case KnownNames.Short.EnsureLocalMethod:
+                    ProcessEnsureLocalMethod(instruction);
+                    break;
+            }
+        }
+
+        private void ProcessIlMethodCallSecondPass(Instruction instruction, out Instruction? nextInstruction)
         {
             var calledMethod = (MethodReference)instruction.Operand;
             nextInstruction = instruction.Next;
@@ -294,13 +317,10 @@ namespace InlineIL.Fody.Processing
                     ProcessMarkLabelMethod(instruction);
                     break;
 
-                case KnownNames.Short.DeclareLocalsMethod:
-                    ProcessDeclareLocalsMethod(instruction);
-                    break;
-
+                // Methods handled in the first pass
                 case KnownNames.Short.EnsureLocalMethod:
-                    ProcessEnsureLocalMethod(instruction);
-                    break;
+                case KnownNames.Short.DeclareLocalsMethod:
+                    throw new InstructionWeavingException(instruction, $"Unexpected method call: {calledMethod.FullName}");
 
                 default:
                     throw new InstructionWeavingException(instruction, $"Unsupported method: {calledMethod.FullName}");
