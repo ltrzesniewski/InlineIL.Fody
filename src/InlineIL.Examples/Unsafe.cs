@@ -17,6 +17,7 @@ namespace InlineIL.Examples
     {
         // This is the InlineIL equivalent of System.Runtime.CompilerServices.Unsafe
         // https://github.com/dotnet/runtime/blob/master/src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
+        // Last update: b3bc0a71e26e83b851c903bc5ed946489c83d231
 
         [NonVersionable]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

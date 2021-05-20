@@ -30,6 +30,26 @@ namespace InlineIL.Tests.AssemblyToProcess
             return IL.Return<int>();
         }
 
+        public int DeclareLocalVariablesAtThEnd(int value)
+        {
+            IL.Push(value);
+            Stloc("foo");
+
+            Ldc_I4(42);
+            Stloc("bar");
+
+            Ldloc("foo");
+            Ldloc("bar");
+            Add();
+
+            IL.DeclareLocals(
+                new LocalVar("foo", typeof(int)),
+                new LocalVar("bar", typeof(int))
+            );
+
+            return IL.Return<int>();
+        }
+
         public int UseLocalVariablesExplicitInit(int value)
         {
             IL.DeclareLocals(

@@ -146,24 +146,28 @@ namespace InlineIL.Fody.Processing
 
         private void ProcessMethodCallFirstPass(Instruction instruction, ref Instruction? nextInstruction)
         {
+            // First pass: Process helper methods. Only removes existing instructions.
+
             var calledMethod = (MethodReference)instruction.Operand;
 
             switch (calledMethod.DeclaringType.FullName)
             {
                 case KnownNames.Full.IlType:
-                    ProcessIlMethodCallFirstPass(instruction, out nextInstruction);
+                    ProcessIlMethodCallFirstPass(instruction, ref nextInstruction);
                     break;
             }
         }
 
         private void ProcessMethodCallSecondPass(Instruction instruction, ref Instruction? nextInstruction)
         {
+            // Second pass: The bulk of the processing.
+
             var calledMethod = (MethodReference)instruction.Operand;
 
             switch (calledMethod.DeclaringType.FullName)
             {
                 case KnownNames.Full.IlType:
-                    ProcessIlMethodCallSecondPass(instruction, out nextInstruction);
+                    ProcessIlMethodCallSecondPass(instruction, ref nextInstruction);
                     break;
 
                 case KnownNames.Full.IlEmitType:
@@ -171,7 +175,7 @@ namespace InlineIL.Fody.Processing
                     break;
 
                 case KnownNames.Full.TypeRefType:
-                    ProcessTypeRefCall(instruction, out nextInstruction);
+                    ProcessTypeRefCall(instruction);
                     break;
             }
         }
@@ -269,27 +273,27 @@ namespace InlineIL.Fody.Processing
                 throw new WeavingException($"Found invalid references to instructions: {string.Join(", ", invalidRefs)}");
         }
 
-        private void ProcessIlMethodCallFirstPass(Instruction instruction, out Instruction? nextInstruction)
+        private void ProcessIlMethodCallFirstPass(Instruction instruction, ref Instruction? nextInstruction)
         {
             var calledMethod = (MethodReference)instruction.Operand;
-            nextInstruction = instruction.Next;
 
             switch (calledMethod.Name)
             {
                 case KnownNames.Short.DeclareLocalsMethod:
                     ProcessDeclareLocalsMethod(instruction);
+                    RemoveNopInDebugBuild(ref nextInstruction);
                     break;
 
                 case KnownNames.Short.EnsureLocalMethod:
                     ProcessEnsureLocalMethod(instruction);
+                    RemoveNopInDebugBuild(ref nextInstruction);
                     break;
             }
         }
 
-        private void ProcessIlMethodCallSecondPass(Instruction instruction, out Instruction? nextInstruction)
+        private void ProcessIlMethodCallSecondPass(Instruction instruction, ref Instruction? nextInstruction)
         {
             var calledMethod = (MethodReference)instruction.Operand;
-            nextInstruction = instruction.Next;
 
             switch (calledMethod.Name)
             {
@@ -487,10 +491,9 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private void ProcessTypeRefCall(Instruction instruction, out Instruction? nextInstruction)
+        private void ProcessTypeRefCall(Instruction instruction)
         {
             var calledMethod = (MethodReference)instruction.Operand;
-            nextInstruction = instruction.Next;
 
             switch (calledMethod.Name)
             {

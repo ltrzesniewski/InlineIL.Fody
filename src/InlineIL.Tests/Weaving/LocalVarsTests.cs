@@ -21,6 +21,14 @@ namespace InlineIL.Tests.Weaving
         }
 
         [Fact]
+        public void should_handle_local_variables_declared_at_the_end()
+        {
+            var instance = GetInstance();
+            var result = (int)instance.DeclareLocalVariablesAtThEnd(8);
+            result.ShouldEqual(50);
+        }
+
+        [Fact]
         public void should_handle_local_variables_with_explicit_init()
         {
             var instance = GetInstance();
