@@ -43,7 +43,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The type of the value to push.</typeparam>
         /// <param name="value">The value to push.</param>
-        public static void Push<T>(T value)
+        public static void Push<T>(T? value)
             => Throw();
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The reference target type.</typeparam>
         /// <param name="value">The reference to push.</param>
-        public static void Push<T>(ref T value)
+        public static void Push<T>(ref T? value)
             => Throw();
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace InlineIL
         /// </summary>
         /// <typeparam name="T">The reference target type.</typeparam>
         /// <param name="value">The reference to push.</param>
-        public static void PushInRef<T>(in T value)
+        public static void PushInRef<T>(in T? value)
             => Throw();
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace InlineIL
         /// </summary>
         /// <param name="value">A non-ref local variable.</param>
         /// <typeparam name="T">The type of the local variable.</typeparam>
-        public static void EnsureLocal<T>(in T value)
+        public static void EnsureLocal<T>(in T? value)
             => throw Throw();
 
         internal static Exception Throw()
