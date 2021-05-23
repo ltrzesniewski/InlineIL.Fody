@@ -38,6 +38,8 @@ namespace InlineIL.Fody.Processing
 
             foreach (var handler in _method.Body.ExceptionHandlers)
             {
+                // The stack should be empty at the start of protected blocks, but we can ignore that here.
+
                 switch (handler.HandlerType)
                 {
                     case ExceptionHandlerType.Catch:
@@ -52,6 +54,13 @@ namespace InlineIL.Fody.Processing
 
                         if (handler.FilterStart != null)
                             _branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
+
+                        break;
+
+                    case ExceptionHandlerType.Finally:
+                    case ExceptionHandlerType.Fault:
+                        if (handler.HandlerStart != null)
+                            _branchStates[handler.HandlerStart] = StackState.FinallyOrFaultHandlerStackState;
 
                         break;
                 }
@@ -202,6 +211,7 @@ namespace InlineIL.Fody.Processing
         {
             public static StackState EmptyStackState => new(0, 0);
             public static StackState ExceptionHandlerStackState => new(1, 0, true);
+            public static StackState FinallyOrFaultHandlerStackState => new(0, 0, true);
 
             public readonly int StackSize;
 

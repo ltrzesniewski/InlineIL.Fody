@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
 using InlineIL.Tests.Support;
@@ -21,6 +22,7 @@ namespace InlineIL.Tests.Debug
         [DebugTest]
         public void CheckAllAssemblies()
         {
+            var assemblyCount = 0;
             var methodCount = 0;
             var invalidMethods = new List<string>();
 
@@ -29,27 +31,34 @@ namespace InlineIL.Tests.Debug
                 if (assembly.IsDynamic)
                     continue;
 
-                using var module = ModuleDefinition.ReadModule(assembly.Location);
+                using var asm = AssemblyDefinition.ReadAssembly(assembly.Location);
+                ++assemblyCount;
 
-                foreach (var type in module.GetTypes())
+                foreach (var module in asm.Modules)
                 {
-                    foreach (var method in type.Methods)
+                    foreach (var type in module.GetTypes())
                     {
-                        if (!method.HasBody)
-                            continue;
+                        foreach (var method in type.Methods)
+                        {
+                            if (!method.HasBody)
+                                continue;
 
-                        ++methodCount;
+                            ++methodCount;
 
-                        if (!CheckMethod(method))
-                            invalidMethods.Add(method.ToString());
+                            if (!CheckMethod(method))
+                                invalidMethods.Add(method.ToString());
+                        }
                     }
                 }
             }
 
-            _output.WriteLine($"Invalid methods: {invalidMethods.Count} / {methodCount}");
+            _output.WriteLine(RuntimeInformation.FrameworkDescription);
+            _output.WriteLine($"Invalid methods: {invalidMethods.Count} / {methodCount} in {assemblyCount} assemblies");
 
             foreach (var name in invalidMethods)
                 _output.WriteLine(name);
+
+            invalidMethods.Count.ShouldEqual(0);
         }
 
         private static bool CheckMethod(MethodDefinition method)
@@ -60,6 +69,8 @@ namespace InlineIL.Tests.Debug
             {
                 foreach (var handler in method.Body.ExceptionHandlers)
                 {
+                    branchStates[handler.TryStart] = StackState.StartOfProtectedBlockStackState;
+
                     switch (handler.HandlerType)
                     {
                         case ExceptionHandlerType.Catch:
@@ -70,18 +81,23 @@ namespace InlineIL.Tests.Debug
                             branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
                             branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
                             break;
+
+                        case ExceptionHandlerType.Finally:
+                        case ExceptionHandlerType.Fault:
+                            branchStates[handler.HandlerStart] = StackState.FinallyOrFaultHandlerStackState;
+                            break;
                     }
                 }
             }
 
-            var state = StackState.EmptyStackState;
+            var state = StackState.InitialStackState;
 
             foreach (var instruction in method.Body.Instructions)
             {
                 if (branchStates.TryGetValue(instruction, out var forwardBranchState))
                 {
                     if (forwardBranchState.Priority == StackStatePriority.Forced
-                        || state.Priority == StackStatePriority.IgnoreWhenThereIsAForwardBranch)
+                        || state.Priority == StackStatePriority.IgnoreWhenFollowedByTargetOfForwardBranch)
                     {
                         state = forwardBranchState;
                     }
@@ -134,7 +150,7 @@ namespace InlineIL.Tests.Debug
                     case FlowControl.Branch:
                     case FlowControl.Throw:
                     case FlowControl.Return:
-                        state = StackState.EmptyStackStateAfterUnconditionalBranch;
+                        state = StackState.PostUnconditionalBranchStackState;
                         break;
                 }
             }
@@ -144,9 +160,11 @@ namespace InlineIL.Tests.Debug
 
         private readonly struct StackState
         {
-            public static StackState EmptyStackState => new(0, StackStatePriority.Normal);
-            public static StackState EmptyStackStateAfterUnconditionalBranch => new(0, StackStatePriority.IgnoreWhenThereIsAForwardBranch);
+            public static StackState InitialStackState => new(0, StackStatePriority.Normal);
+            public static StackState PostUnconditionalBranchStackState => new(0, StackStatePriority.IgnoreWhenFollowedByTargetOfForwardBranch);
+            public static StackState StartOfProtectedBlockStackState => new(0, StackStatePriority.Normal);
             public static StackState ExceptionHandlerStackState => new(1, StackStatePriority.Forced);
+            public static StackState FinallyOrFaultHandlerStackState => new(0, StackStatePriority.Forced);
 
             public readonly int StackSize;
             public readonly StackStatePriority Priority;
@@ -161,7 +179,7 @@ namespace InlineIL.Tests.Debug
         private enum StackStatePriority
         {
             Normal,
-            IgnoreWhenThereIsAForwardBranch,
+            IgnoreWhenFollowedByTargetOfForwardBranch,
             Forced
         }
     }
