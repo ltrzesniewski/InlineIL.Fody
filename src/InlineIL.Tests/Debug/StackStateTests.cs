@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
@@ -18,21 +19,30 @@ namespace InlineIL.Tests.Debug
         }
 
         [DebugTest]
-        public void CheckCoreAssembly()
+        public void CheckAllAssemblies()
         {
-            using var assembly = ModuleDefinition.ReadModule(typeof(object).Assembly.Location);
-
             var methodCount = 0;
             var invalidMethods = new List<string>();
 
-            foreach (var type in assembly.GetTypes())
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var method in type.Methods)
-                {
-                    ++methodCount;
+                if (assembly.IsDynamic)
+                    continue;
 
-                    if (!CheckMethod(method))
-                        invalidMethods.Add(method.ToString());
+                using var module = ModuleDefinition.ReadModule(assembly.Location);
+
+                foreach (var type in module.GetTypes())
+                {
+                    foreach (var method in type.Methods)
+                    {
+                        if (!method.HasBody)
+                            continue;
+
+                        ++methodCount;
+
+                        if (!CheckMethod(method))
+                            invalidMethods.Add(method.ToString());
+                    }
                 }
             }
 
@@ -46,18 +56,21 @@ namespace InlineIL.Tests.Debug
         {
             var branchStates = new Dictionary<Instruction, StackState>(ReferenceEqualityComparer<Instruction>.Instance);
 
-            if (!method.HasBody)
-                return true;
-
             if (method.Body.HasExceptionHandlers)
             {
                 foreach (var handler in method.Body.ExceptionHandlers)
                 {
-                    if (handler.FilterStart != null)
-                        branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
+                    switch (handler.HandlerType)
+                    {
+                        case ExceptionHandlerType.Catch:
+                            branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
+                            break;
 
-                    if (handler.HandlerStart != null)
-                        branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
+                        case ExceptionHandlerType.Filter:
+                            branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
+                            branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
+                            break;
+                    }
                 }
             }
 

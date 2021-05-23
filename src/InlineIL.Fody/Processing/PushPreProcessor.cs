@@ -38,11 +38,23 @@ namespace InlineIL.Fody.Processing
 
             foreach (var handler in _method.Body.ExceptionHandlers)
             {
-                if (handler.FilterStart != null)
-                    _branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
+                switch (handler.HandlerType)
+                {
+                    case ExceptionHandlerType.Catch:
+                        if (handler.HandlerStart != null)
+                            _branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
 
-                if (handler.HandlerStart != null)
-                    _branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
+                        break;
+
+                    case ExceptionHandlerType.Filter:
+                        if (handler.HandlerStart != null)
+                            _branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
+
+                        if (handler.FilterStart != null)
+                            _branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
+
+                        break;
+                }
             }
         }
 
