@@ -7,12 +7,13 @@ using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
 using InlineIL.Tests.AssemblyToProcess;
 using InlineIL.Tests.Support;
+using InlineIL.Tests.Weaving;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using standard::InlineIL.Tests.StandardAssemblyToProcess;
 using Xunit.Abstractions;
 
-namespace InlineIL.Tests.Weaving
+namespace InlineIL.Tests.Debug
 {
     public class DebugTests
     {

@@ -77,7 +77,7 @@ namespace InlineIL.Fody.Processing
             }
         }
 
-        private static void PopStack(Instruction instruction, ref int stackSize)
+        internal static void PopStack(Instruction instruction, ref int stackSize)
         {
             switch (instruction.OpCode.Code)
             {
@@ -99,7 +99,7 @@ namespace InlineIL.Fody.Processing
             stackSize -= instruction.GetPopCount();
         }
 
-        private static void PushStack(Instruction instruction, ref int stackSize)
+        internal static void PushStack(Instruction instruction, ref int stackSize)
         {
             if (instruction.OpCode == OpCodes.Dup) // Special-cased in GetPushCount
             {
