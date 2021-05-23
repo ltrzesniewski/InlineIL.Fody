@@ -39,21 +39,21 @@ namespace InlineIL.Fody.Processing
             foreach (var handler in _method.Body.ExceptionHandlers)
             {
                 if (handler.FilterStart != null)
-                    _branchStates[handler.FilterStart] = new StackState(1, 0);
+                    _branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
 
                 if (handler.HandlerStart != null)
-                    _branchStates[handler.HandlerStart] = new StackState(1, 0);
+                    _branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
             }
         }
 
         private void ValidateInstructions()
         {
-            var state = new StackState(0, 0);
+            var state = StackState.EmptyStackState;
 
             foreach (var instruction in _method.Body.Instructions)
             {
-                if (_branchStates.TryGetValue(instruction, out var branchState))
-                    state = branchState;
+                if (_branchStates.TryGetValue(instruction, out var forwardBranchState))
+                    state = StackState.Merge(state, forwardBranchState);
 
                 var (stackSize, unsafeToPushCount) = state;
                 var isCallToPushMethod = IsCallToPushMethod(instruction, out var pushMethod);
@@ -146,7 +146,7 @@ namespace InlineIL.Fody.Processing
                 case FlowControl.Branch:
                 case FlowControl.Throw:
                 case FlowControl.Return:
-                    state = new StackState(0, 0);
+                    state = StackState.EmptyStackState;
                     break;
             }
         }
@@ -188,15 +188,26 @@ namespace InlineIL.Fody.Processing
 
         private readonly struct StackState
         {
+            public static StackState EmptyStackState => new(0, 0);
+            public static StackState ExceptionHandlerStackState => new(1, 0, true);
+
             public readonly int StackSize;
 
             // Number of values at the bottom of the stack that should not be used (even indirectly) in a call to IL.Push
             public readonly int UnsafeToPushCount;
 
+            private readonly bool _forcedValue;
+
             public StackState(int stackSize, int unsafeToPushCount)
+                : this(stackSize, unsafeToPushCount, false)
+            {
+            }
+
+            private StackState(int stackSize, int unsafeToPushCount, bool forcedValue)
             {
                 StackSize = stackSize;
                 UnsafeToPushCount = Math.Min(stackSize, unsafeToPushCount);
+                _forcedValue = forcedValue;
             }
 
             public void Deconstruct(out int stackSize, out int unsafeToPushCount)
@@ -204,6 +215,11 @@ namespace InlineIL.Fody.Processing
                 stackSize = StackSize;
                 unsafeToPushCount = UnsafeToPushCount;
             }
+
+            public static StackState Merge(StackState previousStackState, StackState forwardBranch)
+                => forwardBranch._forcedValue || previousStackState.StackSize != forwardBranch.StackSize
+                    ? new StackState(forwardBranch.StackSize, forwardBranch.UnsafeToPushCount)
+                    : new StackState(forwardBranch.StackSize, Math.Max(previousStackState.UnsafeToPushCount, forwardBranch.UnsafeToPushCount));
 
             public override string ToString()
                 => $"{StackSize} ({UnsafeToPushCount} unsafe)";
