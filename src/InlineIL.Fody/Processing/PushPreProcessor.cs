@@ -40,30 +40,20 @@ namespace InlineIL.Fody.Processing
             {
                 // The stack should be empty at the start of protected blocks, but we can ignore that here.
 
-                switch (handler.HandlerType)
+                if (handler.HandlerStart != null)
                 {
-                    case ExceptionHandlerType.Catch:
-                        if (handler.HandlerStart != null)
-                            _branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
-
-                        break;
-
-                    case ExceptionHandlerType.Filter:
-                        if (handler.HandlerStart != null)
-                            _branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
-
-                        if (handler.FilterStart != null)
-                            _branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
-
-                        break;
-
-                    case ExceptionHandlerType.Finally:
-                    case ExceptionHandlerType.Fault:
-                        if (handler.HandlerStart != null)
-                            _branchStates[handler.HandlerStart] = StackState.FinallyOrFaultHandlerStackState;
-
-                        break;
+                    _branchStates[handler.HandlerStart] = handler.HandlerType switch
+                    {
+                        ExceptionHandlerType.Catch   => StackState.ExceptionHandlerStackState,
+                        ExceptionHandlerType.Filter  => StackState.ExceptionHandlerStackState,
+                        ExceptionHandlerType.Finally => StackState.FinallyOrFaultHandlerStackState,
+                        ExceptionHandlerType.Fault   => StackState.FinallyOrFaultHandlerStackState,
+                        _                            => throw new InstructionWeavingException(handler.HandlerStart, "Unknown exception handler type")
+                    };
                 }
+
+                if (handler.HandlerType == ExceptionHandlerType.Filter && handler.FilterStart != null)
+                    _branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
             }
         }
 
@@ -139,7 +129,7 @@ namespace InlineIL.Fody.Processing
                 case OperandType.ShortInlineBrTarget:
                 {
                     if (instruction.Operand is Instruction operand)
-                        _branchStates[operand] = state;
+                        UpdateBranchState(operand);
 
                     break;
                 }
@@ -149,14 +139,22 @@ namespace InlineIL.Fody.Processing
                     if (instruction.Operand is Instruction?[] operands)
                     {
                         foreach (var operand in operands)
-                        {
-                            if (operand != null)
-                                _branchStates[operand] = state;
-                        }
+                            UpdateBranchState(operand);
                     }
 
                     break;
                 }
+            }
+
+            void UpdateBranchState(Instruction? targetInstruction)
+            {
+                if (targetInstruction is null)
+                    return;
+
+                if (_branchStates.TryGetValue(targetInstruction, out var existingState))
+                    _branchStates[targetInstruction] = StackState.Merge(existingState, state);
+                else
+                    _branchStates[targetInstruction] = state;
             }
         }
 

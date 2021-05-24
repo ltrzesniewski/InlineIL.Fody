@@ -71,22 +71,17 @@ namespace InlineIL.Tests.Debug
                 {
                     branchStates[handler.TryStart] = StackState.StartOfProtectedBlockStackState;
 
-                    switch (handler.HandlerType)
+                    branchStates[handler.HandlerStart] = handler.HandlerType switch
                     {
-                        case ExceptionHandlerType.Catch:
-                            branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
-                            break;
+                        ExceptionHandlerType.Catch   => StackState.ExceptionHandlerStackState,
+                        ExceptionHandlerType.Filter  => StackState.ExceptionHandlerStackState,
+                        ExceptionHandlerType.Finally => StackState.FinallyOrFaultHandlerStackState,
+                        ExceptionHandlerType.Fault   => StackState.FinallyOrFaultHandlerStackState,
+                        _                            => throw new ArgumentOutOfRangeException()
+                    };
 
-                        case ExceptionHandlerType.Filter:
-                            branchStates[handler.HandlerStart] = StackState.ExceptionHandlerStackState;
-                            branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
-                            break;
-
-                        case ExceptionHandlerType.Finally:
-                        case ExceptionHandlerType.Fault:
-                            branchStates[handler.HandlerStart] = StackState.FinallyOrFaultHandlerStackState;
-                            break;
-                    }
+                    if (handler.HandlerType == ExceptionHandlerType.Filter)
+                        branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
                 }
             }
 
@@ -127,7 +122,7 @@ namespace InlineIL.Tests.Debug
                         if (instruction.Operand is not Instruction operand)
                             return false;
 
-                        if (!AddBranchState(operand, state))
+                        if (!UpdateBranchState(operand, state))
                             return false;
 
                         break;
@@ -140,7 +135,7 @@ namespace InlineIL.Tests.Debug
 
                         foreach (var operand in operands)
                         {
-                            if (!AddBranchState(operand, state))
+                            if (!UpdateBranchState(operand, state))
                                 return false;
                         }
 
@@ -160,7 +155,7 @@ namespace InlineIL.Tests.Debug
 
             return true;
 
-            bool AddBranchState(Instruction targetInstruction, StackState branchState)
+            bool UpdateBranchState(Instruction targetInstruction, StackState branchState)
             {
                 if (branchStates.TryGetValue(targetInstruction, out var existingState))
                 {
