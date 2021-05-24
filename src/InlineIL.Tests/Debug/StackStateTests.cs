@@ -124,21 +124,24 @@ namespace InlineIL.Tests.Debug
                     case OperandType.InlineBrTarget:
                     case OperandType.ShortInlineBrTarget:
                     {
-                        if (instruction.Operand is Instruction operand)
-                            branchStates[operand] = state;
+                        if (instruction.Operand is not Instruction operand)
+                            return false;
+
+                        if (!AddBranchState(operand, state))
+                            return false;
 
                         break;
                     }
 
                     case OperandType.InlineSwitch:
                     {
-                        if (instruction.Operand is Instruction?[] operands)
+                        if (instruction.Operand is not Instruction[] operands)
+                            return false;
+
+                        foreach (var operand in operands)
                         {
-                            foreach (var operand in operands)
-                            {
-                                if (operand != null)
-                                    branchStates[operand] = state;
-                            }
+                            if (!AddBranchState(operand, state))
+                                return false;
                         }
 
                         break;
@@ -156,6 +159,21 @@ namespace InlineIL.Tests.Debug
             }
 
             return true;
+
+            bool AddBranchState(Instruction targetInstruction, StackState branchState)
+            {
+                if (branchStates.TryGetValue(targetInstruction, out var existingState))
+                {
+                    if (existingState.StackSize != branchState.StackSize)
+                        return false;
+                }
+                else
+                {
+                    branchStates[targetInstruction] = branchState;
+                }
+
+                return true;
+            }
         }
 
         private readonly struct StackState
