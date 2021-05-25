@@ -172,8 +172,6 @@ namespace InlineIL.Fody.Processing
 
         private static bool IsCallToPushMethod(Instruction instruction, [NotNullWhen(true)] out MethodReference? method)
         {
-            method = null;
-
             if (instruction.OpCode == OpCodes.Call
                 && instruction.Operand is MethodReference calledMethod
                 && calledMethod.DeclaringType.FullName == KnownNames.Full.IlType)
@@ -185,12 +183,10 @@ namespace InlineIL.Fody.Processing
                     case KnownNames.Short.PushOutRefMethod:
                         method = calledMethod;
                         return true;
-
-                    default:
-                        return false;
                 }
             }
 
+            method = null;
             return false;
         }
 
@@ -236,10 +232,19 @@ namespace InlineIL.Fody.Processing
                 unsafeToPushCount = UnsafeToPushCount;
             }
 
-            public static StackState Merge(StackState previousStackState, StackState forwardBranch)
-                => forwardBranch._forcedValue || previousStackState.StackSize != forwardBranch.StackSize
-                    ? new StackState(forwardBranch.StackSize, forwardBranch.UnsafeToPushCount)
-                    : new StackState(forwardBranch.StackSize, Math.Max(previousStackState.UnsafeToPushCount, forwardBranch.UnsafeToPushCount));
+            public static StackState Merge(StackState previousStackState, StackState newStackState)
+            {
+                if (newStackState._forcedValue)
+                    return newStackState;
+
+                if (previousStackState._forcedValue)
+                    return previousStackState;
+
+                if (previousStackState.StackSize != newStackState.StackSize)
+                    return newStackState;
+
+                return new StackState(newStackState.StackSize, Math.Max(previousStackState.UnsafeToPushCount, newStackState.UnsafeToPushCount));
+            }
 
             public override string ToString()
                 => $"{StackSize} ({UnsafeToPushCount} unsafe)";
