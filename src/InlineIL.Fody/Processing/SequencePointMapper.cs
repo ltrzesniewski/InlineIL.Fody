@@ -18,7 +18,7 @@ namespace InlineIL.Fody.Processing
         {
             _method = method;
             _config = config;
-            _inputSequencePoints = _method.DebugInformation.SequencePoints.ToList();
+            _inputSequencePoints = _method.DebugInformation.HasSequencePoints ? _method.DebugInformation.SequencePoints.ToList() : new();
         }
 
         public SequencePoint? GetInputSequencePoint(Instruction? instruction)
@@ -63,7 +63,7 @@ namespace InlineIL.Fody.Processing
 
         public void MergeWithPreviousSequencePoint(SequencePoint? sequencePoint)
         {
-            if (sequencePoint == null)
+            if (sequencePoint == null || !_method.DebugInformation.HasSequencePoints)
                 return;
 
             var sequencePoints = _method.DebugInformation.SequencePoints;
@@ -92,6 +92,9 @@ namespace InlineIL.Fody.Processing
 
         private void RemoveObsoleteSequencePoints()
         {
+            if (!_method.DebugInformation.HasSequencePoints)
+                return;
+
             var sequencePoints = _method.DebugInformation.SequencePoints;
             HashSet<Instruction>? instructions = null;
 

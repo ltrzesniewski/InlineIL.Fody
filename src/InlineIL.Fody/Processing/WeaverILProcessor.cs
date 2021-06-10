@@ -56,8 +56,11 @@ namespace InlineIL.Fody.Processing
         {
             var refs = new HashSet<Instruction>(ReferenceEqualityComparer<Instruction>.Instance);
 
-            foreach (var handler in _il.Body.ExceptionHandlers)
-                refs.UnionWith(handler.GetInstructions());
+            if (_il.Body.HasExceptionHandlers)
+            {
+                foreach (var handler in _il.Body.ExceptionHandlers)
+                    refs.UnionWith(handler.GetInstructions());
+            }
 
             foreach (var instruction in _il.Body.Instructions)
             {
@@ -142,22 +145,25 @@ namespace InlineIL.Fody.Processing
             if (!_referencedInstructions.Contains(oldInstruction))
                 return;
 
-            foreach (var handler in _il.Body.ExceptionHandlers)
+            if (_il.Body.HasExceptionHandlers)
             {
-                if (handler.TryStart == oldInstruction)
-                    handler.TryStart = newInstruction;
+                foreach (var handler in _il.Body.ExceptionHandlers)
+                {
+                    if (handler.TryStart == oldInstruction)
+                        handler.TryStart = newInstruction;
 
-                if (handler.TryEnd == oldInstruction)
-                    handler.TryEnd = newInstruction;
+                    if (handler.TryEnd == oldInstruction)
+                        handler.TryEnd = newInstruction;
 
-                if (handler.FilterStart == oldInstruction)
-                    handler.FilterStart = newInstruction;
+                    if (handler.FilterStart == oldInstruction)
+                        handler.FilterStart = newInstruction;
 
-                if (handler.HandlerStart == oldInstruction)
-                    handler.HandlerStart = newInstruction;
+                    if (handler.HandlerStart == oldInstruction)
+                        handler.HandlerStart = newInstruction;
 
-                if (handler.HandlerEnd == oldInstruction)
-                    handler.HandlerEnd = newInstruction;
+                    if (handler.HandlerEnd == oldInstruction)
+                        handler.HandlerEnd = newInstruction;
+                }
             }
 
             foreach (var instruction in _il.Body.Instructions)

@@ -47,7 +47,7 @@ namespace InlineIL.Fody.Processing
             if (!method.HasBody)
                 return false;
 
-            if (method.Body.Variables.Any(i => i.VariableType.IsInlineILTypeUsage(context)))
+            if (method.Body.HasVariables && method.Body.Variables.Any(i => i.VariableType.IsInlineILTypeUsage(context)))
                 return true;
 
             foreach (var instruction in method.Body.Instructions)

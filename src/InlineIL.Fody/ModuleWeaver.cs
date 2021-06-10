@@ -61,14 +61,21 @@ namespace InlineIL.Fody
         private void InvalidateMethod(MethodDefinition method, string message)
         {
             method.Body.Instructions.Clear();
-            method.Body.Variables.Clear();
-            method.Body.ExceptionHandlers.Clear();
 
-            method.DebugInformation.SequencePoints.Clear();
+            if (method.Body.HasVariables)
+                method.Body.Variables.Clear();
+
+            if (method.Body.HasExceptionHandlers)
+                method.Body.ExceptionHandlers.Clear();
+
+            if (method.DebugInformation.HasSequencePoints)
+                method.DebugInformation.SequencePoints.Clear();
+
             method.DebugInformation.Scope = null;
             method.DebugInformation.StateMachineKickOffMethod = null;
 
-            method.CustomDebugInformations.Clear();
+            if (method.HasCustomDebugInformations)
+                method.CustomDebugInformations.Clear();
 
             MethodReference? exceptionCtor = null;
 
