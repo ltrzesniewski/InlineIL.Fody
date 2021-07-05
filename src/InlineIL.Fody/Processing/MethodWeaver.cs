@@ -392,10 +392,12 @@ namespace InlineIL.Fody.Processing
                 switch (opCode.OperandType)
                 {
                     case OperandType.InlineNone:
+                    {
                         if (args.Length != 0)
                             throw new InstructionWeavingException(emitCallInstruction, "Unexpected operand argument");
 
                         return _il.Create(opCode);
+                    }
 
                     case OperandType.InlineI:
                     case OperandType.ShortInlineI:
@@ -618,9 +620,7 @@ namespace InlineIL.Fody.Processing
                         default:
                         {
                             // Allow implicit conversions
-                            if (currentInstruction != null
-                                && (currentInstruction.OpCode.FlowControl == FlowControl.Next
-                                    || currentInstruction.OpCode.FlowControl == FlowControl.Call)
+                            if (currentInstruction?.OpCode.FlowControl is FlowControl.Next or FlowControl.Call
                                 && currentInstruction.GetPopCount() == 1
                                 && currentInstruction.GetPushCount() == 1
                             )
