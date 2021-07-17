@@ -24,3 +24,7 @@ indent_style = tab
 
 [*.md]
 trim_trailing_whitespace = false
+
+[*.cs]
+dotnet_diagnostic.CA1014.severity = none
+dotnet_diagnostic.CA1028.severity = none

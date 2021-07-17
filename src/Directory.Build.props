@@ -6,10 +6,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <LangVersion>9.0</LangVersion>
+    <AnalysisLevel>5.0</AnalysisLevel>
+    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <LangVersion>9.0</LangVersion>
-    <Nullable>enable</Nullable>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <IsPackable>false</IsPackable>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

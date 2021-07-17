@@ -6,6 +6,7 @@
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DebugType>embedded</DebugType>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <IsPackable>true</IsPackable>
     <PackageId>InlineIL.Fody</PackageId>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>

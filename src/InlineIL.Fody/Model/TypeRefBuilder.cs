@@ -221,7 +221,7 @@ namespace InlineIL.Fody.Model
                     }
 
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new InvalidOperationException("Invalid generic parameter type");
                 }
             }
 
@@ -409,17 +409,17 @@ namespace InlineIL.Fody.Model
             {
                 var sb = new StringBuilder();
                 sb.Append(_baseResolver.GetDisplayName());
-                sb.Append("<");
+                sb.Append('<');
 
                 for (var i = 0; i < _genericArgs.Length; ++i)
                 {
                     if (i != 0)
-                        sb.Append(",");
+                        sb.Append(',');
 
                     sb.Append(_genericArgs[i].GetDisplayName());
                 }
 
-                sb.Append(">");
+                sb.Append('>');
                 return sb.ToString();
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
@@ -326,36 +327,36 @@ namespace InlineIL.Fody.Processing
                 switch (opCode.OperandType)
                 {
                     case OperandType.InlineI:
-                        operand = Convert.ToInt32(operand);
+                        operand = Convert.ToInt32(operand, CultureInfo.InvariantCulture);
                         break;
 
                     case OperandType.InlineI8:
-                        operand = Convert.ToInt64(operand);
+                        operand = Convert.ToInt64(operand, CultureInfo.InvariantCulture);
                         break;
 
                     case OperandType.InlineR:
-                        operand = Convert.ToDouble(operand);
+                        operand = Convert.ToDouble(operand, CultureInfo.InvariantCulture);
                         break;
 
                     case OperandType.InlineVar:
                     case OperandType.InlineArg:
                         // It's an uint16 but Cecil expects int32
-                        operand = Convert.ToInt32(operand);
+                        operand = Convert.ToInt32(operand, CultureInfo.InvariantCulture);
                         break;
 
                     case OperandType.ShortInlineI:
                         operand = opCode == OpCodes.Ldc_I4_S
-                            ? Convert.ToSByte(operand)
-                            : Convert.ToByte(operand);
+                            ? Convert.ToSByte(operand, CultureInfo.InvariantCulture)
+                            : Convert.ToByte(operand, CultureInfo.InvariantCulture);
                         break;
 
                     case OperandType.ShortInlineR:
-                        operand = Convert.ToSingle(operand);
+                        operand = Convert.ToSingle(operand, CultureInfo.InvariantCulture);
                         break;
 
                     case OperandType.ShortInlineVar:
                     case OperandType.ShortInlineArg:
-                        operand = Convert.ToByte(operand);
+                        operand = Convert.ToByte(operand, CultureInfo.InvariantCulture);
                         break;
                 }
 

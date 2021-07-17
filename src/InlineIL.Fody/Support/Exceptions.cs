@@ -1,6 +1,8 @@
 ﻿using Fody;
 using Mono.Cecil.Cil;
 
+#pragma warning disable CA1032
+
 namespace InlineIL.Fody.Support
 {
     internal class InstructionWeavingException : WeavingException

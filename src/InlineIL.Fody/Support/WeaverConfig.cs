@@ -23,7 +23,7 @@ namespace InlineIL.Fody.Support
                 WeaverConfigOptions.SequencePointsBehavior.True    => true,
                 WeaverConfigOptions.SequencePointsBehavior.Debug   => module.IsDebugBuild(),
                 WeaverConfigOptions.SequencePointsBehavior.Release => !module.IsDebugBuild(),
-                _                                                  => throw new ArgumentOutOfRangeException()
+                _                                                  => throw new InvalidOperationException("Invalid sequence points behavior")
             };
         }
     }

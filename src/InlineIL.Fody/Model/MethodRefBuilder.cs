@@ -36,7 +36,7 @@ namespace InlineIL.Fody.Model
 
         public static MethodRefBuilder MethodFromDelegateReference(ModuleDefinition module, MethodReference methodRef)
         {
-            if (methodRef.Name.StartsWith("<"))
+            if (methodRef.Name.StartsWith("<", StringComparison.Ordinal))
                 throw new WeavingException("A compiler-generated method is referenced by the delegate");
 
             return new MethodRefBuilder(module, methodRef);
