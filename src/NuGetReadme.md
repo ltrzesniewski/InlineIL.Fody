@@ -10,7 +10,7 @@ This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject
 
 - If you already have a `FodyWeavers.xml` file in the root directory of your project, add the `<InlineIL />` tag there.
 
-See [Fody usage](https://github.com/Fody/Home/blob/master/pages/usage.md) for general guidelines, and [Fody Configuration](https://github.com/Fody/Home/blob/master/pages/configuration.md) for additional options.
+See [Fody usage](https://github.com/Fody/Home/blob/master/pages/usage.md) for general guidelines, and [Fody configuration](https://github.com/Fody/Home/blob/master/pages/configuration.md) for additional options.
 
 ## Usage
 
