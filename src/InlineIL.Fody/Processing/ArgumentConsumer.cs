@@ -117,7 +117,7 @@ namespace InlineIL.Fody.Processing
 
         private TypeRefBuilder ConsumeArgTypeRefBuilder(Instruction instruction)
         {
-            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+            if (instruction.OpCode.FlowControl != FlowControl.Call || instruction.Operand is not MethodReference method)
                 throw UnexpectedInstruction(instruction, "a method call");
 
             switch (method.GetElementMethod().FullName)
@@ -270,7 +270,7 @@ namespace InlineIL.Fody.Processing
         {
             const string expectation = "a call to TypeRef.TypeGenericParameters or TypeRef.MethodGenericParameters";
 
-            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+            if (instruction.OpCode.FlowControl != FlowControl.Call || instruction.Operand is not MethodReference method)
                 throw UnexpectedInstruction(instruction, expectation);
 
             switch (method.FullName)
@@ -298,7 +298,7 @@ namespace InlineIL.Fody.Processing
 
             MethodRefBuilder ConsumeArgMethodRefBuilder(Instruction instruction)
             {
-                if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                if (instruction.OpCode.FlowControl != FlowControl.Call || instruction.Operand is not MethodReference method)
                     throw UnexpectedInstruction(instruction, "a method call");
 
                 switch (method.GetElementMethod().FullName)
@@ -557,7 +557,7 @@ namespace InlineIL.Fody.Processing
 
             FieldRefBuilder ConsumeArgFieldRefBuilder(Instruction instruction)
             {
-                if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                if (instruction.OpCode.FlowControl != FlowControl.Call || instruction.Operand is not MethodReference method)
                     throw UnexpectedInstruction(instruction, "a method call");
 
                 switch (method.FullName)
@@ -584,7 +584,7 @@ namespace InlineIL.Fody.Processing
         {
             if (instruction.OpCode == OpCodes.Call)
             {
-                if (!(instruction.Operand is MethodReference method) || method.GetElementMethod().FullName != "!!0[] System.Array::Empty()")
+                if (instruction.Operand is not MethodReference method || method.GetElementMethod().FullName != "!!0[] System.Array::Empty()")
                     throw UnexpectedInstruction(instruction, "newarr or call to Array.Empty");
 
                 _il.Remove(instruction);
@@ -644,7 +644,7 @@ namespace InlineIL.Fody.Processing
 
         public LocalVarBuilder ConsumeArgLocalVarBuilder(Instruction instruction)
         {
-            if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+            if (instruction.OpCode.FlowControl != FlowControl.Call || instruction.Operand is not MethodReference method)
                 throw UnexpectedInstruction(instruction, "a call on LocalVar");
 
             switch (method.FullName)
@@ -720,7 +720,7 @@ namespace InlineIL.Fody.Processing
 
             StandAloneMethodSigBuilder ConsumeArgStandAloneMethodSigBuilder(Instruction instruction)
             {
-                if (instruction.OpCode.FlowControl != FlowControl.Call || !(instruction.Operand is MethodReference method))
+                if (instruction.OpCode.FlowControl != FlowControl.Call || instruction.Operand is not MethodReference method)
                     throw UnexpectedInstruction(instruction, "a method call");
 
                 switch (method.FullName)

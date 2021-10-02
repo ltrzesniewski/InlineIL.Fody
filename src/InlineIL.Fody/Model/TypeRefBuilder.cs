@@ -152,7 +152,7 @@ namespace InlineIL.Fody.Model
 
             public ConstantTypeRefResolver(TypeReference typeRef)
             {
-                if (typeRef.MetadataType == MetadataType.Class && !(typeRef is TypeDefinition))
+                if (typeRef.MetadataType == MetadataType.Class && typeRef is not TypeDefinition)
                 {
                     // TypeRefs from different assemblies get imported as MetadataType.Class
                     // since this information is not stored in the assembly metadata.
