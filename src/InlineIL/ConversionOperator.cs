@@ -1,7 +1,7 @@
 ﻿namespace InlineIL
 {
     /// <summary>
-    /// Conversion operator
+    /// Conversion operator.
     /// </summary>
     public enum ConversionOperator
     {

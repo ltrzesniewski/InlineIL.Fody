@@ -24,11 +24,11 @@ namespace InlineIL
         /// </summary>
         /// <param name="type">The type declaring the method.</param>
         /// <param name="methodName">The method name.</param>
-        /// <param name="parameterTypes">
-        /// The types of the method parameters.
+        /// <param name="parameterTypes">The types of the method parameters.</param>
+        /// <remarks>
         /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
         /// from the <see cref="TypeRef"/> class to represent generic parameter types.
-        /// </param>
+        /// </remarks>
         public MethodRef(TypeRef type, string methodName, params TypeRef[] parameterTypes)
             => IL.Throw();
 
@@ -38,11 +38,11 @@ namespace InlineIL
         /// <param name="type">The type declaring the method.</param>
         /// <param name="methodName">The method name.</param>
         /// <param name="genericParameterCount">The generic parameter count. Use 0 for a non-generic method.</param>
-        /// <param name="parameterTypes">
-        /// The types of the method parameters.
+        /// <param name="parameterTypes">The types of the method parameters.</param>
+        /// <remarks>
         /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
         /// from the <see cref="TypeRef"/> class to represent generic parameter types.
-        /// </param>
+        /// </remarks>
         public MethodRef(TypeRef type, string methodName, int genericParameterCount, params TypeRef[] parameterTypes)
             => IL.Throw();
 
@@ -53,11 +53,11 @@ namespace InlineIL
         /// <param name="methodName">The method name.</param>
         /// <param name="returnType">The return type.</param>
         /// <param name="genericParameterCount">The generic parameter count. Use 0 for a non-generic method.</param>
-        /// <param name="parameterTypes">
-        /// The types of the method parameters.
+        /// <param name="parameterTypes">The types of the method parameters.</param>
+        /// <remarks>
         /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
         /// from the <see cref="TypeRef"/> class to represent generic parameter types.
-        /// </param>
+        /// </remarks>
         public MethodRef(TypeRef type, string methodName, TypeRef returnType, int genericParameterCount, params TypeRef[] parameterTypes)
             => IL.Throw();
 
@@ -74,11 +74,11 @@ namespace InlineIL
         /// </summary>
         /// <param name="type">The type declaring the method.</param>
         /// <param name="methodName">The method name.</param>
-        /// <param name="parameterTypes">
-        /// The types of the method parameters.
+        /// <param name="parameterTypes">The types of the method parameters.</param>
+        /// <remarks>
         /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
         /// from the <see cref="TypeRef"/> class to represent generic parameter types.
-        /// </param>
+        /// </remarks>
         public static MethodRef Method(TypeRef type, string methodName, params TypeRef[] parameterTypes)
             => throw IL.Throw();
 
@@ -88,11 +88,11 @@ namespace InlineIL
         /// <param name="type">The type declaring the method.</param>
         /// <param name="methodName">The method name.</param>
         /// <param name="genericParameterCount">The generic parameter count. Use 0 for a non-generic method.</param>
-        /// <param name="parameterTypes">
-        /// The types of the method parameters.
+        /// <param name="parameterTypes">The types of the method parameters.</param>
+        /// <remarks>
         /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
         /// from the <see cref="TypeRef"/> class to represent generic parameter types.
-        /// </param>
+        /// </remarks>
         public static MethodRef Method(TypeRef type, string methodName, int genericParameterCount, params TypeRef[] parameterTypes)
             => throw IL.Throw();
 
@@ -103,11 +103,11 @@ namespace InlineIL
         /// <param name="methodName">The method name.</param>
         /// <param name="returnType">The return type.</param>
         /// <param name="genericParameterCount">The generic parameter count. Use 0 for a non-generic method.</param>
-        /// <param name="parameterTypes">
-        /// The types of the method parameters.
+        /// <param name="parameterTypes">The types of the method parameters.</param>
+        /// <remarks>
         /// Use the <see cref="TypeRef.TypeGenericParameters"/> and <see cref="TypeRef.MethodGenericParameters"/> static properties
         /// from the <see cref="TypeRef"/> class to represent generic parameter types.
-        /// </param>
+        /// </remarks>
         public static MethodRef Method(TypeRef type, string methodName, TypeRef returnType, int genericParameterCount, params TypeRef[] parameterTypes)
             => throw IL.Throw();
 
@@ -155,11 +155,11 @@ namespace InlineIL
         /// Constructs a method reference to a constructor (<c>.ctor</c> method).
         /// </summary>
         /// <param name="type">The type declaring the constructor.</param>
-        /// <param name="parameterTypes">
-        /// The types of the constructor parameters.
+        /// <param name="parameterTypes">The types of the constructor parameters.</param>
+        /// <remarks>
         /// Use the <see cref="TypeRef.TypeGenericParameters"/> static property
         /// from the <see cref="TypeRef"/> class to represent generic parameter types.
-        /// </param>
+        /// </remarks>
         public static MethodRef Constructor(TypeRef type, params TypeRef[] parameterTypes)
             => throw IL.Throw();
 
@@ -200,10 +200,12 @@ namespace InlineIL
 
         /// <summary>
         /// Constructs a method reference from a delegate.
-        /// Do not use with lambdas, local functions, or any other compiler-generated methods.
         /// </summary>
         /// <param name="delegate">A delegate which references the method.</param>
         /// <typeparam name="TDelegate">Type of the delegate.</typeparam>
+        /// <remarks>
+        /// Do not use with lambdas, local functions, or any other compiler-generated methods.
+        /// </remarks>
         public static MethodRef FromDelegate<TDelegate>(TDelegate @delegate)
             where TDelegate : Delegate
             => throw IL.Throw();

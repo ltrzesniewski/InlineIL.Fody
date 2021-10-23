@@ -3,8 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace InlineIL
 {
     /// <summary>
-    /// Represents a list of generic parameters. Use the indexer to retrieve a given parameter.
+    /// Represents a list of generic parameters.
     /// </summary>
+    /// <remarks>
+    /// Use the indexer to retrieve a given parameter.
+    /// </remarks>
     [SuppressMessage("ReSharper", "ClassCannotBeInstantiated")]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]

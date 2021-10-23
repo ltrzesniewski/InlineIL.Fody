@@ -8,25 +8,41 @@ namespace InlineIL
     /// All method calls are replaced at weaving time.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    [SuppressMessage("Style", "IDE0060:Remove unused parameter")]
     public static unsafe partial class IL
     {
         /// <summary>
-        /// Declares local variables, with the init flag set to true.
-        /// These variables are appended to the ones already declared by the compiler, but indexes of emitted ldloc/stloc instructions are adjusted to account for that.
+        /// Declares local variables, with the <c>init</c> flag set to true.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// These variables are appended to the ones already declared by the compiler,
+        /// but indexes of emitted <c>ldloc</c>/<c>stloc</c> instructions are adjusted to account for that.
+        /// </para>
+        /// <para>
+        /// The <c>init</c> flag applies to all locals, including the ones declared by the compiler,
+        /// and space allocated in the stack frame by <c>localloc</c>.
+        /// </para>
+        /// </remarks>
         /// <param name="locals">The list of local variable declarations.</param>
         public static void DeclareLocals(params LocalVar[] locals)
             => Throw();
 
         /// <summary>
         /// Declares local variables.
-        /// These variables are appended to the ones already declared by the compiler, but indexes of emitted ldloc/stloc instructions are adjusted to account for that.
         /// </summary>
-        /// <param name="init">
-        /// Flag which specifies if the local variables should be zero initialized.
-        /// This flag applies to all locals, including the ones declared by the compiler, and space allocated in the stack frame by <c>localloc</c>.
+        /// <remarks>
+        /// <para>
+        /// These variables are appended to the ones already declared by the compiler,
+        /// but indexes of emitted <c>ldloc</c>/<c>stloc</c> instructions are adjusted to account for that.
+        /// </para>
+        /// <para>
+        /// The <c>init</c> flag applies to all locals, including the ones declared by the compiler,
+        /// and space allocated in the stack frame by <c>localloc</c>.
         /// Setting this to <c>false</c> will cause the method to be unverifiable.
-        /// </param>
+        /// </para>
+        /// </remarks>
+        /// <param name="init">Flag which specifies if the local variables should be zero initialized.</param>
         /// <param name="locals">The list of local variable declarations.</param>
         public static void DeclareLocals(bool init, params LocalVar[] locals)
             => Throw();
@@ -103,35 +119,46 @@ namespace InlineIL
 
         /// <summary>
         /// Marks the given region of code as unreachable, for example just after a <c>ret</c> instruction.
+        /// </summary>
+        /// <remarks>
         /// This method returns an <see cref="Exception"/> which should be immediately thrown by the caller.
         /// It enables writing code with a valid control flow for compile-time.
-        /// </summary>
+        /// </remarks>
         /// <returns>An <see cref="Exception"/> which should be immediately thrown.</returns>
         public static Exception Unreachable()
             => throw Throw();
 
         /// <summary>
-        /// Returns the value on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
-        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// Returns the value on top of the evaluation stack.
         /// </summary>
+        /// <remarks>
+        /// The return value of this method should be immediately returned from the weaved method.
+        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// </remarks>
         /// <typeparam name="T">The returned value type.</typeparam>
         /// <returns>The value on top of the evaluation stack, which should be immediately returned from the method.</returns>
         public static T Return<T>()
             => throw Throw();
 
         /// <summary>
-        /// Returns the reference on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
-        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// Returns the reference on top of the evaluation stack.
         /// </summary>
+        /// <remarks>
+        /// The return value of this method should be immediately returned from the weaved method.
+        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// </remarks>
         /// <typeparam name="T">The returned reference type.</typeparam>
         /// <returns>The reference on top of the evaluation stack, which should be immediately returned from the method.</returns>
         public static ref T ReturnRef<T>()
             => throw Throw();
 
         /// <summary>
-        /// Returns the pointer on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
-        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// Returns the pointer on top of the evaluation stack.
         /// </summary>
+        /// <remarks>
+        /// The return value of this method should be immediately returned from the weaved method.
+        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// </remarks>
         /// <typeparam name="T">The returned pointer type.</typeparam>
         /// <returns>The pointer on top of the evaluation stack, which should be immediately returned from the method.</returns>
         public static T* ReturnPointer<T>()
@@ -139,17 +166,22 @@ namespace InlineIL
             => throw Throw();
 
         /// <summary>
-        /// Returns the pointer on top of the evaluation stack. The return value of this method should be immediately returned from the weaved method.
-        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// Returns the pointer on top of the evaluation stack.
         /// </summary>
+        /// <remarks>
+        /// The return value of this method should be immediately returned from the weaved method.
+        /// This is an alternative to emitting a <c>ret</c> instruction followed by a call to <see cref="Unreachable"/>.
+        /// </remarks>
         /// <returns>The pointer on top of the evaluation stack, which should be immediately returned from the method.</returns>
         public static void* ReturnPointer()
             => throw Throw();
 
         /// <summary>
         /// Ensures the compiler emits a local variable in IL for the variable passed as parameter in optimized builds.
-        /// This should make the variable usable in IL.Push calls that would otherwise fail.
         /// </summary>
+        /// <remarks>
+        /// This should make the variable usable in <c>IL.Push</c> calls that would otherwise fail.
+        /// </remarks>
         /// <param name="value">A non-ref local variable.</param>
         /// <typeparam name="T">The type of the local variable.</typeparam>
         public static void EnsureLocal<T>(in T? value)

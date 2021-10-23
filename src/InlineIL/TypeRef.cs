@@ -4,8 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace InlineIL
 {
     /// <summary>
-    /// Represents a type reference. This class is implicitly convertible from <see cref="System.Type"/>.
+    /// Represents a type reference.
     /// </summary>
+    /// <remarks>
+    /// This class is implicitly convertible from <see cref="System.Type"/>.
+    /// </remarks>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
@@ -13,15 +16,17 @@ namespace InlineIL
     public sealed class TypeRef
     {
         /// <summary>
-        /// Returns the core library name, for use with <see cref="TypeRef(string, string)"/>
+        /// Returns the core library name, for use with <see cref="TypeRef(string, string)"/>.
         /// </summary>
         public static string CoreLibrary
             => throw IL.Throw();
 
         /// <summary>
         /// Generic parameters of the declaring type, for overload resolution in <see cref="MethodRef"/>.
-        /// Generic parameters of a nested type come after generic parameters of its enclosing type.
         /// </summary>
+        /// <remarks>
+        /// Generic parameters of a nested type come after generic parameters of its enclosing type.
+        /// </remarks>
         public static GenericParameters TypeGenericParameters
             => throw IL.Throw();
 

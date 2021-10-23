@@ -1,7 +1,7 @@
 ﻿namespace InlineIL
 {
     /// <summary>
-    /// Binary operator
+    /// Binary operator.
     /// </summary>
     public enum BinaryOperator
     {
