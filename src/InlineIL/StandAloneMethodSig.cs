@@ -20,8 +20,7 @@ namespace InlineIL
         /// <param name="returnType">The method return type.</param>
         /// <param name="parameterTypes">The method parameter types.</param>
         public StandAloneMethodSig(CallingConvention callingConvention, TypeRef returnType, params TypeRef[] parameterTypes)
-        {
-        }
+            => throw IL.Throw();
 
         /// <summary>
         /// Constructs a managed method signature for the <c>calli</c> opcode.
@@ -30,8 +29,7 @@ namespace InlineIL
         /// <param name="returnType">The method return type.</param>
         /// <param name="parameterTypes">The method parameter types.</param>
         public StandAloneMethodSig(CallingConventions callingConvention, TypeRef returnType, params TypeRef[] parameterTypes)
-        {
-        }
+            => throw IL.Throw();
 
         /// <summary>
         /// Constructs an unmanaged method signature for the <c>calli</c> opcode.

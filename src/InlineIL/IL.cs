@@ -8,7 +8,6 @@ namespace InlineIL
     /// All method calls are replaced at weaving time.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    [SuppressMessage("Style", "IDE0060:Remove unused parameter")]
     public static unsafe partial class IL
     {
         /// <summary>
