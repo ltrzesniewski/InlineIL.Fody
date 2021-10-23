@@ -26,9 +26,18 @@ namespace InlineIL
             /// <para>
             /// The following <paramref name="operand"/> values are defined for the following instructions:
             /// <list type="table">
-            /// <item><term>0x01: typecheck</term><description> <c>castclass</c>, <c>unbox</c>, <c>ldelema</c>, <c>stelem.*</c></description></item>
-            /// <item><term>0x02: rangecheck</term><description> <c>ldelem.*</c>, <c>ldelema</c>, <c>stelem.*</c></description></item>
-            /// <item><term>0x04: nullcheck</term><description> <c>ldfld</c>, <c>stfld</c>, <c>callvirt</c>, <c>ldvirtftn</c>, <c>ldelem.*</c>, <c>stelem.*</c>, <c>ldelema</c></description></item>
+            /// <item>
+            ///     <term>0x01: typecheck</term>
+            ///     <description><c>castclass</c>, <c>unbox</c>, <c>ldelema</c>, <c>stelem.*</c></description>
+            /// </item>
+            /// <item>
+            ///     <term>0x02: rangecheck</term>
+            ///     <description><c>ldelem.*</c>, <c>ldelema</c>, <c>stelem.*</c></description>
+            /// </item>
+            /// <item>
+            ///     <term>0x04: nullcheck</term>
+            ///     <description><c>ldfld</c>, <c>stfld</c>, <c>callvirt</c>, <c>ldvirtftn</c>, <c>ldelem.*</c>, <c>stelem.*</c>, <c>ldelema</c></description>
+            /// </item>
             /// </list>
             /// </para>
             /// </remarks>
