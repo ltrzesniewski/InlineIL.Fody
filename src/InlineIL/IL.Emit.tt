@@ -33,22 +33,26 @@
 
     static string EscapeXml(string value) => value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 
-    string GetOpCodeSummary(OpCode opCode)
+    string GetInstructionXmlDoc(OpCode opCode)
     {
         if (!reflectionEmitCodes.TryGetValue(opCode.Value, out var reflectionEmitCode))
             throw new InvalidOperationException($"Could not find opcode: {opCode}");
 
         var sb = new StringBuilder();
+        sb.AppendLine("<summary>");
         sb.Append("<c>").Append(opCode.Name).Append("</c> - ");
         AppendXmlDoc(sb, "F:System.Reflection.Emit.OpCodes." + reflectionEmitCode.fieldName);
         TrimEnd(sb);
         sb.AppendLine();
+        sb.AppendLine("</summary>");
 
+        sb.AppendLine("<remarks>");
         sb.AppendLine(
             opCode.OpCodeType == OpCodeType.Prefix
                 ? "<para>This is a prefix instruction.</para>"
                 : $"<para>Stack Transition: {GetStackTransition(opCode)}</para>"
         );
+        sb.AppendLine("</remarks>");
 
         return sb.ToString();
     }
@@ -215,15 +219,13 @@ namespace InlineIL
         if (item.opCode == OpCodes.No)
             continue;
 
-        var summary = GetOpCodeSummary(item.opCode).Trim().Replace("\n", "\n            /// ");
+        var xmlDoc = GetInstructionXmlDoc(item.opCode).Trim().Replace("\n", "\n            /// ");
 
         switch (item.opCode.OperandType)
         {
             case OperandType.InlineNone:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             public static void <#= item.fieldName #>()
                 => IL.Throw();
 <#
@@ -233,9 +235,7 @@ namespace InlineIL
 
             case OperandType.InlineI:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="operand">The operand.</param>
             public static void <#= item.fieldName #>(int operand)
                 => IL.Throw();
@@ -246,9 +246,7 @@ namespace InlineIL
             {
                 var operandType = item.opCode == OpCodes.Ldc_I4_S ? "sbyte" : "byte";
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="operand">The operand.</param>
             public static void <#= item.fieldName #>(<#= operandType #> operand)
                 => IL.Throw();
@@ -258,9 +256,7 @@ namespace InlineIL
 
             case OperandType.InlineI8:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="operand">The operand.</param>
             public static void <#= item.fieldName #>(long operand)
                 => IL.Throw();
@@ -269,9 +265,7 @@ namespace InlineIL
 
             case OperandType.InlineR:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="operand">The operand.</param>
             public static void <#= item.fieldName #>(double operand)
                 => IL.Throw();
@@ -280,9 +274,7 @@ namespace InlineIL
 
             case OperandType.ShortInlineR:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="operand">The operand.</param>
             public static void <#= item.fieldName #>(float operand)
                 => IL.Throw();
@@ -291,9 +283,7 @@ namespace InlineIL
 
             case OperandType.InlineString:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="operand">The operand.</param>
             public static void <#= item.fieldName #>(string operand)
                 => IL.Throw();
@@ -304,16 +294,12 @@ namespace InlineIL
 
             case OperandType.InlineType:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="type">The type reference.</param>
             public static void <#= item.fieldName #>(TypeRef type)
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <typeparam name="T">The type reference.</typeparam>
             public static void <#= item.fieldName #><T>()
                 => IL.Throw();
@@ -322,9 +308,7 @@ namespace InlineIL
 
             case OperandType.InlineMethod:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="method">The method reference.</param>
             public static void <#= item.fieldName #>(MethodRef method)
                 => IL.Throw();
@@ -333,9 +317,7 @@ namespace InlineIL
 
             case OperandType.InlineField:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="field">The field reference.</param>
             public static void <#= item.fieldName #>(FieldRef field)
                 => IL.Throw();
@@ -344,30 +326,22 @@ namespace InlineIL
 
             case OperandType.InlineTok:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="type">The type reference.</param>
             public static void <#= item.fieldName #>(TypeRef type)
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <typeparam name="T">The type reference.</typeparam>
             public static void <#= item.fieldName #><T>()
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="method">The method reference.</param>
             public static void <#= item.fieldName #>(MethodRef method)
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="field">The field reference.</param>
             public static void <#= item.fieldName #>(FieldRef field)
                 => IL.Throw();
@@ -379,9 +353,7 @@ namespace InlineIL
             case OperandType.InlineBrTarget:
             case OperandType.ShortInlineBrTarget:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="labelName">The target label name.</param>
             public static void <#= item.fieldName #>(string labelName)
                 => IL.Throw();
@@ -390,9 +362,7 @@ namespace InlineIL
 
             case OperandType.InlineSwitch:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="labelNames">The target label names.</param>
             public static void <#= item.fieldName #>(params string[] labelNames)
                 => IL.Throw();
@@ -403,16 +373,12 @@ namespace InlineIL
 
             case OperandType.InlineVar:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void <#= item.fieldName #>(string name)
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="index">The local variable index.</param>
             public static void <#= item.fieldName #>(ushort index)
                 => IL.Throw();
@@ -421,16 +387,12 @@ namespace InlineIL
 
             case OperandType.ShortInlineVar:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="name">The local variable name, declared with <see cref="IL.DeclareLocals(LocalVar[])" />.</param>
             public static void <#= item.fieldName #>(string name)
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="index">The local variable index.</param>
             public static void <#= item.fieldName #>(byte index)
                 => IL.Throw();
@@ -441,16 +403,12 @@ namespace InlineIL
 
             case OperandType.InlineArg:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="name">The parameter name.</param>
             public static void <#= item.fieldName #>(string name)
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="index">The argument index.</param>
             public static void <#= item.fieldName #>(ushort index)
                 => IL.Throw();
@@ -459,16 +417,12 @@ namespace InlineIL
 
             case OperandType.ShortInlineArg:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="name">The parameter name.</param>
             public static void <#= item.fieldName #>(string name)
                 => IL.Throw();
 
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="index">The argument index.</param>
             public static void <#= item.fieldName #>(byte index)
                 => IL.Throw();
@@ -479,9 +433,7 @@ namespace InlineIL
 
             case OperandType.InlineSig:
 #>
-            /// <summary>
-            /// <#= summary #>
-            /// </summary>
+            /// <#= xmlDoc #>
             /// <param name="signature">The method signature.</param>
             public static void <#= item.fieldName #>(StandAloneMethodSig signature)
                 => IL.Throw();
