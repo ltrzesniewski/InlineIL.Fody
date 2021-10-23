@@ -8,5 +8,5 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Performance", "CA1822")] // Mark members as static
 [assembly: SuppressMessage("Usage", "CA2225")] // Operator overloads have named alternates
 [assembly: SuppressMessage("Style", "IDE0060:Remove unused parameter")]
-[assembly: SuppressMessage("Style", "IDE0021: Use block body for constructors")]
-[assembly: SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "VS doesn't know about ReSharper")]
+[assembly: SuppressMessage("Style", "IDE0021:Use block body for constructors")]
+[assembly: SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "VS doesn't know about ReSharper.")]

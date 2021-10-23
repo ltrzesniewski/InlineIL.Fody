@@ -29,10 +29,10 @@ namespace InlineIL.Fody.Model
         }
 
         public static MethodRefBuilder MethodByName(ModuleDefinition module, TypeReference typeRef, string methodName)
-            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, null, null, null));
+            => new(module, typeRef, FindMethod(typeRef, methodName, null, null, null));
 
         public static MethodRefBuilder MethodByNameAndSignature(ModuleDefinition module, TypeReference typeRef, string methodName, int? genericArity, TypeRefBuilder? returnType, IReadOnlyList<TypeRefBuilder> paramTypes)
-            => new MethodRefBuilder(module, typeRef, FindMethod(typeRef, methodName, genericArity, returnType, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
+            => new(module, typeRef, FindMethod(typeRef, methodName, genericArity, returnType, paramTypes ?? throw new ArgumentNullException(nameof(paramTypes))));
 
         public static MethodRefBuilder MethodFromDelegateReference(ModuleDefinition module, MethodReference methodRef)
         {
