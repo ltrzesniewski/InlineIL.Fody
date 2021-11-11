@@ -13,16 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup .NET 5
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 5.0.x
-
-      - name: Setup .NET 6
+      - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 6.0.x
-          include-prerelease: true
 
       - name: NuGet Restore
         run: dotnet restore -nodeReuse:false src/InlineIL.sln
