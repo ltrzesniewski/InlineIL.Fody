@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using static InlineIL.IL.Emit;
 
-// System.Runtime.CompilerServices.Unsafe does not have nullable reference types annotations
+// System.Runtime.CompilerServices.Unsafe does not have nullable reference type annotations
 #nullable disable
 
 namespace InlineIL.Examples
@@ -16,8 +16,10 @@ namespace InlineIL.Examples
     public static unsafe class Unsafe
     {
         // This is the InlineIL equivalent of System.Runtime.CompilerServices.Unsafe
-        // https://github.com/dotnet/runtime/blob/master/src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
-        // Last update: b3bc0a71e26e83b851c903bc5ed946489c83d231
+        // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
+        // Last update: ff135fe769534cf2d9fbd87bffcf65a16ab44c4a
+
+        // The [NonVersionable] attribute is applied just to reduce the diff size between this implementation and the original one after decompilation.
 
         [NonVersionable]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
