@@ -3,34 +3,33 @@ using Fody;
 using InlineIL.Fody.Extensions;
 using Mono.Cecil;
 
-namespace InlineIL.Fody.Model
+namespace InlineIL.Fody.Model;
+
+internal class FieldRefBuilder
 {
-    internal class FieldRefBuilder
+    private readonly FieldReference _field;
+
+    public FieldRefBuilder(TypeReference typeRef, string fieldName)
     {
-        private readonly FieldReference _field;
+        var typeDef = typeRef.ResolveRequiredType();
+        var fields = typeDef.Fields.Where(f => f.Name == fieldName).ToList();
 
-        public FieldRefBuilder(TypeReference typeRef, string fieldName)
+        switch (fields.Count)
         {
-            var typeDef = typeRef.ResolveRequiredType();
-            var fields = typeDef.Fields.Where(f => f.Name == fieldName).ToList();
+            case 0:
+                throw new WeavingException($"Field '{fieldName}' not found in type {typeDef.FullName}");
 
-            switch (fields.Count)
-            {
-                case 0:
-                    throw new WeavingException($"Field '{fieldName}' not found in type {typeDef.FullName}");
+            case 1:
+                _field = fields.Single().Clone();
+                _field.DeclaringType = typeRef;
+                break;
 
-                case 1:
-                    _field = fields.Single().Clone();
-                    _field.DeclaringType = typeRef;
-                    break;
-
-                default:
-                    // This should never happen
-                    throw new WeavingException($"Ambiguous field '{fieldName}' in type {typeDef.FullName}");
-            }
+            default:
+                // This should never happen
+                throw new WeavingException($"Ambiguous field '{fieldName}' in type {typeDef.FullName}");
         }
-
-        public FieldReference Build()
-            => _field;
     }
+
+    public FieldReference Build()
+        => _field;
 }

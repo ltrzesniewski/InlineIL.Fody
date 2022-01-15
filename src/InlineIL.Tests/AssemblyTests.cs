@@ -6,30 +6,29 @@ using InlineIL.Fody;
 using InlineIL.Tests.Support;
 using Xunit;
 
-namespace InlineIL.Tests
+namespace InlineIL.Tests;
+
+public class AssemblyTests
 {
-    public class AssemblyTests
+    [Fact]
+    public void should_not_reference_value_tuple()
     {
-        [Fact]
-        public void should_not_reference_value_tuple()
+        // System.ValueTuple may cause issues in some configurations, avoid using it.
+
+        using var fileStream = File.OpenRead(typeof(ModuleWeaver).Assembly.Location);
+        using var peReader = new PEReader(fileStream);
+        var metadataReader = peReader.GetMetadataReader();
+
+        foreach (var typeRefHandle in metadataReader.TypeReferences)
         {
-            // System.ValueTuple may cause issues in some configurations, avoid using it.
+            var typeRef = metadataReader.GetTypeReference(typeRefHandle);
 
-            using var fileStream = File.OpenRead(typeof(ModuleWeaver).Assembly.Location);
-            using var peReader = new PEReader(fileStream);
-            var metadataReader = peReader.GetMetadataReader();
+            var typeNamespace = metadataReader.GetString(typeRef.Namespace);
+            if (typeNamespace != typeof(ValueTuple).Namespace)
+                continue;
 
-            foreach (var typeRefHandle in metadataReader.TypeReferences)
-            {
-                var typeRef = metadataReader.GetTypeReference(typeRefHandle);
-
-                var typeNamespace = metadataReader.GetString(typeRef.Namespace);
-                if (typeNamespace != typeof(ValueTuple).Namespace)
-                    continue;
-
-                var typeName = metadataReader.GetString(typeRef.Name);
-                typeName.ShouldNotContain(nameof(ValueTuple));
-            }
+            var typeName = metadataReader.GetString(typeRef.Name);
+            typeName.ShouldNotContain(nameof(ValueTuple));
         }
     }
 }

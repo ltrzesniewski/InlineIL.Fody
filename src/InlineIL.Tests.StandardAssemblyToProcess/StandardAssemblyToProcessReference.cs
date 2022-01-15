@@ -1,6 +1,5 @@
-namespace InlineIL.Tests.StandardAssemblyToProcess
+namespace InlineIL.Tests.StandardAssemblyToProcess;
+
+public abstract class StandardAssemblyToProcessReference
 {
-    public abstract class StandardAssemblyToProcessReference
-    {
-    }
 }

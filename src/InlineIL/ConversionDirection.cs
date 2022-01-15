@@ -1,18 +1,17 @@
-﻿namespace InlineIL
+﻿namespace InlineIL;
+
+/// <summary>
+/// Conversion direction.
+/// </summary>
+public enum ConversionDirection
 {
     /// <summary>
-    /// Conversion direction.
+    /// Convert from the other type.
     /// </summary>
-    public enum ConversionDirection
-    {
-        /// <summary>
-        /// Convert from the other type.
-        /// </summary>
-        From,
+    From,
 
-        /// <summary>
-        /// Convert to the other type.
-        /// </summary>
-        To
-    }
+    /// <summary>
+    /// Convert to the other type.
+    /// </summary>
+    To
 }

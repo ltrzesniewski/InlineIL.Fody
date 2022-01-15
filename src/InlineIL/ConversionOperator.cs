@@ -1,18 +1,17 @@
-﻿namespace InlineIL
+﻿namespace InlineIL;
+
+/// <summary>
+/// Conversion operator.
+/// </summary>
+public enum ConversionOperator
 {
     /// <summary>
-    /// Conversion operator.
+    /// <c>op_Implicit</c>
     /// </summary>
-    public enum ConversionOperator
-    {
-        /// <summary>
-        /// <c>op_Implicit</c>
-        /// </summary>
-        Implicit,
+    Implicit,
 
-        /// <summary>
-        /// <c>op_Explicit</c>
-        /// </summary>
-        Explicit
-    }
+    /// <summary>
+    /// <c>op_Explicit</c>
+    /// </summary>
+    Explicit
 }

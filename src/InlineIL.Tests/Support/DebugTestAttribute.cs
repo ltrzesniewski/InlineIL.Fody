@@ -1,23 +1,22 @@
 using System.Diagnostics;
 using Xunit;
 
-namespace InlineIL.Tests.Support
+namespace InlineIL.Tests.Support;
+
+public class DebugTestAttribute : FactAttribute
 {
-    public class DebugTestAttribute : FactAttribute
+    public override string? Skip
     {
-        public override string? Skip
+        get
         {
-            get
-            {
-                if (base.Skip != null)
-                    return base.Skip;
+            if (base.Skip != null)
+                return base.Skip;
 
-                if (!Debugger.IsAttached)
-                    return "Debug test";
+            if (!Debugger.IsAttached)
+                return "Debug test";
 
-                return null;
-            }
-            set => base.Skip = value;
+            return null;
         }
+        set => base.Skip = value;
     }
 }

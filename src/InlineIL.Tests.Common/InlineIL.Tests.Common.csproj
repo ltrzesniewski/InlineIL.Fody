@@ -7,6 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
-  </ItemGroup>  
+  </ItemGroup>
 
 </Project>

@@ -8,192 +8,191 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Xunit.Abstractions;
 
-namespace InlineIL.Tests.Debug
+namespace InlineIL.Tests.Debug;
+
+public class StackStateTests
 {
-    public class StackStateTests
+    private readonly ITestOutputHelper _output;
+
+    public StackStateTests(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
+        _output = output;
+    }
 
-        public StackStateTests(ITestOutputHelper output)
+    [DebugTest]
+    public void CheckAllAssemblies()
+    {
+        var assemblyCount = 0;
+        var methodCount = 0;
+        var invalidMethods = new List<string>();
+
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            _output = output;
+            if (assembly.IsDynamic)
+                continue;
+
+            using var asm = AssemblyDefinition.ReadAssembly(assembly.Location);
+            ++assemblyCount;
+
+            foreach (var module in asm.Modules)
+            {
+                foreach (var type in module.GetTypes())
+                {
+                    foreach (var method in type.Methods)
+                    {
+                        if (!method.HasBody)
+                            continue;
+
+                        ++methodCount;
+
+                        if (!CheckMethod(method))
+                            invalidMethods.Add(method.ToString());
+                    }
+                }
+            }
         }
 
-        [DebugTest]
-        public void CheckAllAssemblies()
+        _output.WriteLine(RuntimeInformation.FrameworkDescription);
+        _output.WriteLine($"Invalid methods: {invalidMethods.Count} / {methodCount} in {assemblyCount} assemblies");
+
+        foreach (var name in invalidMethods)
+            _output.WriteLine(name);
+
+        invalidMethods.Count.ShouldEqual(0);
+    }
+
+    private static bool CheckMethod(MethodDefinition method)
+    {
+        var branchStates = new Dictionary<Instruction, StackState>(ReferenceEqualityComparer<Instruction>.Instance);
+
+        if (method.Body.HasExceptionHandlers)
         {
-            var assemblyCount = 0;
-            var methodCount = 0;
-            var invalidMethods = new List<string>();
-
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var handler in method.Body.ExceptionHandlers)
             {
-                if (assembly.IsDynamic)
-                    continue;
+                branchStates[handler.TryStart] = StackState.StartOfProtectedBlockStackState;
 
-                using var asm = AssemblyDefinition.ReadAssembly(assembly.Location);
-                ++assemblyCount;
-
-                foreach (var module in asm.Modules)
+                branchStates[handler.HandlerStart] = handler.HandlerType switch
                 {
-                    foreach (var type in module.GetTypes())
-                    {
-                        foreach (var method in type.Methods)
-                        {
-                            if (!method.HasBody)
-                                continue;
+                    ExceptionHandlerType.Catch   => StackState.ExceptionHandlerStackState,
+                    ExceptionHandlerType.Filter  => StackState.ExceptionHandlerStackState,
+                    ExceptionHandlerType.Finally => StackState.FinallyOrFaultHandlerStackState,
+                    ExceptionHandlerType.Fault   => StackState.FinallyOrFaultHandlerStackState,
+                    _                            => throw new ArgumentOutOfRangeException()
+                };
 
-                            ++methodCount;
-
-                            if (!CheckMethod(method))
-                                invalidMethods.Add(method.ToString());
-                        }
-                    }
-                }
+                if (handler.HandlerType == ExceptionHandlerType.Filter)
+                    branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
             }
-
-            _output.WriteLine(RuntimeInformation.FrameworkDescription);
-            _output.WriteLine($"Invalid methods: {invalidMethods.Count} / {methodCount} in {assemblyCount} assemblies");
-
-            foreach (var name in invalidMethods)
-                _output.WriteLine(name);
-
-            invalidMethods.Count.ShouldEqual(0);
         }
 
-        private static bool CheckMethod(MethodDefinition method)
+        var state = StackState.InitialStackState;
+
+        foreach (var instruction in method.Body.Instructions)
         {
-            var branchStates = new Dictionary<Instruction, StackState>(ReferenceEqualityComparer<Instruction>.Instance);
-
-            if (method.Body.HasExceptionHandlers)
+            if (branchStates.TryGetValue(instruction, out var forwardBranchState))
             {
-                foreach (var handler in method.Body.ExceptionHandlers)
+                if (forwardBranchState.Priority == StackStatePriority.Forced
+                    || state.Priority == StackStatePriority.IgnoreWhenFollowedByTargetOfForwardBranch)
                 {
-                    branchStates[handler.TryStart] = StackState.StartOfProtectedBlockStackState;
-
-                    branchStates[handler.HandlerStart] = handler.HandlerType switch
-                    {
-                        ExceptionHandlerType.Catch   => StackState.ExceptionHandlerStackState,
-                        ExceptionHandlerType.Filter  => StackState.ExceptionHandlerStackState,
-                        ExceptionHandlerType.Finally => StackState.FinallyOrFaultHandlerStackState,
-                        ExceptionHandlerType.Fault   => StackState.FinallyOrFaultHandlerStackState,
-                        _                            => throw new ArgumentOutOfRangeException()
-                    };
-
-                    if (handler.HandlerType == ExceptionHandlerType.Filter)
-                        branchStates[handler.FilterStart] = StackState.ExceptionHandlerStackState;
-                }
-            }
-
-            var state = StackState.InitialStackState;
-
-            foreach (var instruction in method.Body.Instructions)
-            {
-                if (branchStates.TryGetValue(instruction, out var forwardBranchState))
-                {
-                    if (forwardBranchState.Priority == StackStatePriority.Forced
-                        || state.Priority == StackStatePriority.IgnoreWhenFollowedByTargetOfForwardBranch)
-                    {
-                        state = forwardBranchState;
-                    }
-                    else
-                    {
-                        if (state.StackSize != forwardBranchState.StackSize)
-                            return false;
-                    }
-                }
-
-                var stackSize = state.StackSize;
-
-                PushPreProcessor.PopStack(instruction, ref stackSize);
-
-                if (stackSize < 0)
-                    return false;
-
-                PushPreProcessor.PushStack(instruction, ref stackSize);
-
-                state = new StackState(stackSize, StackStatePriority.Normal);
-
-                switch (instruction.OpCode.OperandType)
-                {
-                    case OperandType.InlineBrTarget:
-                    case OperandType.ShortInlineBrTarget:
-                    {
-                        if (instruction.Operand is not Instruction operand)
-                            return false;
-
-                        if (!UpdateBranchState(operand, state))
-                            return false;
-
-                        break;
-                    }
-
-                    case OperandType.InlineSwitch:
-                    {
-                        if (instruction.Operand is not Instruction[] operands)
-                            return false;
-
-                        foreach (var operand in operands)
-                        {
-                            if (!UpdateBranchState(operand, state))
-                                return false;
-                        }
-
-                        break;
-                    }
-                }
-
-                switch (instruction.OpCode.FlowControl)
-                {
-                    case FlowControl.Branch:
-                    case FlowControl.Throw:
-                    case FlowControl.Return:
-                        state = StackState.PostUnconditionalBranchStackState;
-                        break;
-                }
-            }
-
-            return true;
-
-            bool UpdateBranchState(Instruction targetInstruction, StackState branchState)
-            {
-                if (branchStates.TryGetValue(targetInstruction, out var existingState))
-                {
-                    if (existingState.StackSize != branchState.StackSize)
-                        return false;
+                    state = forwardBranchState;
                 }
                 else
                 {
-                    branchStates[targetInstruction] = branchState;
+                    if (state.StackSize != forwardBranchState.StackSize)
+                        return false;
+                }
+            }
+
+            var stackSize = state.StackSize;
+
+            PushPreProcessor.PopStack(instruction, ref stackSize);
+
+            if (stackSize < 0)
+                return false;
+
+            PushPreProcessor.PushStack(instruction, ref stackSize);
+
+            state = new StackState(stackSize, StackStatePriority.Normal);
+
+            switch (instruction.OpCode.OperandType)
+            {
+                case OperandType.InlineBrTarget:
+                case OperandType.ShortInlineBrTarget:
+                {
+                    if (instruction.Operand is not Instruction operand)
+                        return false;
+
+                    if (!UpdateBranchState(operand, state))
+                        return false;
+
+                    break;
                 }
 
-                return true;
+                case OperandType.InlineSwitch:
+                {
+                    if (instruction.Operand is not Instruction[] operands)
+                        return false;
+
+                    foreach (var operand in operands)
+                    {
+                        if (!UpdateBranchState(operand, state))
+                            return false;
+                    }
+
+                    break;
+                }
             }
-        }
 
-        private readonly struct StackState
-        {
-            public static StackState InitialStackState => new(0, StackStatePriority.Normal);
-            public static StackState PostUnconditionalBranchStackState => new(0, StackStatePriority.IgnoreWhenFollowedByTargetOfForwardBranch);
-            public static StackState StartOfProtectedBlockStackState => new(0, StackStatePriority.Normal);
-            public static StackState ExceptionHandlerStackState => new(1, StackStatePriority.Forced);
-            public static StackState FinallyOrFaultHandlerStackState => new(0, StackStatePriority.Forced);
-
-            public readonly int StackSize;
-            public readonly StackStatePriority Priority;
-
-            public StackState(int stackSize, StackStatePriority priority)
+            switch (instruction.OpCode.FlowControl)
             {
-                StackSize = stackSize;
-                Priority = priority;
+                case FlowControl.Branch:
+                case FlowControl.Throw:
+                case FlowControl.Return:
+                    state = StackState.PostUnconditionalBranchStackState;
+                    break;
             }
         }
 
-        private enum StackStatePriority
+        return true;
+
+        bool UpdateBranchState(Instruction targetInstruction, StackState branchState)
         {
-            Normal,
-            IgnoreWhenFollowedByTargetOfForwardBranch,
-            Forced
+            if (branchStates.TryGetValue(targetInstruction, out var existingState))
+            {
+                if (existingState.StackSize != branchState.StackSize)
+                    return false;
+            }
+            else
+            {
+                branchStates[targetInstruction] = branchState;
+            }
+
+            return true;
         }
+    }
+
+    private readonly struct StackState
+    {
+        public static StackState InitialStackState => new(0, StackStatePriority.Normal);
+        public static StackState PostUnconditionalBranchStackState => new(0, StackStatePriority.IgnoreWhenFollowedByTargetOfForwardBranch);
+        public static StackState StartOfProtectedBlockStackState => new(0, StackStatePriority.Normal);
+        public static StackState ExceptionHandlerStackState => new(1, StackStatePriority.Forced);
+        public static StackState FinallyOrFaultHandlerStackState => new(0, StackStatePriority.Forced);
+
+        public readonly int StackSize;
+        public readonly StackStatePriority Priority;
+
+        public StackState(int stackSize, StackStatePriority priority)
+        {
+            StackSize = stackSize;
+            Priority = priority;
+        }
+    }
+
+    private enum StackStatePriority
+    {
+        Normal,
+        IgnoreWhenFollowedByTargetOfForwardBranch,
+        Forced
     }
 }

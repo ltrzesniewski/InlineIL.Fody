@@ -2,29 +2,28 @@ using System;
 using InlineIL.Fody.Extensions;
 using Mono.Cecil;
 
-namespace InlineIL.Fody.Support
+namespace InlineIL.Fody.Support;
+
+internal class WeaverConfig
 {
-    internal class WeaverConfig
+    public bool GenerateSequencePoints { get; }
+
+    public WeaverConfig(WeaverConfigOptions? config, ModuleDefinition module)
     {
-        public bool GenerateSequencePoints { get; }
+        config ??= new WeaverConfigOptions(null);
 
-        public WeaverConfig(WeaverConfigOptions? config, ModuleDefinition module)
+        GenerateSequencePoints = ShouldGenerateSequencePoints(config, module);
+    }
+
+    private static bool ShouldGenerateSequencePoints(WeaverConfigOptions config, ModuleDefinition module)
+    {
+        return config.SequencePoints switch
         {
-            config ??= new WeaverConfigOptions(null);
-
-            GenerateSequencePoints = ShouldGenerateSequencePoints(config, module);
-        }
-
-        private static bool ShouldGenerateSequencePoints(WeaverConfigOptions config, ModuleDefinition module)
-        {
-            return config.SequencePoints switch
-            {
-                WeaverConfigOptions.SequencePointsBehavior.False   => false,
-                WeaverConfigOptions.SequencePointsBehavior.True    => true,
-                WeaverConfigOptions.SequencePointsBehavior.Debug   => module.IsDebugBuild(),
-                WeaverConfigOptions.SequencePointsBehavior.Release => !module.IsDebugBuild(),
-                _                                                  => throw new InvalidOperationException("Invalid sequence points behavior")
-            };
-        }
+            WeaverConfigOptions.SequencePointsBehavior.False   => false,
+            WeaverConfigOptions.SequencePointsBehavior.True    => true,
+            WeaverConfigOptions.SequencePointsBehavior.Debug   => module.IsDebugBuild(),
+            WeaverConfigOptions.SequencePointsBehavior.Release => !module.IsDebugBuild(),
+            _                                                  => throw new InvalidOperationException("Invalid sequence points behavior")
+        };
     }
 }

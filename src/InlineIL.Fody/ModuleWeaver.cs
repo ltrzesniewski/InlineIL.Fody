@@ -10,157 +10,156 @@ using InlineIL.Fody.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace InlineIL.Fody
+namespace InlineIL.Fody;
+
+public class ModuleWeaver : BaseModuleWeaver
 {
-    public class ModuleWeaver : BaseModuleWeaver
+    private readonly Logger _log;
+
+    [SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
+    public ModuleWeaver()
     {
-        private readonly Logger _log;
+        _log = new Logger(this);
+    }
 
-        [SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
-        public ModuleWeaver()
+    public override IEnumerable<string> GetAssembliesForScanning()
+        => Enumerable.Empty<string>();
+
+    public override void Execute()
+    {
+        var configOptions = new WeaverConfigOptions(Config);
+        var config = new WeaverConfig(configOptions, ModuleDefinition);
+        var context = new ModuleWeavingContext(ModuleDefinition, config);
+        var weaverLog = new WeaverLogger(_log, configOptions);
+
+        foreach (var type in ModuleDefinition.GetTypes())
         {
-            _log = new Logger(this);
-        }
-
-        public override IEnumerable<string> GetAssembliesForScanning()
-            => Enumerable.Empty<string>();
-
-        public override void Execute()
-        {
-            var configOptions = new WeaverConfigOptions(Config);
-            var config = new WeaverConfig(configOptions, ModuleDefinition);
-            var context = new ModuleWeavingContext(ModuleDefinition, config);
-            var weaverLog = new WeaverLogger(_log, configOptions);
-
-            foreach (var type in ModuleDefinition.GetTypes())
+            foreach (var method in type.Methods)
             {
-                foreach (var method in type.Methods)
+                try
                 {
-                    try
-                    {
-                        if (!MethodWeaver.NeedsProcessing(context, method))
-                            continue;
+                    if (!MethodWeaver.NeedsProcessing(context, method))
+                        continue;
 
-                        _log.Debug($"Processing: {method.FullName}");
-                        new MethodWeaver(context, method, weaverLog).Process();
-                    }
-                    catch (WeavingException ex)
-                    {
-                        AddError(ex.Message, ex.SequencePoint);
-                        InvalidateMethod(method, ex.Message);
-                    }
+                    _log.Debug($"Processing: {method.FullName}");
+                    new MethodWeaver(context, method, weaverLog).Process();
                 }
-
-                if (type.IsInlineILTypeUsageDeep(context))
-                    AddError($"Reference to InlineIL found in type {type.FullName}. InlineIL should not be referenced in attributes/constraints, as its assembly reference will be removed.", null);
+                catch (WeavingException ex)
+                {
+                    AddError(ex.Message, ex.SequencePoint);
+                    InvalidateMethod(method, ex.Message);
+                }
             }
 
-            RemoveLibReference(context);
+            if (type.IsInlineILTypeUsageDeep(context))
+                AddError($"Reference to InlineIL found in type {type.FullName}. InlineIL should not be referenced in attributes/constraints, as its assembly reference will be removed.", null);
         }
 
-        private void InvalidateMethod(MethodDefinition method, string message)
+        RemoveLibReference(context);
+    }
+
+    private void InvalidateMethod(MethodDefinition method, string message)
+    {
+        method.Body.Instructions.Clear();
+
+        if (method.Body.HasVariables)
+            method.Body.Variables.Clear();
+
+        if (method.Body.HasExceptionHandlers)
+            method.Body.ExceptionHandlers.Clear();
+
+        if (method.DebugInformation.HasSequencePoints)
+            method.DebugInformation.SequencePoints.Clear();
+
+        method.DebugInformation.Scope = null;
+        method.DebugInformation.StateMachineKickOffMethod = null;
+
+        if (method.HasCustomDebugInformations)
+            method.CustomDebugInformations.Clear();
+
+        MethodReference? exceptionCtor = null;
+
+        var coreLibrary = ModuleDefinition.GetCoreLibrary();
+        if (coreLibrary != null)
         {
-            method.Body.Instructions.Clear();
+            exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, coreLibrary)
+                            .Resolve()?
+                            .Methods
+                            .FirstOrDefault(m => m.IsRuntimeSpecialName
+                                                 && m.Name == ".ctor"
+                                                 && m.Parameters.Count == 1
+                                                 && m.Parameters[0].ParameterType.FullName == "System.String"
+                            )?
+                            .MapToScope(coreLibrary, ModuleDefinition);
+        }
 
-            if (method.Body.HasVariables)
-                method.Body.Variables.Clear();
+        if (exceptionCtor != null)
+        {
+            method.Body.Instructions.AddRange(
+                Instruction.Create(OpCodes.Ldstr, $"InlineIL processing failed: {message}"),
+                Instruction.Create(OpCodes.Newobj, ModuleDefinition.ImportReference(exceptionCtor)),
+                Instruction.Create(OpCodes.Throw)
+            );
+        }
+        else
+        {
+            method.Body.Instructions.AddRange(
+                Instruction.Create(OpCodes.Ldnull),
+                Instruction.Create(OpCodes.Throw)
+            );
+        }
+    }
 
-            if (method.Body.HasExceptionHandlers)
-                method.Body.ExceptionHandlers.Clear();
+    private void RemoveLibReference(ModuleWeavingContext context)
+    {
+        var libRef = ModuleDefinition.AssemblyReferences.FirstOrDefault(i => i.IsInlineILAssembly());
+        if (libRef == null)
+            return;
 
-            if (method.DebugInformation.HasSequencePoints)
-                method.DebugInformation.SequencePoints.Clear();
+        var importScopes = new HashSet<ImportDebugInformation>();
 
-            method.DebugInformation.Scope = null;
-            method.DebugInformation.StateMachineKickOffMethod = null;
+        foreach (var method in ModuleDefinition.GetTypes().SelectMany(t => t.Methods))
+        {
+            foreach (var scope in method.DebugInformation.GetScopes())
+                ProcessScope(scope);
+        }
 
-            if (method.HasCustomDebugInformations)
-                method.CustomDebugInformations.Clear();
+        ModuleDefinition.AssemblyReferences.Remove(libRef);
 
-            MethodReference? exceptionCtor = null;
+        var copyLocalFilesToRemove = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            libRef.Name + ".dll",
+            libRef.Name + ".xml",
+            libRef.Name + ".pdb" // We don't ship this, but future-proof that ;)
+        };
 
-            var coreLibrary = ModuleDefinition.GetCoreLibrary();
-            if (coreLibrary != null)
+        ReferenceCopyLocalPaths.RemoveAll(i => copyLocalFilesToRemove.Contains(Path.GetFileName(i)));
+
+        _log.Debug("Removed reference to InlineIL");
+
+        void ProcessScope(ScopeDebugInformation scope)
+        {
+            ProcessImportScope(scope.Import);
+
+            if (scope.HasScopes)
             {
-                exceptionCtor = new TypeReference("System", nameof(InvalidProgramException), ModuleDefinition, coreLibrary)
-                                .Resolve()?
-                                .Methods
-                                .FirstOrDefault(m => m.IsRuntimeSpecialName
-                                                     && m.Name == ".ctor"
-                                                     && m.Parameters.Count == 1
-                                                     && m.Parameters[0].ParameterType.FullName == "System.String"
-                                )?
-                                .MapToScope(coreLibrary, ModuleDefinition);
-            }
-
-            if (exceptionCtor != null)
-            {
-                method.Body.Instructions.AddRange(
-                    Instruction.Create(OpCodes.Ldstr, $"InlineIL processing failed: {message}"),
-                    Instruction.Create(OpCodes.Newobj, ModuleDefinition.ImportReference(exceptionCtor)),
-                    Instruction.Create(OpCodes.Throw)
-                );
-            }
-            else
-            {
-                method.Body.Instructions.AddRange(
-                    Instruction.Create(OpCodes.Ldnull),
-                    Instruction.Create(OpCodes.Throw)
-                );
+                foreach (var childScope in scope.Scopes)
+                    ProcessScope(childScope);
             }
         }
 
-        private void RemoveLibReference(ModuleWeavingContext context)
+        void ProcessImportScope(ImportDebugInformation? importScope)
         {
-            var libRef = ModuleDefinition.AssemblyReferences.FirstOrDefault(i => i.IsInlineILAssembly());
-            if (libRef == null)
+            if (importScope == null || !importScopes.Add(importScope))
                 return;
 
-            var importScopes = new HashSet<ImportDebugInformation>();
-
-            foreach (var method in ModuleDefinition.GetTypes().SelectMany(t => t.Methods))
-            {
-                foreach (var scope in method.DebugInformation.GetScopes())
-                    ProcessScope(scope);
-            }
-
-            ModuleDefinition.AssemblyReferences.Remove(libRef);
-
-            var copyLocalFilesToRemove = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                libRef.Name + ".dll",
-                libRef.Name + ".xml",
-                libRef.Name + ".pdb" // We don't ship this, but future-proof that ;)
-            };
-
-            ReferenceCopyLocalPaths.RemoveAll(i => copyLocalFilesToRemove.Contains(Path.GetFileName(i)));
-
-            _log.Debug("Removed reference to InlineIL");
-
-            void ProcessScope(ScopeDebugInformation scope)
-            {
-                ProcessImportScope(scope.Import);
-
-                if (scope.HasScopes)
-                {
-                    foreach (var childScope in scope.Scopes)
-                        ProcessScope(childScope);
-                }
-            }
-
-            void ProcessImportScope(ImportDebugInformation? importScope)
-            {
-                if (importScope == null || !importScopes.Add(importScope))
-                    return;
-
-                importScope.Targets.RemoveWhere(t => t.AssemblyReference.IsInlineILAssembly() || t.Type.IsInlineILTypeUsage(context));
-                ProcessImportScope(importScope.Parent);
-            }
+            importScope.Targets.RemoveWhere(t => t.AssemblyReference.IsInlineILAssembly() || t.Type.IsInlineILTypeUsage(context));
+            ProcessImportScope(importScope.Parent);
         }
-
-        public override bool ShouldCleanReference => true; // Enable the check for PrivateAssets
-
-        protected virtual void AddError(string message, SequencePoint? sequencePoint)
-            => _log.Error(message, sequencePoint);
     }
+
+    public override bool ShouldCleanReference => true; // Enable the check for PrivateAssets
+
+    protected virtual void AddError(string message, SequencePoint? sequencePoint)
+        => _log.Error(message, sequencePoint);
 }

@@ -2,35 +2,34 @@
 using InlineIL.Examples;
 using Xunit;
 
-namespace InlineIL.Tests.Examples
+namespace InlineIL.Tests.Examples;
+
+public class ExamplesTests
 {
-    public class ExamplesTests
+    [Fact]
+    public void InitStruct()
     {
-        [Fact]
-        public void InitStruct()
+        var item = new MyStruct
         {
-            var item = new MyStruct
-            {
-                Int = 42,
-                Guid = Guid.NewGuid()
-            };
+            Int = 42,
+            Guid = Guid.NewGuid()
+        };
 
-            InlineIL.Examples.Examples.ZeroInit(ref item);
+        InlineIL.Examples.Examples.ZeroInit(ref item);
 
-            Assert.Equal(0, item.Int);
-            Assert.Equal(Guid.Empty, item.Guid);
-        }
+        Assert.Equal(0, item.Int);
+        Assert.Equal(Guid.Empty, item.Guid);
+    }
 
-        private struct MyStruct
-        {
-            public int Int;
-            public Guid Guid;
-        }
+    private struct MyStruct
+    {
+        public int Int;
+        public Guid Guid;
+    }
 
-        [Fact]
-        public void DebugInfo()
-        {
-            DebugInfoExamples.LocalVariables();
-        }
+    [Fact]
+    public void DebugInfo()
+    {
+        DebugInfoExamples.LocalVariables();
     }
 }

@@ -3,79 +3,78 @@ using System.Linq;
 using System.Xml.Linq;
 using Fody;
 
-namespace InlineIL.Fody.Support
+namespace InlineIL.Fody.Support;
+
+internal class WeaverConfigOptions
 {
-    internal class WeaverConfigOptions
+    public SequencePointsBehavior SequencePoints { get; set; } = SequencePointsBehavior.Debug;
+    public WarningsBehavior Warnings { get; set; } = WarningsBehavior.Warnings;
+
+    public WeaverConfigOptions()
     {
-        public SequencePointsBehavior SequencePoints { get; set; } = SequencePointsBehavior.Debug;
-        public WarningsBehavior Warnings { get; set; } = WarningsBehavior.Warnings;
+    }
 
-        public WeaverConfigOptions()
-        {
-        }
+    public WeaverConfigOptions(XElement? element)
+    {
+        if (element != null)
+            LoadFrom(element);
+    }
 
-        public WeaverConfigOptions(XElement? element)
+    private void LoadFrom(XElement config)
+    {
+        foreach (var attribute in config.Attributes())
         {
-            if (element != null)
-                LoadFrom(element);
-        }
+            var attributeName = attribute.Name.LocalName;
 
-        private void LoadFrom(XElement config)
-        {
-            foreach (var attribute in config.Attributes())
+            switch (attributeName)
             {
-                var attributeName = attribute.Name.LocalName;
+                case nameof(SequencePoints):
+                    SequencePoints = ParseEnum<SequencePointsBehavior>(attribute);
+                    break;
 
-                switch (attributeName)
+                case nameof(Warnings):
+                    Warnings = ParseEnum<WarningsBehavior>(attribute);
+                    break;
+
+                default:
                 {
-                    case nameof(SequencePoints):
-                        SequencePoints = ParseEnum<SequencePointsBehavior>(attribute);
-                        break;
-
-                    case nameof(Warnings):
-                        Warnings = ParseEnum<WarningsBehavior>(attribute);
-                        break;
-
-                    default:
+                    var knownAttributes = new[]
                     {
-                        var knownAttributes = new[]
-                        {
-                            nameof(SequencePoints)
-                        };
+                        nameof(SequencePoints)
+                    };
 
-                        throw new WeavingException($"Unknown configuration attribute: '{attributeName}'. Known attributes: {string.Join(", ", knownAttributes.OrderBy(i => i, StringComparer.OrdinalIgnoreCase))}");
-                    }
+                    throw new WeavingException($"Unknown configuration attribute: '{attributeName}'. Known attributes: {string.Join(", ", knownAttributes.OrderBy(i => i, StringComparer.OrdinalIgnoreCase))}");
                 }
             }
-
-            foreach (var element in config.Elements())
-            {
-                throw new WeavingException($"Unknown configuration element: '{element.Name.LocalName}'");
-            }
         }
 
-        private static T ParseEnum<T>(XAttribute attribute)
-            where T : struct, Enum
+        foreach (var element in config.Elements())
         {
-            if (Enum.TryParse<T>(attribute.Value, true, out var result))
-                return result;
-
-            throw new WeavingException($"Invalid value '{attribute.Value}' for configuration attribute {attribute.Name.LocalName}. Valid values are: {string.Join(", ", Enum.GetNames(typeof(T)))}");
+            throw new WeavingException($"Unknown configuration element: '{element.Name.LocalName}'");
         }
+    }
 
-        public enum SequencePointsBehavior
-        {
-            False,
-            True,
-            Debug,
-            Release
-        }
+    private static T ParseEnum<T>(XAttribute attribute)
+        where T : struct, Enum
+    {
+        if (Enum.TryParse<T>(attribute.Value, true, out var result))
+            return result;
 
-        public enum WarningsBehavior
-        {
-            Warnings,
-            Ignore,
-            Errors
-        }
+        throw new WeavingException($"Invalid value '{attribute.Value}' for configuration attribute {attribute.Name.LocalName}. Valid values are: {string.Join(", ", Enum.GetNames(typeof(T)))}");
+    }
+
+    public enum SequencePointsBehavior
+    {
+        False,
+        True,
+        Debug,
+        Release
+    }
+
+    public enum WarningsBehavior
+    {
+        Warnings,
+        Ignore,
+        Errors
     }
 }

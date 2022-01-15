@@ -1,7 +1,6 @@
-﻿namespace InlineIL.Tests.Common
+﻿namespace InlineIL.Tests.Common;
+
+public interface IBasicTestCases
 {
-    public interface IBasicTestCases
-    {
-        void PushInRef(in int value);
-    }
+    void PushInRef(in int value);
 }

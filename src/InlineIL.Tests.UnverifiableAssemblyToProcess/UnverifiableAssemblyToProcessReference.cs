@@ -1,6 +1,5 @@
-namespace InlineIL.Tests.UnverifiableAssemblyToProcess
+namespace InlineIL.Tests.UnverifiableAssemblyToProcess;
+
+public abstract class UnverifiableAssemblyToProcessReference
 {
-    public abstract class UnverifiableAssemblyToProcessReference
-    {
-    }
 }

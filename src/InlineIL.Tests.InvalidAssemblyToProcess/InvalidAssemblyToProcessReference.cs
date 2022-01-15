@@ -1,6 +1,5 @@
-namespace InlineIL.Tests.InvalidAssemblyToProcess
+namespace InlineIL.Tests.InvalidAssemblyToProcess;
+
+public abstract class InvalidAssemblyToProcessReference
 {
-    public abstract class InvalidAssemblyToProcessReference
-    {
-    }
 }

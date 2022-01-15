@@ -3,23 +3,22 @@ using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Support;
 using Mono.Cecil;
 
-namespace InlineIL.Fody.Processing
+namespace InlineIL.Fody.Processing;
+
+internal class ModuleWeavingContext
 {
-    internal class ModuleWeavingContext
+    public ModuleDefinition Module { get; }
+    public WeaverConfig Config { get; }
+
+    public bool IsDebugBuild { get; }
+
+    internal Dictionary<TypeReference, bool> LibUsageTypeCache { get; } = new();
+
+    public ModuleWeavingContext(ModuleDefinition module, WeaverConfig config)
     {
-        public ModuleDefinition Module { get; }
-        public WeaverConfig Config { get; }
+        Module = module;
+        Config = config;
 
-        public bool IsDebugBuild { get; }
-
-        internal Dictionary<TypeReference, bool> LibUsageTypeCache { get; } = new();
-
-        public ModuleWeavingContext(ModuleDefinition module, WeaverConfig config)
-        {
-            Module = module;
-            Config = config;
-
-            IsDebugBuild = Module.IsDebugBuild();
-        }
+        IsDebugBuild = Module.IsDebugBuild();
     }
 }
