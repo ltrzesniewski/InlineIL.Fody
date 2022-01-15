@@ -5,7 +5,6 @@ namespace InlineIL;
 partial class IL
 {
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    [SuppressMessage("Naming", "CA1724:Type names should not match namespaces")]
     partial class Emit
     {
         /// <summary>

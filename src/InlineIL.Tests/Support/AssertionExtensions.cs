@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Xunit;
 using Xunit.Sdk;
+using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
 
 namespace InlineIL.Tests.Support;
 
@@ -25,11 +26,7 @@ internal static class AssertionExtensions
         => Assert.Null(actual);
 
     [ContractAnnotation("null => halt")]
-    public static T ShouldNotBeNull<T>(
-#if NETCOREAPP
-        [System.Diagnostics.CodeAnalysis.NotNull]
-#endif
-        this T? actual)
+    public static T ShouldNotBeNull<T>([NotNull] this T? actual)
         where T : class
     {
         Assert.NotNull(actual);

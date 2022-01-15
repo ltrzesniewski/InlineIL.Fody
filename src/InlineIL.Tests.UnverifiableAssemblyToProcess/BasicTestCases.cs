@@ -8,7 +8,6 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess;
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-[SuppressMessage("ReSharper", "RedundantAssignment")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [SuppressMessage("ReSharper", "EntityNameCapturedOnly.Global")]
 public unsafe class BasicTestCases : IUnverifiableBasicTestCases
@@ -51,6 +50,7 @@ public unsafe class BasicTestCases : IUnverifiableBasicTestCases
 
     public int PopPointerArg(int* arg, int offset)
     {
+        _ = arg; // Make ReSharper happy
         Ldarg(nameof(arg));
         Ldarg(nameof(offset));
         Conv_I();
@@ -87,6 +87,7 @@ public unsafe class BasicTestCases : IUnverifiableBasicTestCases
 
     public int PopVoidPointerArg(void* arg, int offset)
     {
+        _ = arg; // Make ReSharper happy
         Ldarg(nameof(arg));
         Ldarg(nameof(offset));
         Conv_I();

@@ -6,7 +6,6 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "NotAccessedField.Local")]
 public class BasicTestCases
 {
     private int _intField;
@@ -48,7 +47,9 @@ public class BasicTestCases
         IL.Pop(out int result);
         a.foo = result;
 
-        static ref (int foo, int bar) GetRefToStruct(int _) => throw new InvalidOperationException();
+        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+        static ref (int foo, int bar) GetRefToStruct(int _)
+            => throw new InvalidOperationException();
     }
 
     public void InvalidPushUsage3()

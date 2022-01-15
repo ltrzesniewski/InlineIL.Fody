@@ -10,16 +10,16 @@ internal static class FixtureHelper
     public static string IsolateAssembly<T>()
     {
         var assembly = typeof(T).Assembly;
-        var assemblyPath = assembly.Location!;
+        var assemblyPath = assembly.Location;
         var assemblyDir = Path.GetDirectoryName(assemblyPath)!;
         var rootTestDir = Path.Combine(assemblyDir, "WeavingTest");
-        var asmTestDir = Path.Combine(rootTestDir, Path.GetFileNameWithoutExtension(assemblyPath)!);
+        var asmTestDir = Path.Combine(rootTestDir, Path.GetFileNameWithoutExtension(assemblyPath));
 
         EmptyDirectory(asmTestDir);
         Directory.CreateDirectory(asmTestDir);
 
         var destFile = CopyFile(assemblyPath, asmTestDir);
-        CopyFile(Path.ChangeExtension(assemblyPath, ".pdb")!, asmTestDir);
+        CopyFile(Path.ChangeExtension(assemblyPath, ".pdb"), asmTestDir);
         CopyFile(Path.Combine(assemblyDir, "InlineIL.dll"), asmTestDir);
 
         return destFile;
@@ -30,7 +30,7 @@ internal static class FixtureHelper
         if (!File.Exists(fileName))
             throw new InvalidOperationException($"File not found: {fileName}");
 
-        var dest = Path.Combine(targetDir, Path.GetFileName(fileName)!);
+        var dest = Path.Combine(targetDir, Path.GetFileName(fileName));
         File.Copy(fileName, dest);
         return dest;
     }
