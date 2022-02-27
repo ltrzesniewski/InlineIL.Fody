@@ -16,8 +16,8 @@ namespace InlineIL.Examples
     public static unsafe class Unsafe
     {
         // This is the InlineIL equivalent of System.Runtime.CompilerServices.Unsafe
-        // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
-        // Last update: ff135fe769534cf2d9fbd87bffcf65a16ab44c4a
+        // https://github.com/dotnet/runtime/blob/release/6.0/src/libraries/System.Runtime.CompilerServices.Unsafe/src/System.Runtime.CompilerServices.Unsafe.il
+        // Last update: 98ace7d4837fcd81c1f040b1f67e63e9e1973e13 - these methods became intrinsics starting from .NET 7
 
         // The [NonVersionable] attribute is applied just to reduce the diff size between this implementation and the original one after decompilation.
 
