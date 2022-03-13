@@ -1,11 +1,11 @@
+<img src="icon.png" align="right" style="float: right; margin-left: 10px; margin-bottom: 10px;" alt="Logo" />
+
 # InlineIL.Fody
 
 [![Build](https://github.com/ltrzesniewski/InlineIL.Fody/workflows/Build/badge.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/actions?query=workflow%3ABuild)
 [![NuGet package](https://img.shields.io/nuget/v/InlineIL.Fody.svg?logo=NuGet)](https://www.nuget.org/packages/InlineIL.Fody)
 [![GitHub release](https://img.shields.io/github/release/ltrzesniewski/InlineIL.Fody.svg?logo=GitHub)](https://github.com/ltrzesniewski/InlineIL.Fody/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE)
-
-![Icon](https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png)
 
 This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject arbitrary IL into your assembly at compile time.
 
