@@ -99,7 +99,7 @@ public class BasicTestCases
         Ldc_I4(a ? 42 : 10);
     }
 
-    [SuppressMessage("ReSharper", "ConstantNullCoalescingCondition")]
+    [SuppressMessage("ReSharper", "NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract")]
     public void NotSameBasicBlock2()
     {
         Ldtoken(MethodRef.Constructor(typeof(BasicTestCases)) ?? MethodRef.Constructor(typeof(BasicTestCases)));
