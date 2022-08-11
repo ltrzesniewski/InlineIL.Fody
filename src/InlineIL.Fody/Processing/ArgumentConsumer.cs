@@ -582,30 +582,59 @@ internal class ArgumentConsumer
 
     public T[] ConsumeArgArray<T>(Instruction instruction, Func<Instruction, T> consumeItem)
     {
-        if (instruction.OpCode == OpCodes.Call)
-        {
-            if (instruction.Operand is not MethodReference method || method.GetElementMethod().FullName != "!!0[] System.Array::Empty()")
-                throw UnexpectedInstruction(instruction, "newarr or call to Array.Empty");
+        const string expectedInstruction = "an array creation";
 
-            _il.Remove(instruction);
-            return Array.Empty<T>();
+        int elementCount;
+
+        switch (instruction.OpCode.Code)
+        {
+            case Code.Newarr:
+            {
+                var countInstruction = _il.GetPrevSkipNopsInSameBasicBlock(instruction);
+                if (countInstruction.OpCode != OpCodes.Ldc_I4)
+                    throw UnexpectedInstruction(countInstruction, OpCodes.Ldc_I4);
+
+                elementCount = (int)countInstruction.Operand;
+                _il.Remove(countInstruction);
+                break;
+            }
+
+            case Code.Call when instruction.Operand is MethodReference method:
+            {
+                switch (method.GetElementMethod().FullName)
+                {
+                    case "!!0[] System.Array::Empty()":
+                    {
+                        elementCount = 0;
+                        break;
+                    }
+
+                    case "!!0[] System.GC::AllocateUninitializedArray(System.Int32,System.Boolean)":
+                    {
+                        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                        elementCount = ConsumeArgInt32(args[0]);
+                        ConsumeArgBool(args[1]);
+                        break;
+                    }
+
+                    default:
+                        throw UnexpectedInstruction(instruction, expectedInstruction);
+                }
+
+                break;
+            }
+
+            default:
+                throw UnexpectedInstruction(instruction, expectedInstruction);
         }
 
-        if (instruction.OpCode != OpCodes.Newarr)
-            throw UnexpectedInstruction(instruction, "newarr or call to Array.Empty");
+        var result = elementCount != 0
+            ? new T[elementCount]
+            : Array.Empty<T>();
 
-        var newarrInstruction = instruction;
+        var currentDupInstruction = instruction.NextSkipNops();
 
-        var countInstruction = _il.GetPrevSkipNopsInSameBasicBlock(newarrInstruction);
-        if (countInstruction.OpCode != OpCodes.Ldc_I4)
-            throw UnexpectedInstruction(countInstruction, OpCodes.Ldc_I4);
-
-        var count = (int)countInstruction.Operand;
-        var args = new T[count];
-
-        var currentDupInstruction = newarrInstruction.NextSkipNops();
-
-        for (var index = 0; index < count; ++index)
+        for (var index = 0; index < elementCount; ++index)
         {
             var dupInstruction = currentDupInstruction;
             if (dupInstruction?.OpCode != OpCodes.Dup)
@@ -622,24 +651,23 @@ internal class ArgumentConsumer
             if (!stelemInstruction.OpCode.IsStelem())
                 throw UnexpectedInstruction(stelemInstruction, "stelem");
 
-            args[index] = consumeItem(stelemInstruction.PrevSkipNopsRequired());
+            result[index] = consumeItem(stelemInstruction.PrevSkipNopsRequired());
 
             currentDupInstruction = stelemInstruction.NextSkipNops();
 
-            _il.EnsureSameBasicBlock(dupInstruction, newarrInstruction);
+            _il.EnsureSameBasicBlock(dupInstruction, instruction);
             _il.Remove(dupInstruction);
 
-            _il.EnsureSameBasicBlock(indexInstruction, newarrInstruction);
+            _il.EnsureSameBasicBlock(indexInstruction, instruction);
             _il.Remove(indexInstruction);
 
-            _il.EnsureSameBasicBlock(stelemInstruction, newarrInstruction);
+            _il.EnsureSameBasicBlock(stelemInstruction, instruction);
             _il.Remove(stelemInstruction);
         }
 
-        _il.Remove(countInstruction);
-        _il.Remove(newarrInstruction);
+        _il.Remove(instruction);
 
-        return args;
+        return result;
     }
 
     public LocalVarBuilder ConsumeArgLocalVarBuilder(Instruction instruction)
