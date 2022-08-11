@@ -9,12 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
-    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="6.0.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="6.0.1" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
