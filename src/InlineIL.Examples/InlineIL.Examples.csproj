@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
+    <ProjectReference Include="..\InlineIL.Examples.InSolutionWeaver\InlineIL.Examples.InSolutionWeaver.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Import Project="..\InlineIL.Examples.InSolutionWeaver\InlineIL.Examples.InSolutionWeaver.props" />
