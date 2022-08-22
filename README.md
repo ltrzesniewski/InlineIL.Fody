@@ -38,6 +38,8 @@ A few more things which are good to know:
 
  - `System.Type` is implicitly convertible to `InlineIL.TypeRef`: when you see a `TypeRef` parameter, you can use the `typeof` keyword in most cases.
 
+ - You can use the `IL.Push` method to push anything onto the evaluation stack. In particular, this lets you access C# variables, as you cannot emit an `ldloc` instruction for those.
+
  - You can add the `using static InlineIL.IL.Emit;` directive to get rid of the `IL.Emit` prefix.
 
  - You don't *have* to emit instructions in their short form, they will be shortened automatically (*e.g.* `ldarg.0` will be emitted instead of `ldarg 0`).
