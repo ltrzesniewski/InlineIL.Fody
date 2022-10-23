@@ -1,4 +1,6 @@
 // ReSharper disable CheckNamespace
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace System.Diagnostics.CodeAnalysis;
 

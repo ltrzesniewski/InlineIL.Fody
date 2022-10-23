@@ -42,8 +42,7 @@ internal static partial class CecilExtensions
                     return ((IMethodSignature)t).IsInlineILTypeUsage(ctx);
 
                 default:
-                    return typeRef.Scope?.MetadataScopeType == MetadataScopeType.AssemblyNameReference
-                           && typeRef.Scope.Name == "InlineIL";
+                    return typeRef.Scope is { MetadataScopeType: MetadataScopeType.AssemblyNameReference, Name: "InlineIL" };
             }
         }
     }
@@ -74,10 +73,10 @@ internal static partial class CecilExtensions
         if (method.ReturnType.IsInlineILTypeUsage(context) || method.HasParameters && method.Parameters.Any(i => i.IsInlineILTypeUsage(context)))
             return true;
 
-        if (method is IGenericInstance genericInstance && genericInstance.HasGenericArguments && genericInstance.GenericArguments.Any(i => i.IsInlineILTypeUsage(context)))
+        if (method is IGenericInstance { HasGenericArguments: true } genericInstance && genericInstance.GenericArguments.Any(i => i.IsInlineILTypeUsage(context)))
             return true;
 
-        if (method is IGenericParameterProvider generic && generic.HasGenericParameters && generic.GenericParameters.Any(i => i.IsInlineILTypeUsage(context)))
+        if (method is IGenericParameterProvider { HasGenericParameters: true } generic && generic.GenericParameters.Any(i => i.IsInlineILTypeUsage(context)))
             return true;
 
         if (method is MethodReference methodRef)
