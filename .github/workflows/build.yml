@@ -4,10 +4,11 @@ on: [push, pull_request]
 
 env:
   DOTNET_NOLOGO: 1
+  BUILD_DOTNET_VERSION: 7.0.x
 
 jobs:
-  windows:
-    name: Windows
+  build:
+    name: Build
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -16,28 +17,40 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
 
       - name: NuGet Restore
-        run: dotnet restore -nodeReuse:false src/InlineIL.sln
+        run: dotnet restore src/InlineIL.sln
 
-      - name: Build Debug
-        run: dotnet build --configuration Debug -nodeReuse:false --no-restore src/InlineIL.sln
-
-      - name: Build Release
-        run: dotnet build --configuration Release -nodeReuse:false --no-restore src/InlineIL.sln
+      - name: Build
+        run: dotnet build --configuration Release --no-restore src/InlineIL.sln
 
       - name: NuGet Pack
-        run: dotnet pack --configuration Release -nodeReuse:false --no-build src/InlineIL.sln
-
-      - name: Test Debug
-        run: dotnet test --configuration Debug -nodeReuse:false --no-build src/InlineIL.sln
-
-      - name: Test Release
-        run: dotnet test --configuration Release -nodeReuse:false --no-build src/InlineIL.sln
+        run: dotnet pack --configuration Release --no-build src/InlineIL.sln
 
       - name: Upload NuGet
         uses: actions/upload-artifact@v3
         with:
           name: NuGet
           path: output/*.nupkg
+
+  test:
+    name: Test (${{ matrix.configuration }}, C# ${{ matrix.langVersion }})
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        langVersion: [10, 11]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
+
+      - name: Test
+        run: |
+          cd src
+          dotnet test --configuration ${{ matrix.configuration }} -p:LangVersion=${{ matrix.langVersion }}
