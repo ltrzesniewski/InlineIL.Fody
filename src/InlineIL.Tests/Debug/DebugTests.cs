@@ -27,9 +27,9 @@ public class DebugTests
     [DebugTest]
     public void SingleMethod()
     {
-        var assemblyPath = FixtureHelper.IsolateAssembly<StandardAssemblyToProcessReference>();
+        var assemblyPath = FixtureHelper.IsolateAssembly<AssemblyToProcessReference>();
         var type = typeof(MethodRefTestCases);
-        var methodName = nameof(MethodRefTestCases.ReturnMethodHandle);
+        var methodName = nameof(MethodRefTestCases.CallStaticMethodFromDelegate);
 
         using var module = ModuleDefinition.ReadModule(assemblyPath);
         var weavingContext = new ModuleWeavingContext(module, new WeaverConfig(null, module));

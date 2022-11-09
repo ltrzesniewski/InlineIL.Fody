@@ -470,17 +470,42 @@ internal class ArgumentConsumer
             }
         }
 
-        MethodRefBuilder ConsumeArgDelegate(Instruction instruction)
+        [SuppressMessage("ReSharper", "MergeIntoPattern")]
+        MethodRefBuilder ConsumeArgDelegate(Instruction newobjInstruction)
         {
-            if (instruction.OpCode != OpCodes.Newobj)
-                throw UnexpectedInstruction(instruction, "a delegate instantiation");
+            if (newobjInstruction.OpCode != OpCodes.Newobj)
+                throw UnexpectedInstruction(newobjInstruction, "a delegate instantiation");
 
-            var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+            var args = _il.GetArgumentPushInstructionsInSameBasicBlock(newobjInstruction);
             var methodRef = ConsumeArgLdFtn(args[1]);
             var builder = MethodRefBuilder.MethodFromDelegateReference(Module, methodRef);
             ConsumeArgObjRefNoSideEffects(args[0]);
 
-            _il.Remove(instruction);
+            // C# 11 caches static delegate instances for method groups, we need to handle that here
+            if (newobjInstruction.Previous is { OpCode.Code : Code.Pop } popCachedInstruction
+                && popCachedInstruction.Previous is { OpCode.Code: Code.Brtrue } brtrueInstruction
+                && brtrueInstruction.Previous is { OpCode.Code: Code.Dup } dupCachedInstruction
+                && dupCachedInstruction.Previous is { OpCode.Code: Code.Ldsfld } ldsfldInstruction
+                && newobjInstruction.Next is { OpCode.Code: Code.Dup } dupNewInstruction
+                && dupNewInstruction.Next is { OpCode.Code: Code.Stsfld } stsfldInstruction
+                && stsfldInstruction.Next is { } nextInstruction
+                && ldsfldInstruction.Operand == stsfldInstruction.Operand
+                && brtrueInstruction.Operand == nextInstruction)
+            {
+                _il.Remove(
+                    ldsfldInstruction,
+                    dupCachedInstruction,
+                    brtrueInstruction,
+                    popCachedInstruction,
+                    dupNewInstruction,
+                    stsfldInstruction
+                );
+
+                _il.MergeBasicBlocks(ldsfldInstruction, newobjInstruction);
+                _il.MergeBasicBlocks(ldsfldInstruction, nextInstruction);
+            }
+
+            _il.Remove(newobjInstruction);
             return builder;
         }
 

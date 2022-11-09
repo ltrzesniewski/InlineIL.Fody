@@ -36,6 +36,12 @@ internal class WeaverILProcessor
         UpdateReferences(instruction, newRef);
     }
 
+    public void Remove(params Instruction[] instructions)
+    {
+        foreach (var instruction in instructions)
+            Remove(instruction);
+    }
+
     public void Replace(Instruction oldInstruction, Instruction newInstruction, bool mapToBasicBlock = false)
     {
         _il.Replace(oldInstruction, newInstruction);
@@ -139,6 +145,19 @@ internal class WeaverILProcessor
     {
         if (GetBasicBlock(instruction) != basicBlock)
             throw new InstructionWeavingException(instruction, "An unconditional expression was expected.");
+    }
+
+    public void MergeBasicBlocks(Instruction sourceBasicBlock, Instruction basicBlockToUpdate)
+    {
+        var sourceBlock = GetBasicBlock(sourceBasicBlock);
+        var targetBlock = GetBasicBlock(basicBlockToUpdate);
+
+        var instructionsToUpdate = _basicBlocks.Where(i => i.Value == targetBlock)
+                                               .Select(i => i.Key)
+                                               .ToList();
+
+        foreach (var instruction in instructionsToUpdate)
+            _basicBlocks[instruction] = sourceBlock;
     }
 
     private void UpdateReferences(Instruction oldInstruction, Instruction newInstruction)
