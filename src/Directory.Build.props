@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <Version>1.7.2</Version>
-    <FodyVersion>6.6.3</FodyVersion>
+    <FodyVersion>6.6.4</FodyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
     <AnalysisLevel>5.0</AnalysisLevel>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
