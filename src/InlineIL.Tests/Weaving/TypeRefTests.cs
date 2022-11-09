@@ -161,14 +161,14 @@ public class TypeRefTests : TypeRefTestsBase
     public void should_handle_nested_types_using_runtime_syntax()
     {
         var result = (Type)GetInstance().ReturnNestedTypeUsingRuntimeSyntax();
-        result.FullName.ShouldEqual($"{VerifiableAssembly}.TypeRefTestCases+NestedType");
+        result.FullName.ShouldEqual($"{_verifiableAssembly}.TypeRefTestCases+NestedType");
     }
 
     [Fact]
     public void should_handle_nested_types_using_ecma_syntax()
     {
         var result = (Type)GetInstance().ReturnNestedTypeUsingEcmaSyntax();
-        result.FullName.ShouldEqual($"{VerifiableAssembly}.TypeRefTestCases+NestedType");
+        result.FullName.ShouldEqual($"{_verifiableAssembly}.TypeRefTestCases+NestedType");
     }
 
     [Fact]

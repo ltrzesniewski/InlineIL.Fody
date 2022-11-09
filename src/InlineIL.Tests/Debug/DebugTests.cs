@@ -10,7 +10,6 @@ using InlineIL.Tests.Support;
 using InlineIL.Tests.Weaving;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using standard::InlineIL.Tests.StandardAssemblyToProcess;
 using Xunit.Abstractions;
 
 namespace InlineIL.Tests.Debug;
