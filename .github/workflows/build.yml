@@ -53,4 +53,4 @@ jobs:
       - name: Test
         run: |
           cd src
-          dotnet test --configuration ${{ matrix.configuration }} -p:LangVersion=${{ matrix.langVersion }}
+          dotnet test --configuration ${{ matrix.configuration }} -p:TestAssembliesLangVersion=${{ matrix.langVersion }}

@@ -14,6 +14,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Tests.UnverifiableAssemblyToProcess", "InlineIL.Tests.UnverifiableAssemblyToProcess\InlineIL.Tests.UnverifiableAssemblyToProcess.csproj", "{B796B2CF-5296-4D53-9BF3-156B49AA3AB1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{97C79009-9BDF-4796-882A-6703071B864F}"
+	ProjectSection(SolutionItems) = preProject
+		TestAssemblies.props = TestAssemblies.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InlineIL.Tests.InvalidAssemblyToProcess", "InlineIL.Tests.InvalidAssemblyToProcess\InlineIL.Tests.InvalidAssemblyToProcess.csproj", "{46E1DDB1-F117-4395-B72F-DD50FA2B2579}"
 EndProject

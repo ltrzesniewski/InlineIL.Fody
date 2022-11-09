@@ -2,12 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <DisableFody>true</DisableFody>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
-  </ItemGroup>
+  <Import Project="../TestAssemblies.props" />
 
   <ItemGroup>
     <Compile Include="..\InlineIL.Tests.AssemblyToProcess\**\*.cs"

@@ -2,11 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0;net48</TargetFrameworks>
-    <DisableFody>true</DisableFody>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
-  </ItemGroup>
+  <Import Project="../TestAssemblies.props" />
 
 </Project>

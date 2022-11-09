@@ -1,0 +1,14 @@
+<Project>
+
+  <PropertyGroup>
+    <DisableFody>true</DisableFody>
+
+    <TestAssembliesLangVersion Condition="'$(TestAssembliesLangVersion)' == ''">$(LangVersion)</TestAssembliesLangVersion>
+    <LangVersion>$(TestAssembliesLangVersion)</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../InlineIL.Tests.Common/InlineIL.Tests.Common.csproj" />
+  </ItemGroup>
+
+</Project>
