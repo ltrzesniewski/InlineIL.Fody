@@ -13,6 +13,8 @@ namespace InlineIL.Fody.Processing;
 
 internal class WeaverILProcessor
 {
+    private const int _emittedBasicBlockId = 0; // Basic block id assigned to emitted instructions
+
     private readonly ILProcessor _il;
     private readonly HashSet<Instruction> _referencedInstructions;
     private readonly Dictionary<Instruction, int> _basicBlocks;
@@ -63,24 +65,13 @@ internal class WeaverILProcessor
     {
         var refs = new HashSet<Instruction>(ReferenceEqualityComparer<Instruction>.Instance);
 
+        foreach (var instruction in _il.Body.Instructions)
+            refs.UnionWith(instruction.GetReferencedInstructions());
+
         if (_il.Body.HasExceptionHandlers)
         {
             foreach (var handler in _il.Body.ExceptionHandlers)
-                refs.UnionWith(handler.GetInstructions());
-        }
-
-        foreach (var instruction in _il.Body.Instructions)
-        {
-            switch (instruction.Operand)
-            {
-                case Instruction target:
-                    refs.Add(target);
-                    break;
-
-                case Instruction[] targets:
-                    refs.UnionWith(targets.Where(t => t != null));
-                    break;
-            }
+                refs.UnionWith(handler.GetReferencedInstructions());
         }
 
         return refs;
@@ -89,7 +80,7 @@ internal class WeaverILProcessor
     private static Dictionary<Instruction, int> SplitToBasicBlocks(IEnumerable<Instruction> instructions, HashSet<Instruction> referencedInstructions)
     {
         var result = new Dictionary<Instruction, int>(ReferenceEqualityComparer<Instruction>.Instance);
-        var basicBlock = 1; // Reserve 0 for emitted instructions
+        var basicBlock = _emittedBasicBlockId + 1;
 
         foreach (var instruction in instructions)
         {
@@ -147,17 +138,38 @@ internal class WeaverILProcessor
             throw new InstructionWeavingException(instruction, "An unconditional expression was expected.");
     }
 
-    public void MergeBasicBlocks(Instruction sourceBasicBlock, Instruction basicBlockToUpdate)
+    public bool TryMergeBasicBlocks(Instruction sourceBasicBlock, params Instruction[] basicBlocksToUpdate)
     {
         var sourceBlock = GetBasicBlock(sourceBasicBlock);
-        var targetBlock = GetBasicBlock(basicBlockToUpdate);
+        var targetBlocks = basicBlocksToUpdate.Select(GetBasicBlock).ToHashSet();
 
-        var instructionsToUpdate = _basicBlocks.Where(i => i.Value == targetBlock)
+        // Sanity check: don't try to analyze emitted instructions, let the subsequent basic block check fail
+        if (sourceBlock == _emittedBasicBlockId || targetBlocks.Contains(_emittedBasicBlockId))
+            return false;
+
+        targetBlocks.Remove(sourceBlock);
+        if (targetBlocks.Count == 0)
+            return true;
+
+        var sourceBlockInstructions = _il.Body.Instructions
+                                         .Where(i => GetBasicBlock(i) == sourceBlock)
+                                         .ToList();
+
+        var instructionsToUpdate = _basicBlocks.Where(i => targetBlocks.Contains(i.Value))
                                                .Select(i => i.Key)
                                                .ToList();
 
+        // Make sure the merge is valid
+        if (GetAllReferencedInstructions().Overlaps(instructionsToUpdate))
+            return false;
+
+        if (sourceBlockInstructions.SelectMany(i => i.GetReferencedInstructions()).Any())
+            return false;
+
         foreach (var instruction in instructionsToUpdate)
             _basicBlocks[instruction] = sourceBlock;
+
+        return true;
     }
 
     private void UpdateReferences(Instruction oldInstruction, Instruction newInstruction)

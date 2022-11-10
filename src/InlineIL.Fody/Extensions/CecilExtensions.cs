@@ -416,7 +416,17 @@ internal static partial class CecilExtensions
         };
     }
 
-    public static IEnumerable<Instruction> GetInstructions(this ExceptionHandler handler)
+    public static IEnumerable<Instruction> GetReferencedInstructions(this Instruction instruction)
+    {
+        return instruction.Operand switch
+        {
+            Instruction operand   => new[] { operand },
+            Instruction[] operand => operand,
+            _                     => Array.Empty<Instruction>()
+        };
+    }
+
+    public static IEnumerable<Instruction> GetReferencedInstructions(this ExceptionHandler handler)
     {
         if (handler.TryStart != null)
             yield return handler.TryStart;

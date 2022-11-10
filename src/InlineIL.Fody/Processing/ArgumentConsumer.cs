@@ -501,8 +501,7 @@ internal class ArgumentConsumer
                     stsfldInstruction
                 );
 
-                _il.MergeBasicBlocks(ldsfldInstruction, newobjInstruction);
-                _il.MergeBasicBlocks(ldsfldInstruction, nextInstruction);
+                _il.TryMergeBasicBlocks(ldsfldInstruction, newobjInstruction, nextInstruction);
             }
 
             _il.Remove(newobjInstruction);
