@@ -14,20 +14,14 @@ internal class FieldRefBuilder
         var typeDef = typeRef.ResolveRequiredType();
         var fields = typeDef.Fields.Where(f => f.Name == fieldName).ToList();
 
-        switch (fields.Count)
+        _field = fields switch
         {
-            case 0:
-                throw new WeavingException($"Field '{fieldName}' not found in type {typeDef.FullName}");
+            [ var field ] => field.Clone(),
+            [ ]           => throw new WeavingException($"Field '{fieldName}' not found in type {typeDef.FullName}"),
+            _             => throw new WeavingException($"Ambiguous field '{fieldName}' in type {typeDef.FullName}")
+        };
 
-            case 1:
-                _field = fields.Single().Clone();
-                _field.DeclaringType = typeRef;
-                break;
-
-            default:
-                // This should never happen
-                throw new WeavingException($"Ambiguous field '{fieldName}' in type {typeDef.FullName}");
-        }
+        _field.DeclaringType = typeRef;
     }
 
     public FieldReference Build()

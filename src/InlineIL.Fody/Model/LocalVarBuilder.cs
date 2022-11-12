@@ -33,5 +33,6 @@ internal class LocalVarBuilder
         _type = _type.MakePinnedType();
     }
 
-    public override string ToString() => $"{Name ?? "(unnamed)"} {_type.FullName}";
+    public override string ToString()
+        => $"{Name ?? "(unnamed)"} {_type.FullName}";
 }

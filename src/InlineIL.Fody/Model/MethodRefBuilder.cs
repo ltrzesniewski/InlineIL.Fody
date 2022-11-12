@@ -36,6 +36,14 @@ internal class MethodRefBuilder
 
     public static MethodRefBuilder MethodFromDelegateReference(ModuleDefinition module, MethodReference methodRef)
     {
+        // You can't reason about compiler-generated methods for several reasons:
+        // - What appears to be a static method may be changed to an instance method by the compiler,
+        //   as calling instance methods through delegates doesn't require their arguments to be shuffled.
+        // - A closure could be passed to this method, which changes the way the surrounding code is structured,
+        //   in order to enable capturing local variables.
+        // - Codegen could differ between debug and release builds.
+        // - These implementation details may change at any time.
+
         if (methodRef.Name.StartsWith("<", StringComparison.Ordinal))
             throw new WeavingException("A compiler-generated method is referenced by the delegate");
 
@@ -61,13 +69,11 @@ internal class MethodRefBuilder
         if (paramTypes != null)
             methods = methods.Where(m => SignatureMatches(m, paramTypes));
 
-        var methodList = methods.ToList();
-
-        return methodList.Count switch
+        return methods.ToList() switch
         {
-            1 => methodList.Single(),
-            0 => throw new WeavingException($"Method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} not found in type {typeDef.FullName}"),
-            _ => throw new WeavingException($"Ambiguous method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} in type {typeDef.FullName}")
+            [ var method ] => method,
+            [ ]            => throw new WeavingException($"Method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} not found in type {typeDef.FullName}"),
+            _              => throw new WeavingException($"Ambiguous method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} in type {typeDef.FullName}")
         };
     }
 
@@ -170,11 +176,11 @@ internal class MethodRefBuilder
 
         var properties = typeDef.Properties.Where(p => p.Name == propertyName).ToList();
 
-        return properties.Count switch
+        return properties switch
         {
-            1 => properties.Single(),
-            0 => throw new WeavingException($"Property '{propertyName}' not found in type {typeDef.FullName}"),
-            _ => throw new WeavingException($"Ambiguous property '{propertyName}' in type {typeDef.FullName}")
+            [ var property ] => property,
+            [ ]              => throw new WeavingException($"Property '{propertyName}' not found in type {typeDef.FullName}"),
+            _                => throw new WeavingException($"Ambiguous property '{propertyName}' in type {typeDef.FullName}")
         };
     }
 
@@ -214,11 +220,11 @@ internal class MethodRefBuilder
 
         var events = typeDef.Events.Where(e => e.Name == eventName).ToList();
 
-        return events.Count switch
+        return events switch
         {
-            1 => events.Single(),
-            0 => throw new WeavingException($"Event '{eventName}' not found in type {typeDef.FullName}"),
-            _ => throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}")
+            [ var evt ] => evt,
+            [ ]         => throw new WeavingException($"Event '{eventName}' not found in type {typeDef.FullName}"),
+            _           => throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}")
         };
     }
 
@@ -253,45 +259,45 @@ internal class MethodRefBuilder
         throw new WeavingException($"Type {typeDef.FullName} has no type initializer");
     }
 
-    public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, UnaryOperator op)
+    public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, UnaryOperator opType)
     {
         var typeDef = typeRef.ResolveRequiredType();
-        var memberName = $"op_{op}";
+        var memberName = $"op_{opType}";
 
         var operators = typeDef.Methods
                                .Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && m.Parameters.Count == 1)
                                .ToList();
 
-        return operators.Count switch
+        return operators switch
         {
-            1 => new MethodRefBuilder(module, typeRef, operators.Single()),
-            0 => throw new WeavingException($"Unary operator {memberName} not found in type {typeDef.FullName}"),
-            _ => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
+            [ var op ] => new MethodRefBuilder(module, typeRef, op),
+            [ ]        => throw new WeavingException($"Unary operator {memberName} not found in type {typeDef.FullName}"),
+            _          => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
         };
     }
 
-    public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, BinaryOperator op, TypeRefBuilder leftOperandType, TypeRefBuilder rightOperandType)
+    public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, BinaryOperator opType, TypeRefBuilder leftOperandType, TypeRefBuilder rightOperandType)
     {
         var typeDef = typeRef.ResolveRequiredType();
-        var memberName = $"op_{op}";
+        var memberName = $"op_{opType}";
         var signature = new[] { leftOperandType, rightOperandType };
 
         var operators = typeDef.Methods
                                .Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && SignatureMatches(m, signature))
                                .ToList();
 
-        return operators.Count switch
+        return operators switch
         {
-            1 => new MethodRefBuilder(module, typeRef, operators.Single()),
-            0 => throw new WeavingException($"Binary operator {memberName}({leftOperandType.GetDisplayName()}, {rightOperandType.GetDisplayName()}) not found in type {typeDef.FullName}"),
-            _ => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
+            [ var op ] => new MethodRefBuilder(module, typeRef, op),
+            [ ]        => throw new WeavingException($"Binary operator {memberName}({leftOperandType.GetDisplayName()}, {rightOperandType.GetDisplayName()}) not found in type {typeDef.FullName}"),
+            _          => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
         };
     }
 
-    public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, ConversionOperator op, ConversionDirection direction, TypeRefBuilder otherType)
+    public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, ConversionOperator opType, ConversionDirection direction, TypeRefBuilder otherType)
     {
         var typeDef = typeRef.ResolveRequiredType();
-        var memberName = $"op_{op}";
+        var memberName = $"op_{opType}";
 
         var methods = typeDef.Methods.Where(m => m.IsStatic && m.IsSpecialName && m.Name == memberName && m.Parameters.Count == 1);
 
@@ -302,10 +308,10 @@ internal class MethodRefBuilder
             _                        => throw new ArgumentOutOfRangeException(nameof(direction))
         };
 
-        return operators.Count switch
+        return operators switch
         {
-            1 => new MethodRefBuilder(module, typeRef, operators.Single()),
-            0 => direction switch
+            [ var op ] => new MethodRefBuilder(module, typeRef, op),
+            [ ] => direction switch
             {
                 ConversionDirection.From => throw new WeavingException($"Conversion operator {memberName} from {otherType.GetDisplayName()} not found in type {typeDef.FullName}"),
                 ConversionDirection.To   => throw new WeavingException($"Conversion operator {memberName} to {otherType.GetDisplayName()} not found in type {typeDef.FullName}"),
@@ -361,5 +367,6 @@ internal class MethodRefBuilder
         _method = _module.ImportReference(methodRef);
     }
 
-    public override string ToString() => _method.ToString();
+    public override string ToString()
+        => _method.ToString();
 }

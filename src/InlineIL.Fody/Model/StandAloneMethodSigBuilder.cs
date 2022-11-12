@@ -61,5 +61,6 @@ internal class StandAloneMethodSigBuilder
         }
     }
 
-    public override string ToString() => _callSite.ToString();
+    public override string ToString()
+        => _callSite.ToString();
 }

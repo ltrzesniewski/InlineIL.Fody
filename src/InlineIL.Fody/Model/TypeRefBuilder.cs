@@ -135,7 +135,8 @@ internal class TypeRefBuilder
         _modifiers.Add(new Modifier(modifierType, required));
     }
 
-    public override string ToString() => GetDisplayName();
+    public override string ToString()
+        => GetDisplayName();
 
     private abstract class TypeRefResolver
     {

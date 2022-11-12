@@ -464,17 +464,16 @@ internal static partial class CecilExtensions
 
         var args = debuggableAttribute.ConstructorArguments;
 
-        switch (args.Count)
+        return args switch
         {
-            case 1 when args[0].Type.FullName == enumName && args[0].Value is int intValue:
-                return ((DebuggableAttribute.DebuggingModes)intValue & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0;
+            [ { Type.FullName: enumName, Value: int intValue } ]
+                => ((DebuggableAttribute.DebuggingModes)intValue & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0,
 
-            case 2 when args[0].Value is bool && args[1].Value is bool isJitOptimizerDisabled:
-                return isJitOptimizerDisabled;
+            [ { Value: bool }, { Value: bool isJitOptimizerDisabled } ]
+                => isJitOptimizerDisabled,
 
-            default:
-                return false;
-        }
+            _ => false
+        };
     }
 
     [ContractAnnotation("null => false")]
