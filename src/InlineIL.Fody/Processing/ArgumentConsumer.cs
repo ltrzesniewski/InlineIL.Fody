@@ -490,7 +490,9 @@ internal class ArgumentConsumer
                 && dupNewInstruction.Next is { OpCode.Code: Code.Stsfld } stsfldInstruction
                 && stsfldInstruction.Next is { } nextInstruction
                 && ldsfldInstruction.Operand == stsfldInstruction.Operand
-                && brtrueInstruction.Operand == nextInstruction)
+                && ldsfldInstruction.Operand is FieldDefinition { DeclaringType: { IsNestedPrivate: true } cacheType }
+                && brtrueInstruction.Operand == nextInstruction
+                && cacheType.IsCompilerGenerated())
             {
                 _il.Remove(
                     ldsfldInstruction,
@@ -501,7 +503,8 @@ internal class ArgumentConsumer
                     stsfldInstruction
                 );
 
-                _il.TryMergeBasicBlocks(ldsfldInstruction, newobjInstruction, nextInstruction);
+                if (!_il.TryMergeBasicBlocks(ldsfldInstruction, newobjInstruction, nextInstruction))
+                    throw new InstructionWeavingException(newobjInstruction, "Could not handle this method group.");
             }
 
             _il.Remove(newobjInstruction);

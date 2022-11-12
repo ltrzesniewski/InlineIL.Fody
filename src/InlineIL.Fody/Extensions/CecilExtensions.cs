@@ -480,4 +480,8 @@ internal static partial class CecilExtensions
     [ContractAnnotation("null => false")]
     public static bool IsInlineILAssembly(this AssemblyNameReference? assembly)
         => assembly?.Name == "InlineIL";
+
+    public static bool IsCompilerGenerated(this ICustomAttributeProvider? definition)
+        => definition?.HasCustomAttributes is true
+           && definition.CustomAttributes.Any(i => i.AttributeType.FullName == "System.Runtime.CompilerServices.CompilerGeneratedAttribute");
 }
