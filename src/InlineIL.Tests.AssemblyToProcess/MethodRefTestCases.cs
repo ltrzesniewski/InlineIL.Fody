@@ -840,6 +840,20 @@ public class MethodRefTestCases : IMethodRefTestCases
         return results.ToArray();
     }
 
+#if NETCOREAPP
+    public int[] CallGenericArrayReturnType()
+    {
+        // Issue #29
+
+        IL.DeclareLocals(typeof(Span<int>));
+        Ldloca(0);
+        Dup();
+        Initobj(typeof(Span<int>));
+        Call(MethodRef.Method(typeof(Span<int>), nameof(Span<int>.ToArray), TypeRef.TypeGenericParameters[0].MakeArrayType(), 0));
+        return IL.Return<int[]>();
+    }
+#endif
+
     public void RaiseEvent()
         => Event?.Invoke();
 

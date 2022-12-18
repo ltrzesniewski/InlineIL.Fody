@@ -622,6 +622,13 @@ public class MethodRefTestsCore : MethodRefTestsBase
         var result = (int[])GetInstance().ResolveGenericOverloadsUsingTypeApi();
         result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
     }
+
+    [Fact]
+    public void should_call_method_with_generic_array_return_type()
+    {
+        var result = (int[])GetInstance().CallGenericArrayReturnType();
+        result.ShouldEqual(Array.Empty<int>());
+    }
 }
 #endif
 

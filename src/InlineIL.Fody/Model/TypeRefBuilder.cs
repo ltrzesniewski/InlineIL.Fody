@@ -194,36 +194,23 @@ internal class TypeRefBuilder
 
         public override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
         {
-            switch (_type)
+            if (_type == GenericParameterType.Type && context.GenericParameterType != GenericParameterType.Type && context is MemberReference member)
+                context = member.DeclaringType;
+
+            if (!context.HasGenericParameters || context.GenericParameterType != _type)
+                return null;
+
+            if (_index >= context.GenericParameters.Count)
+                return null;
+
+            context = context switch
             {
-                case GenericParameterType.Type:
-                {
-                    if (context.GenericParameterType != GenericParameterType.Type && context is MemberReference member)
-                        context = member.DeclaringType;
+                TypeReference type     => module.ImportReference(type),
+                MethodReference method => module.ImportReference(method),
+                _                      => throw new ArgumentException($"Unexpected generic parameter provider type: {context.GetType().Name}")
+            };
 
-                    if (!context.HasGenericParameters || context.GenericParameterType != GenericParameterType.Type)
-                        return null;
-
-                    if (_index >= context.GenericParameters.Count)
-                        return null;
-
-                    return module.ImportReference(context.GenericParameters[_index]);
-                }
-
-                case GenericParameterType.Method:
-                {
-                    if (!context.HasGenericParameters || context.GenericParameterType != GenericParameterType.Method)
-                        return null;
-
-                    if (_index >= context.GenericParameters.Count)
-                        return null;
-
-                    return module.ImportReference(context.GenericParameters[_index]);
-                }
-
-                default:
-                    throw new InvalidOperationException("Invalid generic parameter type");
-            }
+            return module.ImportReference(context.GenericParameters[_index]);
         }
 
         public override string GetDisplayName()
