@@ -24,34 +24,16 @@ public static class AssemblyToProcessFixture
         (TestResult, OriginalModule, ResultModule) = Process<AssemblyToProcessReference>();
     }
 
-    internal static (TestResult testResult, ModuleDefinition originalModule, ModuleDefinition resultModule) Process<T>()
+    internal static TestRunResult Process<T>()
     {
-        var assemblyPath = FixtureHelper.IsolateAssembly<T>();
-
-        var weavingTask = new GuardedWeaver();
-
-        var testResult = weavingTask.ExecuteTestRun(
-            assemblyPath,
+        return WeaverRunner.ExecuteTestRun(
+            typeof(T).Assembly,
+            new GuardedWeaver(),
             ignoreCodes: new[]
             {
                 "0x801312da" // VLDTR_E_MR_VARARGCALLINGCONV
-            },
-            writeSymbols: true,
-            beforeExecuteCallback: BeforeExecuteCallback
+            }
         );
-
-        using var assemblyResolver = new TestAssemblyResolver();
-
-        var readerParams = new ReaderParameters(ReadingMode.Immediate)
-        {
-            ReadSymbols = true,
-            AssemblyResolver = assemblyResolver
-        };
-
-        var originalModule = ModuleDefinition.ReadModule(assemblyPath, readerParams);
-        var resultModule = ModuleDefinition.ReadModule(testResult.AssemblyPath, readerParams);
-
-        return (testResult, originalModule, resultModule);
     }
 
     internal static void BeforeExecuteCallback(ModuleDefinition module)

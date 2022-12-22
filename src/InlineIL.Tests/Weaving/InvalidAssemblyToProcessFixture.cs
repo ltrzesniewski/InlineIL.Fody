@@ -17,19 +17,11 @@ public static class InvalidAssemblyToProcessFixture
 
     static InvalidAssemblyToProcessFixture()
     {
-        var weavingTask = new ModuleWeaver();
-        TestResult = weavingTask.ExecuteTestRun(
-            FixtureHelper.IsolateAssembly<InvalidAssemblyToProcessReference>(),
-            false,
-            beforeExecuteCallback: AssemblyToProcessFixture.BeforeExecuteCallback
+        (TestResult, _, ResultModule) = WeaverRunner.ExecuteTestRun(
+            typeof(InvalidAssemblyToProcessReference).Assembly,
+            new ModuleWeaver(),
+            false
         );
-
-        using var assemblyResolver = new TestAssemblyResolver();
-
-        ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate)
-        {
-            AssemblyResolver = assemblyResolver
-        });
     }
 
     public static string ShouldHaveError(string className, string methodName, bool sequencePointRequired)

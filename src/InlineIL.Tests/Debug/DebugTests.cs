@@ -26,11 +26,14 @@ public class DebugTests
     [DebugTest]
     public void SingleMethod()
     {
-        var assemblyPath = FixtureHelper.IsolateAssembly<AssemblyToProcessReference>();
+        var assembly = typeof(AssemblyToProcessReference).Assembly;
         var type = typeof(MethodRefTestCases);
-        var methodName = nameof(MethodRefTestCases.CallStaticMethodFromDelegate);
+        var methodName = nameof(MethodRefTestCases.CallGenericArrayReturnType);
 
-        using var module = ModuleDefinition.ReadModule(assemblyPath);
+        using var assemblyResolver = WeaverRunner.CreateAssemblyResolver(assembly);
+        var readerParams = new ReaderParameters { AssemblyResolver = assemblyResolver };
+
+        using var module = ModuleDefinition.ReadModule(assembly.Location, readerParams);
         var weavingContext = new ModuleWeavingContext(module, new WeaverConfig(null, module));
 
         var typeDef = module.GetTypes().Single(i => i.FullName == type.FullName);

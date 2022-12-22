@@ -14,19 +14,10 @@ public static class UnverifiableAssemblyToProcessFixture
 
     static UnverifiableAssemblyToProcessFixture()
     {
-        var weavingTask = new AssemblyToProcessFixture.GuardedWeaver();
-
-        TestResult = weavingTask.ExecuteTestRun(
-            FixtureHelper.IsolateAssembly<UnverifiableAssemblyToProcessReference>(),
-            false,
-            beforeExecuteCallback: AssemblyToProcessFixture.BeforeExecuteCallback
+        (TestResult, _, ResultModule) = WeaverRunner.ExecuteTestRun(
+            typeof(UnverifiableAssemblyToProcessReference).Assembly,
+            new AssemblyToProcessFixture.GuardedWeaver(),
+            false
         );
-
-        using var assemblyResolver = new TestAssemblyResolver();
-
-        ResultModule = ModuleDefinition.ReadModule(TestResult.AssemblyPath, new ReaderParameters(ReadingMode.Immediate)
-        {
-            AssemblyResolver = assemblyResolver
-        });
     }
 }

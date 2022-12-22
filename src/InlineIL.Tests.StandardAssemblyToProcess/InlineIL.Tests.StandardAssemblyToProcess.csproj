@@ -4,12 +4,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <Import Project="../TestAssemblies.props" />
-
   <ItemGroup>
     <Compile Include="..\InlineIL.Tests.AssemblyToProcess\**\*.cs"
              Exclude="..\InlineIL.Tests.AssemblyToProcess\obj\**;..\InlineIL.Tests.AssemblyToProcess\AssemblyToProcessReference.cs"
              Link="AssemblyToProcess\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <Import Project="../TestAssemblies.targets" />
 
 </Project>

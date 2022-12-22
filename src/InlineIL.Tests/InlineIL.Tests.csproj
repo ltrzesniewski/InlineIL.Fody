@@ -34,4 +34,10 @@
     <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <Target Name="InlineILTestsBeforeRAR" BeforeTargets="ResolveAssemblyReferences">
+    <PropertyGroup>
+      <AllowedReferenceRelatedFileExtensions>$(AllowedReferenceRelatedFileExtensions);.refs.txt</AllowedReferenceRelatedFileExtensions>
+    </PropertyGroup>
+  </Target>
+
 </Project>

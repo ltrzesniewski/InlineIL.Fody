@@ -11,4 +11,11 @@
     <ProjectReference Include="../InlineIL.Tests.Common/InlineIL.Tests.Common.csproj" />
   </ItemGroup>
 
+  <Target Name="InlieILTestAsmAfterCompile" AfterTargets="AfterCompile">
+    <WriteLinesToFile Condition="Exists(@(IntermediateAssembly)) and '$(DesignTimeBuild)' != 'true'"
+                      File="@(IntermediateAssembly->'$(OutDir)%(Filename).refs.txt')"
+                      Lines="@(ReferencePath)"
+                      Overwrite="true" />
+  </Target>
+
 </Project>

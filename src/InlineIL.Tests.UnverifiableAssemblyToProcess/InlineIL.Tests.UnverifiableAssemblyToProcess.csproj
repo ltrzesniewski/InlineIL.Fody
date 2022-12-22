@@ -4,6 +4,6 @@
     <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
   </PropertyGroup>
 
-  <Import Project="../TestAssemblies.props" />
+  <Import Project="../TestAssemblies.targets" />
 
 </Project>
