@@ -1,10 +1,13 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving;
@@ -628,6 +631,28 @@ public class MethodRefTestsCore : MethodRefTestsBase
     {
         var result = (int[])GetInstance().CallGenericArrayReturnType();
         result.ShouldEqual(Array.Empty<int>());
+    }
+
+    [Fact]
+    public void should_call_method_of_forwarded_type()
+    {
+        var result = (int)GetInstance().CallMethodOfForwardedType();
+        result.ShouldEqual(42);
+    }
+
+    [Fact]
+    public void should_map_method_of_forwarded_type_to_forwarder()
+    {
+        var methodRef = (MethodReference)GetMethodDefinition("CallMethodOfForwardedType").Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.Call).Operand;
+        var assemblyName = methodRef.DeclaringType.Scope.ShouldBe<AssemblyNameReference>();
+        assemblyName.Name.ShouldEqual("System.Runtime.Extensions");
+    }
+
+    [Fact]
+    public void should_call_forwarded_method_with_forwarded_parameter_type()
+    {
+        var result = (object)GetInstance().CallForwardedMethodWithForwardedParameterType();
+        result.ShouldBe<IndentedTextWriter>();
     }
 }
 #endif

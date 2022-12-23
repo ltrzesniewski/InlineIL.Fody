@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Xunit;
 
 #pragma warning disable 618
@@ -309,6 +311,21 @@ public class TypeRefTestsCore : TypeRefTestsBase
     {
         var result = (Type)GetInstance().ReturnNestedForwardedTypeUsingEcmaSyntax();
         result.ShouldEqual(typeof(Span<>.Enumerator));
+    }
+
+    [Fact]
+    public void should_return_forwarded_type()
+    {
+        var result = (Type)GetInstance().ReturnForwardedType();
+        result.ShouldEqual(typeof(Math));
+    }
+
+    [Fact]
+    public void should_map_forwarded_type_to_forwarder()
+    {
+        var typeRef = (TypeReference)GetMethodDefinition("ReturnForwardedType").Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.Ldtoken).Operand;
+        var assemblyName = typeRef.Scope.ShouldBe<AssemblyNameReference>();
+        assemblyName.Name.ShouldEqual("System.Runtime.Extensions");
     }
 }
 #endif

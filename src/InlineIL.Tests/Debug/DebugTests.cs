@@ -28,7 +28,7 @@ public class DebugTests
     {
         var assembly = typeof(AssemblyToProcessReference).Assembly;
         var type = typeof(MethodRefTestCases);
-        var methodName = nameof(MethodRefTestCases.CallGenericArrayReturnType);
+        var methodName = nameof(MethodRefTestCases.CallConversionOperators);
 
         using var assemblyResolver = WeaverRunner.CreateAssemblyResolver(assembly);
         var readerParams = new ReaderParameters { AssemblyResolver = assemblyResolver };

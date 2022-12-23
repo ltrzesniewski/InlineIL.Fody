@@ -840,21 +840,39 @@ public class MethodRefTestCases : IMethodRefTestCases
         return results.ToArray();
     }
 
+#if NETCOREAPP
     public int[] CallGenericArrayReturnType()
     {
         // Issue #29
 
-#if NETCOREAPP
         IL.DeclareLocals(typeof(Span<int>));
         Ldloca(0);
         Dup();
         Initobj(typeof(Span<int>));
         Call(MethodRef.Method(typeof(Span<int>), nameof(Span<int>.ToArray), TypeRef.TypeGenericParameters[0].MakeArrayType(), 0));
         return IL.Return<int[]>();
-#else
-        throw new NotSupportedException();
-#endif
     }
+
+    public int CallMethodOfForwardedType()
+    {
+        Ldc_I4(-42);
+        Call(MethodRef.Method(new TypeRef("System.Runtime.Extensions", "System.Math"), "Abs", typeof(int)));
+        return IL.Return<int>();
+    }
+
+    public object CallForwardedMethodWithForwardedParameterType()
+    {
+        Newobj(MethodRef.Constructor(new TypeRef("System.Runtime.Extensions", "System.IO.StringWriter")));
+        Newobj(
+            MethodRef.Constructor(
+                new TypeRef("System.Runtime.Extensions", "System.CodeDom.Compiler.IndentedTextWriter"),
+                new TypeRef("System.Runtime.Extensions", "System.IO.TextWriter")
+            )
+        );
+        return IL.Return<object>();
+    }
+
+#endif
 
     public void RaiseEvent()
         => Event?.Invoke();

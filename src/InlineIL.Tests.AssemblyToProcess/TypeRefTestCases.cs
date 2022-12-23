@@ -198,6 +198,13 @@ public class TypeRefTestCases
         Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
         return IL.Return<Type>();
     }
+
+    public Type ReturnForwardedType()
+    {
+        Ldtoken(new TypeRef("System.Runtime.Extensions", "System.Math"));
+        Call(new MethodRef(typeof(Type), nameof(Type.GetTypeFromHandle)));
+        return IL.Return<Type>();
+    }
 #endif
 
     public string ReturnCoreLibrary()
