@@ -1,5 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
@@ -653,6 +654,20 @@ public class MethodRefTestsCore : MethodRefTestsBase
     {
         var result = (object)GetInstance().CallForwardedMethodWithForwardedParameterType();
         result.ShouldBe<IndentedTextWriter>();
+    }
+
+    [Fact]
+    public void should_call_method_of_generic_forwarded_type()
+    {
+        var result = (object)GetInstance().CallMethodOfGenericForwardedType();
+        result.ShouldBe<Progress<Random>>();
+    }
+
+    [Fact]
+    public void should_call_generic_method_of_forwarded_type()
+    {
+        var result = (IEnumerable<string>)GetInstance().CallGenericMethodOfForwardedType();
+        result.ShouldEqual(new[] { "Hello", "Hello" });
     }
 }
 #endif

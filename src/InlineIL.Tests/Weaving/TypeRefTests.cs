@@ -314,6 +314,14 @@ public class TypeRefTestsCore : TypeRefTestsBase
     }
 
     [Fact]
+    public void should_add_reference_to_forwarding_assembly()
+    {
+        const string refName = "System.Runtime.Extensions";
+        AssemblyToProcessFixture.OriginalModule.AssemblyReferences.ShouldNotContain(i => i.Name == refName);
+        AssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldContain(i => i.Name == refName);
+    }
+
+    [Fact]
     public void should_return_forwarded_type()
     {
         var result = (Type)GetInstance().ReturnForwardedType();

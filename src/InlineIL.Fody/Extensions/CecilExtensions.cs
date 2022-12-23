@@ -106,29 +106,6 @@ internal static partial class CecilExtensions
         return name;
     }
 
-    private static TypeReference MapToScope(this TypeReference typeRef, IMetadataScope scope, ModuleDefinition module)
-    {
-        if (scope.MetadataScopeType == MetadataScopeType.AssemblyNameReference)
-        {
-            var assemblyName = (AssemblyNameReference)scope;
-            var assembly = module.AssemblyResolver.Resolve(assemblyName) ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
-
-            if (assembly.MainModule.HasExportedTypes)
-            {
-                foreach (var exportedType in assembly.MainModule.ExportedTypes)
-                {
-                    if (!exportedType.IsForwardedType())
-                        continue;
-
-                    if (exportedType.FullName == typeRef.FullName)
-                        return exportedType.CreateReference(assembly.MainModule, module);
-                }
-            }
-        }
-
-        return typeRef;
-    }
-
     public static MethodReference Clone(this MethodReference method)
     {
         var clone = new MethodReference(method.Name, method.ReturnType, method.DeclaringType)
@@ -153,9 +130,19 @@ internal static partial class CecilExtensions
         return clone;
     }
 
-    public static MethodReference MapToScope(this MethodReference method, IMetadataScope scope, ModuleDefinition module)
+    /// <summary>
+    /// Make an effort to map a method reference to another metadata scope.
+    /// </summary>
+    /// <remarks>
+    /// This only has an effect when a user tries to bind to a method declared on a forwarded type.
+    /// In that case, try to reference the forwarding assembly, since it's what the user asked for.
+    /// </remarks>
+    public static MethodReference TryMapToScope(this MethodReference method, IMetadataScope scope, ModuleDefinition module)
     {
-        var clone = new MethodReference(method.Name, method.ReturnType.MapToScope(scope, module), method.DeclaringType.MapToScope(scope, module))
+        if (!ShouldTryToMapScope(method.DeclaringType, scope))
+            return method;
+
+        var clone = new MethodReference(method.Name, TryToMapType(method.ReturnType), TryToMapType(method.DeclaringType))
         {
             HasThis = method.HasThis,
             ExplicitThis = method.ExplicitThis,
@@ -165,7 +152,7 @@ internal static partial class CecilExtensions
         if (method.HasParameters)
         {
             foreach (var param in method.Parameters)
-                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, param.ParameterType.MapToScope(scope, module)));
+                clone.Parameters.Add(new ParameterDefinition(param.Name, param.Attributes, TryToMapType(param.ParameterType)));
         }
 
         if (method.HasGenericParameters)
@@ -175,6 +162,48 @@ internal static partial class CecilExtensions
         }
 
         return clone;
+
+        static bool ShouldTryToMapScope(TypeReference typeRef, IMetadataScope scope)
+        {
+            if (scope.MetadataScopeType != MetadataScopeType.AssemblyNameReference)
+                return false;
+
+            if (ReferenceEquals(typeRef.Scope, scope))
+                return false;
+
+            var assemblyFullName = typeRef.Scope switch
+            {
+                AssemblyNameReference assemblyName => assemblyName.FullName,
+                ModuleDefinition moduleDef         => moduleDef.Assembly.FullName,
+                _                                  => null
+            };
+
+            return assemblyFullName != ((AssemblyNameReference)scope).FullName;
+        }
+
+        TypeReference TryToMapType(TypeReference typeRef)
+        {
+            if (!ShouldTryToMapScope(typeRef, scope))
+                return typeRef;
+
+            var assemblyName = (AssemblyNameReference)scope;
+            var assembly = module.AssemblyResolver.Resolve(assemblyName) ?? throw new WeavingException($"Could not resolve assembly {assemblyName.Name}");
+
+            if (assembly.MainModule.HasExportedTypes)
+            {
+                foreach (var exportedType in assembly.MainModule.ExportedTypes)
+                {
+                    if (!exportedType.IsForwardedType())
+                        continue;
+
+                    // TODO: Handle TypeSpecs
+                    if (exportedType.FullName == typeRef.FullName)
+                        return exportedType.CreateReference(assembly.MainModule, module);
+                }
+            }
+
+            return typeRef;
+        }
     }
 
     public static FieldReference Clone(this FieldReference field)
@@ -466,10 +495,10 @@ internal static partial class CecilExtensions
 
         return args switch
         {
-            [ { Type.FullName: enumName, Value: int intValue } ]
+            [{ Type.FullName: enumName, Value: int intValue }]
                 => ((DebuggableAttribute.DebuggingModes)intValue & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0,
 
-            [ { Value: bool }, { Value: bool isJitOptimizerDisabled } ]
+            [{ Value: bool }, { Value: bool isJitOptimizerDisabled }]
                 => isJitOptimizerDisabled,
 
             _ => false

@@ -872,6 +872,23 @@ public class MethodRefTestCases : IMethodRefTestCases
         return IL.Return<object>();
     }
 
+    public object CallMethodOfGenericForwardedType()
+    {
+        Newobj(MethodRef.Constructor(new TypeRef("System.Runtime.Extensions", "System.Progress`1").MakeGenericType(new TypeRef("System.Runtime.Extensions", "System.Random"))));
+        return IL.Return<object>();
+    }
+
+    public object CallGenericMethodOfForwardedType()
+    {
+        Ldstr("Hello");
+        Ldc_I4_2();
+        Call(
+            MethodRef.Method(new TypeRef("System.Core", "System.Linq.Enumerable"), "Repeat")
+                     .MakeGenericMethod(typeof(string))
+        );
+        return IL.Return<object>();
+    }
+
 #endif
 
     public void RaiseEvent()
@@ -1050,7 +1067,7 @@ public class MethodRefTestCases : IMethodRefTestCases
         public static int operator &(BinaryOperatorsClass a, int b) => 9;
         public static int operator |(BinaryOperatorsClass a, int b) => 10;
         public static int operator <<(BinaryOperatorsClass a, int b) => 11;
-        public static int operator >>(BinaryOperatorsClass a, int b) => 12;
+        public static int operator >> (BinaryOperatorsClass a, int b) => 12;
         public static int operator ==(BinaryOperatorsClass a, int b) => 13;
         public static int operator >(BinaryOperatorsClass a, int b) => 14;
         public static int operator <(BinaryOperatorsClass a, int b) => 15;

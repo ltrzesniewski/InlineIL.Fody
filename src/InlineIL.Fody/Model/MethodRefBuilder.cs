@@ -18,7 +18,7 @@ internal class MethodRefBuilder
     {
         _module = module;
 
-        method = method.MapToScope(typeRef.Scope, module);
+        method = method.TryMapToScope(typeRef.Scope, module);
         _method = _module.ImportReference(_module.ImportReference(method).MakeGeneric(typeRef));
     }
 

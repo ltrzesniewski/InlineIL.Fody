@@ -90,7 +90,7 @@ public class ModuleWeaver : BaseModuleWeaver
                                                  && m.Parameters.Count == 1
                                                  && m.Parameters[0].ParameterType.FullName == "System.String"
                             )?
-                            .MapToScope(coreLibrary, ModuleDefinition);
+                            .TryMapToScope(coreLibrary, ModuleDefinition);
         }
 
         if (exceptionCtor != null)
