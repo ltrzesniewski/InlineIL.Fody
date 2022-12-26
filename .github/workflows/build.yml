@@ -51,6 +51,4 @@ jobs:
           dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
 
       - name: Test
-        run: |
-          cd src
-          dotnet test --configuration ${{ matrix.configuration }} -p:TestAssembliesLangVersion=${{ matrix.langVersion }}
+        run: dotnet test --configuration ${{ matrix.configuration }} -p:TestAssembliesLangVersion=${{ matrix.langVersion }} src/InlineIL.sln
