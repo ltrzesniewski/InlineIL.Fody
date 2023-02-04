@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using InlineIL.Tests.Common;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.AssemblyToProcess;
 
+[TestCases]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class LabelTestCases
@@ -19,6 +21,7 @@ public class LabelTestCases
         return IL.Return<int>();
     }
 
+    [SnapshotTest]
     public int JumpTable(uint value)
     {
         IL.Push(value);
