@@ -111,6 +111,7 @@ public class BasicTestCases : IBasicTestCases
         return IL.Return<int>();
     }
 
+    [SnapshotTest]
     public int HandleExceptionBlocks()
     {
         Ldc_I4(1);

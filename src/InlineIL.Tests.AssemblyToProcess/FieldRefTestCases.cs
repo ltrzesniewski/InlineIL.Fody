@@ -22,6 +22,7 @@ public class FieldRefTestCases
         return IL.Return<int>();
     }
 
+    [SnapshotTest]
     public int[] ReturnStaticIntFieldInDifferentWays()
     {
         var result = new int[3];

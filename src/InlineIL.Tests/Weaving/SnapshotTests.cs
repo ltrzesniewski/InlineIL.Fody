@@ -20,7 +20,7 @@ public class SnapshotTests
     {
         DiffRunner.Disabled = true;
         VerifyDiffPlex.Initialize();
-        VerifyICSharpCodeDecompiler.Enable();
+        VerifyICSharpCodeDecompiler.Initialize();
     }
 
     [Theory]
