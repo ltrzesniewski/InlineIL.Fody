@@ -6,6 +6,11 @@
     <DisableFody>true</DisableFody>
     <DebugType>portable</DebugType>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <TestAssembliesLangVersion Condition="'$(TestAssembliesLangVersion)' == ''">$(LangVersion)</TestAssembliesLangVersion>
+    <DefineConstants Condition="$(TestAssembliesLangVersion) == $(LangVersion)">$(DefineConstants);SNAPSHOT_TESTS</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />

@@ -23,8 +23,10 @@ public class SnapshotTests
         VerifyICSharpCodeDecompiler.Initialize();
     }
 
+#if SNAPSHOT_TESTS
     [Theory]
     [MemberData(nameof(GetTestCases))]
+#endif
     public async Task check_snapshot(TestAssemblyId assemblyId, string type)
     {
         var assemblyPath = assemblyId switch
@@ -46,7 +48,8 @@ public class SnapshotTests
                       .UseDirectory("Snapshots")
                       .UseFileName($"{assemblyId}.{type}")
                       .UniqueForAssemblyConfiguration()
-                      .UniqueForTargetFrameworkAndVersion();
+                      .UniqueForTargetFrameworkAndVersion()
+                      .AutoVerify(false);
     }
 
     public static IEnumerable<object[]> GetTestCases()
