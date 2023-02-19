@@ -28,7 +28,7 @@ public class MethodRefTestCases : IMethodRefTestCases
 
     public int Value { get; set; }
 
-    public event Action? Event;
+    public event Action Event;
 
     public Type ReturnType<T>()
     {
@@ -38,7 +38,6 @@ public class MethodRefTestCases : IMethodRefTestCases
         throw IL.Unreachable();
     }
 
-    [SnapshotTest]
     public Type[] CallMethodDifferentWays()
     {
         var result = new Type[6];
@@ -82,7 +81,6 @@ public class MethodRefTestCases : IMethodRefTestCases
         return result;
     }
 
-    [SnapshotTest]
     public int[] ResolveOverloads()
     {
         var result = new int[7];
@@ -137,7 +135,6 @@ public class MethodRefTestCases : IMethodRefTestCases
         return IL.Return<int[]>();
     }
 
-    [SnapshotTest]
     public int[] ResolveGenericOverloads()
     {
         var result = new List<int>();
@@ -196,7 +193,6 @@ public class MethodRefTestCases : IMethodRefTestCases
 
 #if NETCOREAPP
 
-    [SnapshotTest]
     public int[] ResolveGenericOverloadsUsingTypeApi()
     {
         var result = new List<int>();
@@ -255,7 +251,6 @@ public class MethodRefTestCases : IMethodRefTestCases
 
 #endif
 
-    [SnapshotTest]
     public int[] ResolveGenericOverloadsInGenericType()
     {
         var result = new List<int>();
@@ -598,14 +593,12 @@ public class MethodRefTestCases : IMethodRefTestCases
         return IL.Return<string>();
     }
 
-    [SnapshotTest]
     public string CallGenericStaticMethodOfGenericClassFromDelegate()
     {
         Call(MethodRef.FromDelegate<Func<string>>(GenericType<string>.GenericMethod<int>));
         return IL.Return<string>();
     }
 
-    [SnapshotTest]
     public int[] CallUnaryOperators()
     {
         var results = new List<int>();
@@ -659,7 +652,6 @@ public class MethodRefTestCases : IMethodRefTestCases
         return results.ToArray();
     }
 
-    [SnapshotTest]
     public int[] CallBinaryOperators()
     {
         var results = new List<int>();
@@ -787,7 +779,6 @@ public class MethodRefTestCases : IMethodRefTestCases
         return results.ToArray();
     }
 
-    [SnapshotTest]
     public int[] CallConversionOperators()
     {
         var results = new List<int>();
@@ -1087,7 +1078,7 @@ public class MethodRefTestCases : IMethodRefTestCases
         public static int operator >=(BinaryOperatorsClass a, int b) => 17;
         public static int operator <=(BinaryOperatorsClass a, int b) => 18;
 
-        public override bool Equals(object? obj) => false;
+        public override bool Equals(object obj) => false;
         public override int GetHashCode() => 0;
     }
 

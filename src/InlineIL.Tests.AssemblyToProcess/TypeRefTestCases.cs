@@ -62,7 +62,6 @@ public class TypeRefTestCases
         return IL.Return<bool>();
     }
 
-    [SnapshotTest]
     public RuntimeTypeHandle[] LoadTypeDifferentWays()
     {
         var result = new RuntimeTypeHandle[6];

@@ -21,7 +21,6 @@ public class LabelTestCases
         return IL.Return<int>();
     }
 
-    [SnapshotTest]
     public int JumpTable(uint value)
     {
         IL.Push(value);

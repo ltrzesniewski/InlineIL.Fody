@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using InlineIL.Tests.Common;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.InvalidAssemblyToProcess;
 
+[TestCases]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
@@ -22,7 +24,7 @@ public class MethodRefTestCases
         set => Value = value;
     }
 
-    public event Action? Event;
+    public event Action Event;
 
     public void UnknownMethodWithoutParams()
     {
@@ -226,7 +228,7 @@ public class MethodRefTestCases
 
     private static T GenericMethod<T>(T value) => value;
 
-    private static int[]? VarArgMethod(int count, __arglist) => null;
+    private static int[] VarArgMethod(int count, __arglist) => null;
 
     private class ClassWithoutInitializer
     {

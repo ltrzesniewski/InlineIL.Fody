@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <DisableFody>true</DisableFody>
+    <Nullable>disable</Nullable>
 
     <TestAssembliesLangVersion Condition="'$(TestAssembliesLangVersion)' == ''">$(LangVersion)</TestAssembliesLangVersion>
     <LangVersion>$(TestAssembliesLangVersion)</LangVersion>

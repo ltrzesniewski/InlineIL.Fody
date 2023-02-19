@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using InlineIL.Tests.Common;
 
 namespace InlineIL.Tests.InvalidAssemblyToProcess;
 
+[TestCases(SnapshotTest = false)] // This leaves invalid AssemblyRef tokens, which the decompiler doesn't like
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
@@ -16,13 +18,13 @@ public class LibRefTestCases
 {
     public void Local()
     {
-        TypeRef? local = null;
+        TypeRef local = null;
         DoNothing(ref local);
     }
 
     public void Local2()
     {
-        Foo<TypeRef>? local = null;
+        Foo<TypeRef> local = null;
         DoNothing(ref local);
     }
 
@@ -109,7 +111,7 @@ public class LibRefTestCases
 
     private class SomeAttributeAttribute : Attribute
     {
-        public Type? Type { get; set; }
+        public Type Type { get; set; }
 
         public SomeAttributeAttribute()
         {
@@ -141,24 +143,24 @@ public class LibRefTestCases
     {
 #pragma warning disable 67
         [SomeAttribute(typeof(TypeRef))]
-        public event Action? Item;
+        public event Action Item;
 #pragma warning restore 67
     }
 
     public class FieldType
     {
-        public static TypeRef? Item;
+        public static TypeRef Item;
     }
 
     public class PropType
     {
-        public static TypeRef? Item { get; set; }
+        public static TypeRef Item { get; set; }
     }
 
     public class EventType
     {
 #pragma warning disable 67
-        public static event Action<TypeRef>? Item;
+        public static event Action<TypeRef> Item;
 #pragma warning restore 67
     }
 

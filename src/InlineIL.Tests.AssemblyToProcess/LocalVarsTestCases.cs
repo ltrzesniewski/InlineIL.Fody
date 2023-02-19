@@ -73,7 +73,6 @@ public class LocalVarsTestCases
         return IL.Return<int>();
     }
 
-    [SnapshotTest]
     public int MapLocalIndexes(int a, int b, int c, int d)
     {
         IL.DeclareLocals(

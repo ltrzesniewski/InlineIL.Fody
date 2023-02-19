@@ -6,8 +6,8 @@ using DiffEngine;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.Metadata;
 using InlineIL.Tests.Common;
-using Mono.Cecil.Rocks;
 using VerifyTests;
+using VerifyTests.ICSharpCode.Decompiler;
 using VerifyXunit;
 using Xunit;
 
@@ -25,14 +25,15 @@ public class SnapshotTests
 
     [Theory]
     [MemberData(nameof(GetTestCases))]
-    public async Task check_snapshot(TestAssemblyId assemblyId, string type, string method)
+    public async Task check_snapshot(TestAssemblyId assemblyId, string type)
     {
         var assemblyPath = assemblyId switch
         {
-            TestAssemblyId.AssemblyToProcess             => AssemblyToProcessFixture.TestResult.AssemblyPath,
-            TestAssemblyId.StandardAssemblyToProcess     => StandardAssemblyToProcessFixture.TestResult.AssemblyPath,
-            TestAssemblyId.UnverifiableAssemblyToProcess => UnverifiableAssemblyToProcessFixture.TestResult.AssemblyPath,
-            _                                            => throw new ArgumentException()
+            TestAssemblyId.BaseAssembly         => AssemblyToProcessFixture.TestResult.AssemblyPath,
+            TestAssemblyId.StandardAssembly     => StandardAssemblyToProcessFixture.TestResult.AssemblyPath,
+            TestAssemblyId.UnverifiableAssembly => UnverifiableAssemblyToProcessFixture.TestResult.AssemblyPath,
+            TestAssemblyId.InvalidAssembly      => InvalidAssemblyToProcessFixture.TestResult.AssemblyPath,
+            _                                   => throw new ArgumentException()
         };
 
         using var file = new PEFile(assemblyPath);
@@ -41,17 +42,9 @@ public class SnapshotTests
                                 .TypeDefinitions
                                 .Single(handle => handle.GetFullTypeName(file.Metadata).Name == type);
 
-        var typeDef = file.Metadata.GetTypeDefinition(typeDefHandle);
-
-        var methodDefHandle = typeDef.GetMethods().Single(handle =>
-        {
-            var methodDef = file.Metadata.GetMethodDefinition(handle);
-            return file.Metadata.GetString(methodDef.Name) == method;
-        });
-
-        await Verifier.Verify(new MethodToDisassemble(file, methodDefHandle))
+        await Verifier.Verify(new TypeToDisassemble(file, typeDefHandle))
                       .UseDirectory("Snapshots")
-                      .UseFileName($"{assemblyId}.{type}.{method}")
+                      .UseFileName($"{assemblyId}.{type}")
                       .UniqueForAssemblyConfiguration()
                       .UniqueForTargetFrameworkAndVersion();
     }
@@ -60,38 +53,37 @@ public class SnapshotTests
     {
         var inputs = new[]
         {
-            (TestAssemblyId.AssemblyToProcess, AssemblyToProcessFixture.ResultModule),
-            (TestAssemblyId.StandardAssemblyToProcess, StandardAssemblyToProcessFixture.ResultModule),
-            (TestAssemblyId.UnverifiableAssemblyToProcess, UnverifiableAssemblyToProcessFixture.ResultModule),
+            (TestAssemblyId.BaseAssembly, AssemblyToProcessFixture.ResultModule),
+            (TestAssemblyId.StandardAssembly, StandardAssemblyToProcessFixture.ResultModule),
+            (TestAssemblyId.UnverifiableAssembly, UnverifiableAssemblyToProcessFixture.ResultModule),
+            (TestAssemblyId.InvalidAssembly, InvalidAssemblyToProcessFixture.ResultModule),
         };
 
         foreach (var (assemblyId, moduleDefinition) in inputs)
         {
             foreach (var typeDefinition in moduleDefinition.GetTypes())
             {
-                if (typeDefinition.CustomAttributes.Any(i => i.AttributeType.FullName == typeof(TestCasesAttribute).FullName))
+                var testCasesAttr = typeDefinition.CustomAttributes.FirstOrDefault(i => i.AttributeType.FullName == typeof(TestCasesAttribute).FullName);
+                if (testCasesAttr is null)
+                    continue;
+
+                if (testCasesAttr.Properties.Any(i => i.Name == nameof(TestCasesAttribute.SnapshotTest) && i.Argument.Value is false))
+                    continue;
+
+                yield return new object[]
                 {
-                    foreach (var methodDefinition in typeDefinition.GetMethods())
-                    {
-                        if (methodDefinition.CustomAttributes.Any(i => i.AttributeType.FullName == typeof(SnapshotTest).FullName))
-                        {
-                            yield return new object[]
-                            {
-                                assemblyId,
-                                typeDefinition.Name,
-                                methodDefinition.Name
-                            };
-                        }
-                    }
-                }
+                    assemblyId,
+                    typeDefinition.Name
+                };
             }
         }
     }
 
     public enum TestAssemblyId
     {
-        AssemblyToProcess,
-        StandardAssemblyToProcess,
-        UnverifiableAssemblyToProcess
+        BaseAssembly,
+        StandardAssembly,
+        UnverifiableAssembly,
+        InvalidAssembly
     }
 }
