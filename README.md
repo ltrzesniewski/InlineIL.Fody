@@ -8,13 +8,65 @@
 This is an add-in for [Fody](https://github.com/Fody/Fody) which lets you inject arbitrary IL into your assembly at compile time.
 <br clear="right" />
 
+<table>
+<tr>
+<th width="415px">The following C# code</th>
+<th width="415px">Is compiled to the following IL</th>
+</tr>
+<tr>
+<td>
+
+```C#
+using static InlineIL.IL.Emit;
+
+public static class Example
+{
+    public static void ZeroInit<T>(ref T value)
+        where T : struct
+    {
+        Ldarg(nameof(value));
+        Ldc_I4_0();
+        Sizeof(typeof(T));
+        Unaligned(1);
+        Initblk();
+    }
+}
+```
+
+</td>
+<td>
+
+```
+.method public hidebysig static void ZeroInit
+    <valuetype .ctor
+      ([System.Runtime]System.ValueType) T> (
+    !!T& 'value'
+  ) cil managed 
+{
+  .maxstack 8
+
+  IL_0000: ldarg.0
+  IL_0001: ldc.i4.0
+  IL_0002: sizeof !!T
+  IL_0008: unaligned. 1
+  IL_000b: initblk
+  IL_000d: ret
+}
+```
+
+</td>
+</tr>
+</table>
+
 ## Installation
 
 - Include the [`Fody`](https://www.nuget.org/packages/Fody) and [`InlineIL.Fody`](https://www.nuget.org/packages/InlineIL.Fody) NuGet packages with a `PrivateAssets="all"` attribute on their `<PackageReference />` items. Installing `Fody` explicitly is needed to enable weaving.
 
   ```XML
-  <PackageReference Include="Fody" Version="..." PrivateAssets="all" />
-  <PackageReference Include="InlineIL.Fody" Version="..." PrivateAssets="all" />
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="..." PrivateAssets="all" />
+    <PackageReference Include="InlineIL.Fody" Version="..." PrivateAssets="all" />
+  </ItemGroup>
   ```
 
 - If you have a `FodyWeavers.xml` file in the root directory of your project, add the `<InlineIL />` tag there. Otherwise, the following file will be created on the first build if it doesn't exist:
@@ -111,35 +163,4 @@ The `<InlineIL />` element in `FodyWeavers.xml` accepts the following attributes
 
 - Unit tests can also serve as examples of API usage. See [verifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.AssemblyToProcess) and [unverifiable](https://github.com/ltrzesniewski/InlineIL.Fody/tree/master/src/InlineIL.Tests.UnverifiableAssemblyToProcess) test cases.
 
- - [Simple example](src/InlineIL.Examples/Examples.cs):
-
-    ```C#
-    public static void ZeroInit<T>(ref T value)
-        where T : struct
-    {
-        Ldarg(nameof(value));
-        Ldc_I4_0();
-        Sizeof(typeof(T));
-        Unaligned(1);
-        Initblk();
-    }
-    ```
-
-    What gets compiled:
-
-    ```
-    .method public hidebysig static 
-      void ZeroInit<valuetype .ctor ([mscorlib]System.ValueType) T> (
-        !!T& 'value'
-      ) cil managed 
-    {
-      .maxstack 8
-
-      IL_0000: ldarg.0
-      IL_0001: ldc.i4.0
-      IL_0002: sizeof !!T
-      IL_0008: unaligned. 1
-      IL_000b: initblk
-      IL_000d: ret
-    }
-    ```
+- See also the [simple example](src/InlineIL.Examples/Examples.cs) from above. 
