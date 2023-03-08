@@ -1,4 +1,4 @@
-# InlineIL.Fody                    <a href="#"><img src="icon.png" align="right" alt="Logo" /></a>
+# InlineIL.Fody                    <picture><source media="(prefers-color-scheme: dark)" srcset="icon-dark.png"><img src="icon.png" align="right" alt="Logo"></picture>
 
 [![Build](https://github.com/ltrzesniewski/InlineIL.Fody/workflows/Build/badge.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/actions?query=workflow%3ABuild)
 [![NuGet package](https://img.shields.io/nuget/v/InlineIL.Fody.svg?logo=NuGet)](https://www.nuget.org/packages/InlineIL.Fody)
