@@ -1,4 +1,3 @@
-
 root = true
 
 [*]
@@ -17,7 +16,6 @@ indent_style = space
 [*.{csproj,vcxproj,props,targets}]
 indent_size = 2
 indent_style = space
-insert_final_newline = false
 
 [*.sln]
 indent_style = tab
@@ -92,3 +90,8 @@ resharper_csharp_stick_comment = false
 resharper_wrap_before_arrow_with_expressions = true
 resharper_csharp_wrap_before_binary_opsign = true
 resharper_csharp_wrap_multiple_type_parameter_constraints_style = chop_always
+
+resharper_xmldoc_indent_text = DoNotTouch
+resharper_xmldoc_indent_child_elements = DoNotTouch
+resharper_xmldoc_space_before_self_closing = false
+resharper_space_before_self_closing = true

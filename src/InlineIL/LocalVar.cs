@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace InlineIL;
 
 /// <summary>
-/// Represents a local variable declaration, for use with <see cref="IL.DeclareLocals(InlineIL.LocalVar[])" />.
+/// Represents a local variable declaration, for use with <see cref="IL.DeclareLocals(InlineIL.LocalVar[])"/>.
 /// </summary>
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]

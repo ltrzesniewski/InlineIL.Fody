@@ -71,9 +71,9 @@ internal class MethodRefBuilder
 
         return methods.ToList() switch
         {
-            [ var method ] => method,
-            [ ]            => throw new WeavingException($"Method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} not found in type {typeDef.FullName}"),
-            _              => throw new WeavingException($"Ambiguous method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} in type {typeDef.FullName}")
+            [var method] => method,
+            []           => throw new WeavingException($"Method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} not found in type {typeDef.FullName}"),
+            _            => throw new WeavingException($"Ambiguous method {GetDisplaySignature(methodName, genericArity, returnType, paramTypes)} in type {typeDef.FullName}")
         };
     }
 
@@ -178,9 +178,9 @@ internal class MethodRefBuilder
 
         return properties switch
         {
-            [ var property ] => property,
-            [ ]              => throw new WeavingException($"Property '{propertyName}' not found in type {typeDef.FullName}"),
-            _                => throw new WeavingException($"Ambiguous property '{propertyName}' in type {typeDef.FullName}")
+            [var property] => property,
+            []             => throw new WeavingException($"Property '{propertyName}' not found in type {typeDef.FullName}"),
+            _              => throw new WeavingException($"Ambiguous property '{propertyName}' in type {typeDef.FullName}")
         };
     }
 
@@ -222,9 +222,9 @@ internal class MethodRefBuilder
 
         return events switch
         {
-            [ var evt ] => evt,
-            [ ]         => throw new WeavingException($"Event '{eventName}' not found in type {typeDef.FullName}"),
-            _           => throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}")
+            [var evt] => evt,
+            []        => throw new WeavingException($"Event '{eventName}' not found in type {typeDef.FullName}"),
+            _         => throw new WeavingException($"Ambiguous event '{eventName}' in type {typeDef.FullName}")
         };
     }
 
@@ -270,9 +270,9 @@ internal class MethodRefBuilder
 
         return operators switch
         {
-            [ var op ] => new MethodRefBuilder(module, typeRef, op),
-            [ ]        => throw new WeavingException($"Unary operator {memberName} not found in type {typeDef.FullName}"),
-            _          => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
+            [var op] => new MethodRefBuilder(module, typeRef, op),
+            []       => throw new WeavingException($"Unary operator {memberName} not found in type {typeDef.FullName}"),
+            _        => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
         };
     }
 
@@ -288,9 +288,9 @@ internal class MethodRefBuilder
 
         return operators switch
         {
-            [ var op ] => new MethodRefBuilder(module, typeRef, op),
-            [ ]        => throw new WeavingException($"Binary operator {memberName}({leftOperandType.GetDisplayName()}, {rightOperandType.GetDisplayName()}) not found in type {typeDef.FullName}"),
-            _          => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
+            [var op] => new MethodRefBuilder(module, typeRef, op),
+            []       => throw new WeavingException($"Binary operator {memberName}({leftOperandType.GetDisplayName()}, {rightOperandType.GetDisplayName()}) not found in type {typeDef.FullName}"),
+            _        => throw new WeavingException($"Ambiguous operator {memberName} in type {typeDef.FullName}")
         };
     }
 
@@ -310,8 +310,8 @@ internal class MethodRefBuilder
 
         return operators switch
         {
-            [ var op ] => new MethodRefBuilder(module, typeRef, op),
-            [ ] => direction switch
+            [var op] => new MethodRefBuilder(module, typeRef, op),
+            [] => direction switch
             {
                 ConversionDirection.From => throw new WeavingException($"Conversion operator {memberName} from {otherType.GetDisplayName()} not found in type {typeDef.FullName}"),
                 ConversionDirection.To   => throw new WeavingException($"Conversion operator {memberName} to {otherType.GetDisplayName()} not found in type {typeDef.FullName}"),

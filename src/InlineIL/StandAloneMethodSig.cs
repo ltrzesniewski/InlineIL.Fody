@@ -6,7 +6,7 @@ namespace InlineIL;
 
 /// <summary>
 /// Represents a stand-alone method signature,
-/// for use with <see cref="IL.Emit.Calli" />.
+/// for use with <see cref="IL.Emit.Calli"/>.
 /// </summary>
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]

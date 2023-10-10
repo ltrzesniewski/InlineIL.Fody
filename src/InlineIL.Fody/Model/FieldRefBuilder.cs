@@ -16,9 +16,9 @@ internal class FieldRefBuilder
 
         _field = fields switch
         {
-            [ var field ] => field.Clone(),
-            [ ]           => throw new WeavingException($"Field '{fieldName}' not found in type {typeDef.FullName}"),
-            _             => throw new WeavingException($"Ambiguous field '{fieldName}' in type {typeDef.FullName}")
+            [var field] => field.Clone(),
+            []          => throw new WeavingException($"Field '{fieldName}' not found in type {typeDef.FullName}"),
+            _           => throw new WeavingException($"Ambiguous field '{fieldName}' in type {typeDef.FullName}")
         };
 
         _field.DeclaringType = typeRef;
