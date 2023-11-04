@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Model;
+using InlineIL.Fody.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -10,32 +11,50 @@ namespace InlineIL.Fody.Processing;
 
 internal class MethodLocals
 {
-    private readonly Dictionary<string, VariableDefinition> _localsByName = new();
-    private readonly List<VariableDefinition> _localsByIndex = new();
+    private readonly ILogger _log;
+    private readonly SequencePoint? _sequencePoint;
 
-    public MethodLocals(MethodDefinition method, IEnumerable<LocalVarBuilder> locals)
+    private readonly Dictionary<string, LocalVar> _localsByName = new();
+    private readonly List<LocalVar> _localsByIndex = new();
+
+    public MethodLocals(MethodDefinition method,
+                        IEnumerable<LocalVarBuilder> localVarBuilders,
+                        ILogger log,
+                        SequencePoint? sequencePoint)
     {
-        foreach (var local in locals)
+        _log = log;
+        _sequencePoint = sequencePoint;
+
+        foreach (var builder in localVarBuilders)
         {
-            var localVar = local.Build();
-
-            if (local.Name != null)
+            var localVar = new LocalVar
             {
-                if (_localsByName.ContainsKey(local.Name))
-                    throw new WeavingException($"Local {local.Name} is already defined");
+                Variable = builder.Build(),
+                Name = builder.Name,
+                Index = _localsByIndex.Count
+            };
 
-                _localsByName.Add(local.Name, localVar);
+            if (localVar.Name != null)
+            {
+                if (_localsByName.ContainsKey(localVar.Name))
+                    throw new WeavingException($"Local {localVar.Name} is already defined");
+
+                _localsByName.Add(localVar.Name, localVar);
             }
 
             _localsByIndex.Add(localVar);
-            method.Body.Variables.Add(localVar);
+            method.Body.Variables.Add(localVar.Variable);
 
-            method.DebugInformation.Scope?.Variables.Add(new VariableDebugInformation(localVar, local.Name ?? $"InlineIL_{_localsByIndex.Count - 1}"));
+            method.DebugInformation.Scope?.Variables.Add(new VariableDebugInformation(localVar.Variable, localVar.Name ?? $"InlineIL_{localVar.Index}"));
         }
     }
 
     public VariableDefinition? TryGetByName(string name)
-        => _localsByName.GetValueOrDefault(name);
+    {
+        var local = _localsByName.GetValueOrDefault(name);
+        local?.MarkAsUsed();
+        return local?.Variable;
+    }
 
     public static void MapMacroInstruction(MethodLocals? locals, Instruction instruction)
     {
@@ -96,7 +115,7 @@ internal class MethodLocals
         }
     }
 
-    private static VariableDefinition GetLocalByIndex(MethodLocals? locals, int index)
+    internal static VariableDefinition GetLocalByIndex(MethodLocals? locals, int index)
     {
         if (locals == null)
             throw new WeavingException("No locals are defined");
@@ -104,6 +123,39 @@ internal class MethodLocals
         if (index < 0 || index >= locals._localsByIndex.Count)
             throw new WeavingException($"Local index {index} is out of range");
 
-        return locals._localsByIndex[index];
+        var local = locals._localsByIndex[index];
+        local.MarkAsUsed();
+        return local.Variable;
+    }
+
+    public void PostProcess()
+    {
+        foreach (var localVar in _localsByIndex)
+        {
+            if (!localVar.IsUsed)
+            {
+                _log.Warning(
+                    localVar.Name is not null
+                        ? $"Unused local: '{localVar.Name}'"
+                        : $"Unused local at index {localVar.Index}",
+                    _sequencePoint
+                );
+            }
+        }
+    }
+
+    private class LocalVar
+    {
+        public required VariableDefinition Variable { get; init; }
+        public required string? Name { get; init; }
+        public required int Index { get; init; }
+
+        public bool IsUsed { get; private set; }
+
+        public void MarkAsUsed()
+            => IsUsed = true;
+
+        public override string ToString()
+            => Name ?? $"(index {Index})";
     }
 }

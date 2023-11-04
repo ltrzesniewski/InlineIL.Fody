@@ -15,6 +15,7 @@ internal class WeaverILProcessor
 {
     private const int _emittedBasicBlockId = 0; // Basic block id assigned to emitted instructions
 
+    private readonly ILogger _log;
     private readonly ILProcessor _il;
     private readonly HashSet<Instruction> _referencedInstructions;
     private readonly Dictionary<Instruction, int> _basicBlocks;
@@ -23,9 +24,10 @@ internal class WeaverILProcessor
 
     public MethodLocals? Locals { get; private set; }
 
-    public WeaverILProcessor(MethodDefinition method)
+    public WeaverILProcessor(MethodDefinition method, ILogger log)
     {
         Method = method;
+        _log = log;
         _il = method.Body.GetILProcessor();
         _referencedInstructions = GetAllReferencedInstructions();
         _basicBlocks = SplitToBasicBlocks(method.Body.Instructions, _referencedInstructions);
@@ -53,12 +55,12 @@ internal class WeaverILProcessor
             _basicBlocks[newInstruction] = GetBasicBlock(oldInstruction);
     }
 
-    public void DeclareLocals(IEnumerable<LocalVarBuilder> locals)
+    public void DeclareLocals(IEnumerable<LocalVarBuilder> locals, SequencePoint? sequencePoint)
     {
         if (Locals != null)
             throw new WeavingException("Local variables have already been declared for this method");
 
-        Locals = new MethodLocals(_il.Body.Method, locals);
+        Locals = new MethodLocals(_il.Body.Method, locals, _log, sequencePoint);
     }
 
     public HashSet<Instruction> GetAllReferencedInstructions()
