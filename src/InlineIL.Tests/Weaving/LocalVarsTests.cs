@@ -151,13 +151,13 @@ public class LocalVarsTests : ClassTestsBase
     [Fact]
     public void should_report_undefined_local_usage_by_index_macro_when_no_locals_are_defined()
     {
-        ShouldHaveError("UndefinedLocalByIndexMacro").ShouldContain("No locals are defined");
+        ShouldHaveError("UndefinedLocalByIndexMacro").ShouldContain("IL local at index 0 is not defined");
     }
 
     [Fact]
     public void should_report_undefined_local_usage_by_index_when_no_locals_are_defined()
     {
-        ShouldHaveError("UndefinedLocalByIndex").ShouldContain("No locals are defined");
+        ShouldHaveError("UndefinedLocalByIndex").ShouldContain("IL local at index 0 is not defined");
     }
 
     [Fact]

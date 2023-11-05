@@ -11,19 +11,28 @@ namespace InlineIL.Fody.Processing;
 
 internal class MethodLocals
 {
+    private readonly MethodDefinition _method;
     private readonly ILogger _log;
-    private readonly SequencePoint? _sequencePoint;
 
     private readonly Dictionary<string, LocalVar> _localsByName = new();
     private readonly List<LocalVar> _localsByIndex = new();
 
-    public MethodLocals(MethodDefinition method,
-                        IEnumerable<LocalVarBuilder> localVarBuilders,
-                        ILogger log,
-                        SequencePoint? sequencePoint)
+    private bool _localsDeclared;
+    private SequencePoint? _declarationSequencePoint;
+
+    public MethodLocals(MethodDefinition method, ILogger log)
     {
+        _method = method;
         _log = log;
-        _sequencePoint = sequencePoint;
+    }
+
+    public void DeclareLocals(IEnumerable<LocalVarBuilder> localVarBuilders, SequencePoint? sequencePoint)
+    {
+        if (_localsDeclared)
+            throw new WeavingException("Local variables have already been declared for this method.");
+
+        _localsDeclared = true;
+        _declarationSequencePoint = sequencePoint;
 
         foreach (var builder in localVarBuilders)
         {
@@ -43,20 +52,39 @@ internal class MethodLocals
             }
 
             _localsByIndex.Add(localVar);
-            method.Body.Variables.Add(localVar.Variable);
+            _method.Body.Variables.Add(localVar.Variable);
 
-            method.DebugInformation.Scope?.Variables.Add(new VariableDebugInformation(localVar.Variable, localVar.Name ?? $"InlineIL_{localVar.Index}"));
+            _method.DebugInformation.Scope?.Variables.Add(new VariableDebugInformation(localVar.Variable, localVar.Name ?? $"InlineIL_{localVar.Index}"));
         }
     }
 
-    public VariableDefinition? TryGetByName(string name)
+    public VariableDefinition GetLocalByName(string name)
     {
-        var local = _localsByName.GetValueOrDefault(name);
-        local?.MarkAsUsed();
-        return local?.Variable;
+        if (!_localsDeclared)
+            throw new WeavingException($"IL local '{name}' is not defined, call IL.DeclareLocals to declare IL locals, or IL.Push/IL.Pop to reference locals declared in the source code.");
+
+        var local = _localsByName.GetValueOrDefault(name)
+                    ?? throw new WeavingException($"IL local '{name}' is not defined. If it is a local declared in the source code, use IL.Push/IL.Pop to reference it.");
+
+        local.MarkAsUsed();
+        return local.Variable;
     }
 
-    public static void MapMacroInstruction(MethodLocals? locals, Instruction instruction)
+    public VariableDefinition GetLocalByIndex(int index)
+    {
+        if (!_localsDeclared)
+            throw new WeavingException($"IL local at index {index} is not defined, call IL.DeclareLocals to declare IL locals.");
+
+        if (index < 0 || index >= _localsByIndex.Count)
+            throw new WeavingException($"IL local index {index} is out of range.");
+
+        var local = _localsByIndex[index];
+
+        local.MarkAsUsed();
+        return local.Variable;
+    }
+
+    public void MapMacroInstruction(Instruction instruction)
     {
         switch (instruction.OpCode.Code)
         {
@@ -88,13 +116,13 @@ internal class MethodLocals
 
         void MapIndex(OpCode opCode, int index)
         {
-            var local = GetLocalByIndex(locals, index);
+            var local = GetLocalByIndex(index);
             instruction.OpCode = opCode;
             instruction.Operand = local;
         }
     }
 
-    public static bool MapIndexInstruction(MethodLocals? locals, ref OpCode opCode, int index, [MaybeNullWhen(false)] out VariableDefinition result)
+    public bool MapIndexInstruction(OpCode opCode, int index, [MaybeNullWhen(false)] out VariableDefinition result)
     {
         switch (opCode.Code)
         {
@@ -105,7 +133,7 @@ internal class MethodLocals
             case Code.Stloc:
             case Code.Stloc_S:
             {
-                result = GetLocalByIndex(locals, index);
+                result = GetLocalByIndex(index);
                 return true;
             }
 
@@ -113,19 +141,6 @@ internal class MethodLocals
                 result = null;
                 return false;
         }
-    }
-
-    internal static VariableDefinition GetLocalByIndex(MethodLocals? locals, int index)
-    {
-        if (locals == null)
-            throw new WeavingException("No locals are defined");
-
-        if (index < 0 || index >= locals._localsByIndex.Count)
-            throw new WeavingException($"Local index {index} is out of range");
-
-        var local = locals._localsByIndex[index];
-        local.MarkAsUsed();
-        return local.Variable;
     }
 
     public void PostProcess()
@@ -138,7 +153,7 @@ internal class MethodLocals
                     localVar.Name is not null
                         ? $"Unused local: '{localVar.Name}'"
                         : $"Unused local at index {localVar.Index}",
-                    _sequencePoint
+                    _declarationSequencePoint
                 );
             }
         }

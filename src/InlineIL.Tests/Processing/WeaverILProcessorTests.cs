@@ -88,6 +88,6 @@ public class WeaverILProcessorTests
     {
         var method = new MethodDefinition("Test", MethodAttributes.Static, module.TypeSystem.Void);
         method.Body.Instructions.AddRange(instructions);
-        return new WeaverILProcessor(method, NoOpLogger.Instance);
+        return new WeaverILProcessor(method, new MethodLocals(method, NoOpLogger.Instance));
     }
 }

@@ -27,7 +27,7 @@ public class MethodLocalsTests : IDisposable
     public void should_not_log_warning_for_used_unnamed_locals()
     {
         var methodLocals = CreateLocals(new LocalVarBuilder(_module.TypeSystem.Int32));
-        MethodLocals.GetLocalByIndex(methodLocals, 0);
+        methodLocals.GetLocalByIndex(0);
         methodLocals.PostProcess();
         _logger.LoggedWarnings.ShouldBeEmpty();
     }
@@ -44,11 +44,15 @@ public class MethodLocalsTests : IDisposable
     public void should_not_log_warning_for_used_named_locals()
     {
         var methodLocals = CreateLocals(new LocalVarBuilder(_module.TypeSystem.Int32, "foo"));
-        methodLocals.TryGetByName("foo");
+        methodLocals.GetLocalByName("foo");
         methodLocals.PostProcess();
         _logger.LoggedWarnings.ShouldBeEmpty();
     }
 
     private MethodLocals CreateLocals(params LocalVarBuilder[] localVarBuilders)
-        => new(new MethodDefinition("test", default, _module.TypeSystem.Void), localVarBuilders, _logger, null);
+    {
+        var methodLocals = new MethodLocals(new MethodDefinition("test", default, _module.TypeSystem.Void), _logger);
+        methodLocals.DeclareLocals(localVarBuilders, null);
+        return methodLocals;
+    }
 }

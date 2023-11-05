@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
-using InlineIL.Fody.Model;
 using InlineIL.Fody.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -15,19 +14,17 @@ internal class WeaverILProcessor
 {
     private const int _emittedBasicBlockId = 0; // Basic block id assigned to emitted instructions
 
-    private readonly ILogger _log;
     private readonly ILProcessor _il;
+    private readonly MethodLocals _locals;
     private readonly HashSet<Instruction> _referencedInstructions;
     private readonly Dictionary<Instruction, int> _basicBlocks;
 
     public MethodDefinition Method { get; }
 
-    public MethodLocals? Locals { get; private set; }
-
-    public WeaverILProcessor(MethodDefinition method, ILogger log)
+    public WeaverILProcessor(MethodDefinition method, MethodLocals locals)
     {
         Method = method;
-        _log = log;
+        _locals = locals;
         _il = method.Body.GetILProcessor();
         _referencedInstructions = GetAllReferencedInstructions();
         _basicBlocks = SplitToBasicBlocks(method.Body.Instructions, _referencedInstructions);
@@ -53,14 +50,6 @@ internal class WeaverILProcessor
 
         if (mapToBasicBlock)
             _basicBlocks[newInstruction] = GetBasicBlock(oldInstruction);
-    }
-
-    public void DeclareLocals(IEnumerable<LocalVarBuilder> locals, SequencePoint? sequencePoint)
-    {
-        if (Locals != null)
-            throw new WeavingException("Local variables have already been declared for this method");
-
-        Locals = new MethodLocals(_il.Body.Method, locals, _log, sequencePoint);
     }
 
     public HashSet<Instruction> GetAllReferencedInstructions()
@@ -256,7 +245,7 @@ internal class WeaverILProcessor
         try
         {
             var instruction = _il.Create(opCode);
-            MethodLocals.MapMacroInstruction(Locals, instruction);
+            _locals.MapMacroInstruction(instruction);
             return instruction;
         }
         catch (ArgumentException)
@@ -397,7 +386,7 @@ internal class WeaverILProcessor
             {
                 case int value:
                 {
-                    if (MethodLocals.MapIndexInstruction(Locals, ref opCode, value, out var localVar))
+                    if (_locals.MapIndexInstruction(opCode, value, out var localVar))
                         return Create(opCode, localVar);
 
                     return _il.Create(opCode, value);
@@ -405,7 +394,7 @@ internal class WeaverILProcessor
 
                 case byte value:
                 {
-                    if (MethodLocals.MapIndexInstruction(Locals, ref opCode, value, out var localVar))
+                    if (_locals.MapIndexInstruction(opCode, value, out var localVar))
                         return Create(opCode, localVar);
 
                     return _il.Create(opCode, value);

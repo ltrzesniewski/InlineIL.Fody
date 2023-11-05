@@ -15,6 +15,7 @@ internal class MethodWeaver
     private readonly ModuleWeavingContext _context;
     private readonly MethodDefinition _method;
     private readonly MethodWeaverLogger _log;
+    private readonly MethodLocals _locals;
     private readonly WeaverILProcessor _il;
     private readonly LabelMapper _labels;
     private readonly ArgumentConsumer _consumer;
@@ -28,7 +29,8 @@ internal class MethodWeaver
         _context = context;
         _method = method;
         _log = new MethodWeaverLogger(log, _method);
-        _il = new WeaverILProcessor(_method, _log);
+        _locals = new MethodLocals(_method, _log);
+        _il = new WeaverILProcessor(_method, _locals);
         _labels = new LabelMapper(_il, _log);
         _consumer = new ArgumentConsumer(_il);
         _sequencePoints = new SequencePointMapper(_method, context.Config);
@@ -102,7 +104,7 @@ internal class MethodWeaver
         ProcessMethodCalls(ProcessMethodCallFirstPass);
         ProcessMethodCalls(ProcessMethodCallSecondPass);
         _labels.PostProcess();
-        _il.Locals?.PostProcess();
+        _locals.PostProcess();
         PostProcessTailCalls();
         _sequencePoints.PostProcess();
         ValidateAfterProcessing();
@@ -457,7 +459,8 @@ internal class MethodWeaver
                     switch (method.Parameters[0].ParameterType.FullName)
                     {
                         case "System.String":
-                            return _il.Create(opCode, _consumer.ConsumeArgLocalRef(args.Single()));
+                            var localName = _consumer.ConsumeArgString(args.Single());
+                            return _il.Create(opCode, _locals.GetLocalByName(localName));
 
                         case "System.Byte":
                         case "System.UInt16":
@@ -677,7 +680,7 @@ internal class MethodWeaver
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 _method.Body.InitLocals = true;
-                _il.DeclareLocals(_consumer.ConsumeArgArray(args[0], _consumer.ConsumeArgLocalVarBuilder), _sequencePoints.GetInputSequencePoint(instruction));
+                _locals.DeclareLocals(_consumer.ConsumeArgArray(args[0], _consumer.ConsumeArgLocalVarBuilder), _sequencePoints.GetInputSequencePoint(instruction));
                 _il.Remove(instruction);
                 return;
             }
@@ -686,7 +689,7 @@ internal class MethodWeaver
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 _method.Body.InitLocals = _consumer.ConsumeArgBool(args[0]);
-                _il.DeclareLocals(_consumer.ConsumeArgArray(args[1], _consumer.ConsumeArgLocalVarBuilder), _sequencePoints.GetInputSequencePoint(instruction));
+                _locals.DeclareLocals(_consumer.ConsumeArgArray(args[1], _consumer.ConsumeArgLocalVarBuilder), _sequencePoints.GetInputSequencePoint(instruction));
                 _il.Remove(instruction);
                 return;
             }
