@@ -35,7 +35,12 @@ public class BasicTestCases : IBasicTestCases
 
     public void PushInRef(in int i)
     {
-        IL.PushInRef(i);
+#if HAS_REF_READONLY
+        IL.PushInRef(in i);
+#else
+        Ldarg_1(); // Not a real test below C# 12
+#endif
+
         Ldc_I4(42);
         Stind_I4();
     }

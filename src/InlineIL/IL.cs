@@ -81,7 +81,7 @@ public static unsafe partial class IL
     /// </summary>
     /// <typeparam name="T">The reference target type.</typeparam>
     /// <param name="value">The reference to push.</param>
-    public static void PushInRef<T>(in T? value)
+    public static void PushInRef<T>(ref readonly T? value)
         => Throw();
 
     /// <summary>
