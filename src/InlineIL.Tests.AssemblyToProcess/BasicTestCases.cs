@@ -35,7 +35,7 @@ public class BasicTestCases : IBasicTestCases
 
     public void PushInRef(in int i)
     {
-#if HAS_REF_READONLY
+#if CSHARP_12_OR_GREATER
         IL.PushInRef(in i);
 #else
         Ldarg_1(); // Not a real test below C# 12

@@ -42,6 +42,31 @@ public class LabelTestCases
         return IL.Return<int>();
     }
 
+#if CSHARP_12_OR_GREATER
+    public int JumpTableCollectionExpression(uint value)
+    {
+        IL.Push(value);
+        Switch(["one", "two", "three"]);
+
+        IL.Push(42);
+        Br("end");
+
+        IL.MarkLabel("one");
+        IL.Push(1);
+        Br("end");
+
+        IL.MarkLabel("two");
+        IL.Push(2);
+        Br("end");
+
+        IL.MarkLabel("three");
+        IL.Push(3);
+
+        IL.MarkLabel("end");
+        return IL.Return<int>();
+    }
+#endif
+
     public void UnusedLabel()
     {
         IL.MarkLabel("SomeLabel");

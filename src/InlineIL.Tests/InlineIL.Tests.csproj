@@ -7,6 +7,8 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
+  <Import Project="../TestLangFeatures.targets" />
+
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
     <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />

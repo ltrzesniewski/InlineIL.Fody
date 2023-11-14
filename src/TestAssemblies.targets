@@ -1,12 +1,10 @@
 <Project>
 
+  <Import Project="TestLangFeatures.targets" />
+
   <PropertyGroup>
     <DisableFody>true</DisableFody>
-
-    <TestAssembliesLangVersion Condition="'$(TestAssembliesLangVersion)' == ''">$(LangVersion)</TestAssembliesLangVersion>
     <LangVersion>$(TestAssembliesLangVersion)</LangVersion>
-
-    <DefineConstants Condition="$(LangVersion) &gt;= 12">$(DefineConstants);HAS_REF_READONLY</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

@@ -41,6 +41,26 @@ public class LabelTests : ClassTestsBase
         ShouldNotHaveWarnings("JumpTable");
     }
 
+#if CSHARP_12_OR_GREATER
+    [Fact]
+    public void should_handle_switch_with_collection_expression()
+    {
+        var result = (int)GetInstance().JumpTableCollectionExpression(0);
+        result.ShouldEqual(1);
+
+        result = (int)GetInstance().JumpTableCollectionExpression(1);
+        result.ShouldEqual(2);
+
+        result = (int)GetInstance().JumpTableCollectionExpression(2);
+        result.ShouldEqual(3);
+
+        result = (int)GetInstance().JumpTableCollectionExpression(3);
+        result.ShouldEqual(42);
+
+        ShouldNotHaveWarnings("JumpTableCollectionExpression");
+    }
+#endif
+
     [Fact]
     public void should_report_null_label_reference()
     {
