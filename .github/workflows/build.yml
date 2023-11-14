@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   DOTNET_NOLOGO: 1
-  BUILD_DOTNET_VERSION: 7.0.x
+  BUILD_DOTNET_VERSION: 8.0.x
 
 jobs:
   build:
@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        langVersion: [10, 11]
+        langVersion: [10, 11, 12]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

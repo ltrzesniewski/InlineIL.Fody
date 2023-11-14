@@ -29,7 +29,7 @@ internal static class AssertionExtensions
         where T : class
     {
         Assert.NotNull(actual);
-        return actual ?? throw new NotNullException();
+        return actual ?? throw NotNullException.ForNullValue();
     }
 
     public static void ShouldAll<T>(this IEnumerable<T> items, Func<T, bool> test)

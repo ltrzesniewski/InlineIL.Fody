@@ -1,12 +1,12 @@
 <Project>
 
   <PropertyGroup>
-    <Version>1.7.4</Version>
-    <FodyVersion>6.6.4</FodyVersion>
+    <Version>1.8.0</Version>
+    <FodyVersion>6.8.0</FodyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>11.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
     <AnalysisLevel>5.0</AnalysisLevel>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -28,9 +28,5 @@
     <PackageOutputPath>$(MSBuildThisFileDirectory)..\output</PackageOutputPath>
     <PackageIconUrl>https://github.com/ltrzesniewski/InlineIL.Fody/raw/master/icon.png</PackageIconUrl>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-  </ItemGroup>
 
 </Project>
