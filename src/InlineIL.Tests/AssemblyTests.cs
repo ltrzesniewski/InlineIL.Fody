@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using InlineIL.Fody;
@@ -30,5 +31,34 @@ public class AssemblyTests
             var typeName = metadataReader.GetString(typeRef.Name);
             typeName.ShouldNotContain(nameof(ValueTuple));
         }
+    }
+
+    [Fact]
+    public void should_not_export_unexpected_namespaces_in_library()
+    {
+        typeof(IL).Assembly
+                  .GetExportedTypes()
+                  .Select(i => i.Namespace)
+                  .Distinct(StringComparer.Ordinal)
+                  .OrderBy(i => i, StringComparer.Ordinal)
+                  .ToList()
+                  .ShouldEqual([
+                      "InlineIL"
+                  ]);
+    }
+
+    [Fact]
+    public void should_not_export_unexpected_namespaces_in_weaver()
+    {
+        typeof(ModuleWeaver).Assembly
+                            .GetExportedTypes()
+                            .Select(i => i.Namespace)
+                            .Distinct(StringComparer.Ordinal)
+                            .OrderBy(i => i, StringComparer.Ordinal)
+                            .ToList()
+                            .ShouldEqual([
+                                "InlineIL",
+                                "InlineIL.Fody"
+                            ]);
     }
 }
