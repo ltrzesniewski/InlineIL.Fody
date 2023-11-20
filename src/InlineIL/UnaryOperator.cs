@@ -3,7 +3,12 @@
 /// <summary>
 /// Unary operator.
 /// </summary>
-public enum UnaryOperator
+#if INLINEIL_LIBRARY
+public
+#else
+internal
+#endif
+    enum UnaryOperator
 {
     /// <summary>
     /// <c>op_Decrement</c>

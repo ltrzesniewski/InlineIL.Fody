@@ -3,7 +3,12 @@
 /// <summary>
 /// Conversion operator.
 /// </summary>
-public enum ConversionOperator
+#if INLINEIL_LIBRARY
+public
+#else
+internal
+#endif
+    enum ConversionOperator
 {
     /// <summary>
     /// <c>op_Implicit</c>

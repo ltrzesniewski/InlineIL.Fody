@@ -3,7 +3,12 @@
 /// <summary>
 /// Conversion direction.
 /// </summary>
-public enum ConversionDirection
+#if INLINEIL_LIBRARY
+public
+#else
+internal
+#endif
+    enum ConversionDirection
 {
     /// <summary>
     /// Convert from the other type.

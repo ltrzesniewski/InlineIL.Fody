@@ -57,7 +57,6 @@ public class AssemblyTests
                             .OrderBy(i => i, StringComparer.Ordinal)
                             .ToList()
                             .ShouldEqual([
-                                "InlineIL",
                                 "InlineIL.Fody"
                             ]);
     }

@@ -3,7 +3,12 @@
 /// <summary>
 /// Binary operator.
 /// </summary>
-public enum BinaryOperator
+#if INLINEIL_LIBRARY
+public
+#else
+internal
+#endif
+    enum BinaryOperator
 {
     /// <summary>
     /// <c>op_Addition</c>
