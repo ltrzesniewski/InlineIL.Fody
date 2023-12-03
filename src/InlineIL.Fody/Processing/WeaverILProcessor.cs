@@ -402,14 +402,19 @@ internal class WeaverILProcessor
 
                 case sbyte value:
                     return _il.Create(opCode, value);
+
                 case long value:
                     return _il.Create(opCode, value);
+
                 case double value:
                     return _il.Create(opCode, value);
+
                 case short value:
                     return _il.Create(opCode, value);
+
                 case float value:
                     return _il.Create(opCode, value);
+
                 case string value:
                     return _il.Create(opCode, value);
 

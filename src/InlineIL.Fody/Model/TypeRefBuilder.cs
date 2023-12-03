@@ -224,24 +224,19 @@ internal class TypeRefBuilder
         }
     }
 
-    private abstract class TypeSpecTypeRefResolver : TypeRefResolver
+    private abstract class TypeSpecTypeRefResolver(TypeRefResolver baseResolver) : TypeRefResolver
     {
-        private readonly TypeRefResolver _baseResolver;
-
-        protected TypeSpecTypeRefResolver(TypeRefResolver baseResolver)
-            => _baseResolver = baseResolver;
-
         protected abstract TypeReference WrapTypeRef(TypeReference typeRef);
 
         public sealed override TypeReference Resolve(ModuleDefinition module)
         {
-            var typeRef = _baseResolver.Resolve(module);
+            var typeRef = baseResolver.Resolve(module);
             return ResolveImpl(module, typeRef);
         }
 
         public sealed override TypeReference? TryResolve(ModuleDefinition module, IGenericParameterProvider context)
         {
-            var typeRef = _baseResolver.TryResolve(module, context);
+            var typeRef = baseResolver.TryResolve(module, context);
             return typeRef != null ? ResolveImpl(module, typeRef) : null;
         }
 
@@ -255,7 +250,7 @@ internal class TypeRefBuilder
         }
 
         public sealed override string GetDisplayName()
-            => GetDisplayName(_baseResolver.GetDisplayName());
+            => GetDisplayName(baseResolver.GetDisplayName());
 
         protected abstract string GetDisplayName(string baseName);
     }
@@ -290,13 +285,8 @@ internal class TypeRefBuilder
         }
     }
 
-    private class ByRefTypeRefResolver : TypeSpecTypeRefResolver
+    private class ByRefTypeRefResolver(TypeRefResolver baseResolver) : TypeSpecTypeRefResolver(baseResolver)
     {
-        public ByRefTypeRefResolver(TypeRefResolver baseResolver)
-            : base(baseResolver)
-        {
-        }
-
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {
             if (typeRef.IsByReference)
@@ -309,13 +299,8 @@ internal class TypeRefBuilder
             => baseName + "&";
     }
 
-    private class PointerTypeRefResolver : TypeSpecTypeRefResolver
+    private class PointerTypeRefResolver(TypeRefResolver baseResolver) : TypeSpecTypeRefResolver(baseResolver)
     {
-        public PointerTypeRefResolver(TypeRefResolver baseResolver)
-            : base(baseResolver)
-        {
-        }
-
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {
             if (typeRef.IsByReference)
@@ -412,15 +397,9 @@ internal class TypeRefBuilder
         }
     }
 
-    private readonly struct Modifier
+    private readonly struct Modifier(TypeReference type, bool isRequired)
     {
-        public TypeReference Type { get; }
-        public bool IsRequired { get; }
-
-        public Modifier(TypeReference type, bool isRequired)
-        {
-            Type = type;
-            IsRequired = isRequired;
-        }
+        public TypeReference Type { get; } = type;
+        public bool IsRequired { get; } = isRequired;
     }
 }

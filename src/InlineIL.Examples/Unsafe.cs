@@ -221,8 +221,8 @@ namespace InlineIL.Examples
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AsRef<T>(void* source)
         {
-            // For .NET Core the roundtrip via a local is no longer needed
 #if NETCOREAPP
+            // For .NET Core the roundtrip via a local is no longer needed
             IL.Push(source);
             return ref IL.ReturnRef<T>();
 #else
@@ -470,7 +470,5 @@ namespace InlineIL.Examples
 namespace System.Runtime.Versioning
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method | AttributeTargets.Constructor, Inherited = false)]
-    internal sealed class NonVersionableAttribute : Attribute
-    {
-    }
+    internal sealed class NonVersionableAttribute : Attribute;
 }

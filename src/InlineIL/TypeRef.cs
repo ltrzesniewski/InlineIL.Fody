@@ -12,7 +12,6 @@ namespace InlineIL;
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
 [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-[SuppressMessage("ReSharper", "UnusedTypeParameter")]
 public sealed class TypeRef
 {
     /// <summary>

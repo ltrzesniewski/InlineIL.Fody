@@ -18,9 +18,7 @@ public class ModuleWeaver : BaseModuleWeaver
 
     [SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
     public ModuleWeaver()
-    {
-        _log = new Logger(this);
-    }
+        => _log = new Logger(this);
 
     public override IEnumerable<string> GetAssembliesForScanning()
         => Enumerable.Empty<string>();

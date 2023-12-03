@@ -98,7 +98,7 @@ internal class MethodRefBuilder
     private static string GetDisplaySignature(string methodName, int? genericArity, TypeRefBuilder? returnType, IReadOnlyList<TypeRefBuilder>? paramTypes)
     {
         if (genericArity is null && returnType is null && paramTypes is null)
-            return "'" + methodName + "'";
+            return $"'{methodName}'";
 
         var sb = new StringBuilder();
 

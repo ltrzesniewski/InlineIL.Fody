@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace InlineIL.Examples;
 
@@ -30,7 +29,6 @@ public static class DebugInfoExamples
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private static void DoNothing(int _)
     {
     }

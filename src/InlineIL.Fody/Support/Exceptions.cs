@@ -6,13 +6,7 @@ using Mono.Cecil.Cil;
 
 namespace InlineIL.Fody.Support;
 
-internal class InstructionWeavingException : WeavingException
+internal class InstructionWeavingException(Instruction? instruction, string message) : WeavingException(message)
 {
-    public Instruction? Instruction { get; }
-
-    public InstructionWeavingException(Instruction? instruction, string message)
-        : base(message)
-    {
-        Instruction = instruction;
-    }
+    public Instruction? Instruction { get; } = instruction;
 }
