@@ -86,39 +86,25 @@ internal class MethodLocals
 
     public void MapMacroInstruction(Instruction instruction)
     {
-        switch (instruction.OpCode.Code)
+        _ = instruction.OpCode.Code switch
         {
-            case Code.Ldloc_0:
-                MapIndex(OpCodes.Ldloc, 0);
-                break;
-            case Code.Ldloc_1:
-                MapIndex(OpCodes.Ldloc, 1);
-                break;
-            case Code.Ldloc_2:
-                MapIndex(OpCodes.Ldloc, 2);
-                break;
-            case Code.Ldloc_3:
-                MapIndex(OpCodes.Ldloc, 3);
-                break;
-            case Code.Stloc_0:
-                MapIndex(OpCodes.Stloc, 0);
-                break;
-            case Code.Stloc_1:
-                MapIndex(OpCodes.Stloc, 1);
-                break;
-            case Code.Stloc_2:
-                MapIndex(OpCodes.Stloc, 2);
-                break;
-            case Code.Stloc_3:
-                MapIndex(OpCodes.Stloc, 3);
-                break;
-        }
+            Code.Ldloc_0 => MapIndex(OpCodes.Ldloc, 0),
+            Code.Ldloc_1 => MapIndex(OpCodes.Ldloc, 1),
+            Code.Ldloc_2 => MapIndex(OpCodes.Ldloc, 2),
+            Code.Ldloc_3 => MapIndex(OpCodes.Ldloc, 3),
+            Code.Stloc_0 => MapIndex(OpCodes.Stloc, 0),
+            Code.Stloc_1 => MapIndex(OpCodes.Stloc, 1),
+            Code.Stloc_2 => MapIndex(OpCodes.Stloc, 2),
+            Code.Stloc_3 => MapIndex(OpCodes.Stloc, 3),
+            _            => default
+        };
 
-        void MapIndex(OpCode opCode, int index)
+        int MapIndex(OpCode opCode, int index)
         {
             var local = GetLocalByIndex(index);
             instruction.OpCode = opCode;
             instruction.Operand = local;
+            return default;
         }
     }
 

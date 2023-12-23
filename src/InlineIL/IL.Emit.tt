@@ -119,71 +119,39 @@
 
     static string GetStackBehaviour(OpCode opCode, StackBehaviour behaviour)
     {
-        switch (behaviour)
+        return behaviour switch
         {
-            case StackBehaviour.Pop0:
-                return "(none)";
-            case StackBehaviour.Pop1:
-                return "value";
-            case StackBehaviour.Pop1_pop1:
-                return "value, value";
-            case StackBehaviour.Popi:
-                return "I";
-            case StackBehaviour.Popi_pop1:
-                return "I, value";
-            case StackBehaviour.Popi_popi:
-                return "I, I";
-            case StackBehaviour.Popi_popi8:
-                return "I, I8";
-            case StackBehaviour.Popi_popi_popi:
-                return "I, I, I";
-            case StackBehaviour.Popi_popr4:
-                return "I, R4";
-            case StackBehaviour.Popi_popr8:
-                return "I, R8";
-            case StackBehaviour.Popref:
-                return "O";
-            case StackBehaviour.Popref_pop1:
-                return "O, value";
-            case StackBehaviour.Popref_popi:
-                return "O, I";
-            case StackBehaviour.Popref_popi_popi:
-                return "O, I, I";
-            case StackBehaviour.Popref_popi_popi8:
-                return "O, I, I8";
-            case StackBehaviour.Popref_popi_popr4:
-                return "O, I, R4";
-            case StackBehaviour.Popref_popi_popr8:
-                return "O, I, R8";
-            case StackBehaviour.Popref_popi_popref:
-                return "O, I, O";
-            case StackBehaviour.PopAll:
-                return "(all)";
-            case StackBehaviour.Push0:
-                return "(none)";
-            case StackBehaviour.Push1:
-                return "value";
-            case StackBehaviour.Push1_push1:
-                return "value, value";
-            case StackBehaviour.Pushi:
-                return "I";
-            case StackBehaviour.Pushi8:
-                return "I8";
-            case StackBehaviour.Pushr4:
-                return "R4";
-            case StackBehaviour.Pushr8:
-                return "R8";
-            case StackBehaviour.Pushref:
-                return "O";
-            case StackBehaviour.Varpop:
-                if (opCode.Code == Code.Ret)
-                    return "return value (if method does not return <c>void</c>)";
-                return "arg0, arg1, ..., argN";
-            case StackBehaviour.Varpush:
-                return "return value (if callee does not return <c>void</c>)";
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            StackBehaviour.Pop0               => "(none)",
+            StackBehaviour.Pop1               => "value",
+            StackBehaviour.Pop1_pop1          => "value, value",
+            StackBehaviour.Popi               => "I",
+            StackBehaviour.Popi_pop1          => "I, value",
+            StackBehaviour.Popi_popi          => "I, I",
+            StackBehaviour.Popi_popi8         => "I, I8",
+            StackBehaviour.Popi_popi_popi     => "I, I, I",
+            StackBehaviour.Popi_popr4         => "I, R4",
+            StackBehaviour.Popi_popr8         => "I, R8",
+            StackBehaviour.Popref             => "O",
+            StackBehaviour.Popref_pop1        => "O, value",
+            StackBehaviour.Popref_popi        => "O, I",
+            StackBehaviour.Popref_popi_popi   => "O, I, I",
+            StackBehaviour.Popref_popi_popi8  => "O, I, I8",
+            StackBehaviour.Popref_popi_popr4  => "O, I, R4",
+            StackBehaviour.Popref_popi_popr8  => "O, I, R8",
+            StackBehaviour.Popref_popi_popref => "O, I, O",
+            StackBehaviour.PopAll             => "(all)",
+            StackBehaviour.Push0              => "(none)",
+            StackBehaviour.Push1              => "value",
+            StackBehaviour.Push1_push1        => "value, value",
+            StackBehaviour.Pushi              => "I",
+            StackBehaviour.Pushi8             => "I8",
+            StackBehaviour.Pushr4             => "R4",
+            StackBehaviour.Pushr8             => "R8",
+            StackBehaviour.Pushref            => "O",
+            StackBehaviour.Varpop             => opCode.Code == Code.Ret ? "return value (if method does not return <c>void</c>)" : "arg0, arg1, ..., argN",
+            StackBehaviour.Varpush            => "return value (if callee does not return <c>void</c>)",
+            _                                 => throw new ArgumentOutOfRangeException()
+        };
     }
 #>
 //------------------------------------------------------------------------------
