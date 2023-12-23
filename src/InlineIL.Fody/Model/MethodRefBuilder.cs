@@ -253,10 +253,12 @@ internal class MethodRefBuilder
                                   .Where(i => i.IsStatic && i.Name == ".cctor" && i.Parameters.Count == 0)
                                   .ToList();
 
-        if (initializers.Count == 1)
-            return new MethodRefBuilder(module, typeRef, initializers.Single());
-
-        throw new WeavingException($"Type {typeDef.FullName} has no type initializer");
+        return initializers switch
+        {
+            [var initializer] => new MethodRefBuilder(module, typeRef, initializer),
+            []                => throw new WeavingException($"Type {typeDef.FullName} has no type initializer"),
+            _                 => throw new WeavingException($"Type {typeDef.FullName} has multiple type initializers")
+        };
     }
 
     public static MethodRefBuilder Operator(ModuleDefinition module, TypeReference typeRef, UnaryOperator opType)

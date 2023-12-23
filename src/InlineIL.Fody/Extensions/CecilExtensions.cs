@@ -272,7 +272,7 @@ internal static partial class CecilExtensions
         var argCount = GetArgCount(instruction.OpCode, method);
 
         if (argCount == 0)
-            return Array.Empty<Instruction>();
+            return [];
 
         var result = new Instruction[argCount];
         var currentInstruction = instruction.Previous;
@@ -449,9 +449,9 @@ internal static partial class CecilExtensions
     {
         return instruction.Operand switch
         {
-            Instruction operand   => new[] { operand },
+            Instruction operand   => [operand],
             Instruction[] operand => operand,
-            _                     => Array.Empty<Instruction>()
+            _                     => []
         };
     }
 

@@ -657,7 +657,7 @@ internal class ArgumentConsumer
 
         var result = elementCount != 0
             ? new T[elementCount]
-            : Array.Empty<T>();
+            : [];
 
         var currentDupInstruction = instruction.NextSkipNops();
 
