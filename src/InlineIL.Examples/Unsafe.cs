@@ -221,7 +221,7 @@ namespace InlineIL.Examples
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AsRef<T>(void* source)
         {
-#if NETCOREAPP
+#if NET
             // For .NET Core the roundtrip via a local is no longer needed
             IL.Push(source);
             return ref IL.ReturnRef<T>();

@@ -190,7 +190,7 @@ public class MethodRefTestCases : IMethodRefTestCases
         return result.ToArray();
     }
 
-#if NETCOREAPP
+#if NET
     public int[] ResolveGenericOverloadsUsingTypeApi()
     {
         var result = new List<int>();
@@ -840,7 +840,7 @@ public class MethodRefTestCases : IMethodRefTestCases
         return results.ToArray();
     }
 
-#if NETCOREAPP
+#if NET
     public int[] CallGenericArrayReturnType()
     {
         // Issue #29

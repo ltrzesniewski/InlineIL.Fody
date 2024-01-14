@@ -5,13 +5,8 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving;
 
-public class LocalVarsTests : ClassTestsBase
+public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
 {
-    public LocalVarsTests()
-        : base("LocalVarsTestCases")
-    {
-    }
-
     [Fact]
     public void should_handle_local_variables()
     {

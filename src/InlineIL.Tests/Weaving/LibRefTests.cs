@@ -3,13 +3,8 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving;
 
-public class LibRefTests : ClassTestsBase
+public class LibRefTests() : ClassTestsBase("LibRefTestCases")
 {
-    public LibRefTests()
-        : base("LibRefTestCases")
-    {
-    }
-
     [Fact]
     public void should_report_lib_ref_local()
     {

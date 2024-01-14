@@ -6,13 +6,8 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving;
 
-public class FieldRefTests : ClassTestsBase
+public class FieldRefTests() : ClassTestsBase("FieldRefTestCases")
 {
-    public FieldRefTests()
-        : base("FieldRefTestCases")
-    {
-    }
-
     [Fact]
     public void should_handle_field_references()
     {

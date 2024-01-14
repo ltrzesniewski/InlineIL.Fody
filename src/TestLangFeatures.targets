@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <TestAssembliesLangVersion Condition="'$(TestAssembliesLangVersion)' == ''">$(LangVersion)</TestAssembliesLangVersion>
+    <TestAssembliesLangVersion Condition="'$(TestAssembliesLangVersion)' == ''">10</TestAssembliesLangVersion>
 
     <DefineConstants Condition="$(TestAssembliesLangVersion) &gt;= 12">$(DefineConstants);CSHARP_12_OR_GREATER</DefineConstants>
   </PropertyGroup>

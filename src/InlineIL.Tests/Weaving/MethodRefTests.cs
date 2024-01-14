@@ -1,25 +1,22 @@
 ﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Xunit;
+
+#if NET
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Xunit;
+#endif
 
 namespace InlineIL.Tests.Weaving;
 
-public abstract class MethodRefTestsBase : ClassTestsBase
-{
-    protected MethodRefTestsBase()
-        : base("MethodRefTestCases")
-    {
-    }
-}
+public abstract class MethodRefTestsBase() : ClassTestsBase("MethodRefTestCases");
 
 public class MethodRefTests : MethodRefTestsBase
 {
@@ -41,28 +38,28 @@ public class MethodRefTests : MethodRefTestsBase
     public void should_resolve_overloads()
     {
         var result = (int[])GetInstance().ResolveOverloads();
-        result.ShouldEqual(new[] { 10, 10, 20, 30, 40, 50, 60 });
+        result.ShouldEqual([10, 10, 20, 30, 40, 50, 60]);
     }
 
     [Fact]
     public void should_resolve_generic_overloads()
     {
         var result = (int[])GetInstance().ResolveGenericOverloads();
-        result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
+        result.ShouldEqual([1, 2, 3, 4, 5, 6, 6, 7]);
     }
 
     [Fact]
     public void should_resolve_generic_overloads_in_nested_generic_types()
     {
         var result = (int[])GetInstance().ResolveGenericOverloadsInGenericType();
-        result.ShouldEqual(new[] { 1, 2, 3, 4, 5 });
+        result.ShouldEqual([1, 2, 3, 4, 5]);
     }
 
     [Fact]
     public void should_resolve_overloads_unverifiable()
     {
         var result = (int[])GetUnverifiableInstance().ResolveOverloads();
-        result.ShouldEqual(new[] { 10, 10, 20, 30, 40, 50, 60 });
+        result.ShouldEqual([10, 10, 20, 30, 40, 50, 60]);
     }
 
     [Fact]
@@ -185,7 +182,6 @@ public class MethodRefTests : MethodRefTestsBase
     }
 
     [Fact]
-    [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
     public void should_unsubscribe_from_event()
     {
         var callCount = 0;
@@ -407,21 +403,21 @@ public class MethodRefTests : MethodRefTestsBase
     public void should_call_unary_operators()
     {
         var result = (int[])GetInstance().CallUnaryOperators();
-        result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 105 });
+        result.ShouldEqual([1, 2, 3, 4, 5, 6, 7, 8, 105]);
     }
 
     [Fact]
     public void should_call_binary_operators()
     {
         var result = (int[])GetInstance().CallBinaryOperators();
-        result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 103, 104 });
+        result.ShouldEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 103, 104]);
     }
 
     [Fact]
     public void should_call_conversion_operators()
     {
         var result = (int[])GetInstance().CallConversionOperators();
-        result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 101, 102, 1, 3, 102 });
+        result.ShouldEqual([1, 2, 3, 4, 5, 6, 101, 102, 1, 3, 102]);
     }
 
     [Fact]
@@ -617,7 +613,7 @@ public class MethodRefTests : MethodRefTestsBase
     }
 }
 
-#if NETCOREAPP
+#if NET
 public class MethodRefTestsCore : MethodRefTestsBase
 {
     [Fact]

@@ -2,21 +2,18 @@
 using System.Collections.Generic;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Xunit;
+
+#if NET
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Xunit;
+#endif
 
 #pragma warning disable 618
 
 namespace InlineIL.Tests.Weaving;
 
-public abstract class TypeRefTestsBase : ClassTestsBase
-{
-    protected TypeRefTestsBase()
-        : base("TypeRefTestCases")
-    {
-    }
-}
+public abstract class TypeRefTestsBase() : ClassTestsBase("TypeRefTestCases");
 
 public class TypeRefTests : TypeRefTestsBase
 {
@@ -296,7 +293,7 @@ public class TypeRefTests : TypeRefTestsBase
     }
 }
 
-#if NETCOREAPP
+#if NET
 public class TypeRefTestsCore : TypeRefTestsBase
 {
     [Fact]

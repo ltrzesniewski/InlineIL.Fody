@@ -13,13 +13,8 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving;
 
-public class BasicTests : ClassTestsBase
+public class BasicTests() : ClassTestsBase("BasicTestCases")
 {
-    public BasicTests()
-        : base("BasicTestCases")
-    {
-    }
-
     [Fact]
     public void should_push_value()
     {

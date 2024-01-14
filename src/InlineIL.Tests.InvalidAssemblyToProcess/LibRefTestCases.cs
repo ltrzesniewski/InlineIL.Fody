@@ -5,7 +5,6 @@ namespace InlineIL.Tests.InvalidAssemblyToProcess;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
-[SuppressMessage("ReSharper", "UnusedParameter.Local")]
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]

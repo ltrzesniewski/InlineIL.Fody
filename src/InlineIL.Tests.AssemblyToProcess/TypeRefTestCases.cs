@@ -184,7 +184,7 @@ public class TypeRefTestCases
         return IL.Return<Type>();
     }
 
-#if NETCOREAPP
+#if NET
     public Type ReturnNestedForwardedTypeUsingRuntimeSyntax()
     {
         Ldtoken(new TypeRef(TypeRef.CoreLibrary, "System.Span`1+Enumerator"));

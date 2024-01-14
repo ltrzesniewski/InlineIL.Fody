@@ -4,13 +4,8 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving;
 
-public class LabelTests : ClassTestsBase
+public class LabelTests() : ClassTestsBase("LabelTestCases")
 {
-    public LabelTests()
-        : base("LabelTestCases")
-    {
-    }
-
     [Fact]
     public void should_handle_labels()
     {

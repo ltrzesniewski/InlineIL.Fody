@@ -4,13 +4,7 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving;
 
-public abstract class StandAloneMethodSigTestsBase : ClassTestsBase
-{
-    protected StandAloneMethodSigTestsBase()
-        : base("StandAloneMethodSigTestCases")
-    {
-    }
-}
+public abstract class StandAloneMethodSigTestsBase() : ClassTestsBase("StandAloneMethodSigTestCases");
 
 public class StandAloneMethodSigTests : StandAloneMethodSigTestsBase
 {

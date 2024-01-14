@@ -62,7 +62,7 @@ public class CecilExtensionsTests : IDisposable
         var callInstruction = _il.Body.Instructions.Last();
 
         var result = callInstruction.GetArgumentPushInstructions();
-        result.ShouldEqual(new[] { p0, p1, p2 });
+        result.ShouldEqual([p0, p1, p2]);
     }
 
     [Fact]
@@ -118,7 +118,7 @@ public class CecilExtensionsTests : IDisposable
         var callInstruction = _il.Body.Instructions.Last();
 
         var result = callInstruction.GetArgumentPushInstructions();
-        result.ShouldEqual(new[] { p0, p1, p2 });
+        result.ShouldEqual([p0, p1, p2]);
     }
 
     [Fact]

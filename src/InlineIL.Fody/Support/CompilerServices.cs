@@ -1,4 +1,6 @@
 // ReSharper disable CheckNamespace
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
 
 namespace System.Runtime.CompilerServices;
 
