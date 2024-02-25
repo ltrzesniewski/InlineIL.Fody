@@ -32,7 +32,7 @@ internal class MethodWeaver
         _locals = new MethodLocals(_method, _log);
         _il = new WeaverILProcessor(_method, _locals);
         _labels = new LabelMapper(_il, _log);
-        _consumer = new ArgumentConsumer(_il);
+        _consumer = new ArgumentConsumer(_context, _il);
         _sequencePoints = new SequencePointMapper(_method, context.Config);
     }
 

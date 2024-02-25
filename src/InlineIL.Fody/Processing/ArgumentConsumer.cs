@@ -14,13 +14,15 @@ namespace InlineIL.Fody.Processing;
 
 internal class ArgumentConsumer
 {
+    private readonly ModuleWeavingContext _context;
     private readonly WeaverILProcessor _il;
 
     private MethodDefinition Method => _il.Method;
     private ModuleDefinition Module => Method.Module;
 
-    public ArgumentConsumer(WeaverILProcessor il)
+    public ArgumentConsumer(ModuleWeavingContext context, WeaverILProcessor il)
     {
+        _context = context;
         _il = il;
     }
 
@@ -256,6 +258,17 @@ internal class ArgumentConsumer
                 var builder = ConsumeArgTypeRefBuilder(args[0]);
                 var modifierType = ConsumeArgTypeRef(args[1]);
                 builder.AddRequiredModifier(modifierType);
+
+                _il.Remove(instruction);
+                return builder;
+            }
+
+            case "InlineIL.TypeRef InlineIL.TypeRef::FromDll(System.String,System.String)":
+            {
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var assemblyPath = ConsumeArgString(args[0]);
+                var typeName = ConsumeArgString(args[1]);
+                var builder = TypeRefBuilder.FromDll(_context, assemblyPath, typeName);
 
                 _il.Remove(instruction);
                 return builder;

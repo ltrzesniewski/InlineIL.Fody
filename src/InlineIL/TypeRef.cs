@@ -123,4 +123,15 @@ public sealed class TypeRef
     /// <returns>A <see cref="TypeRef"/> with the custom modifier applied.</returns>
     public TypeRef WithRequiredModifier(TypeRef modifierType)
         => throw IL.Throw();
+
+    /// <summary>
+    /// EXPERIMENTAL API - Returns a reference to a type from an assembly specified by its full path,
+    /// adding a reference to that assembly name if required.
+    /// </summary>
+    /// <param name="assemblyPath">The full path to an assembly file.</param>
+    /// <param name="typeName">The full runtime type name, as returned by <see cref="System.Type.FullName"/>.</param>
+    /// <returns>A <see cref="TypeRef"/> to the given type.</returns>
+    [Obsolete("This is an experimental API.")]
+    public static TypeRef FromDll(string assemblyPath, string typeName)
+        => throw IL.Throw();
 }

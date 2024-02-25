@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Fody;
 using InlineIL.Fody.Extensions;
+using InlineIL.Fody.Processing;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 
@@ -78,6 +80,52 @@ internal class TypeRefBuilder
         }
 
         return null;
+    }
+
+    public static TypeRefBuilder FromDll(ModuleWeavingContext context, string assemblyPath, string typeName)
+    {
+        // Not sure which base path should be used, so require a full path
+        if (!Path.IsPathRooted(assemblyPath))
+            throw new WeavingException($"Full assembly path is required: {assemblyPath}");
+
+        if (!context.AssemblyByPath.TryGetValue(assemblyPath, out var assembly))
+        {
+            try
+            {
+                assembly = AssemblyDefinition.ReadAssembly(
+                    assemblyPath,
+                    new ReaderParameters // Same as in Fody
+                    {
+                        AssemblyResolver = context.Module.AssemblyResolver,
+                        InMemory = true
+                    }
+                );
+
+                if (context.Module.AssemblyReferences.All(i => i.FullName != assembly.FullName))
+                    context.Module.AssemblyReferences.Add(assembly.Name);
+
+                context.AssemblyByPath.Add(assemblyPath, assembly);
+            }
+            catch (Exception ex)
+            {
+                assembly?.Dispose();
+                context.AssemblyByPath.Add(assemblyPath, null);
+                throw new WeavingException($"Could not read assembly: {assemblyPath} - {ex.Message}");
+            }
+        }
+
+        if (assembly is null)
+            throw new WeavingException($"Could not use assembly due to a previous error: {assemblyPath}");
+
+        var declaredTypeRef = TryFindDeclaredType(assembly, typeName);
+        if (declaredTypeRef != null)
+            return new TypeRefBuilder(context.Module, declaredTypeRef);
+
+        var forwardedTypeRef = TryFindForwardedType(assembly, typeName, context.Module);
+        if (forwardedTypeRef != null)
+            return new TypeRefBuilder(context.Module, forwardedTypeRef);
+
+        throw new WeavingException($"Could not find type '{typeName}' in assembly: {assemblyPath}");
     }
 
     public TypeReference Build()
