@@ -23,11 +23,12 @@ internal static class WeaverRunner
                                                bool runPeVerify = true,
                                                IEnumerable<string>? ignoreCodes = null)
     {
-        var (inputFile, outputFile) = PrepareDirectories(assembly);
+        var referencePaths = GetReferencePaths(assembly);
+        var (inputFile, outputFile) = PrepareDirectories(assembly, referencePaths);
 
-        using var assemblyResolver = CreateAssemblyResolver(assembly);
+        using var assemblyResolver = new AssemblyResolver(referencePaths);
 
-        var typeCache = new TypeCache(((AssemblyResolver)assemblyResolver).Resolve);
+        var typeCache = new TypeCache(assemblyResolver.Resolve);
         typeCache.BuildAssembliesToScan(weaver);
 
         var testResult = new TestResult();
@@ -84,17 +85,15 @@ internal static class WeaverRunner
     }
 
     public static IAssemblyResolver CreateAssemblyResolver(Assembly assembly)
-    {
-        var referencePaths = File.ReadAllLines(Path.ChangeExtension(assembly.Location, ".refs.txt"));
-        return new AssemblyResolver(referencePaths);
-    }
+        => new AssemblyResolver(GetReferencePaths(assembly));
 
-    private static (string inputFile, string outputFile) PrepareDirectories(Assembly assembly)
-    {
-        var assemblyDir = Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!;
+    private static IReadOnlyCollection<string> GetReferencePaths(Assembly assembly)
+        => File.ReadAllLines(Path.ChangeExtension(assembly.Location, ".refs.txt"));
 
+    private static (string inputFile, string outputFile) PrepareDirectories(Assembly assembly, IReadOnlyCollection<string> referencePaths)
+    {
         var rootTestDir = Path.Combine(
-            assemblyDir,
+            Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!,
             "WeavingTest",
             assembly.GetName().Name!
         );
@@ -110,7 +109,7 @@ internal static class WeaverRunner
 
         var assemblyPath = CopyFile(assembly.Location, inputDir);
         CopyFile(Path.ChangeExtension(assembly.Location, ".pdb"), inputDir);
-        CopyFile(Path.Combine(assemblyDir, "InlineIL.dll"), inputDir); // Necessary for PEVerify
+        CopyFile(referencePaths.Single(i => Path.GetFileName(i) == "InlineIL.dll"), inputDir); // Necessary for PEVerify
 
         var outputPath = Path.Combine(outputDir, Path.GetFileName(assembly.Location));
 
