@@ -29,7 +29,7 @@ public class ModuleWeaver : BaseModuleWeaver
         var config = new WeaverConfig(configOptions, ModuleDefinition);
         var weaverLog = new WeaverLogger(_log, configOptions);
 
-        using var context = new ModuleWeavingContext(ModuleDefinition, config);
+        using var context = new ModuleWeavingContext(ModuleDefinition, config, ProjectDirectoryPath);
 
         foreach (var type in ModuleDefinition.GetTypes())
         {

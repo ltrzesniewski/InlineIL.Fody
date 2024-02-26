@@ -13,16 +13,18 @@ internal class ModuleWeavingContext : IDisposable
     public WeaverConfig Config { get; }
 
     public bool IsDebugBuild { get; }
+    public string ProjectDirectory { get; }
 
     internal Dictionary<TypeReference, bool> LibUsageTypeCache { get; } = new();
     internal Dictionary<string, AssemblyDefinition?> AssemblyByPath { get; } = new(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
 
-    public ModuleWeavingContext(ModuleDefinition module, WeaverConfig config)
+    public ModuleWeavingContext(ModuleDefinition module, WeaverConfig config, string projectDirectory)
     {
         Module = module;
         Config = config;
 
         IsDebugBuild = Module.IsDebugBuild();
+        ProjectDirectory = projectDirectory;
     }
 
     public void Dispose()

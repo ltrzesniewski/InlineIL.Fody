@@ -34,7 +34,7 @@ public class DebugTests
         var readerParams = new ReaderParameters { AssemblyResolver = assemblyResolver };
 
         using var module = ModuleDefinition.ReadModule(assembly.Location, readerParams);
-        var weavingContext = new ModuleWeavingContext(module, new WeaverConfig(null, module));
+        var weavingContext = new ModuleWeavingContext(module, new WeaverConfig(null, module), string.Empty);
 
         var typeDef = module.GetTypes().Single(i => i.FullName == type.FullName);
         var methodDef = typeDef.Methods.Single(i => i.Name == methodName);

@@ -84,9 +84,7 @@ internal class TypeRefBuilder
 
     public static TypeRefBuilder FromDll(ModuleWeavingContext context, string assemblyPath, string typeName)
     {
-        // Not sure which base path should be used, so require a full path
-        if (!Path.IsPathRooted(assemblyPath))
-            throw new WeavingException($"Full assembly path is required: {assemblyPath}");
+        assemblyPath = Path.Combine(context.ProjectDirectory, assemblyPath);
 
         if (!context.AssemblyByPath.TryGetValue(assemblyPath, out var assembly))
         {
