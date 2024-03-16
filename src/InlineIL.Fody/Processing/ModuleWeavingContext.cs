@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Support;
 using Mono.Cecil;
@@ -16,7 +15,7 @@ internal class ModuleWeavingContext : IDisposable
     public string? ProjectDirectory { get; }
 
     internal Dictionary<TypeReference, bool> LibUsageTypeCache { get; } = new();
-    internal Dictionary<string, AssemblyDefinition?> AssemblyByPath { get; } = new(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+    internal InjectedAssemblyResolver InjectedAssemblyResolver { get; }
 
     public ModuleWeavingContext(ModuleDefinition module, WeaverConfig config, string? projectDirectory)
     {
@@ -25,13 +24,12 @@ internal class ModuleWeavingContext : IDisposable
 
         IsDebugBuild = Module.IsDebugBuild();
         ProjectDirectory = projectDirectory;
+
+        InjectedAssemblyResolver = new InjectedAssemblyResolver(this);
     }
 
     public void Dispose()
     {
-        foreach (var assembly in AssemblyByPath.Values)
-            assembly?.Dispose();
-
-        AssemblyByPath.Clear();
+        InjectedAssemblyResolver.Dispose();
     }
 }

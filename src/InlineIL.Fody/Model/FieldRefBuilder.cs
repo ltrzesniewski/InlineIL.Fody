@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
+using InlineIL.Fody.Processing;
 using Mono.Cecil;
 
 namespace InlineIL.Fody.Model;
@@ -9,9 +10,9 @@ internal class FieldRefBuilder
 {
     private readonly FieldReference _field;
 
-    public FieldRefBuilder(TypeReference typeRef, string fieldName)
+    public FieldRefBuilder(ModuleWeavingContext context, TypeReference typeRef, string fieldName)
     {
-        var typeDef = typeRef.ResolveRequiredType();
+        var typeDef = typeRef.ResolveRequiredType(context);
         var fields = typeDef.Fields.Where(f => f.Name == fieldName).ToList();
 
         _field = fields switch

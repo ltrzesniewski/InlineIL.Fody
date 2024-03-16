@@ -18,7 +18,6 @@ internal class ArgumentConsumer
     private readonly WeaverILProcessor _il;
 
     private MethodDefinition Method => _il.Method;
-    private ModuleDefinition Module => Method.Module;
 
     public ArgumentConsumer(ModuleWeavingContext context, WeaverILProcessor il)
     {
@@ -130,7 +129,7 @@ internal class ArgumentConsumer
                 if (ldToken.OpCode != OpCodes.Ldtoken)
                     throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
-                var builder = new TypeRefBuilder(Module, (TypeReference)ldToken.Operand);
+                var builder = new TypeRefBuilder(_context, (TypeReference)ldToken.Operand);
 
                 _il.Remove(ldToken);
                 _il.Remove(instruction);
@@ -149,7 +148,7 @@ internal class ArgumentConsumer
 
             case "InlineIL.TypeRef InlineIL.TypeRef::Type()":
             {
-                var builder = new TypeRefBuilder(Module, ((GenericInstanceMethod)method).GenericArguments[0]);
+                var builder = new TypeRefBuilder(_context, ((GenericInstanceMethod)method).GenericArguments[0]);
 
                 _il.Remove(instruction);
                 return builder;
@@ -160,7 +159,7 @@ internal class ArgumentConsumer
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var assemblyName = ConsumeArgString(args[0]);
                 var typeName = ConsumeArgString(args[1]);
-                var builder = new TypeRefBuilder(Module, assemblyName, typeName);
+                var builder = new TypeRefBuilder(_context, assemblyName, typeName);
 
                 _il.Remove(instruction);
                 return builder;
@@ -171,7 +170,7 @@ internal class ArgumentConsumer
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var genericParameterType = ConsumeArgGenericParameterType(args[0]);
                 var genericParameterIndex = ConsumeArgInt32(args[1]);
-                var builder = new TypeRefBuilder(Module, genericParameterType, genericParameterIndex);
+                var builder = new TypeRefBuilder(_context, genericParameterType, genericParameterIndex);
 
                 _il.Remove(instruction);
                 return builder;
@@ -181,7 +180,7 @@ internal class ArgumentConsumer
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var genericParameterIndex = ConsumeArgInt32(args[0]);
-                var builder = new TypeRefBuilder(Module, GenericParameterType.Method, genericParameterIndex);
+                var builder = new TypeRefBuilder(_context, GenericParameterType.Method, genericParameterIndex);
 
                 _il.Remove(instruction);
                 return builder;
@@ -323,7 +322,7 @@ internal class ArgumentConsumer
                     var typeRef = ConsumeArgTypeRef(args[0]);
                     var methodName = ConsumeArgString(args[1]);
                     var paramTypes = ConsumeArgArray(args[2], ConsumeArgTypeRefBuilder);
-                    var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, null, null, paramTypes);
+                    var builder = MethodRefBuilder.MethodByNameAndSignature(_context, typeRef, methodName, null, null, paramTypes);
 
                     _il.Remove(instruction);
                     return builder;
@@ -337,7 +336,7 @@ internal class ArgumentConsumer
                     var methodName = ConsumeArgString(args[1]);
                     var genericParameterCount = ConsumeArgInt32(args[2]);
                     var paramTypes = ConsumeArgArray(args[3], ConsumeArgTypeRefBuilder);
-                    var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, genericParameterCount, null, paramTypes);
+                    var builder = MethodRefBuilder.MethodByNameAndSignature(_context, typeRef, methodName, genericParameterCount, null, paramTypes);
 
                     _il.Remove(instruction);
                     return builder;
@@ -352,7 +351,7 @@ internal class ArgumentConsumer
                     var returnType = ConsumeArgTypeRefBuilder(args[2]);
                     var genericParameterCount = ConsumeArgInt32(args[3]);
                     var paramTypes = ConsumeArgArray(args[4], ConsumeArgTypeRefBuilder);
-                    var builder = MethodRefBuilder.MethodByNameAndSignature(Module, typeRef, methodName, genericParameterCount, returnType, paramTypes);
+                    var builder = MethodRefBuilder.MethodByNameAndSignature(_context, typeRef, methodName, genericParameterCount, returnType, paramTypes);
 
                     _il.Remove(instruction);
                     return builder;
@@ -360,29 +359,29 @@ internal class ArgumentConsumer
 
                 case "System.Void InlineIL.MethodRef::.ctor(InlineIL.TypeRef,System.String)":
                 case "InlineIL.MethodRef InlineIL.MethodRef::Method(InlineIL.TypeRef,System.String)":
-                    return FromNamedMember((typeRef, methodName) => MethodRefBuilder.MethodByName(Module, typeRef, methodName));
+                    return FromNamedMember((typeRef, methodName) => MethodRefBuilder.MethodByName(_context, typeRef, methodName));
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::PropertyGet(InlineIL.TypeRef,System.String)":
-                    return FromNamedMember((typeRef, propertyName) => MethodRefBuilder.PropertyGet(Module, typeRef, propertyName));
+                    return FromNamedMember((typeRef, propertyName) => MethodRefBuilder.PropertyGet(_context, typeRef, propertyName));
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::PropertySet(InlineIL.TypeRef,System.String)":
-                    return FromNamedMember((typeRef, propertyName) => MethodRefBuilder.PropertySet(Module, typeRef, propertyName));
+                    return FromNamedMember((typeRef, propertyName) => MethodRefBuilder.PropertySet(_context, typeRef, propertyName));
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::EventAdd(InlineIL.TypeRef,System.String)":
-                    return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventAdd(Module, typeRef, eventName));
+                    return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventAdd(_context, typeRef, eventName));
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::EventRemove(InlineIL.TypeRef,System.String)":
-                    return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventRemove(Module, typeRef, eventName));
+                    return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventRemove(_context, typeRef, eventName));
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::EventRaise(InlineIL.TypeRef,System.String)":
-                    return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventRaise(Module, typeRef, eventName));
+                    return FromNamedMember((typeRef, eventName) => MethodRefBuilder.EventRaise(_context, typeRef, eventName));
 
                 case "InlineIL.MethodRef InlineIL.MethodRef::Constructor(InlineIL.TypeRef,InlineIL.TypeRef[])":
                 {
                     var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var typeRef = ConsumeArgTypeRef(args[0]);
                     var paramTypes = ConsumeArgArray(args[1], ConsumeArgTypeRefBuilder);
-                    var builder = MethodRefBuilder.Constructor(Module, typeRef, paramTypes);
+                    var builder = MethodRefBuilder.Constructor(_context, typeRef, paramTypes);
 
                     _il.Remove(instruction);
                     return builder;
@@ -392,7 +391,7 @@ internal class ArgumentConsumer
                 {
                     var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var typeRef = ConsumeArgTypeRef(args[0]);
-                    var builder = MethodRefBuilder.TypeInitializer(Module, typeRef);
+                    var builder = MethodRefBuilder.TypeInitializer(_context, typeRef);
 
                     _il.Remove(instruction);
                     return builder;
@@ -403,7 +402,7 @@ internal class ArgumentConsumer
                     var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var typeRef = ConsumeArgTypeRef(args[0]);
                     var op = ConsumeArgEnumInt32<UnaryOperator>(args[1]);
-                    var builder = MethodRefBuilder.Operator(Module, typeRef, op);
+                    var builder = MethodRefBuilder.Operator(_context, typeRef, op);
 
                     _il.Remove(instruction);
                     return builder;
@@ -416,7 +415,7 @@ internal class ArgumentConsumer
                     var op = ConsumeArgEnumInt32<BinaryOperator>(args[1]);
                     var leftOperandType = ConsumeArgTypeRefBuilder(args[2]);
                     var rightOperandType = ConsumeArgTypeRefBuilder(args[3]);
-                    var builder = MethodRefBuilder.Operator(Module, typeRef, op, leftOperandType, rightOperandType);
+                    var builder = MethodRefBuilder.Operator(_context, typeRef, op, leftOperandType, rightOperandType);
 
                     _il.Remove(instruction);
                     return builder;
@@ -429,7 +428,7 @@ internal class ArgumentConsumer
                     var op = ConsumeArgEnumInt32<ConversionOperator>(args[1]);
                     var direction = ConsumeArgEnumInt32<ConversionDirection>(args[2]);
                     var otherType = ConsumeArgTypeRefBuilder(args[3]);
-                    var builder = MethodRefBuilder.Operator(Module, typeRef, op, direction, otherType);
+                    var builder = MethodRefBuilder.Operator(_context, typeRef, op, direction, otherType);
 
                     _il.Remove(instruction);
                     return builder;
@@ -491,7 +490,7 @@ internal class ArgumentConsumer
 
             var args = _il.GetArgumentPushInstructionsInSameBasicBlock(newobjInstruction);
             var methodRef = ConsumeArgLdFtn(args[1]);
-            var builder = MethodRefBuilder.MethodFromDelegateReference(Module, methodRef);
+            var builder = MethodRefBuilder.MethodFromDelegateReference(_context, methodRef);
             ConsumeArgObjRefNoSideEffects(args[0]);
 
             // C# 11 caches static delegate instances for method groups, we need to handle that here
@@ -608,7 +607,7 @@ internal class ArgumentConsumer
                     var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                     var typeRef = ConsumeArgTypeRef(args[0]);
                     var fieldName = ConsumeArgString(args[1]);
-                    var builder = new FieldRefBuilder(typeRef, fieldName);
+                    var builder = new FieldRefBuilder(_context, typeRef, fieldName);
 
                     _il.Remove(instruction);
                     return builder;
