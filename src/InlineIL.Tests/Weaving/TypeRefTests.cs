@@ -332,6 +332,13 @@ public class TypeRefTestsCore : TypeRefTestsBase
         var assemblyName = typeRef.Scope.ShouldBe<AssemblyNameReference>();
         assemblyName.Name.ShouldEqual("System.Runtime.Extensions");
     }
+
+    [Fact]
+    public void should_inject_type_from_dll()
+    {
+        var result = (int)GetUnverifiableInstance().UseInjectedDll();
+        result.ShouldEqual(42);
+    }
 }
 #endif
 

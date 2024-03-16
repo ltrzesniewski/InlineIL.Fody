@@ -24,7 +24,7 @@ internal static class WeaverRunner
                                                IEnumerable<string>? ignoreCodes = null)
     {
         var referencePaths = GetReferencePaths(assembly);
-        var (inputFile, outputFile) = PrepareDirectories(assembly, referencePaths);
+        var (inputFile, outputFile, projectDir) = PrepareDirectories(assembly, referencePaths);
 
         using var assemblyResolver = new AssemblyResolver(referencePaths);
 
@@ -38,6 +38,7 @@ internal static class WeaverRunner
         weaver.TryFindType = typeCache.TryFindType;
         weaver.AssemblyFilePath = inputFile;
         weaver.AssemblyResolver = assemblyResolver;
+        weaver.ProjectDirectoryPath = projectDir;
 
         var readerParameters = new ReaderParameters
         {
@@ -90,7 +91,7 @@ internal static class WeaverRunner
     private static IReadOnlyCollection<string> GetReferencePaths(Assembly assembly)
         => File.ReadAllLines(Path.ChangeExtension(assembly.Location, ".refs.txt"));
 
-    private static (string inputFile, string outputFile) PrepareDirectories(Assembly assembly, IReadOnlyCollection<string> referencePaths)
+    private static (string inputFile, string outputFile, string projectDir) PrepareDirectories(Assembly assembly, IReadOnlyCollection<string> referencePaths)
     {
         var rootTestDir = Path.Combine(
             Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!,
@@ -103,9 +104,11 @@ internal static class WeaverRunner
 
         var inputDir = Path.Combine(rootTestDir, "Input");
         var outputDir = Path.Combine(rootTestDir, "Output");
+        var projectDir = Path.Combine(rootTestDir, "ProjectDir");
 
         Directory.CreateDirectory(inputDir);
         Directory.CreateDirectory(outputDir);
+        Directory.CreateDirectory(projectDir);
 
         var assemblyPath = CopyFile(assembly.Location, inputDir);
         CopyFile(Path.ChangeExtension(assembly.Location, ".pdb"), inputDir);
@@ -113,7 +116,7 @@ internal static class WeaverRunner
 
         var outputPath = Path.Combine(outputDir, Path.GetFileName(assembly.Location));
 
-        return (assemblyPath, outputPath);
+        return (assemblyPath, outputPath, projectDir);
 
         static string CopyFile(string fileName, string targetDir)
         {

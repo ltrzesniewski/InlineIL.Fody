@@ -84,7 +84,8 @@ internal class TypeRefBuilder
 
     public static TypeRefBuilder FromDll(ModuleWeavingContext context, string assemblyPath, string typeName)
     {
-        assemblyPath = Path.Combine(context.ProjectDirectory, assemblyPath);
+        if (context.ProjectDirectory is { } projectDirectory and not "")
+            assemblyPath = Path.Combine(projectDirectory, assemblyPath);
 
         if (!context.AssemblyByPath.TryGetValue(assemblyPath, out var assembly))
         {

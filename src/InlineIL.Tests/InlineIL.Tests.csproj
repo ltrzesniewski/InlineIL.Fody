@@ -29,6 +29,7 @@
       <Aliases>standard</Aliases>
     </ProjectReference>
     <ProjectReference Include="..\InlineIL.Tests.UnverifiableAssemblyToProcess\InlineIL.Tests.UnverifiableAssemblyToProcess.csproj" />
+    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly\InlineIL.Tests.InjectedAssembly.csproj" />
     <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
   </ItemGroup>
 
