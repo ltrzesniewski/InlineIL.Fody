@@ -129,7 +129,7 @@ internal class ArgumentConsumer
                 if (ldToken.OpCode != OpCodes.Ldtoken)
                     throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
-                var builder = new TypeRefBuilder(_context, (TypeReference)ldToken.Operand);
+                var builder = TypeRefBuilder.FromTypeReference(_context, (TypeReference)ldToken.Operand);
 
                 _il.Remove(ldToken);
                 _il.Remove(instruction);
@@ -148,7 +148,7 @@ internal class ArgumentConsumer
 
             case "InlineIL.TypeRef InlineIL.TypeRef::Type()":
             {
-                var builder = new TypeRefBuilder(_context, ((GenericInstanceMethod)method).GenericArguments[0]);
+                var builder = TypeRefBuilder.FromTypeReference(_context, ((GenericInstanceMethod)method).GenericArguments[0]);
 
                 _il.Remove(instruction);
                 return builder;
@@ -159,7 +159,7 @@ internal class ArgumentConsumer
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var assemblyName = ConsumeArgString(args[0]);
                 var typeName = ConsumeArgString(args[1]);
-                var builder = new TypeRefBuilder(_context, assemblyName, typeName);
+                var builder = TypeRefBuilder.FromAssemblyNameAndTypeName(_context, assemblyName, typeName);
 
                 _il.Remove(instruction);
                 return builder;
@@ -170,7 +170,7 @@ internal class ArgumentConsumer
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var genericParameterType = ConsumeArgGenericParameterType(args[0]);
                 var genericParameterIndex = ConsumeArgInt32(args[1]);
-                var builder = new TypeRefBuilder(_context, genericParameterType, genericParameterIndex);
+                var builder = TypeRefBuilder.FromGenericParameter(_context, genericParameterType, genericParameterIndex);
 
                 _il.Remove(instruction);
                 return builder;
@@ -180,7 +180,7 @@ internal class ArgumentConsumer
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var genericParameterIndex = ConsumeArgInt32(args[0]);
-                var builder = new TypeRefBuilder(_context, GenericParameterType.Method, genericParameterIndex);
+                var builder = TypeRefBuilder.FromGenericParameter(_context, GenericParameterType.Method, genericParameterIndex);
 
                 _il.Remove(instruction);
                 return builder;
@@ -267,7 +267,7 @@ internal class ArgumentConsumer
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var assemblyPath = ConsumeArgString(args[0]);
                 var typeName = ConsumeArgString(args[1]);
-                var builder = TypeRefBuilder.FromDll(_context, assemblyPath, typeName);
+                var builder = TypeRefBuilder.FromInjectedAssembly(_context, assemblyPath, typeName);
 
                 _il.Remove(instruction);
                 return builder;

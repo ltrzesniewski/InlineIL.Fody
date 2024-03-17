@@ -14,38 +14,39 @@ namespace InlineIL.Fody.Model;
 
 internal class TypeRefBuilder
 {
-    private readonly ModuleWeavingContext _context;
-    private List<Modifier>? _modifiers;
     private TypeRefResolver _resolver;
+    private List<Modifier>? _modifiers;
 
-    public TypeRefBuilder(ModuleWeavingContext context, TypeReference typeRef)
+    private TypeRefBuilder(TypeRefResolver resolver)
+        => _resolver = resolver;
+
+    public static TypeRefBuilder FromTypeReference(ModuleWeavingContext context, TypeReference typeRef)
+        => new(new ConstantTypeRefResolver(context, typeRef));
+
+    public static TypeRefBuilder FromAssemblyNameAndTypeName(ModuleWeavingContext context, string assemblyName, string typeName)
+        => new(new ConstantTypeRefResolver(context, FindType(context.Module, assemblyName, typeName)));
+
+    public static TypeRefBuilder FromGenericParameter(ModuleWeavingContext context, GenericParameterType genericParameterType, int genericParameterIndex)
+        => new(new GenericParameterTypeRefResolver(context, genericParameterType, genericParameterIndex));
+
+    public static TypeRefBuilder FromInjectedAssembly(ModuleWeavingContext context, string assemblyPath, string typeName)
     {
-        _context = context;
-        _resolver = new ConstantTypeRefResolver(context, typeRef);
+        if (context.ProjectDirectory is { } projectDirectory and not "")
+            assemblyPath = Path.Combine(projectDirectory, assemblyPath);
+
+        var assembly = context.InjectedAssemblyResolver.ResolveAssemblyByPath(assemblyPath);
+        var declaredTypeDef = assembly.Modules.Select(m => m.GetType(typeName)).FirstOrDefault(t => t != null);
+
+        return declaredTypeDef != null
+            ? new TypeRefBuilder(new InjectedTypeRefResolver(context, declaredTypeDef))
+            : throw new WeavingException($"Could not find type '{typeName}' in assembly: {assemblyPath}");
     }
 
-    private TypeRefBuilder(ModuleWeavingContext context, TypeRefResolver resolver)
+    private static TypeReference FindType(ModuleDefinition module, string assemblyName, string typeName)
     {
-        _context = context;
-        _resolver = resolver;
-    }
-
-    public TypeRefBuilder(ModuleWeavingContext context, string assemblyName, string typeName)
-        : this(context, FindType(context, assemblyName, typeName))
-    {
-    }
-
-    public TypeRefBuilder(ModuleWeavingContext context, GenericParameterType genericParameterType, int genericParameterIndex)
-    {
-        _context = context;
-        _resolver = new GenericParameterTypeRefResolver(genericParameterType, genericParameterIndex);
-    }
-
-    private static TypeReference FindType(ModuleWeavingContext context, string assemblyName, string typeName)
-    {
-        var assembly = assemblyName == context.Module.Assembly.Name.Name
-            ? context.Module.Assembly
-            : context.Module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
+        var assembly = assemblyName == module.Assembly.Name.Name
+            ? module.Assembly
+            : module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
 
         if (assembly == null)
             throw new WeavingException($"Could not resolve assembly '{assemblyName}'");
@@ -54,7 +55,7 @@ internal class TypeRefBuilder
         if (declaredTypeRef != null)
             return declaredTypeRef;
 
-        var forwardedTypeRef = TryFindForwardedType(assembly, typeName, context.Module);
+        var forwardedTypeRef = TryFindForwardedType(assembly, typeName, module);
         if (forwardedTypeRef != null)
             return forwardedTypeRef;
 
@@ -88,29 +89,15 @@ internal class TypeRefBuilder
         return null;
     }
 
-    public static TypeRefBuilder FromDll(ModuleWeavingContext context, string assemblyPath, string typeName)
-    {
-        if (context.ProjectDirectory is { } projectDirectory and not "")
-            assemblyPath = Path.Combine(projectDirectory, assemblyPath);
-
-        var assembly = context.InjectedAssemblyResolver.ResolveAssemblyByPath(assemblyPath);
-
-        var declaredTypeDef = assembly.Modules.Select(m => m.GetType(typeName)).FirstOrDefault(t => t != null);
-        if (declaredTypeDef != null)
-            return new TypeRefBuilder(context, new InjectedTypeRefResolver(context, declaredTypeDef));
-
-        throw new WeavingException($"Could not find type '{typeName}' in assembly: {assemblyPath}");
-    }
-
     public TypeReference Build()
     {
-        var typeRef = _resolver.Resolve(_context);
+        var typeRef = _resolver.Resolve();
         return AddModifiers(typeRef);
     }
 
     public TypeReference? TryBuild(IGenericParameterProvider genericParameterProvider)
     {
-        var typeRef = _resolver.TryResolve(_context, genericParameterProvider);
+        var typeRef = _resolver.TryResolve(genericParameterProvider);
         return typeRef != null ? AddModifiers(typeRef) : null;
     }
 
@@ -152,20 +139,17 @@ internal class TypeRefBuilder
         => AddModifier(modifierType, true);
 
     private void AddModifier(TypeReference modifierType, bool required)
-    {
-        _modifiers ??= new List<Modifier>();
-        _modifiers.Add(new Modifier(modifierType, required));
-    }
+        => (_modifiers ??= []).Add(new Modifier(modifierType, required));
 
     public override string ToString()
         => GetDisplayName();
 
-    private abstract class TypeRefResolver
+    private abstract class TypeRefResolver(ModuleWeavingContext context)
     {
-        public abstract TypeReference Resolve(ModuleWeavingContext context);
+        public ModuleWeavingContext Context { get; } = context;
 
-        public abstract TypeReference? TryResolve(ModuleWeavingContext context, IGenericParameterProvider genericParameterProvider);
-
+        public abstract TypeReference Resolve();
+        public abstract TypeReference? TryResolve(IGenericParameterProvider genericParameterProvider);
         public abstract string GetDisplayName();
     }
 
@@ -174,6 +158,7 @@ internal class TypeRefBuilder
         private readonly TypeReference _typeRef;
 
         public ConstantTypeRefResolver(ModuleWeavingContext context, TypeReference typeRef)
+            : base(context)
         {
             if (typeRef.MetadataType == MetadataType.Class && typeRef is not TypeDefinition)
             {
@@ -187,30 +172,23 @@ internal class TypeRefBuilder
             _typeRef = typeRef;
         }
 
-        public override TypeReference Resolve(ModuleWeavingContext context)
-            => context.Module.ImportReference(_typeRef);
+        public override TypeReference Resolve()
+            => Context.Module.ImportReference(_typeRef);
 
-        public override TypeReference TryResolve(ModuleWeavingContext context, IGenericParameterProvider genericParameterProvider)
-            => Resolve(context);
+        public override TypeReference TryResolve(IGenericParameterProvider genericParameterProvider)
+            => Resolve();
 
         public override string GetDisplayName()
             => _typeRef.FullName;
     }
 
-    private class InjectedTypeRefResolver : ConstantTypeRefResolver
+    private class InjectedTypeRefResolver(ModuleWeavingContext context, TypeDefinition typeDef)
+        : ConstantTypeRefResolver(context, typeDef)
     {
-        private readonly TypeDefinition _typeDef;
-
-        public InjectedTypeRefResolver(ModuleWeavingContext context, TypeDefinition typeDef)
-            : base(context, typeDef)
+        public override TypeReference Resolve()
         {
-            _typeDef = typeDef;
-        }
-
-        public override TypeReference Resolve(ModuleWeavingContext context)
-        {
-            var typeRef = base.Resolve(context);
-            context.InjectedAssemblyResolver.RegisterTypeDefinition(typeRef, _typeDef);
+            var typeRef = base.Resolve();
+            Context.InjectedAssemblyResolver.RegisterTypeDefinition(typeRef, typeDef);
             return typeRef;
         }
     }
@@ -220,7 +198,8 @@ internal class TypeRefBuilder
         private readonly GenericParameterType _type;
         private readonly int _index;
 
-        public GenericParameterTypeRefResolver(GenericParameterType type, int index)
+        public GenericParameterTypeRefResolver(ModuleWeavingContext context, GenericParameterType type, int index)
+            : base(context)
         {
             _type = type;
             _index = index;
@@ -229,10 +208,10 @@ internal class TypeRefBuilder
                 throw new WeavingException($"Invalid generic parameter index: {index}");
         }
 
-        public override TypeReference Resolve(ModuleWeavingContext context)
+        public override TypeReference Resolve()
             => throw new WeavingException($"TypeRef.{(_type == GenericParameterType.Method ? "MethodGenericParameters" : "TypeGenericParameters")} can only be used in MethodRef definitions for overload resolution");
 
-        public override TypeReference? TryResolve(ModuleWeavingContext context, IGenericParameterProvider genericParameterProvider)
+        public override TypeReference? TryResolve(IGenericParameterProvider genericParameterProvider)
         {
             if (_type == GenericParameterType.Type && genericParameterProvider.GenericParameterType != GenericParameterType.Type && genericParameterProvider is MemberReference member)
                 genericParameterProvider = member.DeclaringType;
@@ -245,12 +224,12 @@ internal class TypeRefBuilder
 
             genericParameterProvider = genericParameterProvider switch
             {
-                TypeReference type     => context.Module.ImportReference(type),
-                MethodReference method => context.Module.ImportReference(method),
+                TypeReference type     => Context.Module.ImportReference(type),
+                MethodReference method => Context.Module.ImportReference(method),
                 _                      => throw new ArgumentException($"Unexpected generic parameter provider type: {genericParameterProvider.GetType().Name}")
             };
 
-            return context.Module.ImportReference(genericParameterProvider.GenericParameters[_index]);
+            return Context.Module.ImportReference(genericParameterProvider.GenericParameters[_index]);
         }
 
         public override string GetDisplayName()
@@ -264,29 +243,30 @@ internal class TypeRefBuilder
         }
     }
 
-    private abstract class TypeSpecTypeRefResolver(TypeRefResolver baseResolver) : TypeRefResolver
+    private abstract class TypeSpecTypeRefResolver(TypeRefResolver baseResolver)
+        : TypeRefResolver(baseResolver.Context)
     {
         protected abstract TypeReference WrapTypeRef(TypeReference typeRef);
 
-        public sealed override TypeReference Resolve(ModuleWeavingContext context)
+        public sealed override TypeReference Resolve()
         {
-            var typeRef = baseResolver.Resolve(context);
-            return ResolveImpl(context, typeRef);
+            var typeRef = baseResolver.Resolve();
+            return ResolveImpl(typeRef);
         }
 
-        public sealed override TypeReference? TryResolve(ModuleWeavingContext context, IGenericParameterProvider genericParameterProvider)
+        public sealed override TypeReference? TryResolve(IGenericParameterProvider genericParameterProvider)
         {
-            var typeRef = baseResolver.TryResolve(context, genericParameterProvider);
-            return typeRef != null ? ResolveImpl(context, typeRef) : null;
+            var typeRef = baseResolver.TryResolve(genericParameterProvider);
+            return typeRef != null ? ResolveImpl(typeRef) : null;
         }
 
-        private TypeReference ResolveImpl(ModuleWeavingContext context, TypeReference typeRef)
+        private TypeReference ResolveImpl(TypeReference typeRef)
         {
             if (typeRef.MetadataType == MetadataType.TypedByReference)
                 throw new WeavingException($"Cannot create an array, pointer or ByRef to {nameof(TypedReference)}");
 
             typeRef = WrapTypeRef(typeRef);
-            return context.Module.ImportReference(typeRef);
+            return Context.Module.ImportReference(typeRef);
         }
 
         public sealed override string GetDisplayName()
@@ -325,7 +305,8 @@ internal class TypeRefBuilder
         }
     }
 
-    private class ByRefTypeRefResolver(TypeRefResolver baseResolver) : TypeSpecTypeRefResolver(baseResolver)
+    private class ByRefTypeRefResolver(TypeRefResolver baseResolver)
+        : TypeSpecTypeRefResolver(baseResolver)
     {
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {
@@ -339,7 +320,8 @@ internal class TypeRefBuilder
             => baseName + "&";
     }
 
-    private class PointerTypeRefResolver(TypeRefResolver baseResolver) : TypeSpecTypeRefResolver(baseResolver)
+    private class PointerTypeRefResolver(TypeRefResolver baseResolver)
+        : TypeSpecTypeRefResolver(baseResolver)
     {
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {
@@ -359,6 +341,7 @@ internal class TypeRefBuilder
         private readonly TypeRefBuilder[] _genericArgs;
 
         public GenericTypeRefResolver(TypeRefResolver baseResolver, TypeRefBuilder[] genericArgs)
+            : base(baseResolver.Context)
         {
             _baseResolver = baseResolver;
             _genericArgs = genericArgs;
@@ -367,19 +350,19 @@ internal class TypeRefBuilder
                 throw new WeavingException("No generic arguments supplied");
         }
 
-        public override TypeReference Resolve(ModuleWeavingContext context)
+        public override TypeReference Resolve()
         {
-            var typeRef = _baseResolver.Resolve(context);
-            return ResolveImpl(context, null, typeRef)!;
+            var typeRef = _baseResolver.Resolve();
+            return ResolveImpl(null, typeRef)!;
         }
 
-        public override TypeReference? TryResolve(ModuleWeavingContext context, IGenericParameterProvider genericParameterProvider)
+        public override TypeReference? TryResolve(IGenericParameterProvider genericParameterProvider)
         {
-            var typeRef = _baseResolver.TryResolve(context, genericParameterProvider);
-            return typeRef != null ? ResolveImpl(context, genericParameterProvider, typeRef) : null;
+            var typeRef = _baseResolver.TryResolve(genericParameterProvider);
+            return typeRef != null ? ResolveImpl(genericParameterProvider, typeRef) : null;
         }
 
-        private TypeReference? ResolveImpl(ModuleWeavingContext context, IGenericParameterProvider? genericParameterProvider, TypeReference typeRef)
+        private TypeReference? ResolveImpl(IGenericParameterProvider? genericParameterProvider, TypeReference typeRef)
         {
             if (typeRef.IsGenericInstance)
                 throw new WeavingException($"Type is already a generic instance: {typeRef.FullName}");
@@ -387,7 +370,7 @@ internal class TypeRefBuilder
             if (typeRef.IsByReference || typeRef.IsPointer || typeRef.IsArray)
                 throw new WeavingException("Cannot make a generic instance of a ByRef, pointer or array type");
 
-            var typeDef = typeRef.ResolveRequiredType(context);
+            var typeDef = typeRef.ResolveRequiredType(Context);
 
             if (!typeDef.HasGenericParameters)
                 throw new WeavingException($"Not a generic type definition: {typeRef.FullName}");
@@ -415,7 +398,7 @@ internal class TypeRefBuilder
                 genericType.GenericArguments.Add(argTypeRef);
             }
 
-            return context.Module.ImportReference(genericType);
+            return Context.Module.ImportReference(genericType);
         }
 
         public override string GetDisplayName()
