@@ -60,7 +60,7 @@ public sealed class TypeRef
     /// Constructs a type reference.
     /// </summary>
     /// <param name="assemblyName">The assembly name containing the type. This assembly should be referenced by the weaved assembly.</param>
-    /// <param name="typeName">The full runtime type name, as returned by <see cref="System.Type.FullName"/>.</param>
+    /// <param name="typeName">The full runtime type name, as returned by <see cref="System.Type.FullName"/>, or the full type name in CIL format.</param>
     public TypeRef(string assemblyName, string typeName)
         => IL.Throw();
 
@@ -129,11 +129,17 @@ public sealed class TypeRef
     /// A reference to that assembly name will be added if necessary.
     /// </summary>
     /// <param name="assemblyPath">The path to an assembly file, either a full one or relative to the project directory.</param>
-    /// <param name="typeName">The full runtime type name, as returned by <see cref="System.Type.FullName"/>.</param>
+    /// <param name="typeName">The full type name in CIL format.</param>
     /// <returns>A <see cref="TypeRef"/> to the given type.</returns>
     /// <remarks>
+    /// <para>
     /// This API is marked as experimental as it is meant for specific <i>testing</i> purposes only. It can silently add a reference to an assembly
     /// which will not necessarily be resolvable at runtime.
+    /// </para>
+    /// <para>
+    /// Some features are not supported, such as forwarded types or runtime type names.
+    /// Behavior may change between minor or patch releases.
+    /// </para>
     /// </remarks>
 #if NET8_0_OR_GREATER
     [Experimental("InlineIL0100")]
