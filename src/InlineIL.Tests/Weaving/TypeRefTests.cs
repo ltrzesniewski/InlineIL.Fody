@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using InlineIL.Tests.InjectedAssembly;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Xunit;
@@ -291,6 +292,28 @@ public class TypeRefTests : TypeRefTestsBase
     {
         ShouldHaveError("InvalidGenericParameterIndex").ShouldContain("Invalid generic parameter index");
     }
+
+    [Fact]
+    public void should_add_injected_assembly_reference()
+    {
+        var assemblyName = typeof(InjectedType).Assembly.FullName;
+        UnverifiableAssemblyToProcessFixture.OriginalModule.AssemblyReferences.ShouldNotContain(i => i.FullName == assemblyName);
+        UnverifiableAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldContain(i => i.FullName == assemblyName);
+    }
+
+    [Fact]
+    public void should_inject_type_from_dll()
+    {
+        var result = (int)GetUnverifiableInstance().UseInjectedDll();
+        result.ShouldEqual(42);
+    }
+
+    [Fact]
+    public void should_return_type_spec_from_injected_type()
+    {
+        var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedTypeSpec();
+        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedType[]));
+    }
 }
 
 #if NET
@@ -331,13 +354,6 @@ public class TypeRefTestsCore : TypeRefTestsBase
         var typeRef = (TypeReference)GetMethodDefinition("ReturnForwardedType").Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.Ldtoken).Operand;
         var assemblyName = typeRef.Scope.ShouldBe<AssemblyNameReference>();
         assemblyName.Name.ShouldEqual("System.Runtime.Extensions");
-    }
-
-    [Fact]
-    public void should_inject_type_from_dll()
-    {
-        var result = (int)GetUnverifiableInstance().UseInjectedDll();
-        result.ShouldEqual(42);
     }
 }
 #endif

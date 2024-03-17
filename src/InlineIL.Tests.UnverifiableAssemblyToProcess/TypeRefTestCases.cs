@@ -1,3 +1,4 @@
+using System;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.UnverifiableAssemblyToProcess;
@@ -22,5 +23,19 @@ public class TypeRefTestCases
         );
 
         return IL.Return<int>();
+    }
+
+    public RuntimeTypeHandle ReturnInjectedTypeSpec()
+    {
+        Ldtoken(
+#pragma warning disable CS0618
+            TypeRef.FromDll(
+                "InjectedDllDir/InlineIL.Tests.InjectedAssembly.dll",
+                "InlineIL.Tests.InjectedAssembly.InjectedType"
+            ).MakeArrayType()
+#pragma warning restore CS0618
+        );
+
+        return IL.Return<RuntimeTypeHandle>();
     }
 }

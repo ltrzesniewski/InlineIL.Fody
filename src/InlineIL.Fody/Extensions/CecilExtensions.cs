@@ -20,8 +20,8 @@ internal static partial class CecilExtensions
 
         try
         {
-            typeDef = typeRef.Resolve()
-                      ?? context.InjectedAssemblyResolver.MetadataResolver.Resolve(typeRef);
+            typeDef = context.InjectedAssemblyResolver.ResolveRegisteredType(typeRef)
+                      ?? typeRef.Resolve();
         }
         catch (Exception ex)
         {

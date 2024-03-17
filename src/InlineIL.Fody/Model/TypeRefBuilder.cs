@@ -24,6 +24,12 @@ internal class TypeRefBuilder
         _resolver = new ConstantTypeRefResolver(context, typeRef);
     }
 
+    private TypeRefBuilder(ModuleWeavingContext context, TypeRefResolver resolver)
+    {
+        _context = context;
+        _resolver = resolver;
+    }
+
     public TypeRefBuilder(ModuleWeavingContext context, string assemblyName, string typeName)
         : this(context, FindType(context, assemblyName, typeName))
     {
@@ -39,8 +45,7 @@ internal class TypeRefBuilder
     {
         var assembly = assemblyName == context.Module.Assembly.Name.Name
             ? context.Module.Assembly
-            : context.Module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null))
-              ?? context.InjectedAssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
+            : context.Module.AssemblyResolver.Resolve(new AssemblyNameReference(assemblyName, null));
 
         if (assembly == null)
             throw new WeavingException($"Could not resolve assembly '{assemblyName}'");
@@ -90,13 +95,9 @@ internal class TypeRefBuilder
 
         var assembly = context.InjectedAssemblyResolver.ResolveAssemblyByPath(assemblyPath);
 
-        var declaredTypeRef = TryFindDeclaredType(assembly, typeName);
-        if (declaredTypeRef != null)
-            return new TypeRefBuilder(context, declaredTypeRef);
-
-        var forwardedTypeRef = TryFindForwardedType(assembly, typeName, context.Module);
-        if (forwardedTypeRef != null)
-            return new TypeRefBuilder(context, forwardedTypeRef);
+        var declaredTypeDef = assembly.Modules.Select(m => m.GetType(typeName)).FirstOrDefault(t => t != null);
+        if (declaredTypeDef != null)
+            return new TypeRefBuilder(context, new InjectedTypeRefResolver(context, declaredTypeDef));
 
         throw new WeavingException($"Could not find type '{typeName}' in assembly: {assemblyPath}");
     }
@@ -194,6 +195,24 @@ internal class TypeRefBuilder
 
         public override string GetDisplayName()
             => _typeRef.FullName;
+    }
+
+    private class InjectedTypeRefResolver : ConstantTypeRefResolver
+    {
+        private readonly TypeDefinition _typeDef;
+
+        public InjectedTypeRefResolver(ModuleWeavingContext context, TypeDefinition typeDef)
+            : base(context, typeDef)
+        {
+            _typeDef = typeDef;
+        }
+
+        public override TypeReference Resolve(ModuleWeavingContext context)
+        {
+            var typeRef = base.Resolve(context);
+            context.InjectedAssemblyResolver.RegisterTypeDefinition(typeRef, _typeDef);
+            return typeRef;
+        }
     }
 
     private class GenericParameterTypeRefResolver : TypeRefResolver

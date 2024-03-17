@@ -1,23 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Fody;
 using Mono.Cecil;
 
 namespace InlineIL.Fody.Processing;
 
-internal class InjectedAssemblyResolver : IAssemblyResolver
+internal class InjectedAssemblyResolver
 {
     private readonly ModuleWeavingContext _context;
     private readonly Dictionary<string, AssemblyDefinition?> _assemblyByPath = new(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
-
-    public IMetadataResolver MetadataResolver { get; }
+    private readonly ConditionalWeakTable<TypeReference, TypeDefinition> _typeDefinitions = new();
 
     public InjectedAssemblyResolver(ModuleWeavingContext context)
     {
         _context = context;
-        MetadataResolver = new MetadataResolver(this);
     }
 
     public void Dispose()
@@ -48,7 +46,7 @@ internal class InjectedAssemblyResolver : IAssemblyResolver
             catch (Exception ex)
             {
                 assembly?.Dispose();
-                _assemblyByPath.Add(assemblyPath, null);
+                _assemblyByPath[assemblyPath] = null;
                 throw new WeavingException($"Could not read assembly: {assemblyPath} - {ex.Message}");
             }
         }
@@ -56,9 +54,19 @@ internal class InjectedAssemblyResolver : IAssemblyResolver
         return assembly ?? throw new WeavingException($"Could not use assembly due to a previous error: {assemblyPath}");
     }
 
-    public AssemblyDefinition? Resolve(AssemblyNameReference name)
-        => _assemblyByPath.Values.FirstOrDefault(assembly => assembly?.FullName == name.FullName);
+    public void RegisterTypeDefinition(TypeReference typeRef, TypeDefinition typeDef)
+    {
+        if (_typeDefinitions.TryGetValue(typeDef, out var existingValue))
+        {
+            if (existingValue == typeDef)
+                return;
 
-    public AssemblyDefinition? Resolve(AssemblyNameReference name, ReaderParameters parameters)
-        => Resolve(name);
+            throw new WeavingException("Unexpected error: trying to inject a different type definition");
+        }
+
+        _typeDefinitions.Add(typeRef, typeDef);
+    }
+
+    public TypeDefinition? ResolveRegisteredType(TypeReference typeRef)
+        => _typeDefinitions.TryGetValue(typeRef.GetElementType(), out var typeDef) ? typeDef : null;
 }
