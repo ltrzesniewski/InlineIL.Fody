@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using InlineIL.Tests.InjectedAssembly;
+using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
-using Xunit;
-
-#if NET
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-#endif
+using Xunit;
 
 #pragma warning disable 618
 
@@ -297,8 +296,20 @@ public class TypeRefTests : TypeRefTestsBase
     public void should_add_injected_assembly_reference()
     {
         var assemblyName = typeof(InjectedType).Assembly.FullName;
+
         UnverifiableAssemblyToProcessFixture.OriginalModule.AssemblyReferences.ShouldNotContain(i => i.FullName == assemblyName);
         UnverifiableAssemblyToProcessFixture.ResultModule.AssemblyReferences.ShouldContain(i => i.FullName == assemblyName);
+    }
+
+    [Fact]
+    public void should_not_add_injected_assembly_reference_if_already_exists()
+    {
+        var assemblyName = typeof(InjectedType).Assembly.FullName;
+
+        InvalidAssemblyToProcessFixture.OriginalModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldEqual(1);
+        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldEqual(1);
+
+        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName.StartsWith("InlineIL")).ShouldEqual(1);
     }
 
     [Fact]
@@ -313,6 +324,24 @@ public class TypeRefTests : TypeRefTestsBase
     {
         var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedTypeSpec();
         Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedType[]));
+    }
+
+    [Fact]
+    public void should_use_methods_from_injected_type_and_referenced_type()
+    {
+        var calls = InvalidAssemblyToProcessFixture.ResultModule
+                                                   .GetType(typeof(TypeRefTestCases).FullName)
+                                                   .Methods
+                                                   .Single(i => i.Name == nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDll))
+                                                   .Body
+                                                   .Instructions
+                                                   .Where(i => i.OpCode.Code == Code.Call)
+                                                   .ToArray();
+
+        calls.Length.ShouldEqual(2);
+
+        calls[0].Operand.ShouldBe<MethodReference>().Name.ShouldEqual("AddInt32");
+        calls[1].Operand.ShouldBe<MethodReference>().Name.ShouldEqual("MultiplyInt32");
     }
 }
 

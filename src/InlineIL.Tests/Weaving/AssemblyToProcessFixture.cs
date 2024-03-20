@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Fody;
-using InlineIL.Fody;
-using InlineIL.Fody.Extensions;
 using InlineIL.Tests.AssemblyToProcess;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -36,13 +34,7 @@ public static class AssemblyToProcessFixture
         );
     }
 
-    internal static void BeforeExecuteCallback(ModuleDefinition module)
-    {
-        // This reference is added by Fody, it's not supposed to be there
-        module.AssemblyReferences.RemoveWhere(i => string.Equals(i.Name, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase));
-    }
-
-    internal class GuardedWeaver : ModuleWeaver
+    private class GuardedWeaver : TestModuleWeaver
     {
         private readonly List<string> _errors = new();
 
