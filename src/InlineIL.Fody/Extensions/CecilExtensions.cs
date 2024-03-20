@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Fody;
+using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
@@ -13,13 +14,14 @@ namespace InlineIL.Fody.Extensions;
 
 internal static partial class CecilExtensions
 {
-    public static TypeDefinition ResolveRequiredType(this TypeReference typeRef)
+    public static TypeDefinition ResolveRequiredType(this TypeReference typeRef, ModuleWeavingContext context)
     {
         TypeDefinition typeDef;
 
         try
         {
-            typeDef = typeRef.Resolve();
+            typeDef = context.InjectedAssemblyResolver.ResolveRegisteredType(typeRef)
+                      ?? typeRef.Resolve();
         }
         catch (Exception ex)
         {

@@ -149,7 +149,7 @@ public class CecilExtensionsTests : IDisposable
     public void should_return_false_on_null()
     {
         using var module = ModuleDefinition.CreateModule("test", ModuleKind.Dll);
-        var context = new ModuleWeavingContext(module, null!);
+        var context = new ModuleWeavingContext(module, null!, string.Empty);
 
         CecilExtensions.IsInlineILTypeUsage(default(CustomAttribute), context).ShouldBeFalse();
         CecilExtensions.IsInlineILTypeUsage(default(FieldReference), context).ShouldBeFalse();

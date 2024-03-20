@@ -27,8 +27,9 @@ public class ModuleWeaver : BaseModuleWeaver
     {
         var configOptions = new WeaverConfigOptions(Config);
         var config = new WeaverConfig(configOptions, ModuleDefinition);
-        var context = new ModuleWeavingContext(ModuleDefinition, config);
         var weaverLog = new WeaverLogger(_log, configOptions);
+
+        using var context = new ModuleWeavingContext(ModuleDefinition, config, ProjectDirectoryPath);
 
         foreach (var type in ModuleDefinition.GetTypes())
         {

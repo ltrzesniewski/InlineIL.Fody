@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Fody;
-using InlineIL.Fody;
 using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 using Mono.Cecil;
@@ -13,13 +12,14 @@ public static class InvalidAssemblyToProcessFixture
 {
     public static TestResult TestResult { get; }
 
+    public static ModuleDefinition OriginalModule { get; }
     public static ModuleDefinition ResultModule { get; }
 
     static InvalidAssemblyToProcessFixture()
     {
-        (TestResult, _, ResultModule) = WeaverRunner.ExecuteTestRun(
+        (TestResult, OriginalModule, ResultModule) = WeaverRunner.ExecuteTestRun(
             typeof(InvalidAssemblyToProcessReference).Assembly,
-            new ModuleWeaver(),
+            new TestModuleWeaver(),
             false
         );
     }

@@ -60,7 +60,7 @@ public sealed class TypeRef
     /// Constructs a type reference.
     /// </summary>
     /// <param name="assemblyName">The assembly name containing the type. This assembly should be referenced by the weaved assembly.</param>
-    /// <param name="typeName">The full runtime type name, as returned by <see cref="System.Type.FullName"/>.</param>
+    /// <param name="typeName">The full runtime type name, as returned by <see cref="System.Type.FullName"/>, or the full type name in CIL format.</param>
     public TypeRef(string assemblyName, string typeName)
         => IL.Throw();
 
@@ -122,5 +122,32 @@ public sealed class TypeRef
     /// <param name="modifierType">The custom modifier type.</param>
     /// <returns>A <see cref="TypeRef"/> with the custom modifier applied.</returns>
     public TypeRef WithRequiredModifier(TypeRef modifierType)
+        => throw IL.Throw();
+
+    /// <summary>
+    /// <b>EXPERIMENTAL API</b> - Returns a reference to a type from an assembly specified by its file path, absolute or relative to the project directory.
+    /// A reference to that assembly name will be added if necessary.
+    /// </summary>
+    /// <param name="assemblyPath">The path to an assembly file, either absolute or relative to the project directory.</param>
+    /// <param name="typeName">The full type name in the CIL format.</param>
+    /// <returns>A <see cref="TypeRef"/> to the given type.</returns>
+    /// <remarks>
+    /// <para>
+    /// This API is marked as experimental as it is meant for specific <i>testing</i> purposes only. It can silently add a reference to an assembly
+    /// which will not necessarily be resolvable at runtime.
+    /// </para>
+    /// <para>
+    /// Some features are not supported, such as forwarded types or runtime type names.
+    /// Behavior may change between minor or patch releases.
+    /// </para>
+    /// </remarks>
+#if NET8_0_OR_GREATER
+    [Experimental("InlineIL0100")]
+#elif NET5_0_OR_GREATER
+    [Obsolete("This is an experimental API. Use it at your own risk inside a #pragma warning disable InlineIL0100 block.", DiagnosticId = "InlineIL0100")]
+#else
+    [Obsolete("This is an experimental API. Use it at your own risk inside a #pragma warning disable CS0618 block.")]
+#endif
+    public static TypeRef FromDllFile(string assemblyPath, string typeName)
         => throw IL.Throw();
 }
