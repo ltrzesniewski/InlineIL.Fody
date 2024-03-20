@@ -16,6 +16,8 @@ internal class TestModuleWeaver : ModuleWeaver
     {
         ProjectDirectoryPath.ShouldNotBeNull();
 
+        var sourceDir = Path.GetDirectoryName(typeof(AssemblyToProcessFixture).Assembly.Location)!;
+
         var targetDir = Path.Combine(ProjectDirectoryPath, "InjectedDllDir");
         Directory.CreateDirectory(targetDir);
 
@@ -25,8 +27,8 @@ internal class TestModuleWeaver : ModuleWeaver
         void Copy(string fileName)
         {
             File.Copy(
-                Path.Combine(Path.GetDirectoryName(typeof(AssemblyToProcessFixture).Assembly.Location)!, fileName),
-                Path.Combine(targetDir, Path.GetFileName(fileName)),
+                Path.Combine(sourceDir, fileName),
+                Path.Combine(targetDir, fileName),
                 true
             );
         }

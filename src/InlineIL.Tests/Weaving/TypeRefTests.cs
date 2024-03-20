@@ -327,6 +327,27 @@ public class TypeRefTests : TypeRefTestsBase
     }
 
     [Fact]
+    public void should_return_generic_type_spec_from_injected_type()
+    {
+        var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedGenericTypeSpec();
+        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedGenericType<>));
+    }
+
+    [Fact]
+    public void should_return_generic_type_spec_from_injected_type_2()
+    {
+        var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedGenericTypeSpec2();
+        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedGenericType<,>));
+    }
+
+    [Fact]
+    public void should_return_constructed_generic_type_spec_from_injected_type()
+    {
+        var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedConstructedGenericTypeSpec();
+        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedGenericType<InjectedType>));
+    }
+
+    [Fact]
     public void should_use_methods_from_injected_type_and_referenced_type()
     {
         var calls = InvalidAssemblyToProcessFixture.ResultModule
@@ -342,6 +363,18 @@ public class TypeRefTests : TypeRefTestsBase
 
         calls[0].Operand.ShouldBe<MethodReference>().Name.ShouldEqual("AddInt32");
         calls[1].Operand.ShouldBe<MethodReference>().Name.ShouldEqual("MultiplyInt32");
+    }
+
+    [Fact]
+    public void should_report_dll_file_not_found()
+    {
+        ShouldHaveError("InvalidInjectedDllFile").ShouldContain("Could not read assembly");
+    }
+
+    [Fact]
+    public void should_report_type_in_dll_file_not_found()
+    {
+        ShouldHaveError("InvalidInjectedTypeName").ShouldContain("Could not find type 'DoesNotExist'");
     }
 }
 

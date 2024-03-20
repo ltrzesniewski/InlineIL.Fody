@@ -4,10 +4,14 @@ using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.UnverifiableAssemblyToProcess;
 
+#pragma warning disable CS0618
+
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class TypeRefTestCases
 {
+    private const string _injectedAssemblyPath = "InjectedDllDir/InlineIL.Tests.InjectedAssembly.dll";
+
     public int UseInjectedDll()
     {
         Ldc_I4(40);
@@ -15,12 +19,7 @@ public class TypeRefTestCases
 
         Call(
             MethodRef.Method(
-#pragma warning disable CS0618
-                TypeRef.FromDllFile(
-                    "InjectedDllDir/InlineIL.Tests.InjectedAssembly.dll",
-                    "InlineIL.Tests.InjectedAssembly.InjectedType"
-                ),
-#pragma warning restore CS0618
+                TypeRef.FromDllFile(_injectedAssemblyPath, "InlineIL.Tests.InjectedAssembly.InjectedType"),
                 "AddInt32"
             )
         );
@@ -31,12 +30,38 @@ public class TypeRefTestCases
     public RuntimeTypeHandle ReturnInjectedTypeSpec()
     {
         Ldtoken(
-#pragma warning disable CS0618
-            TypeRef.FromDllFile(
-                "InjectedDllDir/InlineIL.Tests.InjectedAssembly.dll",
-                "InlineIL.Tests.InjectedAssembly.InjectedType"
-            ).MakeArrayType()
-#pragma warning restore CS0618
+            TypeRef.FromDllFile(_injectedAssemblyPath, "InlineIL.Tests.InjectedAssembly.InjectedType")
+                   .MakeArrayType()
+        );
+
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle ReturnInjectedGenericTypeSpec()
+    {
+        Ldtoken(
+            TypeRef.FromDllFile(_injectedAssemblyPath, "InlineIL.Tests.InjectedAssembly.InjectedGenericType`1")
+        );
+
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle ReturnInjectedGenericTypeSpec2()
+    {
+        Ldtoken(
+            TypeRef.FromDllFile(_injectedAssemblyPath, "InlineIL.Tests.InjectedAssembly.InjectedGenericType`2")
+        );
+
+        return IL.Return<RuntimeTypeHandle>();
+    }
+
+    public RuntimeTypeHandle ReturnInjectedConstructedGenericTypeSpec()
+    {
+        Ldtoken(
+            TypeRef.FromDllFile(_injectedAssemblyPath, "InlineIL.Tests.InjectedAssembly.InjectedGenericType`1")
+                   .MakeGenericType(
+                       TypeRef.FromDllFile(_injectedAssemblyPath, "InlineIL.Tests.InjectedAssembly.InjectedType")
+                   )
         );
 
         return IL.Return<RuntimeTypeHandle>();

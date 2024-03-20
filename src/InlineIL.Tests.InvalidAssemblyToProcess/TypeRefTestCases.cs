@@ -133,4 +133,22 @@ public class TypeRefTestCases
 
         Pop();
     }
+
+    public void InvalidInjectedDllFile()
+    {
+        Ldtoken(
+#pragma warning disable CS0618
+            TypeRef.FromDllFile("InjectedDllDir/DoesNotExist.dll", "SomeType")
+#pragma warning restore CS0618
+        );
+    }
+
+    public void InvalidInjectedTypeName()
+    {
+        Ldtoken(
+#pragma warning disable CS0618
+            TypeRef.FromDllFile("InjectedDllDir/InlineIL.Tests.InjectedAssembly.Alternative.dll", "DoesNotExist")
+#pragma warning restore CS0618
+        );
+    }
 }
