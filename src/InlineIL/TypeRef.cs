@@ -125,11 +125,11 @@ public sealed class TypeRef
         => throw IL.Throw();
 
     /// <summary>
-    /// <b>EXPERIMENTAL API</b> - Returns a reference to a type from an assembly specified by its path, relative to the project directory.
+    /// <b>EXPERIMENTAL API</b> - Returns a reference to a type from an assembly specified by its file path, absolute or relative to the project directory.
     /// A reference to that assembly name will be added if necessary.
     /// </summary>
-    /// <param name="assemblyPath">The path to an assembly file, either a full one or relative to the project directory.</param>
-    /// <param name="typeName">The full type name in CIL format.</param>
+    /// <param name="assemblyPath">The path to an assembly file, either absolute or relative to the project directory.</param>
+    /// <param name="typeName">The full type name in the CIL format.</param>
     /// <returns>A <see cref="TypeRef"/> to the given type.</returns>
     /// <remarks>
     /// <para>
@@ -148,6 +148,6 @@ public sealed class TypeRef
 #else
     [Obsolete("This is an experimental API. Use it at your own risk inside a #pragma warning disable CS0618 block.")]
 #endif
-    public static TypeRef FromDll(string assemblyPath, string typeName)
+    public static TypeRef FromDllFile(string assemblyPath, string typeName)
         => throw IL.Throw();
 }

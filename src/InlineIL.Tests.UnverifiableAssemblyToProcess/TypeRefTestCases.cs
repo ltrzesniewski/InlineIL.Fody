@@ -16,7 +16,7 @@ public class TypeRefTestCases
         Call(
             MethodRef.Method(
 #pragma warning disable CS0618
-                TypeRef.FromDll(
+                TypeRef.FromDllFile(
                     "InjectedDllDir/InlineIL.Tests.InjectedAssembly.dll",
                     "InlineIL.Tests.InjectedAssembly.InjectedType"
                 ),
@@ -32,7 +32,7 @@ public class TypeRefTestCases
     {
         Ldtoken(
 #pragma warning disable CS0618
-            TypeRef.FromDll(
+            TypeRef.FromDllFile(
                 "InjectedDllDir/InlineIL.Tests.InjectedAssembly.dll",
                 "InlineIL.Tests.InjectedAssembly.InjectedType"
             ).MakeArrayType()

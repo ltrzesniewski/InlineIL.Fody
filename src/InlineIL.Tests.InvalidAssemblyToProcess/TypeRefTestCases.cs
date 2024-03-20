@@ -122,7 +122,7 @@ public class TypeRefTestCases
         Call(
             MethodRef.Method(
 #pragma warning disable CS0618
-                TypeRef.FromDll(
+                TypeRef.FromDllFile(
                     "InjectedDllDir/InlineIL.Tests.InjectedAssembly.Alternative.dll",
                     "InlineIL.Tests.InjectedAssembly.InjectedType"
                 ),

@@ -262,7 +262,7 @@ internal class ArgumentConsumer
                 return builder;
             }
 
-            case "InlineIL.TypeRef InlineIL.TypeRef::FromDll(System.String,System.String)":
+            case "InlineIL.TypeRef InlineIL.TypeRef::FromDllFile(System.String,System.String)":
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var assemblyPath = ConsumeArgString(args[0]);
