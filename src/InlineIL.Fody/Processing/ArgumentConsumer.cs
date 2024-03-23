@@ -158,7 +158,7 @@ internal class ArgumentConsumer
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var assemblyName = ConsumeArgString(args[0]);
-                var typeName = ConsumeArgString(args[1]);
+                var typeName = ConsumeArgTypeName(args[1]);
                 var builder = TypeRefBuilder.FromAssemblyNameAndTypeName(_context, assemblyName, typeName);
 
                 _il.Remove(instruction);
@@ -266,7 +266,7 @@ internal class ArgumentConsumer
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 var assemblyPath = ConsumeArgString(args[0]);
-                var typeName = ConsumeArgString(args[1]);
+                var typeName = ConsumeArgTypeName(args[1]);
                 var builder = TypeRefBuilder.FromInjectedAssembly(_context, assemblyPath, typeName);
 
                 _il.Remove(instruction);
@@ -313,6 +313,26 @@ internal class ArgumentConsumer
             default:
                 throw UnexpectedInstruction(instruction, expectation);
         }
+    }
+
+    private string ConsumeArgTypeName(Instruction instruction)
+    {
+        if (instruction is { OpCode.FlowControl: FlowControl.Call, Operand: MethodReference method })
+        {
+            switch (method.GetElementMethod().FullName)
+            {
+                case "System.String System.Type::get_FullName()":
+                {
+                    var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                    var typeRef = ConsumeArgTypeRef(args[0]);
+
+                    _il.Remove(instruction);
+                    return typeRef.FullName;
+                }
+            }
+        }
+
+        return ConsumeArgString(instruction);
     }
 
     public MethodReference ConsumeArgMethodRef(Instruction methodRefInstruction)

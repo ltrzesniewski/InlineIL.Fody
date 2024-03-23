@@ -350,6 +350,7 @@ public class TypeRefTests : TypeRefTestsBase
     [Theory]
     [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDll))]
     [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDllUsingTypeReference))]
+    [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDllUsingTypeFullNameProperty))]
     public void should_use_methods_from_injected_type_and_referenced_type(string methodName)
     {
         var calls = InvalidAssemblyToProcessFixture.ResultModule
@@ -386,9 +387,21 @@ public class TypeRefTests : TypeRefTestsBase
     }
 
     [Fact]
+    public void should_report_injected_type_spec_with_full_name()
+    {
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpecWithFullName)).ShouldContain("Could not find type 'InlineIL.Tests.InjectedAssembly.InjectedType[]'");
+    }
+
+    [Fact]
     public void should_report_injected_type_spec_2()
     {
         ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpec2)).ShouldContain("The provided type does not represent an element type");
+    }
+
+    [Fact]
+    public void should_report_injected_type_spec_2_with_full_name()
+    {
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpec2WithFullName)).ShouldContain("Could not find type 'InlineIL.Tests.InjectedAssembly.InjectedType&'");
     }
 
     [Fact]

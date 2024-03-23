@@ -47,6 +47,25 @@ public partial class TypeRefTestCases
         Pop();
     }
 
+    public void UseMethodsFromDifferentVersionsOfDllUsingTypeFullNameProperty()
+    {
+        // Use referenced DLL
+        InjectedType.AddInt32(40, 2);
+
+        // Use alternative version of the referenced DLL
+        Ldc_I4(40);
+        Ldc_I4_2();
+
+        Call(
+            MethodRef.Method(
+                TypeRef.FromDllFile(_injectedAltAssemblyPath, typeof(InjectedType).FullName!),
+                "MultiplyInt32"
+            )
+        );
+
+        Pop();
+    }
+
     public void InvalidInjectedDllFile()
     {
         Ldtoken(
@@ -68,10 +87,24 @@ public partial class TypeRefTestCases
         );
     }
 
+    public void InvalidInjectedTypeSpecWithFullName()
+    {
+        Ldtoken(
+            TypeRef.FromDllFile(_injectedAltAssemblyPath, typeof(InjectedType[]).FullName!)
+        );
+    }
+
     public void InvalidInjectedTypeSpec2()
     {
         Ldtoken(
             TypeRef.FromDllFile(_injectedAltAssemblyPath, typeof(InjectedType).MakeByRefType())
+        );
+    }
+
+    public void InvalidInjectedTypeSpec2WithFullName()
+    {
+        Ldtoken(
+            TypeRef.FromDllFile(_injectedAltAssemblyPath, typeof(InjectedType).MakeByRefType().FullName!)
         );
     }
 
