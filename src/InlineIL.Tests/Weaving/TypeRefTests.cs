@@ -347,13 +347,15 @@ public class TypeRefTests : TypeRefTestsBase
         Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedGenericType<InjectedType>));
     }
 
-    [Fact]
-    public void should_use_methods_from_injected_type_and_referenced_type()
+    [Theory]
+    [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDll))]
+    [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDllUsingTypeReference))]
+    public void should_use_methods_from_injected_type_and_referenced_type(string methodName)
     {
         var calls = InvalidAssemblyToProcessFixture.ResultModule
                                                    .GetType(typeof(TypeRefTestCases).FullName)
                                                    .Methods
-                                                   .Single(i => i.Name == nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDll))
+                                                   .Single(i => i.Name == methodName)
                                                    .Body
                                                    .Instructions
                                                    .Where(i => i.OpCode.Code == Code.Call)
@@ -368,13 +370,37 @@ public class TypeRefTests : TypeRefTestsBase
     [Fact]
     public void should_report_dll_file_not_found()
     {
-        ShouldHaveError("InvalidInjectedDllFile").ShouldContain("Could not read assembly");
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedDllFile)).ShouldContain("Could not read assembly");
     }
 
     [Fact]
     public void should_report_type_in_dll_file_not_found()
     {
-        ShouldHaveError("InvalidInjectedTypeName").ShouldContain("Could not find type 'DoesNotExist'");
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeName)).ShouldContain("Could not find type 'DoesNotExist'");
+    }
+
+    [Fact]
+    public void should_report_injected_type_spec()
+    {
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpec)).ShouldContain("The provided type does not represent an element type");
+    }
+
+    [Fact]
+    public void should_report_injected_type_spec_2()
+    {
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpec2)).ShouldContain("The provided type does not represent an element type");
+    }
+
+    [Fact]
+    public void should_report_injected_fn_ptr()
+    {
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedFnPtr)).ShouldContain("Function pointer types cannot be used in this context");
+    }
+
+    [Fact]
+    public void should_report_injected_generic_param()
+    {
+        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedGenericParam)).ShouldContain("Generic parameters cannot be used in this context");
     }
 }
 

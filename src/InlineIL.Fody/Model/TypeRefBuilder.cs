@@ -42,6 +42,17 @@ internal class TypeRefBuilder
             : throw new WeavingException($"Could not find type '{typeName}' in assembly: {assemblyPath}");
     }
 
+    public static TypeRefBuilder FromInjectedAssembly(ModuleWeavingContext context, string assemblyPath, TypeReference typeRef)
+    {
+        return typeRef switch
+        {
+            GenericParameter    => throw new WeavingException("Generic parameters cannot be used in this context, expecting a type which can be defined in an assembly."),
+            FunctionPointerType => throw new WeavingException("Function pointer types cannot be used in this context, expecting a type which can be defined in an assembly."),
+            TypeSpecification   => throw new WeavingException($"The provided type does not represent an element type: '{typeRef.FullName}', did you mean '{typeRef.GetElementType().FullName}'?"),
+            _                   => FromInjectedAssembly(context, assemblyPath, typeRef.FullName)
+        };
+    }
+
     private static TypeReference FindType(ModuleDefinition module, string assemblyName, string typeName)
     {
         var assembly = assemblyName == module.Assembly.Name.Name

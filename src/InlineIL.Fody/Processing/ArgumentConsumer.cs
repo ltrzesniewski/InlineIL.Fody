@@ -273,6 +273,17 @@ internal class ArgumentConsumer
                 return builder;
             }
 
+            case "InlineIL.TypeRef InlineIL.TypeRef::FromDllFile(System.String,System.Type)":
+            {
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var assemblyPath = ConsumeArgString(args[0]);
+                var typeRef = ConsumeArgTypeRef(args[1]);
+                var builder = TypeRefBuilder.FromInjectedAssembly(_context, assemblyPath, typeRef);
+
+                _il.Remove(instruction);
+                return builder;
+            }
+
             default:
                 throw UnexpectedInstruction(instruction, "a type reference");
         }

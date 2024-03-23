@@ -150,4 +150,32 @@ public sealed class TypeRef
 #endif
     public static TypeRef FromDllFile(string assemblyPath, string typeName)
         => throw IL.Throw();
+
+    /// <summary>
+    /// <b>EXPERIMENTAL API</b> - Returns a reference to <paramref name="type"/> as defined in a different assembly specified by its file path,
+    /// absolute or relative to the project directory.
+    /// A reference to that assembly name will be added if it is different from the one the provided <paramref name="type"/> is defined in.
+    /// </summary>
+    /// <param name="assemblyPath">The path to an assembly file, either absolute or relative to the project directory.</param>
+    /// <param name="type">The element type whose definition should be present in the provided assembly file.</param>
+    /// <returns>A <see cref="TypeRef"/> to the given type.</returns>
+    /// <remarks>
+    /// <para>
+    /// This API is marked as experimental as it is meant for specific <i>testing</i> purposes only. It can silently add a reference to an assembly
+    /// which will not necessarily be resolvable at runtime.
+    /// </para>
+    /// <para>
+    /// Some features are not supported, such as forwarded types.
+    /// Behavior may change between minor or patch releases.
+    /// </para>
+    /// </remarks>
+#if NET8_0_OR_GREATER
+    [Experimental("InlineIL0100")]
+#elif NET5_0_OR_GREATER
+    [Obsolete("This is an experimental API. Use it at your own risk inside a #pragma warning disable InlineIL0100 block.", DiagnosticId = "InlineIL0100")]
+#else
+    [Obsolete("This is an experimental API. Use it at your own risk inside a #pragma warning disable CS0618 block.")]
+#endif
+    public static TypeRef FromDllFile(string assemblyPath, Type type)
+        => throw IL.Throw();
 }

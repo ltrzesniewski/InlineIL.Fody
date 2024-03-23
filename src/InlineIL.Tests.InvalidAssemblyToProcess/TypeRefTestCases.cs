@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using InlineIL.Tests.InjectedAssembly;
 using static InlineIL.IL.Emit;
 
 namespace InlineIL.Tests.InvalidAssemblyToProcess;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
-public class TypeRefTestCases
+public partial class TypeRefTestCases
 {
     public void LoadNullType()
     {
@@ -108,47 +107,5 @@ public class TypeRefTestCases
     public void InvalidGenericParameterIndex()
     {
         Ldtoken(TypeRef.TypeGenericParameters[-1]);
-    }
-
-    public void UseMethodsFromDifferentVersionsOfDll()
-    {
-        // Use referenced DLL
-        InjectedType.AddInt32(40, 2);
-
-        // Use alternative version of the referenced DLL
-        Ldc_I4(40);
-        Ldc_I4_2();
-
-        Call(
-            MethodRef.Method(
-#pragma warning disable CS0618
-                TypeRef.FromDllFile(
-                    "InjectedDllDir/InlineIL.Tests.InjectedAssembly.Alternative.dll",
-                    "InlineIL.Tests.InjectedAssembly.InjectedType"
-                ),
-#pragma warning restore CS0618
-                "MultiplyInt32"
-            )
-        );
-
-        Pop();
-    }
-
-    public void InvalidInjectedDllFile()
-    {
-        Ldtoken(
-#pragma warning disable CS0618
-            TypeRef.FromDllFile("InjectedDllDir/DoesNotExist.dll", "SomeType")
-#pragma warning restore CS0618
-        );
-    }
-
-    public void InvalidInjectedTypeName()
-    {
-        Ldtoken(
-#pragma warning disable CS0618
-            TypeRef.FromDllFile("InjectedDllDir/InlineIL.Tests.InjectedAssembly.Alternative.dll", "DoesNotExist")
-#pragma warning restore CS0618
-        );
     }
 }
