@@ -68,7 +68,7 @@ internal class LabelMapper
     private class LabelInfo
     {
         public Instruction PlaceholderTarget { get; } = Instruction.Create(OpCodes.Nop);
-        public ICollection<Instruction> References { get; } = new List<Instruction>();
+        public List<Instruction> References { get; } = new List<Instruction>();
         public SequencePoint? SequencePoint { get; set; }
 
         public bool IsDefined => PlaceholderTarget.Next != null;

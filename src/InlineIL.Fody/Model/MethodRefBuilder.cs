@@ -51,7 +51,7 @@ internal class MethodRefBuilder
         return new MethodRefBuilder(context, methodRef);
     }
 
-    private static MethodReference FindMethod(ModuleWeavingContext context, TypeReference typeRef, string methodName, int? genericArity, TypeRefBuilder? returnType, IReadOnlyList<TypeRefBuilder>? paramTypes)
+    private static MethodDefinition FindMethod(ModuleWeavingContext context, TypeReference typeRef, string methodName, int? genericArity, TypeRefBuilder? returnType, IReadOnlyList<TypeRefBuilder>? paramTypes)
     {
         var typeDef = typeRef.ResolveRequiredType(context);
 

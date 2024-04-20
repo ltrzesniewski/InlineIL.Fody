@@ -272,7 +272,7 @@ internal class MethodWeaver
             throw new InstructionWeavingException(libReferencingInstruction, "Unconsumed reference to InlineIL");
 
         var invalidRefs = _il.GetAllReferencedInstructions().Except(Instructions).ToList();
-        if (invalidRefs.Any())
+        if (invalidRefs.Count != 0)
             throw new WeavingException($"Found invalid references to instructions: {string.Join(", ", invalidRefs)}");
     }
 
