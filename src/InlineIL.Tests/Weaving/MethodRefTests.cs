@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
@@ -422,16 +421,6 @@ public class MethodRefTests : MethodRefTestsBase
     }
 
     [Fact]
-    public void should_call_vararg_method()
-    {
-        if (NetStandard || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.ProcessArchitecture is not (Architecture.X86 or Architecture.X64))
-            return;
-
-        var result = (int[])GetInstance().CallVarArgMethod();
-        result.ShouldEqual([1, 2, 3, 0, 0]);
-    }
-
-    [Fact]
     public void should_report_generic_args_on_normal_method()
     {
         ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -676,11 +665,26 @@ public class MethodRefTestsCore : MethodRefTestsBase
         var result = (IEnumerable<string>)GetInstance().CallGenericMethodOfForwardedType();
         result.ShouldEqual(["Hello", "Hello"]);
     }
+
+    [VarargFact]
+    public void should_call_vararg_method()
+    {
+        var result = (int[])GetInstance().CallVarArgMethod();
+        result.ShouldEqual([1, 2, 3, 0, 0]);
+    }
 }
 #endif
 
 #if NETFRAMEWORK
-public class MethodRefTestsFramework : MethodRefTestsBase;
+public class MethodRefTestsFramework : MethodRefTestsBase
+{
+    [VarargFact]
+    public void should_call_vararg_method()
+    {
+        var result = (int[])GetInstance().CallVarArgMethod();
+        result.ShouldEqual([1, 2, 3, 0, 0]);
+    }
+}
 #endif
 
 [UsedImplicitly]
