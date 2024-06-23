@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
@@ -421,6 +422,16 @@ public class MethodRefTests : MethodRefTestsBase
     }
 
     [Fact]
+    public void should_call_vararg_method()
+    {
+        if (NetStandard || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.ProcessArchitecture is not (Architecture.X86 or Architecture.X64))
+            return;
+
+        var result = (int[])GetInstance().CallVarArgMethod();
+        result.ShouldEqual([1, 2, 3, 0, 0]);
+    }
+
+    [Fact]
     public void should_report_generic_args_on_normal_method()
     {
         ShouldHaveError("NotAGenericMethod").ShouldContain("Not a generic method");
@@ -620,14 +631,14 @@ public class MethodRefTestsCore : MethodRefTestsBase
     public void should_resolve_generic_overloads_with_Type_API()
     {
         var result = (int[])GetInstance().ResolveGenericOverloadsUsingTypeApi();
-        result.ShouldEqual(new[] { 1, 2, 3, 4, 5, 6, 6, 7 });
+        result.ShouldEqual([1, 2, 3, 4, 5, 6, 6, 7]);
     }
 
     [Fact]
     public void should_call_method_with_generic_array_return_type()
     {
         var result = (int[])GetInstance().CallGenericArrayReturnType();
-        result.ShouldEqual(Array.Empty<int>());
+        result.ShouldEqual([]);
     }
 
     [Fact]
@@ -663,21 +674,13 @@ public class MethodRefTestsCore : MethodRefTestsBase
     public void should_call_generic_method_of_forwarded_type()
     {
         var result = (IEnumerable<string>)GetInstance().CallGenericMethodOfForwardedType();
-        result.ShouldEqual(new[] { "Hello", "Hello" });
+        result.ShouldEqual(["Hello", "Hello"]);
     }
 }
 #endif
 
 #if NETFRAMEWORK
-public class MethodRefTestsFramework : MethodRefTestsBase
-{
-    [Fact]
-    public void should_call_vararg_method()
-    {
-        var result = (int[])GetInstance().CallVarArgMethod();
-        result.ShouldEqual(new[] { 1, 2, 3, 0, 0 });
-    }
-}
+public class MethodRefTestsFramework : MethodRefTestsBase;
 #endif
 
 [UsedImplicitly]

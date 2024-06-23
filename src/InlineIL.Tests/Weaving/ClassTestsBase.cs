@@ -11,7 +11,7 @@ public abstract class ClassTestsBase
     protected const string _invalidAssembly = "InlineIL.Tests.InvalidAssemblyToProcess";
 
     private string ClassName { get; }
-    protected bool NetStandard { get; set; }
+    protected bool NetStandard { get; init; }
 
     protected ClassTestsBase(string className)
     {

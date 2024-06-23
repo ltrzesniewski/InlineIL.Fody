@@ -894,7 +894,7 @@ public class MethodRefTestCases : IMethodRefTestCases
     public void RaiseEvent()
         => Event?.Invoke();
 
-#if NETFRAMEWORK
+#if !NETSTANDARD
     public int[] CallVarArgMethod()
     {
         IL.Push(5);
@@ -903,6 +903,17 @@ public class MethodRefTestCases : IMethodRefTestCases
         IL.Push(3);
         Call(new MethodRef(typeof(MethodRefTestCases), nameof(VarArgMethod)).WithOptionalParameters(typeof(int), typeof(int), typeof(int)));
         return IL.Return<int[]>();
+    }
+
+    private static int[] VarArgMethod(int count, __arglist)
+    {
+        var it = new ArgIterator(__arglist);
+        var result = new int[count];
+
+        for (var i = 0; i < count; ++i)
+            result[i] = it.GetRemainingCount() > 0 ? __refvalue(it.GetNextArg(), int) : 0;
+
+        return result;
     }
 #endif
 
@@ -943,19 +954,6 @@ public class MethodRefTestCases : IMethodRefTestCases
             public static int GenericOverload<T>(T[] a, List<T> b) => 5;
         }
     }
-
-#if NETFRAMEWORK
-    private static int[] VarArgMethod(int count, __arglist)
-    {
-        var it = new ArgIterator(__arglist);
-        var result = new int[count];
-
-        for (var i = 0; i < count; ++i)
-            result[i] = it.GetRemainingCount() > 0 ? __refvalue(it.GetNextArg(), int) : 0;
-
-        return result;
-    }
-#endif
 
     private class TypeWithInitializer
     {

@@ -21,7 +21,7 @@ public class ModuleWeaver : BaseModuleWeaver
         => _log = new Logger(this);
 
     public override IEnumerable<string> GetAssembliesForScanning()
-        => Enumerable.Empty<string>();
+        => [];
 
     public override void Execute()
     {
