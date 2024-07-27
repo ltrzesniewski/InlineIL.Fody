@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using InlineIL.Tests.Common;
 using static InlineIL.IL.Emit;
 
@@ -9,7 +10,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnassignedField.Global")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public class FieldRefTestCases
+public unsafe class FieldRefTestCases
 {
     public void ReadFieldFromReferencedAssemblyType()
     {
@@ -24,22 +25,38 @@ public class FieldRefTestCases
     {
         IL.Push(new TypeFromReferencedAssembly());
         Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly), nameof(TypeFromReferencedAssembly.PointerField)));
-        Pop();
+        Call(MethodRef.Method(typeof(FieldRefTestCases), nameof(ConsumePointer)));
     }
 
     public void ReadGenericPointerFieldFromReferencedAssemblyType()
     {
         IL.Push(new TypeFromReferencedAssembly<OtherStructFromReferencedAssembly>());
         Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly<OtherStructFromReferencedAssembly>), nameof(TypeFromReferencedAssembly<OtherStructFromReferencedAssembly>.PointerField)));
-        Pop();
+        Call(MethodRef.Method(typeof(FieldRefTestCases), nameof(ConsumePointer)));
 
         IL.Push(new TypeFromReferencedAssembly<DateTime>());
         Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly<DateTime>), nameof(TypeFromReferencedAssembly<DateTime>.PointerField)));
-        Pop();
+        Call(MethodRef.Method(typeof(FieldRefTestCases), nameof(ConsumePointer)));
 
         IL.Push(new TypeFromReferencedAssembly<InternalStruct>());
         Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly<InternalStruct>), nameof(TypeFromReferencedAssembly<InternalStruct>.PointerField)));
-        Pop();
+        Call(MethodRef.Method(typeof(FieldRefTestCases), nameof(ConsumePointer)));
+    }
+
+    public void ReadGenericTypeFieldFromReferencedAssemblyType()
+    {
+        IL.Push(new TypeFromReferencedAssembly());
+        Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly), nameof(TypeFromReferencedAssembly.GenericTypeField)));
+        Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly<StructFromReferencedAssembly>), nameof(TypeFromReferencedAssembly<StructFromReferencedAssembly>.PointerField)));
+        Call(MethodRef.Method(typeof(FieldRefTestCases), nameof(ConsumePointer)));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    private static void ConsumePointer(void* value)
+    {
+        // This could probably have been replaced by a pop, but having a noinline method
+        // makes sure the JIT won't be able to optimize away reading the unused field value
     }
 }
 

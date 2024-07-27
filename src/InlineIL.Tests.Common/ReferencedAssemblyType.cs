@@ -4,6 +4,7 @@ public unsafe class TypeFromReferencedAssembly
 {
     public readonly StructFromReferencedAssembly FieldWithTypeFromThisAssembly = default;
     public readonly StructFromReferencedAssembly* PointerField = default;
+    public readonly TypeFromReferencedAssembly<StructFromReferencedAssembly> GenericTypeField = new();
 }
 
 public unsafe class TypeFromReferencedAssembly<T>
