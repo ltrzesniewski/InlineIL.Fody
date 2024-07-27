@@ -18,7 +18,14 @@ public class FieldRefTests() : ClassTestsBase("FieldRefTestCases")
     }
 
     [Fact]
-    public void ShouldReferenceFieldInDifferentWays()
+    public void should_handle_fields_with_types_from_referenced_assemblies()
+    {
+        var instance = GetUnverifiableInstance();
+        instance.ReadFieldFromReferencedAssemblyType();
+    }
+
+    [Fact]
+    public void should_reference_field_in_different_ways()
     {
         var result = (int[])GetInstance().ReturnStaticIntFieldInDifferentWays();
         result.ShouldAll(i => i == result[0]);
