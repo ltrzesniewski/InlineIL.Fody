@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
-using InlineIL.Tests.AssemblyToProcess;
 using InlineIL.Tests.Support;
+using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using InlineIL.Tests.Weaving;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Xunit.Abstractions;
+using FieldRefTestCases = InlineIL.Tests.UnverifiableAssemblyToProcess.FieldRefTestCases;
 
 namespace InlineIL.Tests.Debug;
 
@@ -26,9 +27,9 @@ public class DebugTests
     [DebugTest]
     public void SingleMethod()
     {
-        var assembly = typeof(AssemblyToProcessReference).Assembly;
-        var type = typeof(MethodRefTestCases);
-        var methodName = nameof(MethodRefTestCases.CallConversionOperators);
+        var assembly = typeof(UnverifiableAssemblyToProcessReference).Assembly;
+        var type = typeof(FieldRefTestCases);
+        var methodName = nameof(FieldRefTestCases.ReadGenericTypeFieldFromReferencedAssemblyType_2);
 
         using var assemblyResolver = WeaverRunner.CreateAssemblyResolver(assembly);
         var readerParams = new ReaderParameters { AssemblyResolver = assemblyResolver };
@@ -40,6 +41,8 @@ public class DebugTests
         var methodDef = typeDef.Methods.Single(i => i.Name == methodName);
 
         new MethodWeaver(weavingContext, methodDef, NoOpLogger.Instance).Process();
+
+        module.Write(Stream.Null); // Ensure there's no error thrown by Cecil when writing the module
     }
 
     [DebugTest]

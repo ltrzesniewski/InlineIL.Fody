@@ -46,6 +46,13 @@ public class FieldRefTests() : ClassTestsBase("FieldRefTestCases")
     }
 
     [Fact]
+    public void should_handle_generic_type_fields_from_referenced_assemblies_2()
+    {
+        var instance = GetUnverifiableInstance();
+        instance.ReadGenericTypeFieldFromReferencedAssemblyType_2();
+    }
+
+    [Fact]
     public void should_reference_field_in_different_ways()
     {
         var result = (int[])GetInstance().ReturnStaticIntFieldInDifferentWays();

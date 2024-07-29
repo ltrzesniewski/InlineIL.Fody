@@ -51,12 +51,27 @@ public unsafe class FieldRefTestCases
         Call(MethodRef.Method(typeof(FieldRefTestCases), nameof(ConsumePointer)));
     }
 
+    public void ReadGenericTypeFieldFromReferencedAssemblyType_2()
+    {
+        IL.Push(new TypeFromReferencedAssembly());
+        Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly), nameof(TypeFromReferencedAssembly.GenericTypeField)));
+        Ldfld(FieldRef.Field(typeof(TypeFromReferencedAssembly<StructFromReferencedAssembly>), nameof(TypeFromReferencedAssembly<StructFromReferencedAssembly>.FieldOfT)));
+        Call(MethodRef.Method(typeof(FieldRefTestCases), nameof(Consume)).MakeGenericMethod(typeof(StructFromReferencedAssembly)));
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    private static void Consume<T>(T value)
+    {
+        // This could probably have been replaced by a pop, but having a noinline method
+        // makes sure the JIT won't be able to optimize away reading the unused field value
+    }
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private static void ConsumePointer(void* value)
     {
-        // This could probably have been replaced by a pop, but having a noinline method
-        // makes sure the JIT won't be able to optimize away reading the unused field value
+        // Same as above
     }
 }
 

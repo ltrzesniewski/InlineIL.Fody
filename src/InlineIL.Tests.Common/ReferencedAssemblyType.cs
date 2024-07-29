@@ -10,8 +10,10 @@ public unsafe class TypeFromReferencedAssembly
 public unsafe class TypeFromReferencedAssembly<T>
     where T : unmanaged
 {
+    public readonly T FieldOfT = default;
     public readonly T* PointerField = default;
 }
 
 public struct StructFromReferencedAssembly;
+
 public struct OtherStructFromReferencedAssembly;
