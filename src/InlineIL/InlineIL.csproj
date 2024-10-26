@@ -22,6 +22,12 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <!-- The netstandard1.1 target is obsolete and causes issues -->
+    <NuGetAuditMode>direct</NuGetAuditMode>
+    <NoWarn Condition="'$(TargetFramework)' == 'netstandard1.1'">$(NoWarn);NETSDK1215</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <MonoCecilPath>$(PkgFody)\netclassictask\Mono.Cecil.dll</MonoCecilPath>
   </PropertyGroup>
 
