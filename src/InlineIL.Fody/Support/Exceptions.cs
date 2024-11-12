@@ -1,7 +1,6 @@
 ﻿using Fody;
 using Mono.Cecil.Cil;
 
-// ReSharper disable once RedundantDisableWarningComment
 #pragma warning disable CA1032
 
 namespace InlineIL.Fody.Support;
