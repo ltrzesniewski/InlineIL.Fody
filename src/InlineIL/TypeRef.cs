@@ -47,6 +47,9 @@ public sealed class TypeRef
     /// </summary>
     /// <typeparam name="T">The type to reference.</typeparam>
     public static TypeRef Type<T>()
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => throw IL.Throw();
 
     /// <summary>

@@ -42,6 +42,14 @@ public class TypeRefTestCases
         return IL.Return<RuntimeTypeHandle>();
     }
 
+#if NET9_0_OR_GREATER && CSHARP_13_OR_GREATER
+    public RuntimeTypeHandle ReturnTypeHandleGenericRefStruct()
+    {
+        Ldtoken<RefStruct>();
+        return IL.Return<RuntimeTypeHandle>();
+    }
+#endif
+
     public bool IsString(object obj)
     {
         Ldarg(nameof(obj));
@@ -214,6 +222,11 @@ public class TypeRefTestCases
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     private class NestedType
+    {
+    }
+
+    [SuppressMessage("ReSharper", "UnusedType.Local")]
+    private ref struct RefStruct
     {
     }
 }

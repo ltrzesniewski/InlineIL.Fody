@@ -59,6 +59,9 @@ public static unsafe partial class IL
     /// <typeparam name="T">The type of the value to push.</typeparam>
     /// <param name="value">The value to push.</param>
     public static void Push<T>(T? value)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => Throw();
 
     /// <summary>
@@ -67,6 +70,9 @@ public static unsafe partial class IL
     /// <typeparam name="T">The reference target type.</typeparam>
     /// <param name="value">The reference to push.</param>
     public static void Push<T>(ref T? value)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => Throw();
 
     /// <summary>
@@ -82,6 +88,9 @@ public static unsafe partial class IL
     /// <typeparam name="T">The reference target type.</typeparam>
     /// <param name="value">The reference to push.</param>
     public static void PushInRef<T>(ref readonly T? value)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => Throw();
 
     /// <summary>
@@ -90,6 +99,9 @@ public static unsafe partial class IL
     /// <typeparam name="T">The reference target type.</typeparam>
     /// <param name="value">The reference to push.</param>
     public static void PushOutRef<T>(out T value)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => throw Throw();
 
     /// <summary>
@@ -98,6 +110,9 @@ public static unsafe partial class IL
     /// <typeparam name="T">The type of the value to pop.</typeparam>
     /// <param name="value">A reference to a local variable receiving the value.</param>
     public static void Pop<T>(out T value)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => throw Throw();
 
     /// <summary>
@@ -106,7 +121,11 @@ public static unsafe partial class IL
     /// <typeparam name="T">The type of the pointer to pop.</typeparam>
     /// <param name="value">A reference to a local variable receiving the pointer.</param>
     public static void Pop<T>(out T* value)
+#if NET9_0_OR_GREATER
+        where T : unmanaged, allows ref struct
+#else
         where T : unmanaged
+#endif
         => throw Throw();
 
     /// <summary>
@@ -137,6 +156,9 @@ public static unsafe partial class IL
     /// <typeparam name="T">The returned value type.</typeparam>
     /// <returns>The value on top of the evaluation stack, which should be immediately returned from the method.</returns>
     public static T Return<T>()
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => throw Throw();
 
     /// <summary>
@@ -149,6 +171,9 @@ public static unsafe partial class IL
     /// <typeparam name="T">The returned reference type.</typeparam>
     /// <returns>The reference on top of the evaluation stack, which should be immediately returned from the method.</returns>
     public static ref T ReturnRef<T>()
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => throw Throw();
 
     /// <summary>
@@ -161,7 +186,11 @@ public static unsafe partial class IL
     /// <typeparam name="T">The returned pointer type.</typeparam>
     /// <returns>The pointer on top of the evaluation stack, which should be immediately returned from the method.</returns>
     public static T* ReturnPointer<T>()
+#if NET9_0_OR_GREATER
+        where T : unmanaged, allows ref struct
+#else
         where T : unmanaged
+#endif
         => throw Throw();
 
     /// <summary>
@@ -184,6 +213,9 @@ public static unsafe partial class IL
     /// <param name="value">A non-ref local variable.</param>
     /// <typeparam name="T">The type of the local variable.</typeparam>
     public static void EnsureLocal<T>(in T? value)
+#if NET9_0_OR_GREATER
+        where T : allows ref struct
+#endif
         => throw Throw();
 
     internal static Exception Throw()

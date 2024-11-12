@@ -13,7 +13,9 @@ using Xunit;
 
 namespace InlineIL.Tests.Weaving;
 
-public class BasicTests() : ClassTestsBase("BasicTestCases")
+public abstract class BasicTestsBase() : ClassTestsBase("BasicTestCases");
+
+public class BasicTests : BasicTestsBase
 {
     [Fact]
     public void should_push_value()
@@ -520,6 +522,22 @@ public class BasicTests() : ClassTestsBase("BasicTestCases")
         ShouldHaveError("InvalidEnsureLocalUsage3").ShouldContain("expected a non-ref local variable");
     }
 }
+
+#if NET
+[UsedImplicitly]
+public class BasicTestsCore : BasicTestsBase
+{
+#if CSHARP_13_OR_GREATER
+    [Fact]
+    public void should_push_and_pop_ref_struct()
+    {
+        var result = (int)GetInstance().PushAndPopRefStruct();
+
+        result.ShouldEqual(42);
+    }
+#endif
+}
+#endif
 
 [UsedImplicitly]
 public class BasicTestsStandard : BasicTests

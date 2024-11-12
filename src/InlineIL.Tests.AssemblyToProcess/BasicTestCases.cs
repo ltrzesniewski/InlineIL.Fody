@@ -299,6 +299,22 @@ public class BasicTestCases : IBasicTestCases
         Call(new MethodRef(typeof(BasicTestCases), nameof(ValidatePushUsageWithEnsureLocal)));
     }
 
+#if NET9_0_OR_GREATER && CSHARP_13_OR_GREATER
+    public int PushAndPopRefStruct()
+    {
+        var input = new RefStruct
+        {
+            Value = 42
+        };
+
+        IL.Push(input);
+        input.Value = 0;
+
+        IL.Pop(out RefStruct output);
+        return output.Value;
+    }
+#endif
+
     private static void ValidatePushUsageWithEnsureLocal(int value, Guid guid)
     {
         if (value != 42 || guid == Guid.Empty)
@@ -317,5 +333,13 @@ public class BasicTestCases : IBasicTestCases
                 return IL.Return<int>();
             }
         }
+    }
+
+    [SuppressMessage("ReSharper", "UnusedType.Local")]
+    private ref struct RefStruct
+    {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+        public int Value;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 }

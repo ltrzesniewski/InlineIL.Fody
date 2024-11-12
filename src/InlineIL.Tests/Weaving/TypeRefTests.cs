@@ -456,6 +456,15 @@ public class TypeRefTestsCore : TypeRefTestsBase
         var assemblyName = typeRef.Scope.ShouldBe<AssemblyNameReference>();
         assemblyName.Name.ShouldEqual("System.Runtime.Extensions");
     }
+
+#if CSHARP_13_OR_GREATER
+    [Fact]
+    public void should_handle_type_token_load_generic_ref_struct()
+    {
+        var handle = (RuntimeTypeHandle)GetInstance().ReturnTypeHandleGenericRefStruct();
+        Type.GetTypeFromHandle(handle).ShouldNotBeNull().FullName.ShouldEqual($"{_verifiableAssembly}.TypeRefTestCases+RefStruct");
+    }
+#endif
 }
 #endif
 

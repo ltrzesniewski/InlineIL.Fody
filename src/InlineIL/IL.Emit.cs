@@ -1142,6 +1142,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Cpobj<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1162,6 +1165,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Ldobj<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1202,6 +1208,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Castclass<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1222,6 +1231,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Isinst<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1251,6 +1263,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Unbox<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1340,6 +1355,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Stobj<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1450,6 +1468,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Box<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1470,6 +1491,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Newarr<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1499,6 +1523,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Ldelema<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1690,6 +1717,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Ldelem_Any<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1710,6 +1740,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Stelem_Any<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1730,6 +1763,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Unbox_Any<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1822,6 +1858,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Refanyval<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1851,6 +1890,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Mkrefany<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -1871,6 +1913,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Ldtoken<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -2297,6 +2342,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Initobj<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -2317,6 +2365,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Constrained<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>
@@ -2364,6 +2415,9 @@ partial class IL
         /// </remarks>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void Sizeof<T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <summary>

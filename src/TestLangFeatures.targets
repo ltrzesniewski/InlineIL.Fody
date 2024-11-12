@@ -4,6 +4,7 @@
     <TestAssembliesLangVersion Condition="'$(TestAssembliesLangVersion)' == ''">10</TestAssembliesLangVersion>
 
     <DefineConstants Condition="$(TestAssembliesLangVersion) &gt;= 12">$(DefineConstants);CSHARP_12_OR_GREATER</DefineConstants>
+    <DefineConstants Condition="$(TestAssembliesLangVersion) &gt;= 13">$(DefineConstants);CSHARP_13_OR_GREATER</DefineConstants>
   </PropertyGroup>
 
 </Project>

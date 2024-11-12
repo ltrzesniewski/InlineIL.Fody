@@ -14,14 +14,14 @@
     var cecilCodes = typeof(OpCodes)
         .GetFields(BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsInitOnly && field.FieldType == typeof(OpCode))
-        .Select(field => (fieldName: field.Name, opCode: (OpCode)field.GetValue(null)))
+        .Select(field => new { fieldName = field.Name, opCode = (OpCode)field.GetValue(null) })
         .OrderBy(i => unchecked((ushort)i.opCode.Value))
         .ToList();
 
     var reflectionEmitCodes = typeof(System.Reflection.Emit.OpCodes)
         .GetFields(BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsInitOnly && field.FieldType == typeof(System.Reflection.Emit.OpCode))
-        .Select(field => (fieldName: field.Name, opCode: (System.Reflection.Emit.OpCode)field.GetValue(null)))
+        .Select(field => new { fieldName = field.Name, opCode = (System.Reflection.Emit.OpCode)field.GetValue(null) })
         .ToDictionary(i => i.opCode.Value);
 
     var xmlDocs = XDocument.Load(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Reference Assemblies\Microsoft\Framework\.NETFramework\v4.X\mscorlib.xml"))!
@@ -268,6 +268,9 @@ partial class IL
         /// <#= xmlDoc #>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void <#= item.fieldName #><T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 <#
                 break;
@@ -300,6 +303,9 @@ partial class IL
         /// <#= xmlDoc #>
         /// <typeparam name="T">The type reference.</typeparam>
         public static void <#= item.fieldName #><T>()
+#if NET9_0_OR_GREATER
+            where T : allows ref struct
+#endif
             => IL.Throw();
 
         /// <#= xmlDoc #>
