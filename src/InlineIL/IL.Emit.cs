@@ -114,7 +114,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc.0</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 0.
+        /// <c>stloc.0</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at index 0.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>
@@ -123,7 +123,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc.1</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 1.
+        /// <c>stloc.1</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at index 1.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>
@@ -132,7 +132,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc.2</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 2.
+        /// <c>stloc.2</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at index 2.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>
@@ -141,7 +141,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc.3</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 3.
+        /// <c>stloc.3</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at index 3.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>
@@ -250,7 +250,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
+        /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at index (short form).
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>
@@ -260,7 +260,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
+        /// <c>stloc.s</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at index (short form).
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>
@@ -845,7 +845,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stind.ref</c> - Stores a object reference value at a supplied address.
+        /// <c>stind.ref</c> - Stores an object reference value at a supplied address.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., I, I -&gt; ...</para>
@@ -1841,7 +1841,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>refanyval</c> - Retrieves the address (type &amp;) embedded in a typed reference.
+        /// <c>refanyval</c> - Retrieves the address &#x0028;type &amp;&#x0029; embedded in a typed reference.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ..., I</para>
@@ -1851,7 +1851,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>refanyval</c> - Retrieves the address (type &amp;) embedded in a typed reference.
+        /// <c>refanyval</c> - Retrieves the address &#x0028;type &amp;&#x0029; embedded in a typed reference.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ..., I</para>
@@ -2259,7 +2259,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at a specified index.
+        /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at a specified index.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>
@@ -2269,7 +2269,7 @@ partial class IL
             => IL.Throw();
 
         /// <summary>
-        /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in a the local variable list at a specified index.
+        /// <c>stloc</c> - Pops the current value from the top of the evaluation stack and stores it in the local variable list at a specified index.
         /// </summary>
         /// <remarks>
         /// <para>Stack Transition: ..., value -&gt; ...</para>

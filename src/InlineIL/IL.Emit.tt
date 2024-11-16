@@ -30,7 +30,15 @@
         .Elements("member")
         .ToDictionary(elem => elem.Attribute("name")!.Value, elem => elem);
 
-    static string EscapeXml(string value) => value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+    static string EscapeXml(string value)
+        => value.Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
+
+    static string FixTypos(string value)
+        => value.Replace(" a the ", " the ")
+                .Replace(" a object ", " an object ")
+                .Replace("(type &amp;)", "&#x0028;type &amp;&#x0029;");
 
     string GetInstructionXmlDoc(OpCode opCode)
     {
@@ -40,7 +48,7 @@
         var sb = new StringBuilder();
         sb.AppendLine("<summary>");
         sb.Append("<c>").Append(opCode.Name).Append("</c> - ");
-        AppendXmlDoc(sb, "F:System.Reflection.Emit.OpCodes." + reflectionEmitCode.fieldName);
+        AppendXmlDoc(sb, $"F:System.Reflection.Emit.OpCodes.{reflectionEmitCode.fieldName}");
         TrimEnd(sb);
         sb.AppendLine();
         sb.AppendLine("</summary>");
@@ -53,7 +61,7 @@
         );
         sb.AppendLine("</remarks>");
 
-        return sb.ToString();
+        return FixTypos(sb.ToString());
     }
 
     void AppendXmlDoc(StringBuilder sb, string elementId)
@@ -99,10 +107,10 @@
 
     static string GetStackTransition(OpCode opCode)
     {
-        if (opCode.StackBehaviourPop == StackBehaviour.Pop0 && opCode.StackBehaviourPush == StackBehaviour.Push0)
+        if (opCode is { StackBehaviourPop: StackBehaviour.Pop0, StackBehaviourPush: StackBehaviour.Push0 })
             return "none";
 
-        if (opCode.StackBehaviourPop == StackBehaviour.PopAll && opCode.StackBehaviourPush == StackBehaviour.Push0)
+        if (opCode is { StackBehaviourPop: StackBehaviour.PopAll, StackBehaviourPush: StackBehaviour.Push0 })
             return "clears the stack";
 
         var pop = GetStackBehaviour(opCode, opCode.StackBehaviourPop);
