@@ -37,7 +37,7 @@ internal class WeaverILProcessor
         UpdateReferences(instruction, newRef);
     }
 
-    public void Remove(params Instruction[] instructions)
+    public void Remove(params IEnumerable<Instruction> instructions)
     {
         foreach (var instruction in instructions)
             Remove(instruction);
@@ -129,7 +129,7 @@ internal class WeaverILProcessor
             throw new InstructionWeavingException(instruction, "An unconditional expression was expected.");
     }
 
-    public bool TryMergeBasicBlocks(Instruction sourceBasicBlock, params Instruction[] basicBlocksToUpdate)
+    public bool TryMergeBasicBlocks(Instruction sourceBasicBlock, params IEnumerable<Instruction> basicBlocksToUpdate)
     {
         var sourceBlock = GetBasicBlock(sourceBasicBlock);
         var targetBlocks = basicBlocksToUpdate.Select(GetBasicBlock).ToHashSet();

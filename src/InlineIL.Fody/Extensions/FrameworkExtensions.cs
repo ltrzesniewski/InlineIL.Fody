@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace InlineIL.Fody.Extensions;
 
@@ -30,14 +29,11 @@ internal static class FrameworkExtensions
         return value;
     }
 
-    public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> items)
+    public static void AddRange<T>(this ICollection<T> collection, params IEnumerable<T> items)
     {
         foreach (var item in items)
             collection.Add(item);
     }
-
-    public static void AddRange<T>(this ICollection<T> collection, params T[] items)
-        => AddRange(collection, items.AsEnumerable());
 
     public static int IndexOfFirst<T>(this IEnumerable<T> items, Func<T, bool> predicate)
     {

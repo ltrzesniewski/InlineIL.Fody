@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using InlineIL.Fody.Model;
 using InlineIL.Fody.Processing;
 using InlineIL.Tests.Support;
@@ -49,7 +50,7 @@ public class MethodLocalsTests : IDisposable
         _logger.LoggedWarnings.ShouldBeEmpty();
     }
 
-    private MethodLocals CreateLocals(params LocalVarBuilder[] localVarBuilders)
+    private MethodLocals CreateLocals(params IEnumerable<LocalVarBuilder> localVarBuilders)
     {
         var methodLocals = new MethodLocals(new MethodDefinition("test", default, _module.TypeSystem.Void), _logger);
         methodLocals.DeclareLocals(localVarBuilders, null);
