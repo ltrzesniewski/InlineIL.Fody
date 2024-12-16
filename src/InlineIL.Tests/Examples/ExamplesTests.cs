@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if NET
+
+using System;
 using InlineIL.Examples;
 using Xunit;
 
@@ -33,3 +35,5 @@ public class ExamplesTests
         DebugInfoExamples.LocalVariables();
     }
 }
+
+#endif
