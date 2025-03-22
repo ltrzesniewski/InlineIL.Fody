@@ -122,9 +122,7 @@ public static unsafe partial class IL
     /// <param name="value">A reference to a local variable receiving the pointer.</param>
     public static void Pop<T>(out T* value)
 #if NET9_0_OR_GREATER
-        where T : unmanaged, allows ref struct
-#else
-        where T : unmanaged
+        where T : allows ref struct
 #endif
         => throw Throw();
 
@@ -187,9 +185,7 @@ public static unsafe partial class IL
     /// <returns>The pointer on top of the evaluation stack, which should be immediately returned from the method.</returns>
     public static T* ReturnPointer<T>()
 #if NET9_0_OR_GREATER
-        where T : unmanaged, allows ref struct
-#else
-        where T : unmanaged
+        where T : allows ref struct
 #endif
         => throw Throw();
 
