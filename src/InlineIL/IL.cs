@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
+#pragma warning disable CS8500
+
 namespace InlineIL;
 
 /// <summary>

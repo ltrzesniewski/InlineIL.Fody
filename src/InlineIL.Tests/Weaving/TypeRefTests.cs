@@ -9,8 +9,6 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Xunit;
 
-#pragma warning disable 618
-
 namespace InlineIL.Tests.Weaving;
 
 public abstract class TypeRefTestsBase() : ClassTestsBase("TypeRefTestCases");

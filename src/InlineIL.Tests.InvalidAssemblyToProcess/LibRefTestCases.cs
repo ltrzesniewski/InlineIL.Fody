@@ -138,10 +138,10 @@ public class LibRefTestCases
 
     public class EventAttr
     {
-#pragma warning disable 67
         [SomeAttribute(typeof(TypeRef))]
+#pragma warning disable CS0067
         public event Action? Item;
-#pragma warning restore 67
+#pragma warning restore CS0067
     }
 
     public class FieldType
@@ -156,9 +156,9 @@ public class LibRefTestCases
 
     public class EventType
     {
-#pragma warning disable 67
+#pragma warning disable CS0067
         public static event Action<TypeRef>? Item;
-#pragma warning restore 67
+#pragma warning restore CS0067
     }
 
     public class BaseType : Foo<TypeRef>

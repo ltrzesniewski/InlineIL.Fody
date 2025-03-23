@@ -476,11 +476,7 @@ internal static partial class CecilExtensions
     }
 
     public static IMetadataScope? GetCoreLibrary(this ModuleDefinition module)
-    {
-#pragma warning disable 618
-        return module.TypeSystem.CoreLibrary;
-#pragma warning restore 618
-    }
+        => module.TypeSystem.CoreLibrary;
 
     public static bool IsDebugBuild(this ModuleDefinition module)
     {

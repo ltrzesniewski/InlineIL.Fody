@@ -4,8 +4,6 @@ using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 using Mono.Cecil;
 
-#pragma warning disable 618
-
 namespace InlineIL.Tests.Weaving;
 
 public static class InvalidAssemblyToProcessFixture

@@ -338,8 +338,8 @@ public class BasicTestCases : IBasicTestCases
     [SuppressMessage("ReSharper", "UnusedType.Local")]
     private ref struct RefStruct
     {
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+#pragma warning disable CS0649
         public int Value;
-#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
+#pragma warning restore CS0649
     }
 }

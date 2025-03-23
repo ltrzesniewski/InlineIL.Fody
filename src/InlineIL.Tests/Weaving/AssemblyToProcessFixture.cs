@@ -6,8 +6,6 @@ using InlineIL.Tests.AssemblyToProcess;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-#pragma warning disable 618
-
 namespace InlineIL.Tests.Weaving;
 
 public static class AssemblyToProcessFixture

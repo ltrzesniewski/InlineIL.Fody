@@ -2,8 +2,6 @@
 using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using Mono.Cecil;
 
-#pragma warning disable 618
-
 namespace InlineIL.Tests.Weaving;
 
 public static class UnverifiableAssemblyToProcessFixture
