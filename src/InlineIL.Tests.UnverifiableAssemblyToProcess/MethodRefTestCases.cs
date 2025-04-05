@@ -10,6 +10,7 @@ namespace InlineIL.Tests.UnverifiableAssemblyToProcess;
 [SuppressMessage("ReSharper", "UnusedParameter.Local")]
 public unsafe class MethodRefTestCases
 {
+    [SuppressMessage("ReSharper", "UseArrayEmptyMethod")]
     public int[] ResolveOverloads()
     {
         var result = new int[7];

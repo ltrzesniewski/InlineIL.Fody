@@ -80,9 +80,10 @@ public class MethodRefTestCases : IMethodRefTestCases
         return result;
     }
 
+    [SuppressMessage("ReSharper", "UseArrayEmptyMethod")]
     public int[] ResolveOverloads()
     {
-        var result = new int[7];
+        var result = new int[8];
 
         IL.Push(result);
         Ldc_I4_0();
@@ -129,6 +130,17 @@ public class MethodRefTestCases : IMethodRefTestCases
         Ldc_I4(42);
         Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), typeof(double), typeof(int)));
         Stelem_I4();
+
+#if CSHARP_12_OR_GREATER
+        IL.Push(result);
+        Ldc_I4_7();
+        Ldc_R8(42.0);
+        Ldc_I4(42);
+        Call(new MethodRef(typeof(MethodRefTestCases), nameof(OverloadedMethod), [typeof(double), typeof(int)]));
+        Stelem_I4();
+#else
+        result[7] = OverloadedMethod(42.0, 42);
+#endif
 
         IL.Push(result);
         return IL.Return<int[]>();

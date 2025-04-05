@@ -38,7 +38,7 @@ public class MethodRefTests : MethodRefTestsBase
     public void should_resolve_overloads()
     {
         var result = (int[])GetInstance().ResolveOverloads();
-        result.ShouldEqual([10, 10, 20, 30, 40, 50, 60]);
+        result.ShouldEqual([10, 10, 20, 30, 40, 50, 60, 60]);
     }
 
     [Fact]
