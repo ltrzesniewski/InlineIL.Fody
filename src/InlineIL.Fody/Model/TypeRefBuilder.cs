@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using Mono.Cecil.Rocks;
 
 namespace InlineIL.Fody.Model;
 
+[SuppressMessage("ReSharper", "ConvertToPrimaryConstructor")]
 internal class TypeRefBuilder
 {
     private TypeRefResolver _resolver;
@@ -62,15 +64,9 @@ internal class TypeRefBuilder
         if (assembly == null)
             throw new WeavingException($"Could not resolve assembly '{assemblyName}'");
 
-        var declaredTypeRef = TryFindDeclaredType(assembly, typeName);
-        if (declaredTypeRef != null)
-            return declaredTypeRef;
-
-        var forwardedTypeRef = TryFindForwardedType(assembly, typeName, module);
-        if (forwardedTypeRef != null)
-            return forwardedTypeRef;
-
-        throw new WeavingException($"Could not find type '{typeName}' in assembly '{assemblyName}'");
+        return TryFindDeclaredType(assembly, typeName)
+               ?? TryFindForwardedType(assembly, typeName, module)
+               ?? throw new WeavingException($"Could not find type '{typeName}' in assembly '{assemblyName}'");
     }
 
     private static TypeReference? TryFindDeclaredType(AssemblyDefinition assembly, string typeName)
@@ -118,10 +114,9 @@ internal class TypeRefBuilder
         {
             foreach (var modifier in _modifiers)
             {
-                if (modifier.IsRequired)
-                    type = type.MakeRequiredModifierType(modifier.Type);
-                else
-                    type = type.MakeOptionalModifierType(modifier.Type);
+                type = modifier.IsRequired
+                    ? type.MakeRequiredModifierType(modifier.Type)
+                    : type.MakeOptionalModifierType(modifier.Type);
             }
         }
 
@@ -155,9 +150,12 @@ internal class TypeRefBuilder
     public override string ToString()
         => GetDisplayName();
 
-    private abstract class TypeRefResolver(ModuleWeavingContext context)
+    private abstract class TypeRefResolver
     {
-        public ModuleWeavingContext Context { get; } = context;
+        public ModuleWeavingContext Context { get; }
+
+        protected TypeRefResolver(ModuleWeavingContext context)
+            => Context = context;
 
         public abstract TypeReference Resolve();
         public abstract TypeReference? TryResolve(IGenericParameterProvider genericParameterProvider);
@@ -193,13 +191,20 @@ internal class TypeRefBuilder
             => _typeRef.FullName;
     }
 
-    private class InjectedTypeRefResolver(ModuleWeavingContext context, TypeDefinition typeDef)
-        : ConstantTypeRefResolver(context, typeDef)
+    private class InjectedTypeRefResolver : ConstantTypeRefResolver
     {
+        private readonly TypeDefinition _typeDef;
+
+        public InjectedTypeRefResolver(ModuleWeavingContext context, TypeDefinition typeDef)
+            : base(context, typeDef)
+        {
+            _typeDef = typeDef;
+        }
+
         public override TypeReference Resolve()
         {
             var typeRef = base.Resolve();
-            Context.InjectedAssemblyResolver.RegisterTypeDefinition(typeRef, typeDef);
+            Context.InjectedAssemblyResolver.RegisterTypeDefinition(typeRef, _typeDef);
             return typeRef;
         }
     }
@@ -254,20 +259,27 @@ internal class TypeRefBuilder
         }
     }
 
-    private abstract class TypeSpecTypeRefResolver(TypeRefResolver baseResolver)
-        : TypeRefResolver(baseResolver.Context)
+    private abstract class TypeSpecTypeRefResolver : TypeRefResolver
     {
+        private readonly TypeRefResolver _baseResolver;
+
+        protected TypeSpecTypeRefResolver(TypeRefResolver baseResolver)
+            : base(baseResolver.Context)
+        {
+            _baseResolver = baseResolver;
+        }
+
         protected abstract TypeReference WrapTypeRef(TypeReference typeRef);
 
         public sealed override TypeReference Resolve()
         {
-            var typeRef = baseResolver.Resolve();
+            var typeRef = _baseResolver.Resolve();
             return ResolveImpl(typeRef);
         }
 
         public sealed override TypeReference? TryResolve(IGenericParameterProvider genericParameterProvider)
         {
-            var typeRef = baseResolver.TryResolve(genericParameterProvider);
+            var typeRef = _baseResolver.TryResolve(genericParameterProvider);
             return typeRef != null ? ResolveImpl(typeRef) : null;
         }
 
@@ -281,7 +293,7 @@ internal class TypeRefBuilder
         }
 
         public sealed override string GetDisplayName()
-            => GetDisplayName(baseResolver.GetDisplayName());
+            => GetDisplayName(_baseResolver.GetDisplayName());
 
         protected abstract string GetDisplayName(string baseName);
     }
@@ -316,9 +328,13 @@ internal class TypeRefBuilder
         }
     }
 
-    private class ByRefTypeRefResolver(TypeRefResolver baseResolver)
-        : TypeSpecTypeRefResolver(baseResolver)
+    private class ByRefTypeRefResolver : TypeSpecTypeRefResolver
     {
+        public ByRefTypeRefResolver(TypeRefResolver baseResolver)
+            : base(baseResolver)
+        {
+        }
+
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {
             if (typeRef.IsByReference)
@@ -331,9 +347,13 @@ internal class TypeRefBuilder
             => baseName + "&";
     }
 
-    private class PointerTypeRefResolver(TypeRefResolver baseResolver)
-        : TypeSpecTypeRefResolver(baseResolver)
+    private class PointerTypeRefResolver : TypeSpecTypeRefResolver
     {
+        public PointerTypeRefResolver(TypeRefResolver baseResolver)
+            : base(baseResolver)
+        {
+        }
+
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {
             if (typeRef.IsByReference)

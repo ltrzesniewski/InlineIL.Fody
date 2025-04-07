@@ -1114,7 +1114,7 @@ public class MethodRefTestCases : IMethodRefTestCases
             => Value = value;
 
         public static implicit operator GenericOperatorsClass<T>(T c)
-            => new GenericOperatorsClass<T>(101);
+            => new(101);
 
         public static implicit operator T(GenericOperatorsClass<T> c)
         {
