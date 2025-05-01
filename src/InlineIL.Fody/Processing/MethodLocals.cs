@@ -118,10 +118,8 @@ internal class MethodLocals
             case Code.Ldloca_S:
             case Code.Stloc:
             case Code.Stloc_S:
-            {
                 result = GetLocalByIndex(index);
                 return true;
-            }
 
             default:
                 result = null;

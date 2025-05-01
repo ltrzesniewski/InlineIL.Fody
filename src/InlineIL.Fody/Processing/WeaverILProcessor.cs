@@ -7,6 +7,7 @@ using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using static Mono.Cecil.Cil.OperandType;
 
 namespace InlineIL.Fody.Processing;
 
@@ -346,81 +347,31 @@ internal class WeaverILProcessor
     {
         try
         {
-            switch (opCode.OperandType)
+            operand = opCode.OperandType switch
             {
-                case OperandType.InlineI:
-                    operand = Convert.ToInt32(operand, CultureInfo.InvariantCulture);
-                    break;
+                InlineI                                      => Convert.ToInt32(operand, CultureInfo.InvariantCulture),
+                InlineI8                                     => Convert.ToInt64(operand, CultureInfo.InvariantCulture),
+                InlineR                                      => Convert.ToDouble(operand, CultureInfo.InvariantCulture),
+                InlineVar or InlineArg                       => Convert.ToInt32(operand, CultureInfo.InvariantCulture), // It's an uint16 but Cecil expects int32
+                ShortInlineI when opCode == OpCodes.Ldc_I4_S => Convert.ToSByte(operand, CultureInfo.InvariantCulture),
+                ShortInlineI                                 => Convert.ToByte(operand, CultureInfo.InvariantCulture),
+                ShortInlineR                                 => Convert.ToSingle(operand, CultureInfo.InvariantCulture),
+                ShortInlineVar or ShortInlineArg             => Convert.ToByte(operand, CultureInfo.InvariantCulture),
+                _                                            => operand
+            };
 
-                case OperandType.InlineI8:
-                    operand = Convert.ToInt64(operand, CultureInfo.InvariantCulture);
-                    break;
-
-                case OperandType.InlineR:
-                    operand = Convert.ToDouble(operand, CultureInfo.InvariantCulture);
-                    break;
-
-                case OperandType.InlineVar:
-                case OperandType.InlineArg:
-                    // It's an uint16 but Cecil expects int32
-                    operand = Convert.ToInt32(operand, CultureInfo.InvariantCulture);
-                    break;
-
-                case OperandType.ShortInlineI:
-                    operand = opCode == OpCodes.Ldc_I4_S
-                        ? Convert.ToSByte(operand, CultureInfo.InvariantCulture)
-                        : Convert.ToByte(operand, CultureInfo.InvariantCulture);
-                    break;
-
-                case OperandType.ShortInlineR:
-                    operand = Convert.ToSingle(operand, CultureInfo.InvariantCulture);
-                    break;
-
-                case OperandType.ShortInlineVar:
-                case OperandType.ShortInlineArg:
-                    operand = Convert.ToByte(operand, CultureInfo.InvariantCulture);
-                    break;
-            }
-
-            switch (operand)
+            return operand switch
             {
-                case int value:
-                {
-                    if (_locals.MapIndexInstruction(opCode, value, out var localVar))
-                        return Create(opCode, localVar);
-
-                    return _il.Create(opCode, value);
-                }
-
-                case byte value:
-                {
-                    if (_locals.MapIndexInstruction(opCode, value, out var localVar))
-                        return Create(opCode, localVar);
-
-                    return _il.Create(opCode, value);
-                }
-
-                case sbyte value:
-                    return _il.Create(opCode, value);
-
-                case long value:
-                    return _il.Create(opCode, value);
-
-                case double value:
-                    return _il.Create(opCode, value);
-
-                case short value:
-                    return _il.Create(opCode, value);
-
-                case float value:
-                    return _il.Create(opCode, value);
-
-                case string value:
-                    return _il.Create(opCode, value);
-
-                default:
-                    throw new WeavingException($"Unexpected operand for instruction {opCode}: {operand}");
-            }
+                int value    => _locals.MapIndexInstruction(opCode, value, out var localVar) ? Create(opCode, localVar) : _il.Create(opCode, value),
+                byte value   => _locals.MapIndexInstruction(opCode, value, out var localVar) ? Create(opCode, localVar) : _il.Create(opCode, value),
+                sbyte value  => _il.Create(opCode, value),
+                long value   => _il.Create(opCode, value),
+                double value => _il.Create(opCode, value),
+                short value  => _il.Create(opCode, value),
+                float value  => _il.Create(opCode, value),
+                string value => _il.Create(opCode, value),
+                _            => throw new WeavingException($"Unexpected operand for instruction {opCode}: {operand}")
+            };
         }
         catch (ArgumentException)
         {
@@ -430,55 +381,25 @@ internal class WeaverILProcessor
 
     private static WeavingException ExceptionInvalidOperand(OpCode opCode)
     {
-        switch (opCode.OperandType)
+        return opCode.OperandType switch
         {
-            case OperandType.InlineNone:
-                return new WeavingException($"Opcode {opCode} does not expect an operand");
+            InlineNone                            => new WeavingException($"Opcode {opCode} does not expect an operand"),
+            InlineString                          => Expected(nameof(String)),
+            InlineI or ShortInlineI               => Expected(nameof(Int32)),
+            InlineR or ShortInlineR               => Expected(nameof(Double)),
+            InlineI8                              => Expected(nameof(Int64)),
+            InlineType                            => Expected($"{KnownNames.Short.TypeRefType} or {nameof(Type)}"),
+            InlineMethod                          => Expected(KnownNames.Short.MethodRefType),
+            InlineField                           => Expected(KnownNames.Short.FieldRefType),
+            InlineSig                             => Expected(KnownNames.Short.StandAloneMethodSigType),
+            InlineArg or ShortInlineArg           => Expected("parameter name or index"), // Name mapping is handled elsewhere
+            InlineVar or ShortInlineVar           => Expected("local variable name or index"), // Name mapping is handled elsewhere
+            InlineBrTarget or ShortInlineBrTarget => Expected("label name"),
+            InlineSwitch                          => Expected("array of label names"),
+            _                                     => Expected(opCode.OperandType.ToString())
+        };
 
-            case OperandType.InlineBrTarget:
-            case OperandType.ShortInlineBrTarget:
-                return ExpectedOperand("label name");
-
-            case OperandType.InlineField:
-                return ExpectedOperand(KnownNames.Short.FieldRefType);
-
-            case OperandType.InlineI:
-            case OperandType.ShortInlineI:
-            case OperandType.InlineArg:
-            case OperandType.ShortInlineArg:
-                return ExpectedOperand(nameof(Int32));
-
-            case OperandType.InlineI8:
-                return ExpectedOperand(nameof(Int64));
-
-            case OperandType.InlineMethod:
-                return ExpectedOperand(KnownNames.Short.MethodRefType);
-
-            case OperandType.InlineR:
-            case OperandType.ShortInlineR:
-                return ExpectedOperand(nameof(Double));
-
-            case OperandType.InlineSig:
-                return ExpectedOperand(KnownNames.Short.StandAloneMethodSigType);
-
-            case OperandType.InlineString:
-                return ExpectedOperand(nameof(String));
-
-            case OperandType.InlineSwitch:
-                return ExpectedOperand("array of label names");
-
-            case OperandType.InlineType:
-                return ExpectedOperand($"{KnownNames.Short.TypeRefType} or {nameof(Type)}");
-
-            case OperandType.InlineVar:
-            case OperandType.ShortInlineVar:
-                return ExpectedOperand("local variable name or index");
-
-            default:
-                return ExpectedOperand(opCode.OperandType.ToString());
-        }
-
-        WeavingException ExpectedOperand(string expected)
+        WeavingException Expected(string expected)
             => new($"Opcode {opCode} expects an operand of type {expected}");
     }
 }
