@@ -407,24 +407,37 @@ internal class MethodWeaver
                 case OperandType.InlineI8:
                 case OperandType.InlineR:
                 case OperandType.ShortInlineR:
-                    return _il.CreateConst(opCode, _consumer.ConsumeArgConst(args.Single()));
+                {
+                    var value = _consumer.ConsumeArgConst(args[0]);
+                    return _il.CreateConst(opCode, value);
+                }
 
                 case OperandType.InlineString:
-                    return _il.CreateConst(opCode, _consumer.ConsumeArgString(args.Single()));
+                {
+                    var value = _consumer.ConsumeArgString(args[0]);
+                    return _il.CreateConst(opCode, value);
+                }
 
                 case OperandType.InlineType:
                 {
                     if (method.IsGenericInstance)
                         return _il.Create(opCode, ((GenericInstanceMethod)method).GenericArguments[0]);
 
-                    return _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single()));
+                    var typeRef = _consumer.ConsumeArgTypeRef(args[0]);
+                    return _il.Create(opCode, typeRef);
                 }
 
                 case OperandType.InlineMethod:
-                    return _il.Create(opCode, _consumer.ConsumeArgMethodRef(args.Single()));
+                {
+                    var methodRef = _consumer.ConsumeArgMethodRef(args[0]);
+                    return _il.Create(opCode, methodRef);
+                }
 
                 case OperandType.InlineField:
-                    return _il.Create(opCode, _consumer.ConsumeArgFieldRef(args.Single()));
+                {
+                    var fieldRef = _consumer.ConsumeArgFieldRef(args[0]);
+                    return _il.Create(opCode, fieldRef);
+                }
 
                 case OperandType.InlineTok:
                 {
@@ -433,9 +446,9 @@ internal class MethodWeaver
 
                     return method.Parameters[0].ParameterType.FullName switch
                     {
-                        KnownNames.Full.TypeRefType   => _il.Create(opCode, _consumer.ConsumeArgTypeRef(args.Single())),
-                        KnownNames.Full.MethodRefType => _il.Create(opCode, _consumer.ConsumeArgMethodRef(args.Single())),
-                        KnownNames.Full.FieldRefType  => _il.Create(opCode, _consumer.ConsumeArgFieldRef(args.Single())),
+                        KnownNames.Full.TypeRefType   => _il.Create(opCode, _consumer.ConsumeArgTypeRef(args[0])),
+                        KnownNames.Full.MethodRefType => _il.Create(opCode, _consumer.ConsumeArgMethodRef(args[0])),
+                        KnownNames.Full.FieldRefType  => _il.Create(opCode, _consumer.ConsumeArgFieldRef(args[0])),
                         _                             => throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}")
                     };
                 }
@@ -443,13 +456,13 @@ internal class MethodWeaver
                 case OperandType.InlineBrTarget:
                 case OperandType.ShortInlineBrTarget:
                 {
-                    var labelName = _consumer.ConsumeArgString(args.Single());
+                    var labelName = _consumer.ConsumeArgString(args[0]);
                     return _labels.CreateBranchInstruction(opCode, labelName);
                 }
 
                 case OperandType.InlineSwitch:
                 {
-                    var labelNames = _consumer.ConsumeArgArray(args.Single(), _consumer.ConsumeArgString).ToList();
+                    var labelNames = _consumer.ConsumeArgArray(args[0], _consumer.ConsumeArgString).ToList();
                     return _labels.CreateSwitchInstruction(labelNames);
                 }
 
@@ -459,12 +472,17 @@ internal class MethodWeaver
                     switch (method.Parameters[0].ParameterType.FullName)
                     {
                         case "System.String":
-                            var localName = _consumer.ConsumeArgString(args.Single());
+                        {
+                            var localName = _consumer.ConsumeArgString(args[0]);
                             return _il.Create(opCode, _locals.GetLocalByName(localName));
+                        }
 
                         case "System.Byte":
                         case "System.UInt16":
-                            return _il.CreateConst(opCode, _consumer.ConsumeArgConst(args.Single()));
+                        {
+                            var index = _consumer.ConsumeArgConst(args[0]);
+                            return _il.CreateConst(opCode, index);
+                        }
 
                         default:
                             throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}");
@@ -477,11 +495,17 @@ internal class MethodWeaver
                     switch (method.Parameters[0].ParameterType.FullName)
                     {
                         case "System.String":
-                            return _il.CreateConst(opCode, _consumer.ConsumeArgParamName(args.Single()));
+                        {
+                            var paramName = _consumer.ConsumeArgParamName(args[0]);
+                            return _il.CreateConst(opCode, paramName);
+                        }
 
                         case "System.Byte":
                         case "System.UInt16":
-                            return _il.CreateConst(opCode, _consumer.ConsumeArgConst(args.Single()));
+                        {
+                            var index = _consumer.ConsumeArgConst(args[0]);
+                            return _il.CreateConst(opCode, index);
+                        }
 
                         default:
                             throw new InstructionWeavingException(emitCallInstruction, $"Unexpected argument type: {method.Parameters[0].ParameterType.FullName}");
@@ -489,7 +513,10 @@ internal class MethodWeaver
                 }
 
                 case OperandType.InlineSig:
-                    return _il.Create(opCode, _consumer.ConsumeArgCallSite(args.Single()));
+                {
+                    var callSite = _consumer.ConsumeArgCallSite(args[0]);
+                    return _il.Create(opCode, callSite);
+                }
 
                 default:
                     throw new NotSupportedException($"Unsupported operand type: {opCode.OperandType}");
@@ -505,9 +532,7 @@ internal class MethodWeaver
         {
             case "get_CoreLibrary":
             {
-                var coreLibrary = Module.GetCoreLibrary();
-                if (coreLibrary == null)
-                    throw new InstructionWeavingException(instruction, "Could not resolve core library");
+                var coreLibrary = Module.GetCoreLibrary() ?? throw new InstructionWeavingException(instruction, "Could not resolve core library");
 
                 var newInstruction = Instruction.Create(OpCodes.Ldstr, coreLibrary.Name);
                 _il.Replace(instruction, newInstruction, true);
@@ -524,7 +549,8 @@ internal class MethodWeaver
 
     private void ProcessPopMethod(Instruction instruction)
     {
-        var target = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single();
+        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+        var target = args[0];
 
         switch (target.OpCode.Code)
         {
@@ -594,7 +620,9 @@ internal class MethodWeaver
                 switch (currentInstruction?.OpCode.Code)
                 {
                     case Code.Ret:
+                    {
                         return;
+                    }
 
                     case Code.Stloc:
                     {
@@ -665,7 +693,9 @@ internal class MethodWeaver
 
     private void ProcessMarkLabelMethod(Instruction instruction)
     {
-        var labelName = _consumer.ConsumeArgString(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
+        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+        var labelName = _consumer.ConsumeArgString(args[0]);
+
         var labelPlaceholder = _labels.MarkLabel(labelName, _sequencePoints.GetInputSequencePoint(instruction));
         _il.Replace(instruction, labelPlaceholder);
     }
@@ -680,7 +710,10 @@ internal class MethodWeaver
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 _method.Body.InitLocals = true;
-                _locals.DeclareLocals(_consumer.ConsumeArgArray(args[0], _consumer.ConsumeArgLocalVarBuilder), _sequencePoints.GetInputSequencePoint(instruction));
+
+                var locals = _consumer.ConsumeArgArray(args[0], _consumer.ConsumeArgLocalVarBuilder);
+                _locals.DeclareLocals(locals, _sequencePoints.GetInputSequencePoint(instruction));
+
                 _il.Remove(instruction);
                 return;
             }
@@ -689,7 +722,10 @@ internal class MethodWeaver
             {
                 var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
                 _method.Body.InitLocals = _consumer.ConsumeArgBool(args[0]);
-                _locals.DeclareLocals(_consumer.ConsumeArgArray(args[1], _consumer.ConsumeArgLocalVarBuilder), _sequencePoints.GetInputSequencePoint(instruction));
+
+                var locals = _consumer.ConsumeArgArray(args[1], _consumer.ConsumeArgLocalVarBuilder);
+                _locals.DeclareLocals(locals, _sequencePoints.GetInputSequencePoint(instruction));
+
                 _il.Remove(instruction);
                 return;
             }
@@ -701,7 +737,8 @@ internal class MethodWeaver
 
     private void ProcessEnsureLocalMethod(Instruction instruction)
     {
-        var ldloca = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single();
+        var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+        var ldloca = args[0];
 
         if (ldloca.OpCode != OpCodes.Ldloca)
             throw new InstructionWeavingException(instruction, "Unexpected argument type, expected a non-ref local variable.");

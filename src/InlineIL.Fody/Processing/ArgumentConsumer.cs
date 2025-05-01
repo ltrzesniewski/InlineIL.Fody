@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Fody;
@@ -125,7 +124,9 @@ internal class ArgumentConsumer
         {
             case "System.Type System.Type::GetTypeFromHandle(System.RuntimeTypeHandle)":
             {
-                var ldToken = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single();
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var ldToken = args[0];
+
                 if (ldToken.OpCode != OpCodes.Ldtoken)
                     throw UnexpectedInstruction(ldToken, OpCodes.Ldtoken);
 
@@ -140,7 +141,8 @@ internal class ArgumentConsumer
             case "InlineIL.TypeRef InlineIL.TypeRef::Type(System.Type)":
             case "System.Void InlineIL.TypeRef::.ctor(System.Type)":
             {
-                var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var builder = ConsumeArgTypeRefBuilder(args[0]);
 
                 _il.Remove(instruction);
                 return builder;
@@ -189,7 +191,8 @@ internal class ArgumentConsumer
             case "InlineIL.TypeRef InlineIL.TypeRef::MakePointerType()":
             case "System.Type System.Type::MakePointerType()":
             {
-                var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var builder = ConsumeArgTypeRefBuilder(args[0]);
                 builder.MakePointerType();
 
                 _il.Remove(instruction);
@@ -199,7 +202,8 @@ internal class ArgumentConsumer
             case "InlineIL.TypeRef InlineIL.TypeRef::MakeByRefType()":
             case "System.Type System.Type::MakeByRefType()":
             {
-                var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var builder = ConsumeArgTypeRefBuilder(args[0]);
                 builder.MakeByRefType();
 
                 _il.Remove(instruction);
@@ -209,7 +213,8 @@ internal class ArgumentConsumer
             case "InlineIL.TypeRef InlineIL.TypeRef::MakeArrayType()":
             case "System.Type System.Type::MakeArrayType()":
             {
-                var builder = ConsumeArgTypeRefBuilder(_il.GetArgumentPushInstructionsInSameBasicBlock(instruction).Single());
+                var args = _il.GetArgumentPushInstructionsInSameBasicBlock(instruction);
+                var builder = ConsumeArgTypeRefBuilder(args[0]);
                 builder.MakeArrayType(1);
 
                 _il.Remove(instruction);
