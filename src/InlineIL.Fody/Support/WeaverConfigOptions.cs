@@ -40,7 +40,8 @@ internal class WeaverConfigOptions
                 {
                     var knownAttributes = new[]
                     {
-                        nameof(SequencePoints)
+                        nameof(SequencePoints),
+                        nameof(Warnings)
                     };
 
                     throw new WeavingException($"Unknown configuration attribute: '{attributeName}'. Known attributes: {string.Join(", ", knownAttributes.OrderBy(i => i, StringComparer.OrdinalIgnoreCase))}");
