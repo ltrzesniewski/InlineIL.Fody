@@ -1,13 +1,11 @@
 ﻿using System.Linq;
 using InlineIL.Fody.Processing;
-using JetBrains.Annotations;
 using Mono.Cecil;
 
 namespace InlineIL.Fody.Extensions;
 
 internal static partial class CecilExtensions
 {
-    [ContractAnnotation("type:null => false")]
     public static bool IsInlineILTypeUsage(this TypeReference? type, ModuleWeavingContext context)
     {
         if (type == null)
@@ -47,7 +45,6 @@ internal static partial class CecilExtensions
         }
     }
 
-    [ContractAnnotation("typeDef:null => false")]
     public static bool IsInlineILTypeUsageDeep(this TypeDefinition? typeDef, ModuleWeavingContext context)
     {
         if (typeDef == null)
@@ -64,7 +61,6 @@ internal static partial class CecilExtensions
                || typeDef.HasEvents && typeDef.Events.Any(i => i.IsInlineILTypeUsage(context));
     }
 
-    [ContractAnnotation("method:null => false")]
     public static bool IsInlineILTypeUsage(this IMethodSignature? method, ModuleWeavingContext context)
     {
         if (method == null)
@@ -96,7 +92,6 @@ internal static partial class CecilExtensions
         return false;
     }
 
-    [ContractAnnotation("fieldRef:null => false")]
     public static bool IsInlineILTypeUsage(this FieldReference? fieldRef, ModuleWeavingContext context)
     {
         if (fieldRef == null)
@@ -119,7 +114,6 @@ internal static partial class CecilExtensions
         return false;
     }
 
-    [ContractAnnotation("propRef:null => false")]
     public static bool IsInlineILTypeUsage(this PropertyReference? propRef, ModuleWeavingContext context)
     {
         if (propRef == null)
@@ -142,7 +136,6 @@ internal static partial class CecilExtensions
         return false;
     }
 
-    [ContractAnnotation("eventRef:null => false")]
     public static bool IsInlineILTypeUsage(this EventReference? eventRef, ModuleWeavingContext context)
     {
         if (eventRef == null)
@@ -165,7 +158,6 @@ internal static partial class CecilExtensions
         return false;
     }
 
-    [ContractAnnotation("paramDef:null => false")]
     public static bool IsInlineILTypeUsage(this ParameterDefinition? paramDef, ModuleWeavingContext context)
     {
         if (paramDef == null)
@@ -180,7 +172,6 @@ internal static partial class CecilExtensions
         return false;
     }
 
-    [ContractAnnotation("attr:null => false")]
     public static bool IsInlineILTypeUsage(this CustomAttribute? attr, ModuleWeavingContext context)
     {
         if (attr == null)
@@ -198,7 +189,6 @@ internal static partial class CecilExtensions
         return false;
     }
 
-    [ContractAnnotation("interfaceImpl:null => false")]
     public static bool IsInlineILTypeUsage(this InterfaceImplementation? interfaceImpl, ModuleWeavingContext context)
     {
         if (interfaceImpl == null)
@@ -208,7 +198,6 @@ internal static partial class CecilExtensions
                || interfaceImpl.HasCustomAttributes && interfaceImpl.CustomAttributes.Any(i => i.IsInlineILTypeUsage(context));
     }
 
-    [ContractAnnotation("constraint:null => false")]
     public static bool IsInlineILTypeUsage(this GenericParameterConstraint? constraint, ModuleWeavingContext context)
     {
         if (constraint == null)

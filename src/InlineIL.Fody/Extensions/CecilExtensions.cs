@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using Fody;
 using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
-using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -503,7 +502,6 @@ internal static partial class CecilExtensions
         };
     }
 
-    [ContractAnnotation("null => false")]
     public static bool IsInlineILAssembly(this AssemblyNameReference? assembly)
         => assembly?.Name == "InlineIL";
 

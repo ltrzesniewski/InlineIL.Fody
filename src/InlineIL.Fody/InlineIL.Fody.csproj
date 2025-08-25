@@ -8,9 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
-
-    <!-- Do not update beyond 2024.3.0, later versions do not use [Conditional] anymore -->
-    <PackageReference Include="JetBrains.Annotations" Version="[2024.3.0]" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
