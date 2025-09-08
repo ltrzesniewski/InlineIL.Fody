@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>13.0</LangVersion>
-    <AnalysisLevel>9.0</AnalysisLevel>
+    <LangVersion>preview</LangVersion>
+    <AnalysisLevel>10.0</AnalysisLevel>
     <AnalysisModeStyle>None</AnalysisModeStyle>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

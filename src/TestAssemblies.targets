@@ -5,6 +5,7 @@
   <PropertyGroup>
     <DisableFody>true</DisableFody>
     <LangVersion>$(TestAssembliesLangVersion)</LangVersion>
+    <LangVersion Condition="'$(LangVersion)' == 14">preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
