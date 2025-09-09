@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>14.0</LangVersion>
     <AnalysisLevel>10.0</AnalysisLevel>
     <AnalysisModeStyle>None</AnalysisModeStyle>
     <Nullable>enable</Nullable>
