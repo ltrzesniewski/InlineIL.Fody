@@ -1,6 +1,6 @@
 # InlineIL.Fody                    <picture><source media="(prefers-color-scheme: dark)" srcset="icon-dark.png"><img src="icon.png" align="right" alt="Logo"></picture>
 
-[![Build](https://github.com/ltrzesniewski/InlineIL.Fody/workflows/Build/badge.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/actions?query=workflow%3ABuild)
+[![Build](https://github.com/ltrzesniewski/InlineIL.Fody/actions/workflows/build.yml/badge.svg?branch=master&event=push)](https://github.com/ltrzesniewski/InlineIL.Fody/actions/workflows/build.yml)
 [![NuGet package](https://img.shields.io/nuget/v/InlineIL.Fody.svg?logo=NuGet)](https://www.nuget.org/packages/InlineIL.Fody)
 [![GitHub release](https://img.shields.io/github/release/ltrzesniewski/InlineIL.Fody.svg?logo=GitHub)](https://github.com/ltrzesniewski/InlineIL.Fody/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ltrzesniewski/InlineIL.Fody/blob/master/LICENSE)
