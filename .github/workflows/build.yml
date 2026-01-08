@@ -56,4 +56,11 @@ jobs:
           dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
 
       - name: Test
-        run: dotnet test --configuration ${{ matrix.configuration }} -p:TestAssembliesLangVersion=${{ matrix.langVersion }} --logger GitHubActions src/InlineIL.sln -- RunConfiguration.CollectSourceInformation=true
+        run: >
+          dotnet test
+          --configuration ${{ matrix.configuration }}
+          -p:TestAssembliesLangVersion=${{ matrix.langVersion }}
+          --logger "GitHubActions;summary-include-passed=false;summary-include-skipped=false"
+          src/InlineIL.sln
+          --
+          RunConfiguration.CollectSourceInformation=true
