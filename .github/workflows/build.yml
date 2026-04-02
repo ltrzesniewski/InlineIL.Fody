@@ -16,10 +16,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
 
@@ -33,7 +33,7 @@ jobs:
         run: dotnet pack --configuration Release --no-build src/InlineIL.sln
 
       - name: Upload NuGet
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: NuGet
           path: output/*.nupkg
@@ -48,10 +48,10 @@ jobs:
         langVersion: [10, 11, 12, 13, 14]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
 
