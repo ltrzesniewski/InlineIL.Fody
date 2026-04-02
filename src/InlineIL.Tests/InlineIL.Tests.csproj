@@ -11,11 +11,11 @@
 
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
-    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
+    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageReference Include="System.Reflection.Metadata" Version="10.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="10.0.5" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" />
   </ItemGroup>
