@@ -37,6 +37,7 @@ jobs:
         with:
           name: NuGet
           path: output/*.nupkg
+          archive: false
           if-no-files-found: error
 
   test:
