@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net8.0;net5.0;netstandard2.0;netstandard1.1;net452;net35</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net8.0;net5.0;netstandard2.0;netstandard1.1;net452;net35</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
