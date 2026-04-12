@@ -5,6 +5,6 @@
     <RootNamespace>InlineIL.Tests.InjectedAssembly</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="../TestAssemblies.targets"/>
+  <Import Project="../TestAssemblies.targets" />
 
 </Project>
