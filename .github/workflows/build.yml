@@ -24,13 +24,13 @@ jobs:
           dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
 
       - name: NuGet Restore
-        run: dotnet restore src/InlineIL.sln
+        run: dotnet restore src/InlineIL.slnx
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore src/InlineIL.sln
+        run: dotnet build --configuration Release --no-restore src/InlineIL.slnx
 
       - name: NuGet Pack
-        run: dotnet pack --configuration Release --no-build src/InlineIL.sln
+        run: dotnet pack --configuration Release --no-build src/InlineIL.slnx
 
       - name: Upload NuGet
         uses: actions/upload-artifact@v7
@@ -62,6 +62,6 @@ jobs:
           --configuration ${{ matrix.configuration }}
           -p:TestAssembliesLangVersion=${{ matrix.langVersion }}
           --logger "GitHubActions;summary-include-passed=false;summary-include-skipped=false"
-          src/InlineIL.sln
+          src/InlineIL.slnx
           --
           RunConfiguration.CollectSourceInformation=true

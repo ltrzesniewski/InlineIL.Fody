@@ -1,0 +1,59 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DebugWithReleaseTests" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="/Build/">
+    <File Path="../.editorconfig" />
+    <File Path="../.github/workflows/build.yml" />
+    <File Path="../.gitignore" />
+    <File Path="../README.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="NuGetReadme.md" />
+  </Folder>
+  <Folder Name="/Examples/">
+    <Project Path="InlineIL.Examples.InSolutionWeaver/InlineIL.Examples.InSolutionWeaver.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Debug" />
+    </Project>
+    <Project Path="InlineIL.Examples/InlineIL.Examples.csproj">
+      <BuildDependency Project="InlineIL.Examples.InSolutionWeaver/InlineIL.Examples.InSolutionWeaver.csproj" />
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Folder Name="/Tests/">
+    <File Path="TestAssemblies.targets" />
+    <File Path="TestLangFeatures.targets" />
+    <Project Path="InlineIL.Tests.AssemblyToProcess/InlineIL.Tests.AssemblyToProcess.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+    <Project Path="InlineIL.Tests.Common/InlineIL.Tests.Common.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+    <Project Path="InlineIL.Tests.InjectedAssembly.Alternative/InlineIL.Tests.InjectedAssembly.Alternative.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+    <Project Path="InlineIL.Tests.InjectedAssembly/InlineIL.Tests.InjectedAssembly.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+    <Project Path="InlineIL.Tests.InvalidAssemblyToProcess/InlineIL.Tests.InvalidAssemblyToProcess.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+    <Project Path="InlineIL.Tests.StandardAssemblyToProcess/InlineIL.Tests.StandardAssemblyToProcess.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+    <Project Path="InlineIL.Tests.UnverifiableAssemblyToProcess/InlineIL.Tests.UnverifiableAssemblyToProcess.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+    <Project Path="InlineIL.Tests/InlineIL.Tests.csproj">
+      <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Project Path="InlineIL.Fody/InlineIL.Fody.csproj">
+    <BuildType Solution="DebugWithReleaseTests|*" Project="Debug" />
+  </Project>
+  <Project Path="InlineIL/InlineIL.csproj">
+    <BuildType Solution="DebugWithReleaseTests|*" Project="Debug" />
+  </Project>
+</Solution>
