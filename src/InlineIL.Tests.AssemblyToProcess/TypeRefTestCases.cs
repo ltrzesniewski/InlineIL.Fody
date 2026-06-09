@@ -222,11 +222,9 @@ public class TypeRefTestCases
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     private class NestedType
-    {
-    }
+    { }
 
     [SuppressMessage("ReSharper", "UnusedType.Local")]
     private ref struct RefStruct
-    {
-    }
+    { }
 }

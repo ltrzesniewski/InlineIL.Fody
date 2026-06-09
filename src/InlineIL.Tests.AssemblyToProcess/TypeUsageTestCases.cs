@@ -17,8 +17,7 @@ public static class TypeUsageTestCases
     }
 
     public class SelfReferencingConstraintIndirectBase<T>
-    {
-    }
+    { }
 
     public class SelfReferencingConstraintIndirect<T> : SelfReferencingConstraintIndirectBase<T>
         where T : SelfReferencingConstraintIndirectBase<T>

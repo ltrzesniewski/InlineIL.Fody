@@ -217,32 +217,27 @@ public class MethodRefTestCases
     }
 
     private static void Foo()
-    {
-    }
+    { }
 
     private static void Foo(int i)
-    {
-    }
+    { }
 
     private static T GenericMethod<T>(T value) => value;
 
     private static int[]? VarArgMethod(int count, __arglist) => null;
 
     private class ClassWithoutInitializer
-    {
-    }
+    { }
 
     private class ClassWithNoDefaultConstructor
     {
         public ClassWithNoDefaultConstructor(int foo)
-        {
-        }
+        { }
     }
 
     private class GenericType<T>
     {
         public static void Method(T arg)
-        {
-        }
+        { }
     }
 }

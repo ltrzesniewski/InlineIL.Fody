@@ -332,8 +332,7 @@ internal class TypeRefBuilder
     {
         public ByRefTypeRefResolver(TypeRefResolver baseResolver)
             : base(baseResolver)
-        {
-        }
+        { }
 
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {
@@ -351,8 +350,7 @@ internal class TypeRefBuilder
     {
         public PointerTypeRefResolver(TypeRefResolver baseResolver)
             : base(baseResolver)
-        {
-        }
+        { }
 
         protected override TypeReference WrapTypeRef(TypeReference typeRef)
         {

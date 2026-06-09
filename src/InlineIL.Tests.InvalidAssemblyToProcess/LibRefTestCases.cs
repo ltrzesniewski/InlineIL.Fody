@@ -52,67 +52,55 @@ public class LibRefTestCases
 
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public void Param(TypeRef typeRef)
-    {
-    }
+    { }
 
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public void Param2(Foo<TypeRef> typeRef)
-    {
-    }
+    { }
 
     [SomeAttribute(typeof(TypeRef))]
     public void AttributeCtor()
-    {
-    }
+    { }
 
     [SomeAttribute(Type = typeof(TypeRef))]
     public void AttributeParam()
-    {
-    }
+    { }
 
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public void AttributeMethodParam([SomeAttribute(typeof(TypeRef))] int foo)
-    {
-    }
+    { }
 
     [SuppressMessage("ReSharper", "UnusedTypeParameter")]
     public void GenericConstraint<T>()
         where T : Foo<TypeRef>
-    {
-    }
+    { }
 
     public void GenericParamAttribute<[SomeAttribute(typeof(TypeRef))] T>()
-    {
-    }
+    { }
 
     private static void DoNothing<T>(ref T _)
-    {
-    }
+    { }
 
     [SuppressMessage("ReSharper", "UnusedTypeParameter")]
     private static void DoNothing<T>()
-    {
-    }
+    { }
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     [SuppressMessage("ReSharper", "UnusedTypeParameter")]
     public class Foo<T>
-    {
-    }
+    { }
 
     [SuppressMessage("ReSharper", "UnusedTypeParameter")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public interface IFoo<T>
-    {
-    }
+    { }
 
     private class SomeAttributeAttribute : Attribute
     {
         public Type? Type { get; set; }
 
         public SomeAttributeAttribute()
-        {
-        }
+        { }
 
         public SomeAttributeAttribute(Type type)
         {
@@ -122,8 +110,7 @@ public class LibRefTestCases
 
     [SomeAttribute(typeof(TypeRef))]
     public class TypeAttr
-    {
-    }
+    { }
 
     public class FieldAttr
     {
@@ -162,10 +149,8 @@ public class LibRefTestCases
     }
 
     public class BaseType : Foo<TypeRef>
-    {
-    }
+    { }
 
     public class InterfaceType : IFoo<TypeRef>
-    {
-    }
+    { }
 }

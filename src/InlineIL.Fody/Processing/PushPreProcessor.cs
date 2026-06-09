@@ -216,8 +216,7 @@ internal class PushPreProcessor
 
         public StackState(int stackSize, int unsafeToPushCount)
             : this(stackSize, unsafeToPushCount, false)
-        {
-        }
+        { }
 
         private StackState(int stackSize, int unsafeToPushCount, bool forcedValue)
         {

@@ -76,5 +76,4 @@ public unsafe class FieldRefTestCases
 }
 
 internal struct InternalStruct
-{
-}
+{ }

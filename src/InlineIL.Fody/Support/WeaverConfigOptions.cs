@@ -11,8 +11,7 @@ internal class WeaverConfigOptions
     public WarningsBehavior Warnings { get; set; } = WarningsBehavior.Warnings;
 
     public WeaverConfigOptions()
-    {
-    }
+    { }
 
     public WeaverConfigOptions(XElement? element)
     {

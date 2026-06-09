@@ -191,8 +191,7 @@ public unsafe class StandAloneMethodSigTestCases
     private int IndirectCallInstanceTargetMethod(int value) => value;
 
     private void IndirectCallStaticVoidTargetMethod()
-    {
-    }
+    { }
 
 #if NETFRAMEWORK
     private static int IndirectCallVarArgTargetMethod(int value, __arglist)

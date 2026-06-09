@@ -47,6 +47,5 @@ public class StandAloneMethodSigTestCases
     }
 
     private static void VoidTargetMethod()
-    {
-    }
+    { }
 }

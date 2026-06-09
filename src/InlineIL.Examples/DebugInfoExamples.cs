@@ -30,6 +30,5 @@ public static class DebugInfoExamples
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static void DoNothing(int _)
-    {
-    }
+    { }
 }
