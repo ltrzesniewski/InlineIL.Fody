@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Xunit;
 
@@ -8,38 +9,46 @@ namespace InlineIL.Tests.Support;
 
 public abstract class SkippableFactAttribute : FactAttribute
 {
-    public sealed override string? Skip
+    protected SkippableFactAttribute(
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1)
+        : base(sourceFilePath, sourceLineNumber)
     {
-        get => base.Skip ?? GetSkipMessage();
-        set => base.Skip = value;
+        // ReSharper disable once VirtualMemberCallInConstructor
+        Skip = GetSkipMessage();
     }
 
     protected abstract string? GetSkipMessage();
 }
 
-public class DebugTestAttribute : SkippableFactAttribute
+public class DebugTestAttribute(
+    [CallerFilePath] string? sourceFilePath = null,
+    [CallerLineNumber] int sourceLineNumber = -1
+) : SkippableFactAttribute(sourceFilePath, sourceLineNumber)
 {
     protected override string? GetSkipMessage()
         => Debugger.IsAttached ? null : "Debug test";
 }
 
-public class ReleaseFactAttribute : SkippableFactAttribute
+public class ReleaseFactAttribute(
+    Type typeFromAssembly,
+    [CallerFilePath] string? sourceFilePath = null,
+    [CallerLineNumber] int sourceLineNumber = -1
+) : SkippableFactAttribute(sourceFilePath, sourceLineNumber)
 {
-    private readonly Type _typeFromAssembly;
-
-    public ReleaseFactAttribute(Type typeFromAssembly)
-        => _typeFromAssembly = typeFromAssembly;
-
     protected override string? GetSkipMessage()
     {
-        if (((_typeFromAssembly.Assembly.GetCustomAttribute<DebuggableAttribute>()?.DebuggingFlags ?? DebuggableAttribute.DebuggingModes.Default) & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0)
+        if (((typeFromAssembly.Assembly.GetCustomAttribute<DebuggableAttribute>()?.DebuggingFlags ?? DebuggableAttribute.DebuggingModes.Default) & DebuggableAttribute.DebuggingModes.DisableOptimizations) != 0)
             return "Inconclusive in debug builds";
 
         return null;
     }
 }
 
-public class VarargFactAttribute : SkippableFactAttribute
+public class VarargFactAttribute(
+    [CallerFilePath] string? sourceFilePath = null,
+    [CallerLineNumber] int sourceLineNumber = -1
+) : SkippableFactAttribute(sourceFilePath, sourceLineNumber)
 {
     protected override string? GetSkipMessage()
     {

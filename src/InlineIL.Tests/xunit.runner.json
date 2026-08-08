@@ -1,4 +1,3 @@
 {
-  "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
-  "shadowCopy": false
+  "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json"
 }

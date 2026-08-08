@@ -6,7 +6,7 @@ using InlineIL.Fody.Support;
 using InlineIL.Tests.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace InlineIL.Tests.Debug;
 

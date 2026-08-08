@@ -10,7 +10,7 @@ using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using InlineIL.Tests.Weaving;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Xunit.Abstractions;
+using Xunit;
 using FieldRefTestCases = InlineIL.Tests.UnverifiableAssemblyToProcess.FieldRefTestCases;
 
 namespace InlineIL.Tests.Debug;
