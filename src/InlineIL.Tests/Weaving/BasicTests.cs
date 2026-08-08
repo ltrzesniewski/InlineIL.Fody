@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Common;
-using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Mono.Cecil.Cil;
@@ -201,25 +200,25 @@ public class BasicTests : BasicTestsBase
         ShouldHaveError("UnusedInstance");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
     public void should_report_invalid_push_usage()
     {
         ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
     public void should_report_invalid_push_usage_2()
     {
         ShouldHaveError("InvalidPushUsage2").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
     public void should_report_invalid_push_usage_3()
     {
         ShouldHaveError("InvalidPushUsage3").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
     public void should_report_invalid_push_usage_4()
     {
         ShouldHaveError("InvalidPushUsage4").ShouldContain("IL.Push cannot be used in this context");

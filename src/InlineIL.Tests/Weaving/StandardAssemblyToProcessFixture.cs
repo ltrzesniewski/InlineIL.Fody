@@ -1,7 +1,5 @@
-extern alias standard;
 using Fody;
 using Mono.Cecil;
-using standard::InlineIL.Tests.StandardAssemblyToProcess;
 
 namespace InlineIL.Tests.Weaving;
 
@@ -14,6 +12,6 @@ public static class StandardAssemblyToProcessFixture
 
     static StandardAssemblyToProcessFixture()
     {
-        (TestResult, OriginalModule, ResultModule) = AssemblyToProcessFixture.Process<StandardAssemblyToProcessReference>();
+        (TestResult, OriginalModule, ResultModule) = AssemblyToProcessFixture.Process("InlineIL.Tests.StandardAssemblyToProcess");
     }
 }

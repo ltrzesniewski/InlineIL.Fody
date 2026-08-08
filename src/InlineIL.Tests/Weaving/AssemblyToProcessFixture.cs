@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Fody;
-using InlineIL.Tests.AssemblyToProcess;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -17,18 +16,18 @@ public static class AssemblyToProcessFixture
 
     static AssemblyToProcessFixture()
     {
-        (TestResult, OriginalModule, ResultModule) = Process<AssemblyToProcessReference>();
+        (TestResult, OriginalModule, ResultModule) = Process("InlineIL.Tests.AssemblyToProcess");
     }
 
-    internal static TestRunResult Process<T>()
+    internal static TestRunResult Process(string assemblyName)
     {
         return WeaverRunner.ExecuteTestRun(
-            typeof(T).Assembly,
+            assemblyName,
             new GuardedWeaver(),
-            ignoreCodes: new[]
-            {
+            ignoreCodes:
+            [
                 "0x801312da" // VLDTR_E_MR_VARARGCALLINGCONV
-            }
+            ]
         );
     }
 
