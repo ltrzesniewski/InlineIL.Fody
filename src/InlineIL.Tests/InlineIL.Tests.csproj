@@ -46,10 +46,6 @@
                       TargetPath="TestAssemblies/Injections/InlineIL.Tests.InjectedAssembly.Alternative.dll" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
   <Target Name="InlineILAddTestAssemblies"
           AfterTargets="ResolveProjectReferences"
           BeforeTargets="GetCopyToOutputDirectoryItems">
