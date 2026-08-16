@@ -23,7 +23,13 @@ internal static class WeaverRunner
                                                bool runPeVerify = true,
                                                IEnumerable<string>? ignoreCodes = null)
     {
-        var assemblyPath = Path.Combine(Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!, "TestAssemblies", $"{assemblyName}.dll");
+        var assemblyPath = Path.Combine(
+            Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!,
+            "TestAssemblies",
+            "Input",
+            $"{assemblyName}.dll"
+        );
+
         var referencePaths = GetReferencePaths(assemblyPath);
         var (inputFile, outputFile, projectDir) = PrepareDirectories(assemblyPath, referencePaths);
 
@@ -97,7 +103,7 @@ internal static class WeaverRunner
         var rootTestDir = Path.Combine(
             Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!,
             "WeavingTest",
-            Path.GetFileName(inputAssemblyPath)
+            Path.GetFileNameWithoutExtension(inputAssemblyPath)
         );
 
         if (Directory.Exists(rootTestDir))

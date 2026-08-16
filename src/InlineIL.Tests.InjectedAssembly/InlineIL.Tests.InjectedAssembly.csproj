@@ -3,6 +3,4 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <Import Project="../TestAssemblies.targets" />
-
 </Project>

@@ -35,8 +35,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly\InlineIL.Tests.InjectedAssembly.csproj" ReferenceOutputAssembly="false" OutputItemType="None" CopyToOutputDirectory="PreserveNewest" TargetPath="InlineIL.Tests.InjectedAssembly.dll" />
-    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly.Alternative\InlineIL.Tests.InjectedAssembly.Alternative.csproj" ReferenceOutputAssembly="false" OutputItemType="None" CopyToOutputDirectory="PreserveNewest" TargetPath="InlineIL.Tests.InjectedAssembly.Alternative.dll" />
+    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly\InlineIL.Tests.InjectedAssembly.csproj" />
+
+    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly\InlineIL.Tests.InjectedAssembly.csproj"
+                      ReferenceOutputAssembly="false" OutputItemType="None" CopyToOutputDirectory="PreserveNewest"
+                      TargetPath="TestAssemblies/Injections/InlineIL.Tests.InjectedAssembly.dll" />
+
+    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly.Alternative\InlineIL.Tests.InjectedAssembly.Alternative.csproj"
+                      ReferenceOutputAssembly="false" OutputItemType="None" CopyToOutputDirectory="PreserveNewest"
+                      TargetPath="TestAssemblies/Injections/InlineIL.Tests.InjectedAssembly.Alternative.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,15 +56,15 @@
     <ItemGroup>
       <ContentWithTargetPath Include="@(InlineILTestProjectAssembly)"
                              CopyToOutputDirectory="PreserveNewest"
-                             TargetPath="TestAssemblies/%(Filename)%(Extension)" />
+                             TargetPath="TestAssemblies/Input/%(Filename)%(Extension)" />
 
       <ContentWithTargetPath Include="@(InlineILTestProjectAssembly->'%(RootDir)%(Directory)%(Filename).pdb')"
                              CopyToOutputDirectory="PreserveNewest"
-                             TargetPath="TestAssemblies/%(Filename).pdb" />
+                             TargetPath="TestAssemblies/Input/%(Filename).pdb" />
 
       <ContentWithTargetPath Include="@(InlineILTestProjectAssembly->'%(RootDir)%(Directory)%(Filename).refs.txt')"
                              CopyToOutputDirectory="PreserveNewest"
-                             TargetPath="TestAssemblies/%(Filename).refs.txt" />
+                             TargetPath="TestAssemblies/Input/%(Filename).refs.txt" />
     </ItemGroup>
   </Target>
 
