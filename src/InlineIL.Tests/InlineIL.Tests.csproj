@@ -4,7 +4,6 @@
     <TargetFrameworks>net10.0;net48</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <DisableFody>true</DisableFody>
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -21,9 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InlineIL.Examples\InlineIL.Examples.csproj" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
     <ProjectReference Include="..\InlineIL.Fody\InlineIL.Fody.csproj" />
-    <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
     <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
   </ItemGroup>
 
