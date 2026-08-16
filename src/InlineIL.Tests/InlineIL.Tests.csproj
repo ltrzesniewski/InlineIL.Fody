@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>net10.0;net48</TargetFrameworks>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <OutputType>Exe</OutputType>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <DisableFody>true</DisableFody>
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -11,36 +12,56 @@
 
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
-    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.4" />
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="10.0.9" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageReference Include="System.Reflection.Metadata" Version="10.0.10" />
+    <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InlineIL.Examples\InlineIL.Examples.csproj" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
     <ProjectReference Include="..\InlineIL.Fody\InlineIL.Fody.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.AssemblyToProcess\InlineIL.Tests.AssemblyToProcess.csproj" />
     <ProjectReference Include="..\InlineIL.Tests.Common\InlineIL.Tests.Common.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.InvalidAssemblyToProcess\InlineIL.Tests.InvalidAssemblyToProcess.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.StandardAssemblyToProcess\InlineIL.Tests.StandardAssemblyToProcess.csproj" Aliases="standard" />
-    <ProjectReference Include="..\InlineIL.Tests.UnverifiableAssemblyToProcess\InlineIL.Tests.UnverifiableAssemblyToProcess.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly\InlineIL.Tests.InjectedAssembly.csproj" />
-    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly.Alternative\InlineIL.Tests.InjectedAssembly.Alternative.csproj" ReferenceOutputAssembly="false" OutputItemType="None" CopyToOutputDirectory="PreserveNewest" TargetPath="InlineIL.Tests.InjectedAssembly.Alternative.dll" />
-    <ProjectReference Include="..\InlineIL\InlineIL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <InlineILTestProject Include="..\InlineIL.Tests.AssemblyToProcess\InlineIL.Tests.AssemblyToProcess.csproj" />
+    <InlineILTestProject Include="..\InlineIL.Tests.InvalidAssemblyToProcess\InlineIL.Tests.InvalidAssemblyToProcess.csproj" />
+    <InlineILTestProject Include="..\InlineIL.Tests.StandardAssemblyToProcess\InlineIL.Tests.StandardAssemblyToProcess.csproj" Aliases="standard" />
+    <InlineILTestProject Include="..\InlineIL.Tests.UnverifiableAssemblyToProcess\InlineIL.Tests.UnverifiableAssemblyToProcess.csproj" />
+
+    <InlineILTestProject Update="@(InlineILTestProject)" Visible="false" />
+    <ProjectReference Include="@(InlineILTestProject)" ReferenceOutputAssembly="false" OutputItemType="InlineILTestProjectAssembly" />
   </ItemGroup>
 
-  <Target Name="InlineILTestsBeforeRAR" BeforeTargets="ResolveAssemblyReferences">
-    <PropertyGroup>
-      <AllowedReferenceRelatedFileExtensions>$(AllowedReferenceRelatedFileExtensions);.refs.txt</AllowedReferenceRelatedFileExtensions>
-    </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly\InlineIL.Tests.InjectedAssembly.csproj" />
+
+    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly\InlineIL.Tests.InjectedAssembly.csproj"
+                      ReferenceOutputAssembly="false" OutputItemType="None" CopyToOutputDirectory="PreserveNewest"
+                      TargetPath="TestAssemblies/Injections/InlineIL.Tests.InjectedAssembly.dll" />
+
+    <ProjectReference Include="..\InlineIL.Tests.InjectedAssembly.Alternative\InlineIL.Tests.InjectedAssembly.Alternative.csproj"
+                      ReferenceOutputAssembly="false" OutputItemType="None" CopyToOutputDirectory="PreserveNewest"
+                      TargetPath="TestAssemblies/Injections/InlineIL.Tests.InjectedAssembly.Alternative.dll" />
+  </ItemGroup>
+
+  <Target Name="InlineILAddTestAssemblies"
+          AfterTargets="ResolveProjectReferences"
+          BeforeTargets="GetCopyToOutputDirectoryItems">
+    <ItemGroup>
+      <ContentWithTargetPath Include="@(InlineILTestProjectAssembly)"
+                             CopyToOutputDirectory="PreserveNewest"
+                             TargetPath="TestAssemblies/Input/%(Filename)%(Extension)" />
+
+      <ContentWithTargetPath Include="@(InlineILTestProjectAssembly->'%(RootDir)%(Directory)%(Filename).pdb')"
+                             CopyToOutputDirectory="PreserveNewest"
+                             TargetPath="TestAssemblies/Input/%(Filename).pdb" />
+
+      <ContentWithTargetPath Include="@(InlineILTestProjectAssembly->'%(RootDir)%(Directory)%(Filename).refs.txt')"
+                             CopyToOutputDirectory="PreserveNewest"
+                             TargetPath="TestAssemblies/Input/%(Filename).refs.txt" />
+    </ItemGroup>
   </Target>
 
 </Project>

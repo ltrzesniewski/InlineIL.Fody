@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using InlineIL.Tests.Common;
 using InlineIL.Tests.Support;
@@ -16,7 +17,16 @@ using Mono.Cecil.Cil;
 
 namespace InlineIL.Tests.Weaving;
 
-public abstract class MethodRefTestsBase() : ClassTestsBase("MethodRefTestCases");
+public abstract class MethodRefTestsBase() : ClassTestsBase("MethodRefTestCases")
+{
+    protected static void SkipIfVarargNotSupported()
+    {
+        Assert.SkipUnless(
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.ProcessArchitecture is Architecture.X86 or Architecture.X64,
+            "Varargs are not supported on this platform"
+        );
+    }
+}
 
 public class MethodRefTests : MethodRefTestsBase
 {
@@ -666,9 +676,11 @@ public class MethodRefTestsCore : MethodRefTestsBase
         result.ShouldEqual(["Hello", "Hello"]);
     }
 
-    [VarargFact]
+    [Fact]
     public void should_call_vararg_method()
     {
+        SkipIfVarargNotSupported();
+
         var result = (int[])GetInstance().CallVarArgMethod();
         result.ShouldEqual([1, 2, 3, 0, 0]);
     }
@@ -678,9 +690,11 @@ public class MethodRefTestsCore : MethodRefTestsBase
 #if NETFRAMEWORK
 public class MethodRefTestsFramework : MethodRefTestsBase
 {
-    [VarargFact]
+    [Fact]
     public void should_call_vararg_method()
     {
+        SkipIfVarargNotSupported();
+
         var result = (int[])GetInstance().CallVarArgMethod();
         result.ShouldEqual([1, 2, 3, 0, 0]);
     }

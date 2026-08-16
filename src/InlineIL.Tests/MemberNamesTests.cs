@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Mono.Cecil;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace InlineIL.Tests;
 

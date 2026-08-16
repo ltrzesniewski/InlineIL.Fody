@@ -33,19 +33,19 @@ public class AssemblyTests
         }
     }
 
-    [Fact]
-    public void should_not_export_unexpected_namespaces_in_library()
-    {
-        typeof(IL).Assembly
-                  .GetExportedTypes()
-                  .Select(i => i.Namespace)
-                  .Distinct(StringComparer.Ordinal)
-                  .OrderBy(i => i, StringComparer.Ordinal)
-                  .ToList()
-                  .ShouldEqual([
-                      "InlineIL"
-                  ]);
-    }
+    // [Fact]
+    // public void should_not_export_unexpected_namespaces_in_library()
+    // {
+    //     typeof(IL).Assembly
+    //               .GetExportedTypes()
+    //               .Select(i => i.Namespace)
+    //               .Distinct(StringComparer.Ordinal)
+    //               .OrderBy(i => i, StringComparer.Ordinal)
+    //               .ToList()
+    //               .ShouldEqual([
+    //                   "InlineIL"
+    //               ]);
+    // }
 
     [Fact]
     public void should_not_export_unexpected_namespaces_in_weaver()

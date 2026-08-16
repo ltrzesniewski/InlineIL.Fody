@@ -18,13 +18,20 @@ internal static class WeaverRunner
     // just like in the real weaving task.
     // Fody's WeaverTestHelper resolves references to implementation assemblies.
 
-    public static TestRunResult ExecuteTestRun(Assembly assembly,
+    public static TestRunResult ExecuteTestRun(string assemblyName,
                                                BaseModuleWeaver weaver,
                                                bool runPeVerify = true,
                                                IEnumerable<string>? ignoreCodes = null)
     {
-        var referencePaths = GetReferencePaths(assembly);
-        var (inputFile, outputFile, projectDir) = PrepareDirectories(assembly, referencePaths);
+        var assemblyPath = Path.Combine(
+            Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!,
+            "TestAssemblies",
+            "Input",
+            $"{assemblyName}.dll"
+        );
+
+        var referencePaths = GetReferencePaths(assemblyPath);
+        var (inputFile, outputFile, projectDir) = PrepareDirectories(assemblyPath, referencePaths);
 
         using var assemblyResolver = new AssemblyResolver(referencePaths);
 
@@ -85,18 +92,18 @@ internal static class WeaverRunner
         return new TestRunResult(testResult, inputModule, outputModule);
     }
 
-    public static IAssemblyResolver CreateAssemblyResolver(Assembly assembly)
-        => new AssemblyResolver(GetReferencePaths(assembly));
+    public static IAssemblyResolver CreateAssemblyResolver(string assemblyPath)
+        => new AssemblyResolver(GetReferencePaths(assemblyPath));
 
-    private static IReadOnlyCollection<string> GetReferencePaths(Assembly assembly)
-        => File.ReadAllLines(Path.ChangeExtension(assembly.Location, ".refs.txt"));
+    private static IReadOnlyCollection<string> GetReferencePaths(string assemblyPath)
+        => File.ReadAllLines(Path.ChangeExtension(assemblyPath, ".refs.txt"));
 
-    private static (string inputFile, string outputFile, string projectDir) PrepareDirectories(Assembly assembly, IReadOnlyCollection<string> referencePaths)
+    private static (string inputFile, string outputFile, string projectDir) PrepareDirectories(string inputAssemblyPath, IReadOnlyCollection<string> referencePaths)
     {
         var rootTestDir = Path.Combine(
             Path.GetDirectoryName(typeof(WeaverRunner).Assembly.Location)!,
             "WeavingTest",
-            assembly.GetName().Name!
+            Path.GetFileNameWithoutExtension(inputAssemblyPath)
         );
 
         if (Directory.Exists(rootTestDir))
@@ -110,11 +117,11 @@ internal static class WeaverRunner
         Directory.CreateDirectory(outputDir);
         Directory.CreateDirectory(projectDir);
 
-        var assemblyPath = CopyFile(assembly.Location, inputDir);
-        CopyFile(Path.ChangeExtension(assembly.Location, ".pdb"), inputDir);
+        var assemblyPath = CopyFile(inputAssemblyPath, inputDir);
+        CopyFile(Path.ChangeExtension(inputAssemblyPath, ".pdb"), inputDir);
         CopyFile(referencePaths.Single(i => Path.GetFileName(i) == "InlineIL.dll"), inputDir); // Necessary for PEVerify
 
-        var outputPath = Path.Combine(outputDir, Path.GetFileName(assembly.Location));
+        var outputPath = Path.Combine(outputDir, Path.GetFileName(inputAssemblyPath));
 
         return (assemblyPath, outputPath, projectDir);
 

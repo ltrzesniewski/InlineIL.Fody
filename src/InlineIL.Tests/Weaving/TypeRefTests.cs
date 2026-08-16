@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using InlineIL.Tests.InjectedAssembly;
-using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
@@ -346,13 +345,13 @@ public class TypeRefTests : TypeRefTestsBase
     }
 
     [Theory]
-    [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDll))]
-    [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDllUsingTypeReference))]
-    [InlineData(nameof(TypeRefTestCases.UseMethodsFromDifferentVersionsOfDllUsingTypeFullNameProperty))]
+    [InlineData("UseMethodsFromDifferentVersionsOfDll")]
+    [InlineData("UseMethodsFromDifferentVersionsOfDllUsingTypeReference")]
+    [InlineData("UseMethodsFromDifferentVersionsOfDllUsingTypeFullNameProperty")]
     public void should_use_methods_from_injected_type_and_referenced_type(string methodName)
     {
         var calls = InvalidAssemblyToProcessFixture.ResultModule
-                                                   .GetType(typeof(TypeRefTestCases).FullName)
+                                                   .GetType("InlineIL.Tests.InvalidAssemblyToProcess.TypeRefTestCases")
                                                    .Methods
                                                    .Single(i => i.Name == methodName)
                                                    .Body
@@ -369,49 +368,49 @@ public class TypeRefTests : TypeRefTestsBase
     [Fact]
     public void should_report_dll_file_not_found()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedDllFile)).ShouldContain("Could not read assembly");
+        ShouldHaveError("InvalidInjectedDllFile").ShouldContain("Could not read assembly");
     }
 
     [Fact]
     public void should_report_type_in_dll_file_not_found()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeName)).ShouldContain("Could not find type 'DoesNotExist'");
+        ShouldHaveError("InvalidInjectedTypeName").ShouldContain("Could not find type 'DoesNotExist'");
     }
 
     [Fact]
     public void should_report_injected_type_spec()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpec)).ShouldContain("The provided type does not represent an element type");
+        ShouldHaveError("InvalidInjectedTypeSpec").ShouldContain("The provided type does not represent an element type");
     }
 
     [Fact]
     public void should_report_injected_type_spec_with_full_name()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpecWithFullName)).ShouldContain("Could not find type 'InlineIL.Tests.InjectedAssembly.InjectedType[]'");
+        ShouldHaveError("InvalidInjectedTypeSpecWithFullName").ShouldContain("Could not find type 'InlineIL.Tests.InjectedAssembly.InjectedType[]'");
     }
 
     [Fact]
     public void should_report_injected_type_spec_2()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpec2)).ShouldContain("The provided type does not represent an element type");
+        ShouldHaveError("InvalidInjectedTypeSpec2").ShouldContain("The provided type does not represent an element type");
     }
 
     [Fact]
     public void should_report_injected_type_spec_2_with_full_name()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedTypeSpec2WithFullName)).ShouldContain("Could not find type 'InlineIL.Tests.InjectedAssembly.InjectedType&'");
+        ShouldHaveError("InvalidInjectedTypeSpec2WithFullName").ShouldContain("Could not find type 'InlineIL.Tests.InjectedAssembly.InjectedType&'");
     }
 
     [Fact]
     public void should_report_injected_fn_ptr()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedFnPtr)).ShouldContain("Function pointer types cannot be used in this context");
+        ShouldHaveError("InvalidInjectedFnPtr").ShouldContain("Function pointer types cannot be used in this context");
     }
 
     [Fact]
     public void should_report_injected_generic_param()
     {
-        ShouldHaveError(nameof(TypeRefTestCases.InvalidInjectedGenericParam)).ShouldContain("Generic parameters cannot be used in this context");
+        ShouldHaveError("InvalidInjectedGenericParam").ShouldContain("Generic parameters cannot be used in this context");
     }
 }
 

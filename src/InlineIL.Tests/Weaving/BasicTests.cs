@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Common;
-using InlineIL.Tests.InvalidAssemblyToProcess;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Mono.Cecil.Cil;
@@ -201,28 +200,40 @@ public class BasicTests : BasicTestsBase
         ShouldHaveError("UnusedInstance");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [Fact]
     public void should_report_invalid_push_usage()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [Fact]
     public void should_report_invalid_push_usage_2()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage2").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [Fact]
     public void should_report_invalid_push_usage_3()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage3").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact(typeof(InvalidAssemblyToProcessReference))]
+    [Fact]
     public void should_report_invalid_push_usage_4()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage4").ShouldContain("IL.Push cannot be used in this context");
+    }
+
+    private static void SkipForDebugBuilds()
+    {
+        Assert.SkipWhen(
+            InvalidAssemblyToProcessFixture.OriginalModule.IsDebugBuild(),
+            "This test is inconclusive in debug builds."
+        );
     }
 
     [Fact]

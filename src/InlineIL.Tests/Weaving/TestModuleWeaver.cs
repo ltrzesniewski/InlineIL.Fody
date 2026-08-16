@@ -16,7 +16,11 @@ internal class TestModuleWeaver : ModuleWeaver
     {
         ProjectDirectoryPath.ShouldNotBeNull();
 
-        var sourceDir = Path.GetDirectoryName(typeof(AssemblyToProcessFixture).Assembly.Location)!;
+        var sourceDir = Path.Combine(
+            Path.GetDirectoryName(typeof(AssemblyToProcessFixture).Assembly.Location)!,
+            "TestAssemblies",
+            "Injections"
+        );
 
         var targetDir = Path.Combine(ProjectDirectoryPath, "InjectedDllDir");
         Directory.CreateDirectory(targetDir);

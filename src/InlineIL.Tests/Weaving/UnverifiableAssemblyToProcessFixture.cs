@@ -1,5 +1,4 @@
 ﻿using Fody;
-using InlineIL.Tests.UnverifiableAssemblyToProcess;
 using Mono.Cecil;
 
 namespace InlineIL.Tests.Weaving;
@@ -14,7 +13,7 @@ public static class UnverifiableAssemblyToProcessFixture
     static UnverifiableAssemblyToProcessFixture()
     {
         (TestResult, OriginalModule, ResultModule) = WeaverRunner.ExecuteTestRun(
-            typeof(UnverifiableAssemblyToProcessReference).Assembly,
+            "InlineIL.Tests.UnverifiableAssemblyToProcess",
             new TestModuleWeaver(),
             false
         );
