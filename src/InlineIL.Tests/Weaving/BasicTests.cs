@@ -200,28 +200,40 @@ public class BasicTests : BasicTestsBase
         ShouldHaveError("UnusedInstance");
     }
 
-    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
+    [Fact]
     public void should_report_invalid_push_usage()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
+    [Fact]
     public void should_report_invalid_push_usage_2()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage2").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
+    [Fact]
     public void should_report_invalid_push_usage_3()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage3").ShouldContain("IL.Push cannot be used in this context");
     }
 
-    [ReleaseFact("typeof(InvalidAssemblyToProcessReference)")]
+    [Fact]
     public void should_report_invalid_push_usage_4()
     {
+        SkipForDebugBuilds();
         ShouldHaveError("InvalidPushUsage4").ShouldContain("IL.Push cannot be used in this context");
+    }
+
+    private static void SkipForDebugBuilds()
+    {
+        Assert.SkipWhen(
+            InvalidAssemblyToProcessFixture.OriginalModule.IsDebugBuild(),
+            "This test is inconclusive in debug builds."
+        );
     }
 
     [Fact]

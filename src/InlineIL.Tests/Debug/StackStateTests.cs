@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
@@ -19,9 +20,11 @@ public class StackStateTests
         _output = output;
     }
 
-    [DebugTest]
+    [Fact]
     public void CheckAllAssemblies()
     {
+        Assert.SkipUnless(Debugger.IsAttached, "This is a tooling test meant for debugging the weaver.");
+
         var assemblyCount = 0;
         var methodCount = 0;
         var invalidMethods = new List<string>();
