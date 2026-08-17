@@ -14,9 +14,9 @@
     <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
     <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
-    <PackageReference Include="System.Reflection.Metadata" Version="10.0.10" />
-    <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="10.0.11" />
+    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
