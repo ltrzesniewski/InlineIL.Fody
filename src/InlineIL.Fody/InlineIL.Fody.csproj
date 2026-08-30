@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FodyHelpers" Version="$(FodyVersion)" />
+    <PackageReference Include="FodyHelpers" />
   </ItemGroup>
 
   <ItemGroup>

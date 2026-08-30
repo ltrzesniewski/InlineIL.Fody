@@ -18,8 +18,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="$(FodyVersion)" GeneratePathProperty="true" />
-    <PackageReference Include="FodyPackaging" Version="$(FodyVersion)" PrivateAssets="all" />
+    <PackageReference Include="Fody" GeneratePathProperty="true" />
+    <PackageReference Include="FodyPackaging" PrivateAssets="all" />
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" Condition="'$(TargetFramework)' == 'netstandard1.1'" />
   </ItemGroup>
 

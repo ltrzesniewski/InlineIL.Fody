@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="$(FodyVersion)" PrivateAssets="all" />
+    <PackageReference Include="Fody" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
