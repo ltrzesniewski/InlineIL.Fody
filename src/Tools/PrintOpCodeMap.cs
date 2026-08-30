@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/env dotnet
 
-#:package FodyHelpers@$(FodyVersion)
+#:package FodyHelpers
 
 using System.Reflection;
 
