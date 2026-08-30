@@ -5,12 +5,14 @@ using System.Runtime.InteropServices;
 using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
 using InlineIL.Tests.Support;
+using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Xunit;
 
 namespace InlineIL.Tests.Debug;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class StackStateTests
 {
     private readonly ITestOutputHelper _output;
@@ -20,7 +22,7 @@ public class StackStateTests
         _output = output;
     }
 
-    [Fact]
+    // [Fact]
     public void CheckAllAssemblies()
     {
         Assert.SkipUnless(Debugger.IsAttached, "This is a tooling test meant for debugging the weaver.");
