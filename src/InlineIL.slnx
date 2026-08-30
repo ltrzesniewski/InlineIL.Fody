@@ -51,6 +51,9 @@
       <BuildType Solution="DebugWithReleaseTests|*" Project="Release" />
     </Project>
   </Folder>
+  <Folder Name="/Tools/">
+    <File Path="Tools/PrintOpCodeMap.cs" />
+  </Folder>
   <Project Path="InlineIL.Fody/InlineIL.Fody.csproj">
     <BuildType Solution="DebugWithReleaseTests|*" Project="Debug" />
   </Project>
