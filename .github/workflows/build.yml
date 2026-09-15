@@ -18,8 +18,6 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
 
       - name: NuGet Restore
         run: dotnet restore src/InlineIL.slnx
@@ -51,8 +49,6 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
 
       - name: Test
         run: >
