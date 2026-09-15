@@ -3,8 +3,6 @@ name: Build
 on: [push, pull_request]
 
 env:
-  BUILD_DOTNET_VERSION: 10.0.x
-
   DOTNET_NOLOGO: 1
   NUGET_CERT_REVOCATION_MODE: offline
   DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: 1
@@ -21,7 +19,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
+          global-json-file: global.json
 
       - name: NuGet Restore
         run: dotnet restore src/InlineIL.slnx
@@ -54,7 +52,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.BUILD_DOTNET_VERSION }}
+          global-json-file: global.json
 
       - name: Test
         run: >
