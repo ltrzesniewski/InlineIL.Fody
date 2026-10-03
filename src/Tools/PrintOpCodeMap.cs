@@ -20,10 +20,13 @@ var values = new HashSet<short>();
 values.UnionWith(cecilCodes.Keys);
 values.UnionWith(reflectionEmitCodes.Keys);
 
+Console.WriteLine("Code  Reflection      Cecil");
+
 foreach (var value in values.OrderBy(i => unchecked((ushort)i)))
 {
     var reflectionEmitCode = reflectionEmitCodes.TryGetValue(value, out var reflectionEmitOpCode) ? reflectionEmitOpCode.Name : "???";
     var cecilCode = cecilCodes.TryGetValue(value, out var cecilOpCode) ? cecilOpCode.Name : "???";
+    var diff = reflectionEmitCode != cecilCode;
 
-    Console.WriteLine($"{value:X4}: {reflectionEmitCode,-15} {cecilCode,-15}");
+    Console.WriteLine($"{value:X4}: {reflectionEmitCode,-15} {cecilCode,-15} {(diff ? "⚠️" : "")}");
 }
