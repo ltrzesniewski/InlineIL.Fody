@@ -39,9 +39,9 @@ public class WeaverILProcessorTests
             var isSameBasicBlock = i == 0 || il.GetBasicBlock(instructions[i].instruction) == il.GetBasicBlock(instructions[i - 1].instruction);
 
             if (instructions[i].sameBasicBlock)
-                Assert.True(isSameBasicBlock, $"Unexpected basic block boundary at index {i}");
+                isSameBasicBlock.ShouldBeTrue($"Unexpected basic block boundary at index {i}");
             else
-                Assert.False(isSameBasicBlock, $"Expected basic block boundary at index {i}");
+                isSameBasicBlock.ShouldBeFalse($"Expected basic block boundary at index {i}");
         }
     }
 
@@ -82,7 +82,7 @@ public class WeaverILProcessorTests
         ShouldHaveBasicBlockCount(2);
 
         void ShouldHaveBasicBlockCount(int count)
-            => instructions.Where(i => i != null).Select(il.GetBasicBlock).Distinct().Count().ShouldBe(count);
+            => instructions.Where(i => i != null).Select(il.GetBasicBlock).Distinct().ShouldHaveCount(count);
     }
 
     private static WeaverILProcessor CreateProcessor(ModuleDefinition module, IEnumerable<Instruction> instructions)

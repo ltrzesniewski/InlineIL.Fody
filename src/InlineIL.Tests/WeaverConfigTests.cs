@@ -80,5 +80,5 @@ public class WeaverConfigOptionsTests
         => new(XElement.Parse(xml));
 
     private static void AssertInvalid([LanguageInjection(InjectedLanguage.XML)] string xml)
-        => Assert.ThrowsAny<WeavingException>(() => new WeaverConfigOptions(XElement.Parse(xml)));
+        => Should.Throw<WeavingException>(() => new WeaverConfigOptions(XElement.Parse(xml)));
 }

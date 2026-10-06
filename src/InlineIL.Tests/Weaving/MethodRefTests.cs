@@ -372,7 +372,7 @@ public class MethodRefTests : MethodRefTestsBase
     public void should_call_instance_method_of_int32_from_delegate_2()
     {
         var result = (bool)GetInstance().CallInstanceMethodOfInt32FromDelegate2();
-        result.ShouldBe(true);
+        result.ShouldBeTrue();
     }
 
     [Fact]
@@ -638,7 +638,7 @@ public class MethodRefTestsCore : MethodRefTestsBase
     public void should_call_method_with_generic_array_return_type()
     {
         var result = (int[])GetInstance().CallGenericArrayReturnType();
-        result.ShouldBe([]);
+        result.ShouldBeEmpty();
     }
 
     [Fact]

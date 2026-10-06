@@ -55,10 +55,8 @@ public class AssemblyTests
                             .GetExportedTypes()
                             .Select(i => i.Namespace)
                             .Distinct(StringComparer.Ordinal)
-                            .OrderBy(i => i, StringComparer.Ordinal)
-                            .ToList()
                             .ShouldBe([
                                 "InlineIL.Fody"
-                            ]);
+                            ], ignoreOrder: true);
     }
 }

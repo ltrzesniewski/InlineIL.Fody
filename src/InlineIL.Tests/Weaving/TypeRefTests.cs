@@ -303,10 +303,10 @@ public class TypeRefTests : TypeRefTestsBase
     {
         var assemblyName = typeof(InjectedType).Assembly.FullName;
 
-        InvalidAssemblyToProcessFixture.OriginalModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldBe(1);
-        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldBe(1);
+        InvalidAssemblyToProcessFixture.OriginalModule.AssemblyReferences.Where(i => i.FullName == assemblyName).ShouldHaveSingleItem();
+        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Where(i => i.FullName == assemblyName).ShouldHaveSingleItem();
 
-        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName.StartsWith("InlineIL")).ShouldBe(1);
+        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Where(i => i.FullName.StartsWith("InlineIL")).ShouldHaveSingleItem();
     }
 
     [Fact]

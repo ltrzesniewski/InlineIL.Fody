@@ -248,7 +248,7 @@ public class BasicTests : BasicTestsBase
     {
         var guid = Guid.NewGuid();
         GetUnverifiableInstance().HandlePrefixesInDebugMode(ref guid);
-        guid.ShouldBe(Guid.Empty);
+        guid.ShouldBeEmpty();
     }
 
     [Fact]
@@ -342,14 +342,14 @@ public class BasicTests : BasicTestsBase
     public void should_handle_explicit_ret()
     {
         GetInstance().ExplicitRet();
-        GetMethodDefinition("ExplicitRet").Body.Instructions.Count(i => i.OpCode == OpCodes.Ret).ShouldBe(1);
+        GetMethodDefinition("ExplicitRet").Body.Instructions.Where(i => i.OpCode == OpCodes.Ret).ShouldHaveSingleItem();
     }
 
     [Fact]
     public void should_handle_explicit_endfinally()
     {
         GetInstance().ExplicitEndFinally();
-        GetMethodDefinition("ExplicitEndFinally").Body.Instructions.Count(i => i.OpCode == OpCodes.Endfinally).ShouldBe(1);
+        GetMethodDefinition("ExplicitEndFinally").Body.Instructions.Where(i => i.OpCode == OpCodes.Endfinally).ShouldHaveSingleItem();
     }
 
     [Fact]
@@ -362,9 +362,9 @@ public class BasicTests : BasicTestsBase
     [Fact]
     public void should_remove_leave_after_throw_or_rethrow()
     {
-        Assert.Throws<InvalidOperationException>(new Action(() => GetInstance().NoLeaveAfterThrowOrRethrow()));
-        GetOriginalMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldBe(1);
-        GetMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldBe(0);
+        Should.Throw<InvalidOperationException>(new Action(() => GetInstance().NoLeaveAfterThrowOrRethrow()));
+        GetOriginalMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Where(i => i.OpCode == OpCodes.Leave_S).ShouldHaveSingleItem();
+        GetMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Where(i => i.OpCode == OpCodes.Leave_S).ShouldBeEmpty();
     }
 
     [Fact]

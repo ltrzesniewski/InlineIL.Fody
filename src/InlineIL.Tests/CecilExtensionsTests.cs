@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Fody;
@@ -63,7 +62,7 @@ public class CecilExtensionsTests : IDisposable
         var callInstruction = _il.Body.Instructions.Last();
 
         var result = callInstruction.GetArgumentPushInstructions();
-        result.ShouldBe(new List<Instruction> { p0, p1, p2 }.AsReadOnly());
+        result.ShouldBe([p0, p1, p2]);
     }
 
     [Fact]
@@ -90,7 +89,7 @@ public class CecilExtensionsTests : IDisposable
         var callInstruction = _il.Body.Instructions.Last();
 
         var result = callInstruction.GetArgumentPushInstructions();
-        result.ShouldBe(new[] { p0, p1, p2 });
+        result.ShouldBe([p0, p1, p2]);
     }
 
     [Fact]
