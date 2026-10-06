@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
-using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving;
@@ -14,7 +14,7 @@ public class FieldRefTests() : ClassTestsBase("FieldRefTestCases")
         var instance = GetInstance();
         instance.IntField = 42;
         var result = (int)instance.ReturnIntField();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class FieldRefTests() : ClassTestsBase("FieldRefTestCases")
     public void should_reference_field_in_different_ways()
     {
         var result = (int[])GetInstance().ReturnStaticIntFieldInDifferentWays();
-        result.ShouldAll(i => i == result[0]);
+        result.ShouldAllBe(i => i == result[0]);
     }
 
     [Fact]
@@ -82,35 +82,35 @@ public class FieldRefTests() : ClassTestsBase("FieldRefTestCases")
     public void should_handle_field_token_load()
     {
         var handle = (RuntimeFieldHandle)GetInstance().ReturnFieldHandle();
-        FieldInfo.GetFieldFromHandle(handle).Name.ShouldEqual("IntField");
+        FieldInfo.GetFieldFromHandle(handle).Name.ShouldBe("IntField");
     }
 
     [Fact]
     public void should_get_static_field_from_generic_type()
     {
         var result = (int)GetInstance().GetValueFromGenericType();
-        result.ShouldEqual(10);
+        result.ShouldBe(10);
     }
 
     [Fact]
     public void should_get_static_generic_field_from_generic_type()
     {
         var result = (int)GetInstance().GetValueFromGenericType2();
-        result.ShouldEqual(10);
+        result.ShouldBe(10);
     }
 
     [Fact]
     public void should_get_field_from_imported_generic_type()
     {
         var result = (int)GetInstance().GetValueFromImportedGenericType();
-        result.ShouldEqual(10);
+        result.ShouldBe(10);
     }
 
     [Fact]
     public void should_get_generic_field_from_imported_generic_type()
     {
         var result = (int)GetInstance().GetValueFromImportedGenericType2<int>(10);
-        result.ShouldEqual(10);
+        result.ShouldBe(10);
     }
 }
 

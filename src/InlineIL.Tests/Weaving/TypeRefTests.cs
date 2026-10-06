@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using InlineIL.Tests.InjectedAssembly;
-using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving;
@@ -18,28 +18,28 @@ public class TypeRefTests : TypeRefTestsBase
     public void should_handle_type_arg()
     {
         var result = (RuntimeTypeHandle)GetInstance().ReturnTypeHandle<Guid>();
-        result.ShouldEqual(typeof(Guid).TypeHandle);
+        result.ShouldBe(typeof(Guid).TypeHandle);
     }
 
     [Fact]
     public void should_handle_type_token_load()
     {
         var handle = (RuntimeTypeHandle)GetInstance().ReturnTypeHandle();
-        Type.GetTypeFromHandle(handle).ShouldEqual(typeof(Guid));
+        Type.GetTypeFromHandle(handle).ShouldBe(typeof(Guid));
     }
 
     [Fact]
     public void should_handle_type_arg_generic()
     {
         var result = (RuntimeTypeHandle)GetInstance().ReturnTypeHandleGeneric<Guid>();
-        result.ShouldEqual(typeof(Guid).TypeHandle);
+        result.ShouldBe(typeof(Guid).TypeHandle);
     }
 
     [Fact]
     public void should_handle_type_token_load_generic()
     {
         var handle = (RuntimeTypeHandle)GetInstance().ReturnTypeHandleGeneric();
-        Type.GetTypeFromHandle(handle).ShouldEqual(typeof(Guid));
+        Type.GetTypeFromHandle(handle).ShouldBe(typeof(Guid));
     }
 
     [Fact]
@@ -66,105 +66,105 @@ public class TypeRefTests : TypeRefTestsBase
     public void should_handle_type_arg_different_ways()
     {
         var result = (RuntimeTypeHandle[])GetInstance().LoadTypeDifferentWays();
-        result.ShouldAll(i => Equals(i, result[0]));
+        result.ShouldAllBe(i => Equals(i, result[0]));
     }
 
     [Fact]
     public void should_handle_pointer_types_using_TypeRef()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadPointerTypeUsingTypeRef();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int**));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int**));
     }
 
     [Fact]
     public void should_handle_pointer_types_usingType()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadPointerTypeUsingType();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int**));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int**));
     }
 
     [Fact]
     public void should_handle_reference_types_using_TypeRef()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadReferenceTypeUsingTypeRef();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int).MakeByRefType());
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int).MakeByRefType());
     }
 
     [Fact]
     public void should_handle_reference_types_using_Type()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadReferenceTypeUsingType();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int).MakeByRefType());
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int).MakeByRefType());
     }
 
     [Fact]
     public void should_handle_array_types_using_TypeRef()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeUsingTypeRef();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][]));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int[][]));
     }
 
     [Fact]
     public void should_handle_array_types_using_Type()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeUsingType();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][]));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int[][]));
     }
 
     [Fact]
     public void should_handle_array_types_with_rank_using_TypeRef()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeWithRankUsingTypeRef();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][,,]));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int[][,,]));
     }
 
     [Fact]
     public void should_handle_array_types_with_rank_using_Type()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadArrayTypeWithRankUsingType();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(int[][,,]));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(int[][,,]));
     }
 
     [Fact]
     public void should_handle_generic_types_using_TypeRef()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadGenericTypeUsingTypeRef();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(Dictionary<int, string>));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(Dictionary<int, string>));
     }
 
     [Fact]
     public void should_handle_generic_types_using_Type()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadGenericTypeUsingType();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(Dictionary<int, string>));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(Dictionary<int, string>));
     }
 
     [Fact]
     public void should_handle_generic_types_by_name()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadGenericTypeByName();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(Action<int>));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(Action<int>));
     }
 
     [Fact]
     public void should_handle_open_generic_types_by_name()
     {
         var result = (RuntimeTypeHandle)GetInstance().LoadOpenGenericTypeByName();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(Action<>));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(Action<>));
     }
 
     [Fact]
     public void should_handle_nested_types_using_runtime_syntax()
     {
         var result = (Type)GetInstance().ReturnNestedTypeUsingRuntimeSyntax();
-        result.FullName.ShouldEqual($"{_verifiableAssembly}.TypeRefTestCases+NestedType");
+        result.FullName.ShouldBe($"{_verifiableAssembly}.TypeRefTestCases+NestedType");
     }
 
     [Fact]
     public void should_handle_nested_types_using_ecma_syntax()
     {
         var result = (Type)GetInstance().ReturnNestedTypeUsingEcmaSyntax();
-        result.FullName.ShouldEqual($"{_verifiableAssembly}.TypeRefTestCases+NestedType");
+        result.FullName.ShouldBe($"{_verifiableAssembly}.TypeRefTestCases+NestedType");
     }
 
     [Fact]
@@ -303,45 +303,45 @@ public class TypeRefTests : TypeRefTestsBase
     {
         var assemblyName = typeof(InjectedType).Assembly.FullName;
 
-        InvalidAssemblyToProcessFixture.OriginalModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldEqual(1);
-        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldEqual(1);
+        InvalidAssemblyToProcessFixture.OriginalModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldBe(1);
+        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName == assemblyName).ShouldBe(1);
 
-        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName.StartsWith("InlineIL")).ShouldEqual(1);
+        InvalidAssemblyToProcessFixture.ResultModule.AssemblyReferences.Count(i => i.FullName.StartsWith("InlineIL")).ShouldBe(1);
     }
 
     [Fact]
     public void should_inject_type_from_dll()
     {
         var result = (int)GetUnverifiableInstance().UseInjectedDll();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_return_type_spec_from_injected_type()
     {
         var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedTypeSpec();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedType[]));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(InjectedType[]));
     }
 
     [Fact]
     public void should_return_generic_type_spec_from_injected_type()
     {
         var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedGenericTypeSpec();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedGenericType<>));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(InjectedGenericType<>));
     }
 
     [Fact]
     public void should_return_generic_type_spec_from_injected_type_2()
     {
         var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedGenericTypeSpec2();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedGenericType<,>));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(InjectedGenericType<,>));
     }
 
     [Fact]
     public void should_return_constructed_generic_type_spec_from_injected_type()
     {
         var result = (RuntimeTypeHandle)GetUnverifiableInstance().ReturnInjectedConstructedGenericTypeSpec();
-        Type.GetTypeFromHandle(result).ShouldEqual(typeof(InjectedGenericType<InjectedType>));
+        Type.GetTypeFromHandle(result).ShouldBe(typeof(InjectedGenericType<InjectedType>));
     }
 
     [Theory]
@@ -359,10 +359,10 @@ public class TypeRefTests : TypeRefTestsBase
                                                    .Where(i => i.OpCode.Code == Code.Call)
                                                    .ToArray();
 
-        calls.Length.ShouldEqual(2);
+        calls.Length.ShouldBe(2);
 
-        calls[0].Operand.ShouldBe<MethodReference>().Name.ShouldEqual("AddInt32");
-        calls[1].Operand.ShouldBe<MethodReference>().Name.ShouldEqual("MultiplyInt32");
+        calls[0].Operand.ShouldBeOfType<MethodReference>().Name.ShouldBe("AddInt32");
+        calls[1].Operand.ShouldBeOfType<MethodReference>().Name.ShouldBe("MultiplyInt32");
     }
 
     [Fact]
@@ -421,14 +421,14 @@ public class TypeRefTestsCore : TypeRefTestsBase
     public void should_handle_nested_forwarded_types_using_runtime_syntax()
     {
         var result = (Type)GetInstance().ReturnNestedForwardedTypeUsingRuntimeSyntax();
-        result.ShouldEqual(typeof(Span<>.Enumerator));
+        result.ShouldBe(typeof(Span<>.Enumerator));
     }
 
     [Fact]
     public void should_handle_nested_forwarded_types_using_ecma_syntax()
     {
         var result = (Type)GetInstance().ReturnNestedForwardedTypeUsingEcmaSyntax();
-        result.ShouldEqual(typeof(Span<>.Enumerator));
+        result.ShouldBe(typeof(Span<>.Enumerator));
     }
 
     [Fact]
@@ -443,15 +443,15 @@ public class TypeRefTestsCore : TypeRefTestsBase
     public void should_return_forwarded_type()
     {
         var result = (Type)GetInstance().ReturnForwardedType();
-        result.ShouldEqual(typeof(Math));
+        result.ShouldBe(typeof(Math));
     }
 
     [Fact]
     public void should_map_forwarded_type_to_forwarder()
     {
-        var typeRef = (TypeReference)GetMethodDefinition("ReturnForwardedType").Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.Ldtoken).Operand;
-        var assemblyName = typeRef.Scope.ShouldBe<AssemblyNameReference>();
-        assemblyName.Name.ShouldEqual("System.Runtime.Extensions");
+        var typeRef = (TypeReference)GetMethodDefinition("ReturnForwardedType").Body.Instructions.Where(i => i.OpCode == OpCodes.Ldtoken).ShouldHaveSingleItem().Operand;
+        var assemblyName = typeRef.Scope.ShouldBeOfType<AssemblyNameReference>();
+        assemblyName.Name.ShouldBe("System.Runtime.Extensions");
     }
 
 #if CSHARP_13_OR_GREATER
@@ -459,7 +459,7 @@ public class TypeRefTestsCore : TypeRefTestsBase
     public void should_handle_type_token_load_generic_ref_struct()
     {
         var handle = (RuntimeTypeHandle)GetInstance().ReturnTypeHandleGenericRefStruct();
-        Type.GetTypeFromHandle(handle).ShouldNotBeNull().FullName.ShouldEqual($"{_verifiableAssembly}.TypeRefTestCases+RefStruct");
+        Type.GetTypeFromHandle(handle).ShouldNotBeNull().FullName.ShouldBe($"{_verifiableAssembly}.TypeRefTestCases+RefStruct");
     }
 #endif
 }

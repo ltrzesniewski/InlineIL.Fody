@@ -15,6 +15,7 @@
 
     <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CSharp" />
+    <PackageReference Include="Shouldly" />
     <PackageReference Include="System.Reflection.Metadata" />
     <PackageReference Include="xunit.v3.mtp-v2" />
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using InlineIL.Fody;
 using InlineIL.Tests.Support;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests;
@@ -56,7 +57,7 @@ public class AssemblyTests
                             .Distinct(StringComparer.Ordinal)
                             .OrderBy(i => i, StringComparer.Ordinal)
                             .ToList()
-                            .ShouldEqual([
+                            .ShouldBe([
                                 "InlineIL.Fody"
                             ]);
     }

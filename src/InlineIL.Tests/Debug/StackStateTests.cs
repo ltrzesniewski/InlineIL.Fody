@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using InlineIL.Fody.Processing;
 using InlineIL.Fody.Support;
-using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Debug;
@@ -63,7 +63,7 @@ public class StackStateTests
         foreach (var name in invalidMethods)
             _output.WriteLine(name);
 
-        invalidMethods.Count.ShouldEqual(0);
+        invalidMethods.Count.ShouldBe(0);
     }
 
     private static bool CheckMethod(MethodDefinition method)

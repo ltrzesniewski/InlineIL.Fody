@@ -3,6 +3,7 @@ using Fody;
 using InlineIL.Fody.Support;
 using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests;
@@ -50,7 +51,7 @@ public class WeaverConfigOptionsTests
             """
         );
 
-        config.SequencePoints.ShouldEqual(WeaverConfigOptions.SequencePointsBehavior.True);
+        config.SequencePoints.ShouldBe(WeaverConfigOptions.SequencePointsBehavior.True);
     }
 
     [Fact]
@@ -62,7 +63,7 @@ public class WeaverConfigOptionsTests
             """
         );
 
-        config.Warnings.ShouldEqual(WeaverConfigOptions.WarningsBehavior.Ignore);
+        config.Warnings.ShouldBe(WeaverConfigOptions.WarningsBehavior.Ignore);
     }
 
     [Fact]

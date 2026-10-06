@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Fody;
 using InlineIL.Fody.Extensions;
 using InlineIL.Fody.Processing;
-using InlineIL.Tests.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Shouldly;
 using Xunit;
 using CecilExtensions = InlineIL.Fody.Extensions.CecilExtensions;
 
@@ -62,7 +63,7 @@ public class CecilExtensionsTests : IDisposable
         var callInstruction = _il.Body.Instructions.Last();
 
         var result = callInstruction.GetArgumentPushInstructions();
-        result.ShouldEqual([p0, p1, p2]);
+        result.ShouldBe(new List<Instruction> { p0, p1, p2 }.AsReadOnly());
     }
 
     [Fact]
@@ -89,7 +90,7 @@ public class CecilExtensionsTests : IDisposable
         var callInstruction = _il.Body.Instructions.Last();
 
         var result = callInstruction.GetArgumentPushInstructions();
-        result.ShouldEqual(new[] { p0, p1, p2 });
+        result.ShouldBe(new[] { p0, p1, p2 });
     }
 
     [Fact]
@@ -118,7 +119,7 @@ public class CecilExtensionsTests : IDisposable
         var callInstruction = _il.Body.Instructions.Last();
 
         var result = callInstruction.GetArgumentPushInstructions();
-        result.ShouldEqual([p0, p1, p2]);
+        result.ShouldBe([p0, p1, p2]);
     }
 
     [Fact]
@@ -141,7 +142,7 @@ public class CecilExtensionsTests : IDisposable
             false;
 #endif
 
-        module.IsDebugBuild().ShouldEqual(isDebug);
+        module.IsDebugBuild().ShouldBe(isDebug);
     }
 
     [Fact]

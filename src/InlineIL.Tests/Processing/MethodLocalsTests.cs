@@ -3,6 +3,7 @@ using InlineIL.Fody.Model;
 using InlineIL.Fody.Processing;
 using InlineIL.Tests.Support;
 using Mono.Cecil;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Processing;

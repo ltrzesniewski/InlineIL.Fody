@@ -3,9 +3,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using InlineIL.Fody.Extensions;
 using InlineIL.Tests.Common;
-using InlineIL.Tests.Support;
 using JetBrains.Annotations;
 using Mono.Cecil.Cil;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving;
@@ -19,7 +19,7 @@ public class BasicTests : BasicTestsBase
     {
         var result = (int)GetInstance().MultiplyBy3(42);
 
-        result.ShouldEqual(42 * 3);
+        result.ShouldBe(42 * 3);
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class BasicTests : BasicTestsBase
     {
         var result = (string)GetInstance().PushValue();
 
-        result.ShouldEqual("Hello");
+        result.ShouldBe("Hello");
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class BasicTests : BasicTestsBase
     {
         var i = 0;
         GetInstance().PushRef(ref i);
-        i.ShouldEqual(42);
+        i.ShouldBe(42);
     }
 
     [Fact]
@@ -52,14 +52,14 @@ public class BasicTests : BasicTestsBase
     {
         var i = 0;
         ((IBasicTestCases)GetInstance()).PushInRef(i);
-        i.ShouldEqual(42);
+        i.ShouldBe(42);
     }
 
     [Fact]
     public void should_push_out_ref()
     {
         GetInstance().PushOutRef(out int i);
-        i.ShouldEqual(42);
+        i.ShouldBe(42);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class BasicTests : BasicTestsBase
     {
         int i;
         ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PushPointer(&i);
-        i.ShouldEqual(42);
+        i.ShouldBe(42);
     }
 
     [Fact]
@@ -75,63 +75,63 @@ public class BasicTests : BasicTestsBase
     {
         var a = 42;
         GetInstance().AddAssign(ref a, 8);
-        a.ShouldEqual(50);
+        a.ShouldBe(50);
     }
 
     [Fact]
     public void should_handle_const_operand_int()
     {
         var result = (int)GetInstance().TwoPlusTwo();
-        result.ShouldEqual(4);
+        result.ShouldBe(4);
     }
 
     [Fact]
     public void should_handle_const_operand_float()
     {
         var result = (double)GetInstance().TwoPlusTwoFloat();
-        result.ShouldEqual(4.0);
+        result.ShouldBe(4.0);
     }
 
     [Fact]
     public void should_handle_const_operand_byte()
     {
         var result = (int)GetInstance().TwoPlusTwoByte();
-        result.ShouldEqual(4);
+        result.ShouldBe(4);
     }
 
     [Fact]
     public void should_handle_const_operand_string()
     {
         var result = (string)GetInstance().SayHi();
-        result.ShouldEqual("Hello!");
+        result.ShouldBe("Hello!");
     }
 
     [Fact]
     public void should_handle_const_operand_on_arg()
     {
         var result = (int)GetInstance().ReturnArg(42);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_pop_to_locals()
     {
         var result = (int)GetInstance().PopLocals();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_pop_to_arguments()
     {
         var result = (int)GetInstance().PopArgs(21);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_pop_to_static_field()
     {
         var result = (int)GetInstance().PopStaticField(21);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class BasicTests : BasicTestsBase
     {
         var values = stackalloc int[2] { 24, 42 };
         var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopPointerLocal(values, 1);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public class BasicTests : BasicTestsBase
     {
         var values = stackalloc int[2] { 24, 42 };
         var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopPointerArg(values, 1);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -155,7 +155,7 @@ public class BasicTests : BasicTestsBase
     {
         var values = stackalloc int[2] { 24, 42 };
         var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopPointerStatic(values, 1);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public class BasicTests : BasicTestsBase
     {
         var values = stackalloc int[2] { 24, 42 };
         var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopVoidPointerLocal(values, 1);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class BasicTests : BasicTestsBase
     {
         var values = stackalloc int[2] { 24, 42 };
         var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopVoidPointerArg(values, 1);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -179,7 +179,7 @@ public class BasicTests : BasicTestsBase
     {
         var values = stackalloc int[2] { 24, 42 };
         var result = ((IUnverifiableBasicTestCases)GetUnverifiableInstance()).PopVoidPointerStatic(values, 1);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -240,7 +240,7 @@ public class BasicTests : BasicTestsBase
     public void should_handle_exception_blocks()
     {
         var result = (int)GetInstance().HandleExceptionBlocks();
-        result.ShouldEqual(19);
+        result.ShouldBe(19);
     }
 
     [Fact]
@@ -248,21 +248,21 @@ public class BasicTests : BasicTestsBase
     {
         var guid = Guid.NewGuid();
         GetUnverifiableInstance().HandlePrefixesInDebugMode(ref guid);
-        guid.ShouldEqual(Guid.Empty);
+        guid.ShouldBe(Guid.Empty);
     }
 
     [Fact]
     public void should_process_nested_classes()
     {
         var result = (int)GetInstance().NestedClass();
-        result.ShouldEqual(3);
+        result.ShouldBe(3);
     }
 
     [Fact]
     public void should_handle_return_with_conversions()
     {
-        ((float)GetInstance().ReturnWithConversion1()).ShouldEqual(42.0f);
-        ((int?)GetInstance().ReturnWithConversion2()).ShouldEqual(42);
+        ((float)GetInstance().ReturnWithConversion1()).ShouldBe(42.0f);
+        ((int?)GetInstance().ReturnWithConversion2()).ShouldBe(42);
     }
 
     [Fact]
@@ -272,7 +272,7 @@ public class BasicTests : BasicTestsBase
         var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
         ref var valueRef = ref instance.ReturnRef(array, 1);
         valueRef = 42;
-        array[1].ShouldEqual(42);
+        array[1].ShouldBe(42);
     }
 
     [Fact]
@@ -283,7 +283,7 @@ public class BasicTests : BasicTestsBase
         {
             var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
             var valuePtr = instance.ReturnPointer(array, 1);
-            (*valuePtr).ShouldEqual(42);
+            (*valuePtr).ShouldBe(42);
         }
     }
 
@@ -295,7 +295,7 @@ public class BasicTests : BasicTestsBase
         {
             var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
             var valuePtr = instance.ReturnVoidPointer(array, 1);
-            (*(int*)valuePtr).ShouldEqual(42);
+            (*(int*)valuePtr).ShouldBe(42);
         }
     }
 
@@ -304,7 +304,7 @@ public class BasicTests : BasicTestsBase
     {
         var array = new[] { 24, 42 };
         var value = (int)GetUnverifiableInstance().ReturnRefWithDereference(array, 1);
-        value.ShouldEqual(42);
+        value.ShouldBe(42);
     }
 
     [Fact]
@@ -312,7 +312,7 @@ public class BasicTests : BasicTestsBase
     {
         var array = new[] { 24, 42 };
         var value = (double)GetUnverifiableInstance().ReturnRefWithDereferenceAndConversion(array, 1);
-        value.ShouldEqual(42.0);
+        value.ShouldBe(42.0);
     }
 
     [Fact]
@@ -322,7 +322,7 @@ public class BasicTests : BasicTestsBase
         fixed (int* _ = &array[0])
         {
             var value = (int)(GetUnverifiableInstance().ReturnPointerWithDereference(array, 1));
-            value.ShouldEqual(42);
+            value.ShouldBe(42);
         }
     }
 
@@ -334,7 +334,7 @@ public class BasicTests : BasicTestsBase
         {
             var instance = (IUnverifiableBasicTestCases)GetUnverifiableInstance();
             var valuePtr = instance.ReturnPointerWithConversion(array, 1);
-            (*(int*)valuePtr).ShouldEqual(42);
+            (*(int*)valuePtr).ShouldBe(42);
         }
     }
 
@@ -342,29 +342,29 @@ public class BasicTests : BasicTestsBase
     public void should_handle_explicit_ret()
     {
         GetInstance().ExplicitRet();
-        GetMethodDefinition("ExplicitRet").Body.Instructions.Count(i => i.OpCode == OpCodes.Ret).ShouldEqual(1);
+        GetMethodDefinition("ExplicitRet").Body.Instructions.Count(i => i.OpCode == OpCodes.Ret).ShouldBe(1);
     }
 
     [Fact]
     public void should_handle_explicit_endfinally()
     {
         GetInstance().ExplicitEndFinally();
-        GetMethodDefinition("ExplicitEndFinally").Body.Instructions.Count(i => i.OpCode == OpCodes.Endfinally).ShouldEqual(1);
+        GetMethodDefinition("ExplicitEndFinally").Body.Instructions.Count(i => i.OpCode == OpCodes.Endfinally).ShouldBe(1);
     }
 
     [Fact]
     public void should_handle_explicit_leave()
     {
         GetInstance().ExplicitLeave();
-        GetMethodDefinition("ExplicitLeave").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldEqual(2);
+        GetMethodDefinition("ExplicitLeave").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldBe(2);
     }
 
     [Fact]
     public void should_remove_leave_after_throw_or_rethrow()
     {
         Assert.Throws<InvalidOperationException>(new Action(() => GetInstance().NoLeaveAfterThrowOrRethrow()));
-        GetOriginalMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldEqual(1);
-        GetMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldEqual(0);
+        GetOriginalMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldBe(1);
+        GetMethodDefinition("NoLeaveAfterThrowOrRethrow").Body.Instructions.Count(i => i.OpCode == OpCodes.Leave_S).ShouldBe(0);
     }
 
     [Fact]
@@ -377,7 +377,7 @@ public class BasicTests : BasicTestsBase
     public void should_support_ldc_i4_s()
     {
         var result = (int)(sbyte)GetInstance().LdcI4S();
-        result.ShouldEqual(-42);
+        result.ShouldBe(-42);
     }
 
     [Fact]
@@ -386,7 +386,7 @@ public class BasicTests : BasicTestsBase
         var instructions = GetMethodDefinition("ShortenInstructions").Body.Instructions;
 
         instructions.Where(i => i.OpCode != OpCodes.Pop && i.OpCode != OpCodes.Ret && i.OpCode != OpCodes.Nop)
-                    .ShouldAll(i => i.OpCode == OpCodes.Ldarg_1);
+                    .ShouldAllBe(i => i.OpCode == OpCodes.Ldarg_1);
     }
 
     [Fact]
@@ -414,7 +414,7 @@ public class BasicTests : BasicTestsBase
 
         var expectedCount = method.Module.IsDebugBuild() ? 7 : 0;
 
-        method.DebugInformation.SequencePoints.Count.ShouldEqual(expectedCount);
+        method.DebugInformation.SequencePoints.Count.ShouldBe(expectedCount);
     }
 
     [Fact]
@@ -455,7 +455,7 @@ public class BasicTests : BasicTestsBase
     {
         var method = GetMethodDefinition("HandleNop");
         var firstPop = method.Body.Instructions.First(i => i.OpCode == OpCodes.Pop);
-        firstPop.Next.OpCode.ShouldEqual(OpCodes.Pop);
+        firstPop.Next.OpCode.ShouldBe(OpCodes.Pop);
     }
 
     [Fact]
@@ -463,7 +463,7 @@ public class BasicTests : BasicTestsBase
     {
         var method = GetMethodDefinition("HandleNop");
         var firstPop = method.Body.Instructions.First(i => i.OpCode == OpCodes.Ldnull);
-        firstPop.Next.OpCode.ShouldEqual(OpCodes.Nop);
+        firstPop.Next.OpCode.ShouldBe(OpCodes.Nop);
     }
 
     [Fact]
@@ -479,23 +479,23 @@ public class BasicTests : BasicTestsBase
 
         firstPopSequencePoint.ShouldNotBeNull();
         secondPopSequencePoint.ShouldNotBeNull();
-        secondPopSequencePoint.ShouldNotEqual(firstPopSequencePoint);
+        secondPopSequencePoint.ShouldNotBe(firstPopSequencePoint);
     }
 
     [Fact]
     public void should_support_no_opcode_with_byte_arg()
     {
         var method = GetUnverifiableMethodDefinition("NoOpCodeByte");
-        var instruction = method.Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.No);
-        instruction.Operand.ShouldBe<byte>().ShouldEqual((byte)(0x01 | 0x04));
+        var instruction = method.Body.Instructions.Where(i => i.OpCode == OpCodes.No).ShouldHaveSingleItem();
+        instruction.Operand.ShouldBeOfType<byte>().ShouldBe((byte)(0x01 | 0x04));
     }
 
     [Fact]
     public void should_support_no_opcode_with_enum_arg()
     {
         var method = GetUnverifiableMethodDefinition("NoOpCodeEnum");
-        var instruction = method.Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.No);
-        instruction.Operand.ShouldBe<byte>().ShouldEqual((byte)(0x01 | 0x02 | 0x04));
+        var instruction = method.Body.Instructions.Where(i => i.OpCode == OpCodes.No).ShouldHaveSingleItem();
+        instruction.Operand.ShouldBeOfType<byte>().ShouldBe((byte)(0x01 | 0x02 | 0x04));
     }
 
     [Fact]
@@ -542,7 +542,7 @@ public class BasicTestsCore : BasicTestsBase
     {
         var result = (int)GetInstance().PushAndPopRefStruct();
 
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 #endif
 }

@@ -1,6 +1,7 @@
 using InlineIL.Fody.Support;
 using InlineIL.Tests.Support;
 using Mono.Cecil.Cil;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests;
@@ -18,8 +19,8 @@ public class WeaverLoggerTests
         log.Debug("Bar");
         log.Info("Baz");
 
-        _log.LoggedDebug.ShouldEqual(new[] { "Foo", "Bar" });
-        _log.LoggedInfos.ShouldEqual(new[] { "Baz" });
+        _log.LoggedDebug.ShouldBe(["Foo", "Bar"]);
+        _log.LoggedInfos.ShouldBe(["Baz"]);
         _log.LoggedWarnings.ShouldBeEmpty();
         _log.LoggedErrors.ShouldBeEmpty();
     }
@@ -37,16 +38,14 @@ public class WeaverLoggerTests
 
         _log.LoggedDebug.ShouldBeEmpty();
         _log.LoggedInfos.ShouldBeEmpty();
-        _log.LoggedWarnings.ShouldEqual(new[]
-        {
+        _log.LoggedWarnings.ShouldBe([
             ("Foo", null),
             ("Bar", sequencePoint)
-        });
-        _log.LoggedErrors.ShouldEqual(new[]
-        {
+        ]);
+        _log.LoggedErrors.ShouldBe([
             ("Baz", null),
             ("Hello", sequencePoint)
-        });
+        ]);
     }
 
     [Fact]
@@ -60,18 +59,16 @@ public class WeaverLoggerTests
         log.Error("Baz", null);
         log.Error("Hello", sequencePoint);
 
-        _log.LoggedDebug.ShouldEqual(new[]
-        {
+        _log.LoggedDebug.ShouldBe([
             "Ignored warning: Foo",
             "Ignored warning: Bar"
-        });
+        ]);
         _log.LoggedInfos.ShouldBeEmpty();
         _log.LoggedWarnings.ShouldBeEmpty();
-        _log.LoggedErrors.ShouldEqual(new[]
-        {
+        _log.LoggedErrors.ShouldBe([
             ("Baz", null),
             ("Hello", sequencePoint)
-        });
+        ]);
     }
 
     [Fact]
@@ -88,12 +85,11 @@ public class WeaverLoggerTests
         _log.LoggedDebug.ShouldBeEmpty();
         _log.LoggedInfos.ShouldBeEmpty();
         _log.LoggedWarnings.ShouldBeEmpty();
-        _log.LoggedErrors.ShouldEqual(new[]
-        {
+        _log.LoggedErrors.ShouldBe([
             ("Warning as error: Foo", null),
             ("Warning as error: Bar", sequencePoint),
             ("Baz", null),
             ("Hello", sequencePoint)
-        });
+        ]);
     }
 }

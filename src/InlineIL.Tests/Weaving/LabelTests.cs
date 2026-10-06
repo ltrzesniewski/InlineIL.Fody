@@ -1,5 +1,5 @@
-﻿using InlineIL.Tests.Support;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving;
@@ -10,10 +10,10 @@ public class LabelTests() : ClassTestsBase("LabelTestCases")
     public void should_handle_labels()
     {
         var result = (int)GetInstance().Branch(false);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
 
         result = (int)GetInstance().Branch(true);
-        result.ShouldEqual(1);
+        result.ShouldBe(1);
 
         ShouldNotHaveWarnings("Branch");
     }
@@ -22,16 +22,16 @@ public class LabelTests() : ClassTestsBase("LabelTestCases")
     public void should_handle_switch()
     {
         var result = (int)GetInstance().JumpTable(0);
-        result.ShouldEqual(1);
+        result.ShouldBe(1);
 
         result = (int)GetInstance().JumpTable(1);
-        result.ShouldEqual(2);
+        result.ShouldBe(2);
 
         result = (int)GetInstance().JumpTable(2);
-        result.ShouldEqual(3);
+        result.ShouldBe(3);
 
         result = (int)GetInstance().JumpTable(3);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
 
         ShouldNotHaveWarnings("JumpTable");
     }
@@ -41,16 +41,16 @@ public class LabelTests() : ClassTestsBase("LabelTestCases")
     public void should_handle_switch_with_collection_expression()
     {
         var result = (int)GetInstance().JumpTableCollectionExpression(0);
-        result.ShouldEqual(1);
+        result.ShouldBe(1);
 
         result = (int)GetInstance().JumpTableCollectionExpression(1);
-        result.ShouldEqual(2);
+        result.ShouldBe(2);
 
         result = (int)GetInstance().JumpTableCollectionExpression(2);
-        result.ShouldEqual(3);
+        result.ShouldBe(3);
 
         result = (int)GetInstance().JumpTableCollectionExpression(3);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
 
         ShouldNotHaveWarnings("JumpTableCollectionExpression");
     }

@@ -5,6 +5,7 @@ using InlineIL.Fody.Processing;
 using InlineIL.Tests.Support;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Processing;
@@ -81,7 +82,7 @@ public class WeaverILProcessorTests
         ShouldHaveBasicBlockCount(2);
 
         void ShouldHaveBasicBlockCount(int count)
-            => instructions.Where(i => i != null).Select(il.GetBasicBlock).Distinct().Count().ShouldEqual(count);
+            => instructions.Where(i => i != null).Select(il.GetBasicBlock).Distinct().Count().ShouldBe(count);
     }
 
     private static WeaverILProcessor CreateProcessor(ModuleDefinition module, IEnumerable<Instruction> instructions)

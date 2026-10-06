@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving;
@@ -12,7 +12,7 @@ public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
     {
         var instance = GetInstance();
         var result = (int)instance.UseLocalVariables(8);
-        result.ShouldEqual(50);
+        result.ShouldBe(50);
     }
 
     [Fact]
@@ -20,7 +20,7 @@ public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
     {
         var instance = GetInstance();
         var result = (int)instance.DeclareLocalVariablesAtThEnd(8);
-        result.ShouldEqual(50);
+        result.ShouldBe(50);
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
     {
         var instance = GetInstance();
         var result = (int)instance.UseLocalVariablesExplicitInit(8);
-        result.ShouldEqual(50);
+        result.ShouldBe(50);
 
         GetMethodDefinition("UseLocalVariablesExplicitInit").Body.InitLocals.ShouldBeTrue();
     }
@@ -38,7 +38,7 @@ public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
     {
         var instance = GetUnverifiableInstance();
         var result = (int)instance.UseLocalVariablesNoInit(8);
-        result.ShouldEqual(50);
+        result.ShouldBe(50);
 
         GetUnverifiableMethodDefinition("UseLocalVariablesNoInit").Body.InitLocals.ShouldBeFalse();
     }
@@ -49,7 +49,7 @@ public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
         var buf = new byte[] { 0, 0, 42, 0 };
         var instance = GetUnverifiableInstance();
         var result = (int)instance.UsePinnedLocalVariables(buf, 2);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
 
         GetUnverifiableMethodDefinition("UsePinnedLocalVariables").Body.Variables.ShouldContain(v => v.IsPinned);
     }
@@ -59,7 +59,7 @@ public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
     {
         var instance = GetInstance();
         var result = (int)instance.MapLocalIndexes(3, 12, 54, 9);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -67,38 +67,38 @@ public class LocalVarsTests() : ClassTestsBase("LocalVarsTestCases")
     {
         var instance = GetInstance();
         var result = (int)instance.MapLocalIndexesLong(38, 4);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_handle_optional_modifiers()
     {
         var localType = GetMethodDefinition("WithOptionalModifier").Body.Variables.Single().VariableType;
-        localType.FullName.ShouldEqual("System.Int32 modopt(System.Runtime.CompilerServices.IsConst)");
+        localType.FullName.ShouldBe("System.Int32 modopt(System.Runtime.CompilerServices.IsConst)");
     }
 
     [Fact]
     public void should_handle_required_modifiers()
     {
         var localType = GetMethodDefinition("WithRequiredModifier").Body.Variables.Single().VariableType;
-        localType.FullName.ShouldEqual("System.Int32 modreq(System.Runtime.CompilerServices.IsConst)");
+        localType.FullName.ShouldBe("System.Int32 modreq(System.Runtime.CompilerServices.IsConst)");
     }
 
     [Fact]
     public void should_handle_typedbyref()
     {
         var localType = GetMethodDefinition("TypedReference").Body.Variables.Single().VariableType;
-        localType.FullName.ShouldEqual("System.TypedReference");
+        localType.FullName.ShouldBe("System.TypedReference");
     }
 
     [Fact]
     public void should_add_debug_info()
     {
         var method = GetMethodDefinition("MixedNamedAndUnnamed");
-        method.DebugInformation.Scope.Variables.Count.ShouldEqual(3);
-        method.DebugInformation.Scope.Variables[0].Name.ShouldEqual("InlineIL_0");
-        method.DebugInformation.Scope.Variables[1].Name.ShouldEqual("foo");
-        method.DebugInformation.Scope.Variables[2].Name.ShouldEqual("InlineIL_2");
+        method.DebugInformation.Scope.Variables.Count.ShouldBe(3);
+        method.DebugInformation.Scope.Variables[0].Name.ShouldBe("InlineIL_0");
+        method.DebugInformation.Scope.Variables[1].Name.ShouldBe("foo");
+        method.DebugInformation.Scope.Variables[2].Name.ShouldBe("InlineIL_2");
     }
 
     [Fact]

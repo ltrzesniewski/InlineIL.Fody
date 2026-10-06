@@ -1,6 +1,6 @@
 using System.IO;
 using InlineIL.Fody;
-using InlineIL.Tests.Support;
+using Shouldly;
 
 namespace InlineIL.Tests.Weaving;
 

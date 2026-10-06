@@ -1,5 +1,5 @@
-﻿using InlineIL.Tests.Support;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 namespace InlineIL.Tests.Weaving;
@@ -12,21 +12,21 @@ public class StandAloneMethodSigTests : StandAloneMethodSigTestsBase
     public void should_call_indirect_static()
     {
         var result = (int)GetUnverifiableInstance().CallIndirectStatic();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_call_indirect_static_alt()
     {
         var result = (int)GetUnverifiableInstance().CallIndirectStaticAlt();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_call_indirect_instance()
     {
         var result = (int)GetUnverifiableInstance().CallIndirectInstance();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -51,21 +51,21 @@ public class StandAloneMethodSigTests : StandAloneMethodSigTestsBase
     public void should_call_indirect_native_stdcall()
     {
         var result = (int)GetUnverifiableInstance().CallIndirectNativeStdcall();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_call_indirect_native_stdcall_alt()
     {
         var result = (int)GetUnverifiableInstance().CallIndirectNativeStdcallAlt();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_call_indirect_native_cdecl()
     {
         var result = (int)GetUnverifiableInstance().CallIndirectNativeCdecl();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class StandAloneMethodSigTests : StandAloneMethodSigTestsBase
     public void should_tail_call_indirect_static()
     {
         var result = (int)GetUnverifiableInstance().TailCallIndirectStatic();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -91,36 +91,36 @@ public class StandAloneMethodSigTests : StandAloneMethodSigTestsBase
     public void should_branch_over_tail_call()
     {
         var result = (int)GetUnverifiableInstance().BranchOverTailCall(true);
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
 
         result = (int)GetUnverifiableInstance().BranchOverTailCall(false);
-        result.ShouldEqual(84);
+        result.ShouldBe(84);
     }
 
     [Fact]
     public void should_handle_multiple_tail_calls()
     {
         var result = (int)GetUnverifiableInstance().MultipleTailCalls(true);
-        result.ShouldEqual(1);
+        result.ShouldBe(1);
 
         result = (int)GetUnverifiableInstance().MultipleTailCalls(false);
-        result.ShouldEqual(2);
+        result.ShouldBe(2);
     }
 
     [Fact]
     public void should_handle_mixed_non_tail_and_tail_calls()
     {
         var result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall(true);
-        result.ShouldEqual(1);
+        result.ShouldBe(1);
 
         result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall(false);
-        result.ShouldEqual(2);
+        result.ShouldBe(2);
 
         result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall2(true);
-        result.ShouldEqual(1);
+        result.ShouldBe(1);
 
         result = (int)GetUnverifiableInstance().MixedNonTailAndTailCall2(false);
-        result.ShouldEqual(2);
+        result.ShouldBe(2);
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class StandAloneMethodSigTestsFramework : StandAloneMethodSigTestsBase
     public void should_call_indirect_vararg()
     {
         var result = (int)GetUnverifiableInstance().CallIndirectVarArg();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 }
 #endif

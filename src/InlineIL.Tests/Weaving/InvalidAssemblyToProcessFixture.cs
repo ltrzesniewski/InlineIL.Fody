@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Fody;
-using InlineIL.Tests.Support;
 using Mono.Cecil;
+using Shouldly;
 
 namespace InlineIL.Tests.Weaving;
 
@@ -36,6 +36,6 @@ public static class InvalidAssemblyToProcessFixture
     public static void ShouldHaveErrorInType(string className, string nestedTypeName)
     {
         var expectedMessagePart = $" {className}/{nestedTypeName}";
-        TestResult.Errors.ShouldAny(err => err.Text.Contains(expectedMessagePart));
+        TestResult.Errors.ShouldContain(err => err.Text.Contains(expectedMessagePart));
     }
 }

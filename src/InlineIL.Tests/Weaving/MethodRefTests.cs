@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using InlineIL.Tests.Common;
-using InlineIL.Tests.Support;
 using JetBrains.Annotations;
+using Shouldly;
 using Xunit;
 
 #if NET
@@ -34,42 +35,42 @@ public class MethodRefTests : MethodRefTestsBase
     public void should_handle_method_call()
     {
         var result = (Type)GetInstance().ReturnType<Guid>();
-        result.ShouldEqual(typeof(Guid));
+        result.ShouldBe(typeof(Guid));
     }
 
     [Fact]
     public void should_call_method_different_ways()
     {
         var result = (Type[])GetInstance().CallMethodDifferentWays();
-        result.ShouldAll(i => i == result[0]);
+        result.ShouldAllBe(i => i == result[0]);
     }
 
     [Fact]
     public void should_resolve_overloads()
     {
         var result = (int[])GetInstance().ResolveOverloads();
-        result.ShouldEqual([10, 10, 20, 30, 40, 50, 60, 60]);
+        result.ShouldBe([10, 10, 20, 30, 40, 50, 60, 60]);
     }
 
     [Fact]
     public void should_resolve_generic_overloads()
     {
         var result = (int[])GetInstance().ResolveGenericOverloads();
-        result.ShouldEqual([1, 2, 3, 4, 5, 6, 6, 7]);
+        result.ShouldBe([1, 2, 3, 4, 5, 6, 6, 7]);
     }
 
     [Fact]
     public void should_resolve_generic_overloads_in_nested_generic_types()
     {
         var result = (int[])GetInstance().ResolveGenericOverloadsInGenericType();
-        result.ShouldEqual([1, 2, 3, 4, 5]);
+        result.ShouldBe([1, 2, 3, 4, 5]);
     }
 
     [Fact]
     public void should_resolve_overloads_unverifiable()
     {
         var result = (int[])GetUnverifiableInstance().ResolveOverloads();
-        result.ShouldEqual([10, 10, 20, 30, 40, 50, 60]);
+        result.ShouldBe([10, 10, 20, 30, 40, 50, 60]);
     }
 
     [Fact]
@@ -102,49 +103,49 @@ public class MethodRefTests : MethodRefTestsBase
     public void should_call_generic_method()
     {
         var result = (int)GetInstance().CallGenericMethod();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_call_method_in_generic_type()
     {
         var result = (string)GetInstance().CallMethodInGenericType();
-        result.ShouldEqual(typeof(Guid).FullName);
+        result.ShouldBe(typeof(Guid).FullName);
     }
 
     [Fact]
     public void should_call_method_in_generic_type_array()
     {
         var result = (string)GetInstance().CallMethodInGenericTypeArray();
-        result.ShouldEqual(typeof(Guid[]).FullName);
+        result.ShouldBe(typeof(Guid[]).FullName);
     }
 
     [Fact]
     public void should_call_method_in_generic_type_generic()
     {
         var result = (string)GetInstance().CallMethodInGenericTypeGeneric<DayOfWeek>();
-        result.ShouldEqual(typeof(DayOfWeek).FullName);
+        result.ShouldBe(typeof(DayOfWeek).FullName);
     }
 
     [Fact]
     public void should_call_generic_method_in_generic_type()
     {
         var result = (string)GetInstance().CallGenericMethodInGenericType();
-        result.ShouldEqual($"{typeof(Guid).FullName} {typeof(TimeSpan).FullName}");
+        result.ShouldBe($"{typeof(Guid).FullName} {typeof(TimeSpan).FullName}");
     }
 
     [Fact]
     public void should_call_generic_method_in_generic_type_array()
     {
         var result = (string)GetInstance().CallGenericMethodInGenericTypeArray();
-        result.ShouldEqual($"{typeof(Guid[]).FullName} {typeof(TimeSpan[]).FullName}");
+        result.ShouldBe($"{typeof(Guid[]).FullName} {typeof(TimeSpan[]).FullName}");
     }
 
     [Fact]
     public void should_call_generic_method_in_generic_type_generic()
     {
         var result = (string)GetInstance().CallGenericMethodInGenericTypeGeneric<DayOfWeek, ConsoleColor>();
-        result.ShouldEqual($"{typeof(DayOfWeek).FullName} {typeof(ConsoleColor).FullName}");
+        result.ShouldBe($"{typeof(DayOfWeek).FullName} {typeof(ConsoleColor).FullName}");
     }
 
     [Fact]
@@ -158,7 +159,7 @@ public class MethodRefTests : MethodRefTestsBase
     public void should_handle_method_token_load()
     {
         var handle = (RuntimeMethodHandle)GetInstance().ReturnMethodHandle();
-        MethodBase.GetMethodFromHandle(handle).ShouldNotBeNull().Name.ShouldEqual(nameof(Type.GetTypeFromHandle));
+        MethodBase.GetMethodFromHandle(handle).ShouldNotBeNull().Name.ShouldBe(nameof(Type.GetTypeFromHandle));
     }
 
     [Fact]
@@ -167,7 +168,7 @@ public class MethodRefTests : MethodRefTestsBase
         var instance = GetInstance();
         instance.Value = 42;
         var result = (int)instance.GetValue();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -176,7 +177,7 @@ public class MethodRefTests : MethodRefTestsBase
         var instance = GetInstance();
         instance.SetValue(42);
         var result = (int)instance.Value;
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
@@ -188,7 +189,7 @@ public class MethodRefTests : MethodRefTestsBase
         var instance = (IMethodRefTestCases)GetInstance();
         instance.AddEvent(callback);
         instance.RaiseEvent();
-        callCount.ShouldEqual(1);
+        callCount.ShouldBe(1);
     }
 
     [Fact]
@@ -201,7 +202,7 @@ public class MethodRefTests : MethodRefTestsBase
         instance.RaiseEvent();
         instance.RemoveEvent(callback);
         instance.RaiseEvent();
-        callCount.ShouldEqual(1);
+        callCount.ShouldBe(1);
     }
 
     [Fact]
@@ -209,7 +210,7 @@ public class MethodRefTests : MethodRefTestsBase
     {
         var result = (StringBuilder)GetInstance().CallDefaultConstructor();
         result.ShouldNotBeNull();
-        result.Capacity.ShouldEqual(new StringBuilder().Capacity);
+        result.Capacity.ShouldBe(new StringBuilder().Capacity);
     }
 
     [Fact]
@@ -217,217 +218,217 @@ public class MethodRefTests : MethodRefTestsBase
     {
         var result = (StringBuilder)GetInstance().CallNonDefaultConstructor();
         result.ShouldNotBeNull();
-        result.Capacity.ShouldEqual(42);
+        result.Capacity.ShouldBe(42);
     }
 
     [Fact]
     public void should_access_type_initializer()
     {
         var result = (RuntimeMethodHandle)GetInstance().GetTypeInitializer();
-        MethodBase.GetMethodFromHandle(result).ShouldNotBeNull().Name.ShouldEqual(".cctor");
+        MethodBase.GetMethodFromHandle(result).ShouldNotBeNull().Name.ShouldBe(".cctor");
     }
 
     [Fact]
     public void should_call_static_method_from_delegate()
     {
         var result = (int)GetInstance().CallStaticMethodFromDelegate();
-        result.ShouldEqual(20);
+        result.ShouldBe(20);
     }
 
     [Fact]
     public void should_call_static_method_of_other_class_from_delegate()
     {
         var result = (int)GetInstance().CallStaticMethodOfOtherClassFromDelegate();
-        result.ShouldEqual(200);
+        result.ShouldBe(200);
     }
 
     [Fact]
     public void should_call_static_method_of_struct_from_delegate()
     {
         var result = (int)GetInstance().CallStaticMethodOfStructFromDelegate();
-        result.ShouldEqual(2000);
+        result.ShouldBe(2000);
     }
 
     [Fact]
     public void should_call_instance_method_from_delegate()
     {
         var result = (int)GetInstance().CallInstanceMethodFromDelegate();
-        result.ShouldEqual(20);
+        result.ShouldBe(20);
     }
 
     [Fact]
     public void should_call_instance_method_of_other_class_from_delegate()
     {
         var result = (int)GetInstance().CallInstanceMethodOfOtherClassFromDelegate();
-        result.ShouldEqual(200);
+        result.ShouldBe(200);
     }
 
     [Fact]
     public void should_call_instance_method_of_other_class_though_field_from_delegate()
     {
         var result = (int)GetInstance().CallInstanceMethodOfOtherClassThroughFieldFromDelegate();
-        result.ShouldEqual(200);
+        result.ShouldBe(200);
     }
 
     [Fact]
     public void should_call_virtual_method_of_other_class_from_delegate()
     {
         var result = (int)GetInstance().CallVirtualMethodOfOtherClassFromDelegate();
-        result.ShouldEqual(300);
+        result.ShouldBe(300);
     }
 
     [Fact]
     public void should_call_virtual_method_of_other_class_from_delegate_2()
     {
         var result = (int)GetInstance().CallVirtualMethodOfOtherClassFromDelegate2();
-        result.ShouldEqual(300);
+        result.ShouldBe(300);
     }
 
     [Fact]
     public void should_call_virtual_method_override_of_other_class_from_delegate()
     {
         var result = (int)GetInstance().CallVirtualMethodOverrideOfOtherClassFromDelegate();
-        result.ShouldEqual(300); // Calls the base method
+        result.ShouldBe(300); // Calls the base method
     }
 
     [Fact]
     public void should_call_virtual_method_override_of_other_class_from_delegate_2()
     {
         var result = (int)GetInstance().CallVirtualMethodOverrideOfOtherClassFromDelegate2();
-        result.ShouldEqual(400);
+        result.ShouldBe(400);
     }
 
     [Fact]
     public void should_call_instance_method_of_struct_from_delegate()
     {
         var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate();
-        result.ShouldEqual(2000);
+        result.ShouldBe(2000);
     }
 
     [Fact]
     public void should_call_instance_method_of_struct_from_delegate_2()
     {
         var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate2();
-        result.ShouldEqual(2000);
+        result.ShouldBe(2000);
     }
 
     [Fact]
     public void should_call_instance_method_of_struct_from_delegate_3()
     {
         var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate3();
-        result.ShouldEqual(2000);
+        result.ShouldBe(2000);
     }
 
     [Fact]
     public void should_call_instance_method_of_struct_from_delegate_4()
     {
         var result = (int)GetInstance().CallInstanceMethodOfStructFromDelegate4();
-        result.ShouldEqual(2000);
+        result.ShouldBe(2000);
     }
 
     [Fact]
     public void should_call_interface_method_of_struct_from_delegate()
     {
         var result = (int)GetInstance().CallInterfaceMethodOfStructFromDelegate();
-        result.ShouldEqual(3000);
+        result.ShouldBe(3000);
     }
 
     [Fact]
     public void should_call_instance_method_of_struct_though_field_from_delegate()
     {
         var result = (int)GetInstance().CallInstanceMethodOfStructThroughFieldFromDelegate();
-        result.ShouldEqual(2000);
+        result.ShouldBe(2000);
     }
 
     [Fact]
     public void should_call_static_method_of_generic_class_from_delegate()
     {
         var result = (string)GetInstance().CallStaticMethodOfGenericClassFromDelegate();
-        result.ShouldEqual(typeof(string).FullName);
+        result.ShouldBe(typeof(string).FullName);
     }
 
     [Fact]
     public void should_call_generic_static_method_of_generic_class_from_delegate()
     {
         var result = (string)GetInstance().CallGenericStaticMethodOfGenericClassFromDelegate();
-        result.ShouldEqual($"{typeof(string).FullName} {typeof(int).FullName}");
+        result.ShouldBe($"{typeof(string).FullName} {typeof(int).FullName}");
     }
 
     [Fact]
     public void should_call_instance_method_of_string_from_delegate()
     {
         var result = (string)GetInstance().CallInstanceMethodOfStringFromDelegate();
-        result.ShouldEqual("foo");
+        result.ShouldBe("foo");
     }
 
     [Fact]
     public void should_call_instance_method_of_int32_from_delegate()
     {
         var result = (string)GetInstance().CallInstanceMethodOfInt32FromDelegate();
-        result.ShouldEqual("42");
+        result.ShouldBe("42");
     }
 
     [Fact]
     public void should_call_instance_method_of_int32_from_delegate_2()
     {
         var result = (bool)GetInstance().CallInstanceMethodOfInt32FromDelegate2();
-        result.ShouldEqual(true);
+        result.ShouldBe(true);
     }
 
     [Fact]
     public void should_call_instance_method_of_int32_with_sizeof_from_delegate()
     {
         var result = (string)GetInstance().CallInstanceMethodOfInt32WithSizeofFromDelegate();
-        result.ShouldEqual("42");
+        result.ShouldBe("42");
     }
 
     [Fact]
     public void should_call_instance_method_of_int64_from_delegate()
     {
         var result = (string)GetInstance().CallInstanceMethodOfInt64FromDelegate();
-        result.ShouldEqual("42");
+        result.ShouldBe("42");
     }
 
     [Fact]
     public void should_call_instance_method_of_int64_from_delegate_2()
     {
         var result = (string)GetInstance().CallInstanceMethodOfInt64FromDelegate2();
-        result.ShouldEqual("424242424242");
+        result.ShouldBe("424242424242");
     }
 
     [Fact]
     public void should_call_instance_method_of_float_from_delegate()
     {
         var result = (string)GetInstance().CallInstanceMethodOfFloatFromDelegate();
-        result.ShouldEqual("42");
+        result.ShouldBe("42");
     }
 
     [Fact]
     public void should_call_instance_method_of_double_from_delegate()
     {
         var result = (string)GetInstance().CallInstanceMethodOfDoubleFromDelegate();
-        result.ShouldEqual("42");
+        result.ShouldBe("42");
     }
 
     [Fact]
     public void should_call_unary_operators()
     {
         var result = (int[])GetInstance().CallUnaryOperators();
-        result.ShouldEqual([1, 2, 3, 4, 5, 6, 7, 8, 105]);
+        result.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 105]);
     }
 
     [Fact]
     public void should_call_binary_operators()
     {
         var result = (int[])GetInstance().CallBinaryOperators();
-        result.ShouldEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 103, 104]);
+        result.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 103, 104]);
     }
 
     [Fact]
     public void should_call_conversion_operators()
     {
         var result = (int[])GetInstance().CallConversionOperators();
-        result.ShouldEqual([1, 2, 3, 4, 5, 6, 101, 102, 1, 3, 102]);
+        result.ShouldBe([1, 2, 3, 4, 5, 6, 101, 102, 1, 3, 102]);
     }
 
     [Fact]
@@ -630,50 +631,50 @@ public class MethodRefTestsCore : MethodRefTestsBase
     public void should_resolve_generic_overloads_with_Type_API()
     {
         var result = (int[])GetInstance().ResolveGenericOverloadsUsingTypeApi();
-        result.ShouldEqual([1, 2, 3, 4, 5, 6, 6, 7]);
+        result.ShouldBe([1, 2, 3, 4, 5, 6, 6, 7]);
     }
 
     [Fact]
     public void should_call_method_with_generic_array_return_type()
     {
         var result = (int[])GetInstance().CallGenericArrayReturnType();
-        result.ShouldEqual([]);
+        result.ShouldBe([]);
     }
 
     [Fact]
     public void should_call_method_of_forwarded_type()
     {
         var result = (int)GetInstance().CallMethodOfForwardedType();
-        result.ShouldEqual(42);
+        result.ShouldBe(42);
     }
 
     [Fact]
     public void should_map_method_of_forwarded_type_to_forwarder()
     {
-        var methodRef = (MethodReference)GetMethodDefinition("CallMethodOfForwardedType").Body.Instructions.ShouldContainSingle(i => i.OpCode == OpCodes.Call).Operand;
-        var assemblyName = methodRef.DeclaringType.Scope.ShouldBe<AssemblyNameReference>();
-        assemblyName.Name.ShouldEqual("System.Runtime.Extensions");
+        var methodRef = (MethodReference)GetMethodDefinition("CallMethodOfForwardedType").Body.Instructions.Where(i => i.OpCode == OpCodes.Call).ShouldHaveSingleItem().Operand;
+        var assemblyName = methodRef.DeclaringType.Scope.ShouldBeOfType<AssemblyNameReference>();
+        assemblyName.Name.ShouldBe("System.Runtime.Extensions");
     }
 
     [Fact]
     public void should_call_forwarded_method_with_forwarded_parameter_type()
     {
         var result = (object)GetInstance().CallForwardedMethodWithForwardedParameterType();
-        result.ShouldBe<IndentedTextWriter>();
+        result.ShouldBeOfType<IndentedTextWriter>();
     }
 
     [Fact]
     public void should_call_method_of_generic_forwarded_type()
     {
         var result = (object)GetInstance().CallMethodOfGenericForwardedType();
-        result.ShouldBe<Progress<Random>>();
+        result.ShouldBeOfType<Progress<Random>>();
     }
 
     [Fact]
     public void should_call_generic_method_of_forwarded_type()
     {
         var result = (IEnumerable<string>)GetInstance().CallGenericMethodOfForwardedType();
-        result.ShouldEqual(["Hello", "Hello"]);
+        result.ShouldBe(["Hello", "Hello"]);
     }
 
     [Fact]
@@ -682,7 +683,7 @@ public class MethodRefTestsCore : MethodRefTestsBase
         SkipIfVarargNotSupported();
 
         var result = (int[])GetInstance().CallVarArgMethod();
-        result.ShouldEqual([1, 2, 3, 0, 0]);
+        result.ShouldBe([1, 2, 3, 0, 0]);
     }
 }
 #endif
@@ -696,7 +697,7 @@ public class MethodRefTestsFramework : MethodRefTestsBase
         SkipIfVarargNotSupported();
 
         var result = (int[])GetInstance().CallVarArgMethod();
-        result.ShouldEqual([1, 2, 3, 0, 0]);
+        result.ShouldBe([1, 2, 3, 0, 0]);
     }
 }
 #endif
