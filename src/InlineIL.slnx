@@ -54,6 +54,7 @@
   </Folder>
   <Folder Name="/Tools/">
     <File Path="Tools/PrintOpCodeMap.cs" />
+    <File Path="Tools/TestAll.ps1" />
   </Folder>
   <Project Path="InlineIL.Fody/InlineIL.Fody.csproj">
     <BuildType Solution="DebugWithReleaseTests|*" Project="Debug" />
