@@ -4,7 +4,7 @@ param(
     [Alias('c')]
     [string[]]$Configuration = @('Debug', 'Release'),
     [Alias('l')]
-    [int[]]$LanguageVersion = 10..14
+    [int[]]$LanguageVersion = 10..15
 )
 
 $ErrorActionPreference = 'Stop'
@@ -34,6 +34,8 @@ Write-Host ""
 Write-Host "Running tests for $($runs.Count) combination$($runs.Count -eq 1 ? '' : 's')..."
 Write-Host ""
 
+$env:DOTNET_CLI_USE_MSBUILD_SERVER = "false"
+
 $results = $runs | ForEach-Object -Parallel {
     $run = $_
     $artifactsDir = Join-Path $using:artifactRoot $run.Configuration $run.LanguageVersion
@@ -42,12 +44,11 @@ $results = $runs | ForEach-Object -Parallel {
     $commonArgs = @(
         "-c", $run.Configuration,
         "-p:TestAssembliesLangVersion=$($run.LanguageVersion)",
-        "--artifacts-path", $artifactsDir,
-        $using:testsProject
+        "--artifacts-path", $artifactsDir
     )
 
     Write-Host -ForegroundColor DarkGray "  🔨 Building: $name"
-    $output = dotnet build $commonArgs
+    $output = dotnet build $commonArgs $using:testsProject
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""
@@ -58,7 +59,7 @@ $results = $runs | ForEach-Object -Parallel {
     }
 
     Write-Host -ForegroundColor DarkGray "  🧪 Testing:  $name"
-    dotnet test --no-build $commonArgs | Out-Null
+    dotnet test --no-build $commonArgs --project $using:testsProject
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host -ForegroundColor Red "  ❌ Failed:   $name"
