@@ -42,7 +42,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        langVersion: [10, 11, 12, 13, 14]
+        langVersion: [10, 11, 12, 13, 14, 15]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
